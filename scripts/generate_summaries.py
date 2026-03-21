@@ -98,24 +98,30 @@ def groq_call(prompt: str, max_tokens: int = 1200) -> str:
         raise RuntimeError(f"Groq HTTP {e.code}: {body[:300]}")
 
 # ── Prompt builders ───────────────────────────────────────────────────────────
-_CARD_PROMPT = """You are a senior broadcast technology editor at The Streamic.
-Write a 330-word ORIGINAL technical analysis. This is NOT a summary — it is your editorial perspective on why this news matters to broadcast engineers and CTOs in 2026.
+_CARD_PROMPT = """ROLE: You are a senior broadcast technology editor writing a "Broadcaster-to-Broadcaster" intelligence briefing for The Streamic. Your readers are engineering directors, broadcast CTOs, and operations managers at TV stations, streaming platforms, and production facilities worldwide.
 
-SOURCE MATERIAL (use ONLY as seed — do not copy it):
+SOURCE MATERIAL (reference only — do not copy):
 Title: {title}
 Brief: {teaser}
+Source: {source_name}
 
-OUTPUT REQUIREMENTS (ALL MANDATORY):
-1. Write exactly two paragraphs totalling 325–335 words.
-2. Paragraph 1 — "The Signal" (~165 words): State what happened in one sentence. Then immediately pivot to the strategic implication — how does this affect ST 2110 adoption, operational AI rollouts, hybrid cloud strategy, or IP infrastructure planning? Make the "So What for engineers" explicit.
-3. Paragraph 2 — "The Detail" (~165 words): Go deeper. Cite specific technical standards (SMPTE, NMOS, AES67, HLS, HEVC, AV1), vendor ecosystem context, latency/bitrate numbers if relevant, or workflow implications for playout, newsroom, or post-production teams.
-4. End with exactly this attribution line on a new line:
-   Source: {source_name} — Original reporting via {source_name}.
-5. FORBIDDEN words/phrases: "delivers", "seamless", "game-changer", "innovative", "revolutionary", "state-of-the-art", "excited to announce", "proud to", "cutting-edge", "best-in-class".
-6. NEVER start two consecutive sentences with the same word.
-7. Do NOT restate the title. Do NOT begin "The article...", "This story...", "According to...".
+OUTPUT: Write exactly 330 words in TWO clearly distinct paragraphs. No headings, no bullet points, no lists.
 
-Write the two-paragraph analysis now (330 words, transformative, original):"""
+═══ PARAGRAPH 1 — INDUSTRY IMPACT (≈165 words) ═══
+Open with the single most important thing that changed and WHY it matters to broadcast operations in 2026. Connect directly to at least one of: ST 2110 / NMOS / hybrid cloud production / operational AI in MAM / remote production workflows. Name the specific operational pain it solves or risk it introduces. End with one concrete question every engineering director should now be asking their vendor.
+
+═══ PARAGRAPH 2 — TECHNICAL SPECIFICATIONS (≈165 words) ═══
+Go deep on the technical mechanics. Cite specific standards, protocols, or codec names (e.g. HEVC, AV1, JPEG XS, AES67, SRT, RIST, NDI, SMPTE 2110-22). Include any latency figures, bitrate specs, resolution support, or interoperability claims. Explain what this means for playout automation, ingest pipelines, or QC workflows. Name vendor ecosystem context where relevant.
+
+MANDATORY STYLE RULES (violations disqualify the output):
+1. Word count: minimum 325, maximum 335. Count carefully.
+2. Two paragraphs only. No heading text, no dashes, no numbered labels.
+3. Never start two consecutive sentences with the same word.
+4. Forbidden vocabulary: delivers, seamless, game-changer, innovative, revolutionary, cutting-edge, state-of-the-art, excited, proud, pleased, best-in-class, world-class, unique.
+5. Do NOT restate the article title verbatim.
+6. Do NOT begin with: "The article", "This story", "According to", "In this piece".
+
+Write the 330-word broadcaster-to-broadcaster briefing now:"""
 
 _ARTICLE_PROMPT = """You are a senior editor at a broadcast technology publication.
 Write a 750-word article about this news item for our website.
@@ -232,7 +238,7 @@ def main():
         try:
             card_summary = groq_call(
                 _CARD_PROMPT.format(title=title, teaser=teaser, source_name=(src_dom or 'the original source')),
-                max_tokens=600   # 330 words ~ 440 tokens, buffer for safety
+                max_tokens=700   # 330 words ~450 tokens, extra buffer for broadcaster prompt
             )
             time.sleep(SLEEP_SECS)
 

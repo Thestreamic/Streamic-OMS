@@ -196,31 +196,63 @@ def _nc_img(a, base=""):
         return f'<div class="nc-img"><a href="{base}articles/{a["slug"]}.html" tabindex="-1" aria-hidden="true"><img src="{img}" alt="{title}" loading="lazy" onerror="this.src=\'{fb}\'"></a></div>'
     return f'<div class="nc-img nc-img-ph"></div>'
 
-def news_card(a, base=""):
+def news_card(a, base="", is_first=False):
+    """SSR bento-grid-item — mirrors JS buildFeatured/buildStandard structure exactly."""
     cat   = a.get("category","featured")
     cinfo = CAT.get(cat, CAT["featured"])
     href  = f"{base}articles/{a['slug']}.html"
+    img   = e(a.get("image_url",""))
+    fb_   = f"{base}assets/fallback.jpg"
     title = e(a.get("title",""))
-    sum_  = e((a.get("card_summary") or a.get("dek") or a.get("meta_description",""))[:220])
-    src   = e(a.get("source_domain",""))
-    dt    = d(a.get("published",""))
-    return f"""<li class="nc">
-  {_nc_img(a, base)}
-  <div class="nc-body">
-    <div class="nc-cat">{cinfo['label']}</div>
-    <h3 class="nc-hl"><a href="{href}">{title}</a></h3>
-    {"<p class=\"nc-sum\">"+sum_+"</p>" if sum_ else ""}
-    <div class="nc-foot">
-      {"<span class=\"nc-src\">"+src+"</span>" if src else "<span></span>"}
-      <a href="{href}" class="nc-read">Read Full Story &rarr;</a>
+    sum_  = e((a.get("card_summary") or a.get("dek") or a.get("meta_description",""))[:320 if not is_first else 1800])
+    src   = e(a.get("source_domain","").replace("https://","").replace("www.","").split("/")[0].upper())
+    cat_lbl = cinfo["label"]
+
+    if is_first:
+        # Featured: vertical, large image, full summary
+        return f"""<li class="bento-grid-item">
+  <div class="bento-img-wrap bento-img-featured">
+    <a href="{href}" tabindex="-1" aria-hidden="true">
+      <img src="{img}" alt="{title}" loading="eager" onerror="this.src='{fb_}'">
+    </a>
+  </div>
+  <div class="bento-body bento-body-featured">
+    <span class="bento-cat-tag">{cat_lbl}</span>
+    <h2 class="bento-hl bento-hl-featured"><a href="{href}">{title}</a></h2>
+    {"<p class=\"bento-sum bento-sum-featured\">"+sum_+"</p>" if sum_ else ""}
+    <div class="bento-foot">
+      {"<span class=\"bento-source\">"+src+"</span>" if src else ""}
+      <a href="{href}" class="bento-cta-featured">Read Technical Analysis &rarr;</a>
+    </div>
+  </div>
+</li>"""
+    else:
+        # Standard: horizontal, image left
+        return f"""<li class="bento-grid-item bento-standard">
+  <div class="bento-img-wrap bento-img-std">
+    <a href="{href}" tabindex="-1" aria-hidden="true">
+      <img src="{img}" alt="{title}" loading="lazy" onerror="this.src='{fb_}'">
+    </a>
+  </div>
+  <div class="bento-body bento-body-std">
+    <span class="bento-cat-tag">{cat_lbl}</span>
+    <h3 class="bento-hl bento-hl-std"><a href="{href}">{title}</a></h3>
+    {"<p class=\"bento-sum bento-sum-std\">"+sum_+"</p>" if sum_ else ""}
+    <div class="bento-foot">
+      {"<span class=\"bento-source\">"+src+"</span>" if src else ""}
+      <a href="{href}" class="bento-cta">Read Technical Analysis &rarr;</a>
     </div>
   </div>
 </li>"""
 
 def news_grid(arts, base=""):
+    """SSR bento grid — JS hydrates from news.json, this provides SEO content."""
     if not arts: return ""
-    return f'<ul class="news-grid" id="newsGrid">\n' + \
-           "\n".join(news_card(a,base) for a in arts) + "\n</ul>"
+    cards = "\n".join(
+        news_card(a, base, is_first=(i==0))
+        for i, a in enumerate(arts)
+    )
+    return f'<ul id="bentoGridLarge" class="bento-grid-large">\n{cards}\n</ul>'
 
 # ── EDITORIAL CARD (deep-dive articles)
 def ed_card(a, base=""):

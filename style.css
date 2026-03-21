@@ -202,60 +202,6 @@ img{max-width:100%;display:block}
   .ed-body{padding:18px 16px}
 }
 
-/* ─── RSS NEWS GRID ───────────────────────────────────────── */
-.latest{padding:52px 0}
-.news-grid{
-  display:grid;grid-template-columns:repeat(3,1fr);
-  gap:2px;background:var(--line);
-  border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;
-}
-.nc{background:var(--white);display:flex;flex-direction:column;transition:background .15s}
-.nc:hover{background:var(--bg)}
-.nc-img{position:relative;overflow:hidden;aspect-ratio:16/9;flex-shrink:0}
-.nc-img img{width:100%;height:100%;object-fit:cover;transition:transform .35s}
-.nc:hover .nc-img img{transform:scale(1.04)}
-.nc-body{padding:16px 18px 18px;flex:1;display:flex;flex-direction:column;gap:7px}
-.nc-cat{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--blue)}
-.nc-hl{
-  font-family:var(--serif);font-size:15px;line-height:1.3;color:var(--ink);
-  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
-}
-.nc-hl a{color:inherit}
-.nc-hl a:hover{color:var(--blue)}
-.nc-sum{font-size:12px;line-height:1.6;color:var(--ink3);
-  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.nc-foot{
-  display:flex;align-items:center;justify-content:space-between;
-  padding-top:9px;border-top:1px solid var(--bg);
-  margin-top:auto;
-}
-.nc-src{font-size:10.5px;font-weight:600;color:var(--ink4);
-  text-transform:uppercase;letter-spacing:.4px;
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:55%}
-.nc-read{
-  font-size:11.5px;font-weight:600;color:var(--blue);
-  white-space:nowrap;flex-shrink:0;
-}
-.nc-read:hover{text-decoration:underline}
-/* First card: 2-col wide feature */
-.nc:first-child{grid-column:span 2;flex-direction:row}
-.nc:first-child .nc-img{width:52%;flex-shrink:0;aspect-ratio:auto}
-.nc:first-child .nc-img img{height:100%}
-.nc:first-child .nc-body{justify-content:center;padding:24px 22px}
-.nc:first-child .nc-hl{font-size:19px;-webkit-line-clamp:4}
-.nc:first-child .nc-sum{-webkit-line-clamp:3;font-size:13px}
-@media(max-width:960px){
-  .news-grid{grid-template-columns:repeat(2,1fr)}
-  .nc:first-child{grid-column:span 2;flex-direction:column}
-  .nc:first-child .nc-img{width:100%;height:215px;aspect-ratio:auto}
-}
-@media(max-width:600px){
-  .news-grid{grid-template-columns:1fr}
-  .nc:first-child{grid-column:1;flex-direction:column}
-  .nc:first-child .nc-img{width:100%;height:195px}
-  .nc-body{padding:13px 14px 15px}
-}
-
 /* ─── CATEGORY PAGE HEADER ────────────────────────────────── */
 .cat-hdr{padding:44px 0 36px;border-bottom:1px solid var(--line);margin-bottom:44px}
 .cat-hdr h1{
@@ -331,6 +277,296 @@ img{max-width:100%;display:block}
 .pag a:hover{background:var(--ink);color:#fff;border-color:var(--ink)}
 .pag .dis{opacity:.35;pointer-events:none}
 .pag .info{border:none;background:none;color:var(--ink4);font-weight:400;min-width:auto;padding:0 8px}
+
+/* ─── MODULE 2: APPLE BENTO GRID ─────────────────────────────
+   12-column grid.
+   First card: span 8 cols desktop, vertical (image top, text below)
+   Other cards: span 4 cols, horizontal (image left, text right)
+   letter-spacing: -0.04em on all headlines (Apple spec)
+   backdrop-filter: blur(20px) on overlays
+   White background, #f5f5f7 borders
+───────────────────────────────────────────────────────────── */
+
+/* Grid container */
+#bentoGridLarge {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 2px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Loading state */
+.bento-loading {
+  grid-column: span 12;
+  padding: 56px;
+  text-align: center;
+  color: var(--ink4);
+  font-size: 14px;
+  background: var(--white);
+}
+
+/* ── Base card (all cards share these) ── */
+.bento-grid-item {
+  background: var(--white);
+  display: flex;
+  transition: background 0.15s;
+  position: relative;
+  overflow: hidden;
+}
+.bento-grid-item:hover { background: #fafafa; }
+
+/* ── FEATURED CARD (first-child) ─────────────────────────────
+   Desktop: 8/12 columns, flex-direction: column (vertical)
+   Large image full width on top; body text below
+   letter-spacing: -0.04em on headline (Apple spec)
+────────────────────────────────────────────────────────────── */
+.bento-grid-item:first-child {
+  grid-column: span 8;
+  flex-direction: column;   /* vertical: image top, text below */
+}
+
+/* Featured image: full-width, tall */
+.bento-img-featured {
+  width: 100%;
+  height: 340px;
+  overflow: hidden;
+  flex-shrink: 0;
+  position: relative;
+}
+.bento-img-featured a {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.bento-img-featured img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s ease;
+}
+.bento-grid-item:first-child:hover .bento-img-featured img {
+  transform: scale(1.025);
+}
+
+/* Featured body: generous padding */
+.bento-body-featured {
+  padding: 28px 28px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+}
+
+/* Featured headline: DM Serif, large, Apple -0.04em tracking */
+.bento-hl-featured {
+  font-family: var(--serif);
+  font-size: clamp(20px, 2vw, 26px);
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: -0.04em;       /* Apple spec */
+  color: var(--ink);
+  margin: 0;
+}
+.bento-hl-featured a {
+  color: inherit;
+  text-decoration: none;
+}
+.bento-hl-featured a:hover { color: var(--blue); }
+
+/* Groq analysis badge */
+.bento-groq-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--blue);
+  background: rgba(0,102,204,0.08);
+  border: 1px solid rgba(0,102,204,0.2);
+  padding: 3px 9px;
+  border-radius: 999px;
+  align-self: flex-start;
+}
+
+/* Featured summary: shows the full 330-word Groq text */
+.bento-sum-featured {
+  font-size: 14px;
+  line-height: 1.72;
+  color: var(--ink2);
+  margin: 0;
+  /* No line-clamp — show full Groq analysis on featured card */
+}
+
+/* ── STANDARD CARDS (all except first-child) ──────────────────
+   Desktop: 4/12 columns, flex-direction: row (horizontal)
+   Image fixed left (~38%), text on right
+────────────────────────────────────────────────────────────── */
+.bento-standard {
+  flex-direction: row;    /* horizontal: image left, text right */
+  grid-column: span 4;
+}
+
+/* Standard image: fixed width column */
+.bento-img-std {
+  width: 38%;
+  flex-shrink: 0;
+  overflow: hidden;
+  position: relative;
+}
+.bento-img-std a {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.bento-img-std img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.35s ease;
+}
+.bento-standard:hover .bento-img-std img {
+  transform: scale(1.04);
+}
+
+/* Standard body */
+.bento-body-std {
+  padding: 16px 16px 16px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  flex: 1;
+  min-width: 0;
+  justify-content: center;
+}
+
+/* Standard headline */
+.bento-hl-std {
+  font-family: var(--serif);
+  font-size: 14.5px;
+  font-weight: 400;
+  line-height: 1.3;
+  letter-spacing: -0.04em;    /* Apple spec */
+  color: var(--ink);
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.bento-hl-std a { color: inherit; text-decoration: none; }
+.bento-hl-std a:hover { color: var(--blue); }
+
+/* Standard summary: 2-line clamp */
+.bento-sum-std {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--ink3);
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ── Shared elements ───────────────────────────────────────── */
+.bento-cat-tag {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--blue);
+}
+
+.bento-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 9px;
+  border-top: 1px solid var(--bg);
+  margin-top: auto;
+  gap: 8px;
+}
+
+.bento-source {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--ink4);
+  letter-spacing: 0.4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 50%;
+}
+
+/* Featured CTA: prominent blue button */
+.bento-cta-featured {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 18px;
+  background: var(--blue);
+  color: #fff;
+  border-radius: var(--radius-sm);
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+.bento-cta-featured:hover { background: var(--blue2); }
+
+/* Standard CTA: text link */
+.bento-cta {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--blue);
+  text-decoration: none;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.bento-cta:hover { text-decoration: underline; }
+
+/* ── Tablet (640–1023px): 2 equal columns ── */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .bento-grid-item:first-child {
+    grid-column: span 12;
+    flex-direction: column;
+  }
+  .bento-standard { grid-column: span 6; }
+}
+
+/* ── Mobile (<640px): single column, stack all ── */
+@media (max-width: 639px) {
+  #bentoGridLarge { gap: 1px; }
+
+  .bento-grid-item:first-child,
+  .bento-standard {
+    grid-column: span 12;
+    flex-direction: column;
+  }
+  .bento-img-featured,
+  .bento-img-std {
+    width: 100%;
+    height: 195px;
+  }
+  .bento-body-featured,
+  .bento-body-std { padding: 14px; }
+  .bento-hl-featured { font-size: 18px; }
+  .bento-hl-std      { font-size: 14px; }
+  .bento-sum-featured { -webkit-line-clamp: 4; }
+}
+
+/* ── Section wrapper ── */
+.latest { padding: 52px 0; }
 
 /* ─── FOOTER ──────────────────────────────────────────────── */
 .footer{background:var(--bg);border-top:1px solid var(--line);padding:52px 0 32px}
