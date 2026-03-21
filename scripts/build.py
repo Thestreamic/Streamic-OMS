@@ -427,20 +427,108 @@ def _pag_html(cat, page, total):
     return f'<div class="pag">{prev}<span class="info">Page {page+1} of {total}</span>{nxt}</div>'
 
 # ── ARTICLE PAGE
+# Boilerplate sentences to strip from article bodies
+_BOILERPLATE = {
+    "The pace of change in broadcast IP, cloud, and streaming infrastructure has accelerated",
+    "New deployments and announced capabilities are revealing practical pathways",
+    "Teams with legacy infrastructure commitments will need to assess transition pathways",
+    "What distinguishes this from earlier announcements",
+    "The market context matters here: this development arrives",
+    "For engineering and operations teams",
+    "Teams that engage early and plan methodically will be best placed",
+    "Engineering teams evaluating this should look beyond headline capability",
+    "Organisations tracking this should review their current approach",
+    "Practical impact will vary by scale, but the direction is clear",
+    "Early movers tend to gain an efficiency edge",
+    "Understanding what is changing helps teams plan ahead and avoid surprises",
+    "The broadcast and streaming technology sector continues to evolve rapidly",
+    "The pace of change in broadcast IP",
+    "Media technology decisions made this year will shape",
+    "Industry analysts and practitioners alike are tracking",
+}
+
+def _clean_body(a):
+    """
+    Build a clean ~250-300 word article body for the analysis page.
+    Priority: Groq card_summary (if long) > filtered body_html > dek + teaser combo
+    Strips all known boilerplate filler sentences.
+    """
+    is_ed = a.get("is_editorial") or a.get("editorial")
+
+    # Editorial deep-dives: keep their full original body_html
+    if is_ed:
+        body = a.get("body_html","")
+        if body and len(body) > 300:
+            return body
+
+    # If Groq generated a long card_summary (200+ words), use it split into 2 paras
+    cs_raw = (a.get("card_summary") or "").strip()
+    cs     = re.sub(r"<[^>]+>", " ", cs_raw)
+    cs     = re.sub(r"\s+",    " ", cs).strip()
+    cs_words = cs.split()
+    if len(cs_words) >= 150:
+        mid = len(cs_words) // 2
+        for i in range(mid, min(mid + 25, len(cs_words))):
+            if cs_words[i].endswith((".", "?")):
+                mid = i + 1; break
+        p1 = " ".join(cs_words[:mid])
+        p2 = " ".join(cs_words[mid:])
+        html = f"<p>{p1}</p>"
+        if p2: html += f"\n<p>{p2}</p>"
+        return html
+
+    # Filter body_html: strip boilerplate sentences, keep real content
+    body_html = a.get("body_html","") or ""
+    paras = re.findall(r"<p[^>]*>(.*?)</p>", body_html, re.DOTALL)
+    clean_paras = []
+    for p in paras:
+        txt = re.sub(r"<[^>]+>", " ", p).strip()
+        txt = re.sub(r"\s+", " ", txt)
+        # Skip known filler lines
+        if any(b.lower() in txt.lower() for b in _BOILERPLATE):
+            continue
+        # Skip very short paragraphs (less than 8 words — just headers/labels)
+        if len(txt.split()) < 8:
+            continue
+        clean_paras.append(p.strip())
+
+    if clean_paras:
+        # Reassemble, max 4 paragraphs → ~250-300 words
+        return "\n".join(f"<p>{p}</p>" for p in clean_paras[:4])
+
+    # Final fallback: compose from dek + card_summary + teaser
+    parts = []
+    dek   = (a.get("dek") or "").strip()
+    teaser= (a.get("meta_description") or a.get("teaser") or "").strip()
+
+    if dek:
+        parts.append(f"<p><strong>{dek}</strong></p>")
+    # Use short card_summary even if < 150 words
+    if len(cs_words) >= 20 and cs != dek:
+        parts.append(f"<p>{cs}</p>")
+    elif teaser and teaser != dek:
+        parts.append(f"<p>{teaser}</p>")
+
+    return "\n".join(parts) if parts else f"<p>{dek or 'Analysis of this broadcast technology development.'}</p>"
+
+
 def article_page(a):
     cat   = a.get("category","featured")
     cinfo = CAT.get(cat, CAT["featured"])
     slug  = a["slug"]
     url   = f"{BASE_URL}/articles/{slug}.html"
-    wc    = a.get("word_count",800)
     title = a.get("title","")
     dek   = a.get("dek") or a.get("meta_description","")
     img   = a.get("image_url","")
     dt    = d(a.get("published",""))
-    body  = a.get("body_html","")
     src_url  = a.get("source_url","")
     src_dom  = a.get("source_domain","")
     is_ed    = a.get("is_editorial") or a.get("editorial")
+
+    # Clean body — card_summary as 2-para analysis (not boilerplate filler)
+    body  = _clean_body(a)
+    body_words = len(body.replace("<p>","").replace("</p>","").split())
+    wc    = body_words or a.get("word_count",300)
 
     schema = json.dumps({
         "@context":"https://schema.org","@type":"NewsArticle",
@@ -455,8 +543,21 @@ def article_page(a):
     source_credit = ""
     if src_url and src_dom and not is_ed:
         source_credit = f"""<div class="art-source-credit">
-  <strong>Source:</strong> This editorial commentary is based on reporting by <strong>{e(src_dom)}</strong>.
-  For the original article, visit: <a href="{e(src_url)}" target="_blank" rel="noopener noreferrer nofollow">{e(src_dom)} &rarr; View Original Article</a>
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+    <div>
+      <span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--blue);display:block;margin-bottom:4px">Original Source</span>
+      <strong style="font-size:14px;color:var(--ink)">{e(src_dom)}</strong>
+    </div>
+    <a href="{e(src_url)}" target="_blank" rel="noopener noreferrer nofollow"
+       style="display:inline-flex;align-items:center;gap:6px;padding:10px 20px;
+              background:var(--blue);color:#fff;border-radius:8px;font-size:13px;
+              font-weight:600;text-decoration:none;">
+      View Original Article &rarr;
+    </a>
+  </div>
+  <p style="margin:10px 0 0;font-size:12px;color:var(--ink4)">
+    The analysis above is original editorial commentary by The Streamic. The news is reported by {e(src_dom)}.
+  </p>
 </div>"""
 
     author_box = f"""<div class="art-author">
@@ -476,7 +577,8 @@ def article_page(a):
       <a href="../{CAT_PAGE.get(cat,cat+'.html')}" style="color:{cinfo['color']}">{cinfo['label']}</a>
     </div>
     <span class="art-tag" style="background:{cinfo['color']}">{cinfo['icon']} {cinfo['label']}</span>
-    <h1>{e(title)}</h1>
+    {"<!-- Title links to original source for RSS articles -->" if not is_ed and src_url else ""}
+    {"<h1><a href=\""+e(src_url)+"\" target=\"_blank\" rel=\"noopener noreferrer nofollow\" style=\"color:inherit;text-decoration:none;\">"+e(title)+"</a></h1>" if not is_ed and src_url else "<h1>"+e(title)+"</h1>"}
     <p class="art-dek">{e(dek)}</p>
     <div class="art-byline">
       <strong>{AUTHOR}</strong>

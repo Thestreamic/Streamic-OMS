@@ -42,11 +42,14 @@
   }
 
   function getUrl(item) {
-    // Always prefer internal article page — keeps users on the site (AdSense friendly)
+    // Internal article page (has full analysis + source credit)
     if (item.slug) return `articles/${item.slug}.html`;
-    // External source as fallback
-    const ext = item.url || item.link || item.source_url || '#';
-    return ext;
+    return item.url || item.link || item.source_url || '#';
+  }
+
+  function getSourceUrl(item) {
+    // Direct link to original RSS source (for title click)
+    return item.source_url || item.url || item.link || '#';
   }
 
   function isExternal(url) {
@@ -88,35 +91,39 @@
     const li       = document.createElement('li');
     li.className   = 'bento-grid-item';
 
-    const url      = getUrl(item);
-    const imgUrl   = getImg(item);
-    const title    = (item.title || 'Untitled').trim();
-    const cat      = (item.category || 'featured').toLowerCase().trim();
-    const catLbl   = cat.replace(/-/g,' ').replace(/\b\w/g, c => c.toUpperCase());
-    const srcTxt   = (item.source_domain || item.source || '').replace(/https?:\/\//,'').replace('www.','').split('/')[0].toUpperCase();
-    // Groq card_summary first, then editorial dek, then meta_description, then RSS teaser
-    const text     = item.card_summary || item.dek || item.meta_description || item.teaser || '';
-    const isExt    = isExternal(url);
-    const rel      = isExt ? ' rel="noopener noreferrer nofollow"' : '';
-    const target   = isExt ? ' target="_blank"' : '';
+    const internalUrl = getUrl(item);            // articles/slug.html OR source
+    const srcUrl      = getSourceUrl(item);      // original RSS source URL
+    const imgUrl      = getImg(item);
+    const title       = (item.title || 'Untitled').trim();
+    const cat         = (item.category || 'featured').toLowerCase().trim();
+    const catLbl      = cat.replace(/-/g,' ').replace(/\b\w/g, c => c.toUpperCase());
+    const srcTxt      = (item.source_domain || item.source || '').replace(/https?:\/\//,'').replace('www.','').split('/')[0].toUpperCase();
+    const text        = item.card_summary || item.dek || item.meta_description || item.teaser || '';
+    // Title links to SOURCE, CTA links to internal analysis page
+    const titleHref   = isExternal(srcUrl) ? srcUrl : internalUrl;
+    const titleTarget = isExternal(titleHref) ? ' target="_blank"' : '';
+    const titleRel    = isExternal(titleHref) ? ' rel="noopener noreferrer nofollow"' : '';
+    const ctaHref     = item.slug ? internalUrl : srcUrl;
+    const ctaTarget   = isExternal(ctaHref) ? ' target="_blank"' : '';
+    const ctaRel      = isExternal(ctaHref) ? ' rel="noopener noreferrer nofollow"' : '';
 
     li.innerHTML = `
       <div class="bento-img-wrap bento-img-featured">
-        <a href="${url}"${target}${rel} tabindex="-1" aria-hidden="true">
+        <a href="${ctaHref}"${ctaTarget}${ctaRel} tabindex="-1" aria-hidden="true">
           ${makeImgTag(imgUrl, title, true)}
         </a>
       </div>
       <div class="bento-body bento-body-featured">
         <span class="bento-cat-tag">${catLbl}</span>
         <h2 class="bento-hl bento-hl-featured">
-          <a href="${url}"${target}${rel}>${title}</a>
+          <a href="${titleHref}"${titleTarget}${titleRel}>${title}</a>
         </h2>
         ${item.card_summary ? '<span class="bento-groq-badge">✦ Technical Analysis</span>' : ''}
         ${text ? `<p class="bento-sum bento-sum-featured">${text}</p>` : ''}
         <div class="bento-foot">
           ${srcTxt ? `<span class="bento-source">${srcTxt}</span>` : ''}
-          <a href="${url}"${target}${rel} class="bento-cta-featured">
-            ${item.slug ? 'Read Full Analysis →' : 'Read Technical Analysis →'}
+          <a href="${ctaHref}"${ctaTarget}${ctaRel} class="bento-cta-featured">
+            ${item.slug ? 'Read Full Analysis →' : 'View Original →'}
           </a>
         </div>
       </div>
@@ -129,33 +136,37 @@
     const li       = document.createElement('li');
     li.className   = 'bento-grid-item bento-standard';
 
-    const url      = getUrl(item);
-    const imgUrl   = getImg(item);
-    const title    = (item.title || 'Untitled').trim();
-    const cat      = (item.category || 'featured').toLowerCase().trim();
-    const catLbl   = cat.replace(/-/g,' ').replace(/\b\w/g, c => c.toUpperCase());
-    const srcTxt   = (item.source_domain || item.source || '').replace(/https?:\/\//,'').replace('www.','').split('/')[0].toUpperCase();
-    const text     = item.card_summary || item.dek || item.meta_description || item.teaser || '';
-    const isExt    = isExternal(url);
-    const rel      = isExt ? ' rel="noopener noreferrer nofollow"' : '';
-    const target   = isExt ? ' target="_blank"' : '';
+    const internalUrl = getUrl(item);
+    const srcUrl      = getSourceUrl(item);
+    const imgUrl      = getImg(item);
+    const title       = (item.title || 'Untitled').trim();
+    const cat         = (item.category || 'featured').toLowerCase().trim();
+    const catLbl      = cat.replace(/-/g,' ').replace(/\b\w/g, c => c.toUpperCase());
+    const srcTxt      = (item.source_domain || item.source || '').replace(/https?:\/\//,'').replace('www.','').split('/')[0].toUpperCase();
+    const text        = item.card_summary || item.dek || item.meta_description || item.teaser || '';
+    const titleHref   = isExternal(srcUrl) ? srcUrl : internalUrl;
+    const titleTarget = isExternal(titleHref) ? ' target="_blank"' : '';
+    const titleRel    = isExternal(titleHref) ? ' rel="noopener noreferrer nofollow"' : '';
+    const ctaHref     = item.slug ? internalUrl : srcUrl;
+    const ctaTarget   = isExternal(ctaHref) ? ' target="_blank"' : '';
+    const ctaRel      = isExternal(ctaHref) ? ' rel="noopener noreferrer nofollow"' : '';
 
     li.innerHTML = `
       <div class="bento-img-wrap bento-img-std">
-        <a href="${url}"${target}${rel} tabindex="-1" aria-hidden="true">
+        <a href="${ctaHref}"${ctaTarget}${ctaRel} tabindex="-1" aria-hidden="true">
           ${makeImgTag(imgUrl, title, false)}
         </a>
       </div>
       <div class="bento-body bento-body-std">
         <span class="bento-cat-tag">${catLbl}</span>
         <h3 class="bento-hl bento-hl-std">
-          <a href="${url}"${target}${rel}>${title}</a>
+          <a href="${titleHref}"${titleTarget}${titleRel}>${title}</a>
         </h3>
         ${text ? `<p class="bento-sum bento-sum-std">${text}</p>` : ''}
         <div class="bento-foot">
           ${srcTxt ? `<span class="bento-source">${srcTxt}</span>` : ''}
-          <a href="${url}"${target}${rel} class="bento-cta">
-            ${item.slug ? 'Read Analysis →' : 'Read Technical Analysis →'}
+          <a href="${ctaHref}"${ctaTarget}${ctaRel} class="bento-cta">
+            ${item.slug ? 'Read Analysis →' : 'View Source →'}
           </a>
         </div>
       </div>
