@@ -279,6 +279,14 @@ def main():
     new_articles   = []
     today          = datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
+    # Handle both flat list [{category,title,...}] and dict {cat:[items]} formats
+    if isinstance(news, list):
+        news_by_cat = {}
+        for it in news:
+            c = it.get("category", "featured")
+            news_by_cat.setdefault(c, []).append(it)
+        news = news_by_cat
+
     for cat, items in news.items():
         if not items:
             print(f"  {cat}: 0 items (skipped)"); continue
