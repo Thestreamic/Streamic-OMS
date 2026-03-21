@@ -27,8 +27,10 @@ const { URL }     = require('url');
 
 // ── CONFIG ────────────────────────────────────────────────────────────────
 const HF_API_KEY  = process.env.HF_API_KEY || '';
-const HF_MODEL    = 'mistralai/Mistral-7B-Instruct-v0.3';
-const HF_URL      = `https://router.huggingface.co/hf-inference/models/${HF_MODEL}/v1/chat/completions`;
+// Qwen2.5-7B-Instruct: open-access, no license click required, fast inference
+const HF_MODEL    = 'Qwen/Qwen2.5-7B-Instruct';
+// Standard v1 router URL — model is passed in the payload, NOT in the path
+const HF_URL      = 'https://router.huggingface.co/hf-inference/v1/chat/completions';
 const BASE_URL    = process.env.SITE_BASE_URL || 'https://www.thestreamic.in';
 const GA          = 'G-0VSHDN3ZR6';
 const ADS_ID      = 'ca-pub-8033069131874524';
@@ -263,24 +265,31 @@ async function callHuggingFace(prompt) {
     return null;
   }
 
-  // ── New router.huggingface.co endpoint (chat/completions format) ──────────
-  // Old: api-inference.huggingface.co/models/<model>  (deprecated, returns 410)
-  // New: router.huggingface.co/hf-inference/models/<model>/v1/chat/completions
-  // Uses OpenAI-compatible messages format, not {inputs:...}
+  // ── router.huggingface.co/hf-inference/v1/chat/completions ───────────────
+  // Model: Qwen/Qwen2.5-7B-Instruct (open-access, no license click required)
+  // Format: OpenAI-compatible chat/completions
+  // The model is passed in the payload — NOT in the URL path
   const payload = JSON.stringify({
     model: HF_MODEL,
     messages: [
       {
+        role: 'system',
+        content: (
+          'You are a senior broadcast technology editor at The Streamic. ' +
+          'Write detailed, original, expert-level articles for broadcast engineers and media CTOs. ' +
+          'Never start two consecutive sentences with the same word. ' +
+          'Do not use buzzwords like "innovative", "seamless", "game-changer", or "cutting-edge".'
+        ),
+      },
+      {
         role: 'user',
         content: prompt,
-      }
+      },
     ],
-    max_tokens:         2000,
-    temperature:        0.75,
-    top_p:              0.92,
-    frequency_penalty:  0.3,
-    presence_penalty:   0.2,
-    stream: false,
+    max_tokens:  1500,
+    temperature: 0.7,
+    top_p:       0.9,
+    stream:      false,
   });
 
   try {
@@ -300,18 +309,16 @@ async function callHuggingFace(prompt) {
 
     const data = JSON.parse(res.body);
 
-    // OpenAI-compatible response: data.choices[0].message.content
+    // Standard OpenAI-compatible response
     if (data.choices && data.choices[0] && data.choices[0].message) {
       return data.choices[0].message.content.trim();
     }
-
-    // Fallback: old format (array of generated_text)
+    // Fallback: old array format
     if (Array.isArray(data) && data[0] && data[0].generated_text) {
       return data[0].generated_text.trim();
     }
-    if (data.generated_text) return data.generated_text.trim();
 
-    console.warn('  ⚠ Unexpected HF response:', JSON.stringify(data).slice(0, 200));
+    console.warn('  ⚠ Unexpected HF response shape:', JSON.stringify(data).slice(0, 200));
     return null;
   } catch (err) {
     console.warn(`  ⚠ HF API error: ${err.message}`);
@@ -320,7 +327,6 @@ async function callHuggingFace(prompt) {
 }
 
 
-// ── MARKDOWN-LIKE → HTML CONVERTER ───────────────────────────────────────
 function articleTextToHtml(text, sourceUrl, sourceName) {
   if (!text) return '';
 
