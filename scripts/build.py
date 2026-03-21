@@ -213,36 +213,40 @@ def news_card(a, base="", is_first=False):
 
     if is_first:
         # Featured: vertical, large image, full summary
+        sum_html_f = f'<p class="bento-sum bento-sum-featured">{sum_}</p>' if sum_ else ""
+        src_html_f = f'<span class="bento-source">{src}</span>' if src else ""
         return f"""<li class="bento-grid-item">
   <div class="bento-img-wrap bento-img-featured">
     <a href="{href}" tabindex="-1" aria-hidden="true">
-      <img src="{img}" alt="{title}" loading="eager" onerror="this.src='{fb_}'">
+      <img src="{img}" alt="{title}" loading="eager" onerror="this.onerror=null;this.src={fb_}">
     </a>
   </div>
   <div class="bento-body bento-body-featured">
     <span class="bento-cat-tag">{cat_lbl}</span>
     <h2 class="bento-hl bento-hl-featured"><a href="{href}">{title}</a></h2>
-    {"<p class=\"bento-sum bento-sum-featured\">"+sum_+"</p>" if sum_ else ""}
+    {sum_html_f}
     <div class="bento-foot">
-      {"<span class=\"bento-source\">"+src+"</span>" if src else ""}
+      {src_html_f}
       <a href="{href}" class="bento-cta-featured">Read Technical Analysis &rarr;</a>
     </div>
   </div>
 </li>"""
     else:
         # Standard: horizontal, image left
+        sum_html_s = f'<p class="bento-sum bento-sum-std">{sum_}</p>' if sum_ else ""
+        src_html_s = f'<span class="bento-source">{src}</span>' if src else ""
         return f"""<li class="bento-grid-item bento-standard">
   <div class="bento-img-wrap bento-img-std">
     <a href="{href}" tabindex="-1" aria-hidden="true">
-      <img src="{img}" alt="{title}" loading="lazy" onerror="this.src='{fb_}'">
+      <img src="{img}" alt="{title}" loading="lazy" onerror="this.onerror=null;this.src={fb_}">
     </a>
   </div>
   <div class="bento-body bento-body-std">
     <span class="bento-cat-tag">{cat_lbl}</span>
     <h3 class="bento-hl bento-hl-std"><a href="{href}">{title}</a></h3>
-    {"<p class=\"bento-sum bento-sum-std\">"+sum_+"</p>" if sum_ else ""}
+    {sum_html_s}
     <div class="bento-foot">
-      {"<span class=\"bento-source\">"+src+"</span>" if src else ""}
+      {src_html_s}
       <a href="{href}" class="bento-cta">Read Technical Analysis &rarr;</a>
     </div>
   </div>
@@ -272,7 +276,7 @@ def ed_card(a, base=""):
     return f"""<article class="ed-card">
   <div class="ed-img">
     <a href="{href}">
-      <img src="{img}" alt="{title}" loading="lazy" onerror="this.src='{fb}'">
+      <img src="{img}" alt="{title}" loading="lazy" onerror="this.onerror=null;this.src={fb}">
     </a>
   </div>
   <div class="ed-body">
@@ -302,7 +306,7 @@ def hero_block(a, base=""):
   <div class="hero-inner">
     <div class="hero-img">
       <a href="{href}">
-        <img src="{img}" alt="{title}" loading="eager" onerror="this.src='{fb}'">
+        <img src="{img}" alt="{title}" loading="eager" onerror="this.onerror=null;this.src={fb}">
       </a>
     </div>
     <div class="hero-body">
@@ -399,8 +403,11 @@ def category_page(cat, arts):
         pag = _pag_html(cat, pg, total_pages)
 
         pg_title = title_base if pg==0 else f"{title_base} — Page {pg+1}"
+        cinfo_icon = cinfo.get('icon','')
+        cinfo_label = cinfo.get('label','')
         pg_canon = canon if pg==0 else f"{BASE_URL}/{cat}-p{pg+1}.html"
 
+        latest_section = f'<section class="latest">{grid_html}</section>' if grid_html else ""
         html = f"""{head(pg_title, desc, pg_canon, og_img=(first[0].get('image_url','') if first else ''))}
 <body data-category="{cat}">
 {nav(cpg)}
@@ -408,12 +415,12 @@ def category_page(cat, arts):
 <main>
   <div class="w">
     <div class="cat-hdr">
-      <h1>{cinfo['icon']} {cinfo['label']}</h1>
+      <h1>{cinfo_icon} {cinfo_label}</h1>
       <p>{desc}</p>
     </div>
     {hero_html}
     {_ad() if rest else ""}
-    {"<section class=\"latest\">"+grid_html+"</section>" if grid_html else ""}
+    {latest_section}
     {_ad()}
     {pag}
   </div>
@@ -559,11 +566,25 @@ def article_page(a):
   </p>
 </div>"""
 
+    about_txt = "Original analysis and commentary by The Streamic Editorial Team. Independent broadcast technology journalism for engineers and media professionals." if is_ed else "Editorial commentary and analysis by The Streamic Editorial Team. For the original source, see the attribution above."
     author_box = f"""<div class="art-author">
   <strong>About this article</strong>
-  {"Original analysis and commentary by The Streamic Editorial Team. Independent broadcast technology journalism for engineers and media professionals." if is_ed else f"Editorial commentary and analysis by The Streamic Editorial Team. For the original source, see the attribution above."}
+  {about_txt}
   <a href="/about.html" style="color:var(--blue);margin-left:6px;">About The Streamic &rarr;</a>
 </div>"""
+
+    # Pre-compute variables for f-string compatibility (Python < 3.12)
+    cinfo_color = cinfo.get('color','')
+    cinfo_lbl   = cinfo.get('label','')
+    cinfo_icon2 = cinfo.get('icon','')
+    cinfo_page  = CAT_PAGE.get(cat, cat+'.html')
+    lic_url   = e(a.get('image_license_url','https://unsplash.com/license'))
+    lic_label = e(a.get('image_license','Unsplash License'))
+    if not is_ed and src_url:
+        title_html = f'<h1><a href="{e(src_url)}" target="_blank" rel="noopener noreferrer nofollow" style="color:inherit;text-decoration:none;">{e(title)}</a></h1>'
+    else:
+        title_html = f'<h1>{e(title)}</h1>'
+    analysis_badge = '<span style="background:var(--blue);color:#fff;padding:3px 9px;border-radius:5px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.8px">Analysis</span>' if is_ed else ""
 
     return f"""{head(e(title)+" | The Streamic", dek, url, css="../style.css", og_img=img)}
 <body>
@@ -573,21 +594,20 @@ def article_page(a):
     <div class="art-breadcrumb">
       <a href="../featured.html">Home</a>
       <span>›</span>
-      <a href="../{CAT_PAGE.get(cat,cat+'.html')}" style="color:{cinfo['color']}">{cinfo['label']}</a>
+      <a href="../{cinfo_page}" style="color:{cinfo_color}">{cinfo_lbl}</a>
     </div>
-    <span class="art-tag" style="background:{cinfo['color']}">{cinfo['icon']} {cinfo['label']}</span>
-    {"<!-- Title links to original source for RSS articles -->" if not is_ed and src_url else ""}
-    {"<h1><a href=\""+e(src_url)+"\" target=\"_blank\" rel=\"noopener noreferrer nofollow\" style=\"color:inherit;text-decoration:none;\">"+e(title)+"</a></h1>" if not is_ed and src_url else "<h1>"+e(title)+"</h1>"}
+    <span class="art-tag" style="background:{cinfo_color}">{cinfo_icon2} {cinfo_lbl}</span>
+    {title_html}
     <p class="art-dek">{e(dek)}</p>
     <div class="art-byline">
       <strong>{AUTHOR}</strong>
       <span>{dt}</span>
       <span>{wc:,} words · {rm(wc)}</span>
-      {"<span style=\"background:var(--blue);color:#fff;padding:3px 9px;border-radius:5px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.8px\">Analysis</span>" if is_ed else ""}
+      {analysis_badge}
     </div>
     <figure>
       <img src="{e(img)}" alt="{e(title)}" loading="eager">
-      <figcaption>{e(a.get("image_credit","Photo via Unsplash — free to use under the Unsplash License"))} — <a href="{e(a.get('image_license_url','https://unsplash.com/license'))}" rel="nofollow noopener" target="_blank" style="color:var(--ink4)">{e(a.get("image_license","Unsplash License"))}</a></figcaption>
+      <figcaption>{e(a.get("image_credit","Photo via Unsplash — free to use under the Unsplash License"))} — <a href="{lic_url}" rel="nofollow noopener" target="_blank" style="color:var(--ink4)">{lic_label}</a></figcaption>
     </figure>
     {_ad()}
     <div class="art-body">{body}</div>
