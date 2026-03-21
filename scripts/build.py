@@ -194,14 +194,16 @@ def _nc_img(a, base=""):
     fb  = f"{base}assets/fallback.jpg"
     title = e(a.get("title",""))
     if img:
-        return f'<div class="nc-img"><a href="{base}articles/{a["slug"]}.html" tabindex="-1" aria-hidden="true"><img src="{img}" alt="{title}" loading="lazy" onerror="this.src=\'{fb}\'"></a></div>'
+        slug_ = a.get('slug', '')
+        return f'<div class="nc-img"><a href="{base}articles/{slug_}.html" tabindex="-1" aria-hidden="true"><img src="{img}" alt="{title}" loading="lazy" onerror="this.src=&apos;{fb}&apos;"></a></div>'
     return f'<div class="nc-img nc-img-ph"></div>'
 
 def news_card(a, base="", is_first=False):
     """SSR bento-grid-item — mirrors JS buildFeatured/buildStandard structure exactly."""
     cat   = a.get("category","featured")
     cinfo = CAT.get(cat, CAT["featured"])
-    href  = f"{base}articles/{a['slug']}.html"
+    slug_ = a.get('slug', '')
+    href  = f"{base}articles/{slug_}.html"
     img   = e(a.get("image_url",""))
     fb_   = f"{base}assets/fallback.jpg"
     title = e(a.get("title",""))
@@ -259,7 +261,8 @@ def news_grid(arts, base=""):
 def ed_card(a, base=""):
     cat   = a.get("category","featured")
     cinfo = CAT.get(cat, CAT["featured"])
-    href  = f"{base}articles/{a['slug']}.html"
+    slug_ = a.get('slug', '')
+    href  = f"{base}articles/{slug_}.html"
     img   = e(a.get("image_url",""))
     fb    = f"{base}assets/fallback.jpg"
     title = e(a.get("title",""))
@@ -287,7 +290,8 @@ def ed_card(a, base=""):
 def hero_block(a, base=""):
     cat   = a.get("category","featured")
     cinfo = CAT.get(cat, CAT["featured"])
-    href  = f"{base}articles/{a['slug']}.html"
+    slug_ = a.get('slug', '')
+    href  = f"{base}articles/{slug_}.html"
     img   = e(a.get("image_url",""))
     fb    = f"{base}assets/fallback.jpg"
     title = e(a.get("title",""))
@@ -368,7 +372,8 @@ def category_page(cat, arts):
     cinfo = CAT.get(cat, CAT["featured"])
     cpg   = f"{cat}.html"
     canon = f"{BASE_URL}/{cpg}"
-    title_base = f"{cinfo['label']} — The Streamic"
+    cat_label_ = cinfo.get('label', '')
+    title_base = f"{cat_label_} — The Streamic"
     desc  = cinfo["desc"]
 
     # First article: editorial hero card
@@ -791,7 +796,9 @@ def sitemap(arts):
     for pg,fr,pr in statics:
         lines.append(f'  <url><loc>{BASE_URL}/{pg}</loc><lastmod>{today}</lastmod><changefreq>{fr}</changefreq><priority>{pr}</priority></url>')
     for a in arts:
-        lines.append(f'  <url><loc>{BASE_URL}/articles/{a["slug"]}.html</loc><lastmod>{a["published"]}</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>')
+        slug_ = a.get('slug', '')
+        pub_ = a.get('published', '')
+        lines.append(f'  <url><loc>{BASE_URL}/articles/{slug_}.html</loc><lastmod>{pub_}</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>')
     lines.append('</urlset>')
     return "\n".join(lines)
 
@@ -806,7 +813,8 @@ def main():
     written = 0
     for a in arts:
         html = article_page(a)
-        w(os.path.join(ARTS_D, f"{a['slug']}.html"), html)
+        slug_ = a.get('slug', '')
+        w(os.path.join(ARTS_D, f"{slug_}.html"), html)
         written += 1
         leg = a.get("legacy_slug")
         if leg and leg != a["slug"]:
