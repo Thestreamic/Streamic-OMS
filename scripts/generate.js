@@ -174,11 +174,11 @@ function buildPrompt(title, content, category, sourceName) {
   const seed = content.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 2500);
 
   // ════════════════════════════════════════════════════════════════════
-  // THE PROMPT — Mistral-7B-Instruct format: [INST] ... [/INST]
+  // Qwen2.5 uses plain chat messages — no [INST] wrapper needed
   // Structured to produce exactly the HTML sections we need.
   // max_new_tokens is set to 2000 to ensure 1200-1500 word output.
   // ════════════════════════════════════════════════════════════════════
-  return `<s>[INST] You are a senior broadcast technology journalist at The Streamic — a professional publication read by broadcast engineers, production technologists, and media CTOs worldwide.
+  return `You are a senior broadcast technology journalist at The Streamic — a professional publication read by broadcast engineers, production technologists, and media CTOs worldwide.
 
 Write a detailed, SEO-optimized article of exactly 1200–1500 words based on the source content below.
 
@@ -255,7 +255,7 @@ Title: ${title}
 
 ${seed}
 
-Write the complete 1200–1500 word article now, starting with the ## headline: [/INST]`;
+Write the complete 1200–1500 word article now, starting with the ## headline:`;
 }
 
 
