@@ -42,7 +42,7 @@ os.makedirs(SUMMARIES_DIR, exist_ok=True)
 
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
 GROQ_URL     = "https://api.groq.com/openai/v1/chat/completions"
-GROQ_MODEL   = "llama3-8b-8192"   # fast + free tier
+GROQ_MODEL   = "llama-3.3-70b-versatile"   # fast + free tier
 MAX_PER_RUN  = 40                  # stay within Groq free tier rate limits
 SLEEP_SECS   = 1.5                 # pause between calls to avoid rate-limit
 

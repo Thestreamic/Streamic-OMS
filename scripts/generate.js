@@ -29,7 +29,7 @@ const { URL }     = require('url');
 // Reads GROQ_API_KEY first, falls back to HF_API_KEY (same key, different name)
 const HF_API_KEY  = process.env.GROQ_API_KEY || process.env.HF_API_KEY || '';
 // Groq API — fast, reliable, OpenAI-compatible
-const HF_MODEL    = 'llama3-70b-8192';
+const HF_MODEL    = 'llama-3.3-70b-versatile';
 const HF_URL      = 'https://api.groq.com/openai/v1/chat/completions';
 const BASE_URL    = process.env.SITE_BASE_URL || 'https://www.thestreamic.in';
 const GA          = 'G-0VSHDN3ZR6';
