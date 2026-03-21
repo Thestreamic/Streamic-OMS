@@ -26,24 +26,46 @@ const http        = require('http');
 const { URL }     = require('url');
 
 // ── CONFIG ────────────────────────────────────────────────────────────────
-const HF_API_KEY  = process.env.HF_API_KEY || '';
-// Groq API — fast, reliable, free tier (llama3-70b gives best output quality)
-const HF_MODEL    = 'llama3-70b-8192';  // or 'llama3-8b-8192' for faster/cheaper
-const HF_URL      = 'https://api.groq.com/openai/v1/chat/completions';
-const BASE_URL    = process.env.SITE_BASE_URL || 'https://www.thestreamic.in';
-const GA          = 'G-0VSHDN3ZR6';
-const ADS_ID      = 'ca-pub-8033069131874524';
-const AUTHOR      = 'The Streamic Editorial Team';
+// ── CONFIG ────────────────────────────────────────────────────────────────
+const GROQ_API_KEY = process.env.GROQ_API_KEY || ''; // Ensure this matches your GitHub Secret name
+const GROQ_MODEL   = 'llama3-70b-8192'; 
+const GROQ_URL     = 'https://api.groq.com/openai/v1/chat/completions';
 
-const ROOT        = path.join(__dirname, '..');
-const DOCS        = path.join(ROOT, 'docs');
-const POSTS_DIR   = path.join(DOCS, 'posts');
-const INDEX_F     = path.join(ROOT, 'data', 'hf_articles.json');
+async function callGroq(prompt) {
+  return new Promise((resolve, reject) => {
+    const payload = JSON.stringify({
+      model: GROQ_MODEL,
+      messages: [
+        { role: "system", content: "You are a professional broadcast technology editor." },
+        { role: "user", content: prompt }
+      ],
+      temperature: 0.7
+    });
 
-const MAX_ARTICLES_PER_RUN  = 8;   // HF rate limit protection
-const MAX_STORED_ARTICLES   = 80;  // keep rolling window
-const SLEEP_MS              = 4000; // between HF calls
+    const options = {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${GROQ_API_KEY}`,
+        'Content-Type': 'application/json'
+      }
+    };
 
+    const req = https.request(GROQ_URL, options, (res) => {
+      let data = '';
+      res.on('data', d => data += d);
+      res.on('end', () => {
+        if (res.statusCode !== 200) return reject(`Groq Error: ${res.statusCode} - ${data}`);
+        try {
+          const json = JSON.parse(data);
+          resolve(json.choices[0].message.content);
+        } catch (e) { reject(e); }
+      });
+    });
+    req.on('error', reject);
+    req.write(payload);
+    req.end();
+  });
+}
 // ── BROADCAST RSS FEEDS ───────────────────────────────────────────────────
 // Categorised by topic — generator picks the best content to expand
 const FEEDS = [
