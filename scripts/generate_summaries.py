@@ -83,10 +83,11 @@ def groq_call(prompt: str, max_tokens: int = 1200) -> str:
     req = urllib.request.Request(
         GROQ_URL,
         data=payload,
-        headers={
-            "Authorization": f"Bearer {GROQ_API_KEY}",
-            "Content-Type":  "application/json",
-        },
+       headers = {
+    "Authorization": f"Bearer {GROQ_API_KEY.strip()}",
+    "Content-Type": "application/json"
+}
+      },
         method="POST",
     )
     try:
