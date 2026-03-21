@@ -27,8 +27,8 @@ const { URL }     = require('url');
 
 // ── CONFIG ────────────────────────────────────────────────────────────────
 const HF_API_KEY  = process.env.HF_API_KEY || '';
-const HF_MODEL    = 'mistralai/Mistral-7B-Instruct-v0.2';
-const HF_URL      = `https://api-inference.huggingface.co/models/${HF_MODEL}`;
+const HF_MODEL    = 'mistralai/Mistral-7B-Instruct-v0.3';
+const HF_URL      = `https://router.huggingface.co/hf-inference/models/${HF_MODEL}/v1/chat/completions`;
 const BASE_URL    = process.env.SITE_BASE_URL || 'https://www.thestreamic.in';
 const GA          = 'G-0VSHDN3ZR6';
 const ADS_ID      = 'ca-pub-8033069131874524';
@@ -263,20 +263,24 @@ async function callHuggingFace(prompt) {
     return null;
   }
 
+  // ── New router.huggingface.co endpoint (chat/completions format) ──────────
+  // Old: api-inference.huggingface.co/models/<model>  (deprecated, returns 410)
+  // New: router.huggingface.co/hf-inference/models/<model>/v1/chat/completions
+  // Uses OpenAI-compatible messages format, not {inputs:...}
   const payload = JSON.stringify({
-    inputs: prompt,
-    parameters: {
-      max_new_tokens:  2000,  // ~1400 words at ~1.4 tokens/word
-      temperature:     0.75,
-      top_p:           0.92,
-      repetition_penalty: 1.15,
-      do_sample:       true,
-      return_full_text: false,
-    },
-    options: {
-      wait_for_model: true,
-      use_cache:      false,
-    }
+    model: HF_MODEL,
+    messages: [
+      {
+        role: 'user',
+        content: prompt,
+      }
+    ],
+    max_tokens:         2000,
+    temperature:        0.75,
+    top_p:              0.92,
+    frequency_penalty:  0.3,
+    presence_penalty:   0.2,
+    stream: false,
   });
 
   try {
@@ -290,23 +294,31 @@ async function callHuggingFace(prompt) {
     });
 
     if (res.status !== 200) {
-      console.warn(`  ⚠ HF API returned ${res.status}: ${res.body.slice(0,200)}`);
+      console.warn(`  ⚠ HF API returned ${res.status}: ${res.body.slice(0, 300)}`);
       return null;
     }
 
     const data = JSON.parse(res.body);
-    // HF returns array of generated_text objects
+
+    // OpenAI-compatible response: data.choices[0].message.content
+    if (data.choices && data.choices[0] && data.choices[0].message) {
+      return data.choices[0].message.content.trim();
+    }
+
+    // Fallback: old format (array of generated_text)
     if (Array.isArray(data) && data[0] && data[0].generated_text) {
       return data[0].generated_text.trim();
     }
     if (data.generated_text) return data.generated_text.trim();
-    console.warn('  ⚠ Unexpected HF response shape:', JSON.stringify(data).slice(0,200));
+
+    console.warn('  ⚠ Unexpected HF response:', JSON.stringify(data).slice(0, 200));
     return null;
   } catch (err) {
     console.warn(`  ⚠ HF API error: ${err.message}`);
     return null;
   }
 }
+
 
 // ── MARKDOWN-LIKE → HTML CONVERTER ───────────────────────────────────────
 function articleTextToHtml(text, sourceUrl, sourceName) {
