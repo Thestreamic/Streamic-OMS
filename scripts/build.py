@@ -119,9 +119,10 @@ def nav(active="", base=""):
         ("streaming.html","Streaming"),("ai-post-production.html","AI & Post"),
         ("playout.html","Playout"),("newsroom.html","Newsroom"),("howto.html","How-To"),
     ]
-    lis = "".join(
-        f'<li><a href="{base}{h}"{"class=\"active\"" if h==active else ""}>{lbl}</a></li>'
-        for h,lbl in cats)
+    def _nav_li(h, lbl, base=base, active=active):
+        cls = ' class="active"' if h == active else ''
+        return f'<li><a href="{base}{h}"{cls}>{lbl}</a></li>'
+    lis = "".join(_nav_li(h, lbl) for h, lbl in cats)
     mob_links = "".join(
         f'<a href="{base}{h}">{lbl}</a>' for h,lbl in cats)
     return f"""<nav class="nav">
