@@ -27,10 +27,9 @@ const { URL }     = require('url');
 
 // ── CONFIG ────────────────────────────────────────────────────────────────
 const HF_API_KEY  = process.env.HF_API_KEY || '';
-// Qwen2.5-7B-Instruct: open-access, no license click required, fast inference
-const HF_MODEL    = 'Qwen/Qwen2.5-7B-Instruct';
-// Standard v1 router URL — model is passed in the payload, NOT in the path
-const HF_URL      = 'https://router.huggingface.co/hf-inference/v1/chat/completions';
+// Groq API — fast, reliable, free tier (llama3-70b gives best output quality)
+const HF_MODEL    = 'llama3-70b-8192';  // or 'llama3-8b-8192' for faster/cheaper
+const HF_URL      = 'https://api.groq.com/openai/v1/chat/completions';
 const BASE_URL    = process.env.SITE_BASE_URL || 'https://www.thestreamic.in';
 const GA          = 'G-0VSHDN3ZR6';
 const ADS_ID      = 'ca-pub-8033069131874524';
@@ -174,7 +173,7 @@ function buildPrompt(title, content, category, sourceName) {
   const seed = content.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 2500);
 
   // ════════════════════════════════════════════════════════════════════
-  // Qwen2.5 uses plain chat messages — no [INST] wrapper needed
+  // Plain chat messages — no special prompt format tags needed
   // Structured to produce exactly the HTML sections we need.
   // max_new_tokens is set to 2000 to ensure 1200-1500 word output.
   // ════════════════════════════════════════════════════════════════════
@@ -260,29 +259,29 @@ Write the complete 1200–1500 word article now, starting with the ## headline:`
 
 
 async function callHuggingFace(prompt) {
-  if (!HF_API_KEY) {
-    console.warn('  ⚠ HF_API_KEY not set — using placeholder content');
+  // NOTE: Despite the function name (kept for compatibility), this now calls
+  // the Groq API. Groq uses the same OpenAI-compatible chat/completions format.
+  // Set GROQ_API_KEY in GitHub Secrets (same key as generate_summaries.py uses).
+  const GROQ_API_KEY = process.env.GROQ_API_KEY || process.env.HF_API_KEY || '';
+  if (!GROQ_API_KEY) {
+    console.warn('  ⚠ GROQ_API_KEY not set — using placeholder content');
     return null;
   }
 
-  // ── router.huggingface.co/hf-inference/v1/chat/completions ───────────────
-  // Model: Qwen/Qwen2.5-7B-Instruct (open-access, no license click required)
-  // Format: OpenAI-compatible chat/completions
-  // The model is passed in the payload — NOT in the URL path
   const payload = JSON.stringify({
-    model: HF_MODEL,
+    model:       HF_MODEL,
     messages: [
       {
-        role: 'system',
+        role:    'system',
         content: (
-          'You are a senior broadcast technology editor at The Streamic. ' +
-          'Write detailed, original, expert-level articles for broadcast engineers and media CTOs. ' +
-          'Never start two consecutive sentences with the same word. ' +
-          'Do not use buzzwords like "innovative", "seamless", "game-changer", or "cutting-edge".'
+          'You are a senior broadcast technology editor at The Streamic — ' +
+          'a professional publication for broadcast engineers and media CTOs. ' +
+          'Write detailed, original, expert-level articles. ' +
+          'Never use buzzwords like "innovative", "seamless", or "game-changer".'
         ),
       },
       {
-        role: 'user',
+        role:    'user',
         content: prompt,
       },
     ],
@@ -297,31 +296,24 @@ async function callHuggingFace(prompt) {
       method:      'POST',
       contentType: 'application/json',
       headers: {
-        'Authorization': `Bearer ${HF_API_KEY}`,
+        'Authorization': `Bearer ${GROQ_API_KEY}`,
       },
       body: payload,
     });
 
     if (res.status !== 200) {
-      console.warn(`  ⚠ HF API returned ${res.status}: ${res.body.slice(0, 300)}`);
+      console.warn(`  ⚠ Groq API returned ${res.status}: ${res.body.slice(0, 300)}`);
       return null;
     }
 
     const data = JSON.parse(res.body);
-
-    // Standard OpenAI-compatible response
     if (data.choices && data.choices[0] && data.choices[0].message) {
       return data.choices[0].message.content.trim();
     }
-    // Fallback: old array format
-    if (Array.isArray(data) && data[0] && data[0].generated_text) {
-      return data[0].generated_text.trim();
-    }
-
-    console.warn('  ⚠ Unexpected HF response shape:', JSON.stringify(data).slice(0, 200));
+    console.warn('  ⚠ Unexpected Groq response:', JSON.stringify(data).slice(0, 200));
     return null;
   } catch (err) {
-    console.warn(`  ⚠ HF API error: ${err.message}`);
+    console.warn(`  ⚠ Groq API error: ${err.message}`);
     return null;
   }
 }
@@ -901,7 +893,7 @@ function buildSitemap(arts) {
 // ── MAIN PIPELINE ─────────────────────────────────────────────────────────
 async function main() {
   console.log('\n🚀 The Streamic — AI Article Generator v3\n');
-  console.log(`   Model:   ${HF_MODEL}`);
+  console.log(`   Model:   ${HF_MODEL} (via Groq API)`);
   console.log(`   API key: ${HF_API_KEY ? '✓ set' : '✗ NOT SET — placeholder mode'}`);
   console.log(`   Max run: ${MAX_ARTICLES_PER_RUN} new articles\n`);
 
