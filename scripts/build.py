@@ -114,7 +114,7 @@ def head(title, desc, canon, css="style.css", og_img=""):
 
 def nav(active="", base=""):
     cats = [
-        ("featured.html","Featured"),("infrastructure.html","Infrastructure"),
+        ("featured.html","Featured"),("infrastructure.html","Infrastructure"),("posts.html","All Articles"),
         ("graphics.html","Graphics"),("cloud.html","Cloud Production"),
         ("streaming.html","Streaming"),("ai-post-production.html","AI & Post"),
         ("playout.html","Playout"),("newsroom.html","Newsroom"),("howto.html","How-To"),
@@ -690,25 +690,69 @@ def terms_page():
 
 def howto_page():
     guides = [
-        ("Hard Reset Your Android Phone","/articles/guide-android-reset.html"),
-        ("Factory Reset iPhone","https://support.apple.com/en-gb/111768"),
-        ("Upgrade to Windows 11","/articles/guide-windows11-upgrade.html"),
-        ("Upgrade to macOS Sequoia","/articles/guide-macos-upgrade.html"),
-        ("Clear Browser Cache (All Browsers)","/articles/guide-clear-cache.html"),
-        ("Set Up a New Android Phone","/articles/guide-android-setup.html"),
+        {
+            "title": "Premiere Pro to Avid Media Composer",
+            "desc": "AAF, EDL, and Direct Link interchange methods. Codec compatibility, audio mapping, and troubleshooting the most common handoff failures.",
+            "href": "articles/guide-premiere-to-avid.html",
+            "tag": "Post-Production",
+            "time": "8 min",
+        },
+        {
+            "title": "Vantage: Transcode Any File to MP4 on a NAS Share",
+            "desc": "Build a hot folder workflow in Telestream Vantage that accepts any input format and delivers broadcast-ready H.264 MP4 to a local NAS.",
+            "href": "articles/guide-vantage-nas-transcode.html",
+            "tag": "Vantage · Workflow",
+            "time": "10 min",
+        },
+        {
+            "title": "Vantage: Output to AWS S3 for Cloud Delivery",
+            "desc": "Extend your Vantage workflow to deliver MP4 output directly to Amazon S3. IAM setup, S3 storage configuration, and parallel NAS + cloud delivery.",
+            "href": "articles/guide-vantage-aws-transcode.html",
+            "tag": "Vantage · AWS",
+            "time": "9 min",
+        },
+        {
+            "title": "Strawberry PAM + Avid Media Composer Workflow",
+            "desc": "Configure Production Flow's Strawberry for collaborative editing with Avid Media Composer. Shared storage, ingest hot folders, version control, and automated delivery.",
+            "href": "articles/guide-avid-strawberry.html",
+            "tag": "PAM · Avid",
+            "time": "10 min",
+        },
+        {
+            "title": "Upgrade to Windows 11",
+            "desc": "Step-by-step upgrade guide for broadcast workstations and edit suites. Compatibility checks, driver verification, and rollback procedure.",
+            "href": "articles/guide-windows11-upgrade.html",
+            "tag": "IT · Windows",
+            "time": "5 min",
+        },
+        {
+            "title": "Upgrade to macOS Sequoia",
+            "desc": "How to safely upgrade a post-production Mac. Pre-upgrade checklist, NLE compatibility matrix, and what to do if your plugins break.",
+            "href": "articles/guide-macos-upgrade.html",
+            "tag": "IT · macOS",
+            "time": "5 min",
+        },
     ]
-    cards = "".join(f"""<div class="howto-card">
-  <h3>{g[0]}</h3>
-  <p>Step-by-step guide for broadcast and media technology professionals.</p>
-  <a href="{g[1]}">Read guide &rarr;</a>
-</div>""" for g in guides)
-    return f"""{head("How-To Guides — The Streamic","Step-by-step technology how-to guides from The Streamic.",f"{BASE_URL}/howto.html")}
+
+    cards = "".join(f''' <div class="howto-card">
+  <div class="howto-tag">{g["tag"]}</div>
+  <h3>{g["title"]}</h3>
+  <p>{g["desc"]}</p>
+  <div class="howto-foot">
+    <span class="howto-time">&#128337; {g["time"]} read</span>
+    <a href="{g["href"]}">Read guide &rarr;</a>
+  </div>
+</div>''' for g in guides)
+
+    return f"""{head("How-To Guides — The Streamic",
+                      "Practical broadcast and post-production workflow guides: Vantage, Avid, Strawberry, AWS, and more.",
+                      f"{BASE_URL}/howto.html")}
 <body>
 {nav("howto.html")}
 <main><div class="w">
 <div class="cat-hdr">
   <h1>How-To Guides</h1>
-  <p>Practical step-by-step guides for broadcast engineers and technology professionals.</p>
+  <p>Practical workflow guides for broadcast engineers, post-production supervisors, and media technology teams.</p>
 </div>
 <div class="howto-grid">{cards}</div>
 </div></main>
@@ -794,6 +838,17 @@ def main():
     print("  ✓ featured.html + index.html")
 
     # Static pages
+    # Ensure all 8 category pages exist even if some have no articles yet
+    for _cat_slug in ["graphics"]:
+        _cp = os.path.join(DOCS, f"{_cat_slug}.html")
+        if not os.path.exists(_cp):
+            _ci = CAT.get(_cat_slug, {})
+            _pages = category_page(_cat_slug, [])
+            for _pn, _ph in _pages:
+                _fname = f"{_cat_slug}.html" if _pn==0 else f"{_cat_slug}-p{_pn+1}.html"
+                w(os.path.join(DOCS, _fname), _ph)
+            print(f"  ✓ {_cat_slug}.html generated (empty category placeholder)")
+
     w(os.path.join(DOCS,"about.html"),   about_page())
     w(os.path.join(DOCS,"contact.html"), contact_page())
     w(os.path.join(DOCS,"privacy.html"), privacy_page())
@@ -819,23 +874,19 @@ def main():
     open(os.path.join(DOCS,".nojekyll"),"w").close()
     w(os.path.join(ROOT,"CNAME"), "thestreamic.in\n")
 
-    # Mirror key files to repo root for GitHub Pages fallback
-    for fn in ["index.html","featured.html","streaming.html","cloud.html","graphics.html",
-               "playout.html","infrastructure.html","ai-post-production.html","newsroom.html",
-               "howto.html","how-to.html","about.html","contact.html","privacy.html","terms.html",
-               "vlog.html","sitemap.xml","robots.txt","ads.txt","style.css","main.js"]:
-        src = os.path.join(DOCS,fn)
-        if os.path.isfile(src): shutil.copy2(src, os.path.join(ROOT,fn))
+    # Copy style.css + main.js to root (referenced by root articles/ fallback)
+    for fn in ["style.css","main.js","ads.txt","robots.txt"]:
+        src_f = os.path.join(DOCS,fn)
+        if os.path.isfile(src_f): shutil.copy2(src_f, os.path.join(ROOT,fn))
 
-    # Mirror articles/ to root
+    # Mirror ONLY how-to guide articles to root/articles/
+    # (All other article mirrors removed — GitHub Pages serves from docs/ only)
     root_arts = os.path.join(ROOT,"articles")
     os.makedirs(root_arts, exist_ok=True)
-    cnt = 0
-    for fn in os.listdir(ARTS_D):
-        if fn.endswith(".html"):
-            shutil.copy2(os.path.join(ARTS_D,fn), os.path.join(root_arts,fn))
-            cnt += 1
-    print(f"  ✓ {cnt} articles mirrored to root")
+    howto_guides = [fn for fn in os.listdir(ARTS_D) if fn.startswith("guide-") and fn.endswith(".html")]
+    for fn in howto_guides:
+        shutil.copy2(os.path.join(ARTS_D,fn), os.path.join(root_arts,fn))
+    print(f"  ✓ {len(howto_guides)} how-to guides mirrored to root/articles/")
 
     # ── Prepare docs/data/ for client-side JS ──────────────────────────────
     docs_data_dir = os.path.join(DOCS, "data")

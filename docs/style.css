@@ -648,15 +648,66 @@ img{max-width:100%;display:block}
 .empty{padding:56px;text-align:center;color:var(--ink4);font-size:15px}
 
 /* ─── HOW-TO PAGE ─────────────────────────────────────────── */
-.howto-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;padding:40px 0}
-.howto-card{
-  background:var(--white);border:1px solid var(--line);
-  border-radius:var(--radius);padding:28px 24px;
-  transition:box-shadow .2s,transform .2s;
+.howto-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  padding: 40px 0;
 }
-.howto-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px)}
-.howto-card h3{font-family:var(--serif);font-size:18px;color:var(--ink);margin-bottom:10px}
-.howto-card p{font-size:13px;color:var(--ink3);line-height:1.6;margin-bottom:14px}
-.howto-card a{font-size:13px;font-weight:600;color:var(--blue)}
-.howto-card a:hover{text-decoration:underline}
-@media(max-width:768px){.howto-grid{grid-template-columns:1fr}}
+.howto-card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: box-shadow .2s, transform .2s;
+}
+.howto-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-3px);
+}
+.howto-tag {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--blue);
+}
+.howto-card h3 {
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1.25;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+  margin: 0;
+}
+.howto-card p {
+  font-size: 13px;
+  color: var(--ink3);
+  line-height: 1.65;
+  margin: 0;
+  flex: 1;
+}
+.howto-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 10px;
+  border-top: 1px solid var(--bg);
+  margin-top: auto;
+}
+.howto-time {
+  font-size: 11px;
+  color: var(--ink4);
+}
+.howto-card a {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--blue);
+}
+.howto-card a:hover { text-decoration: underline; }
+@media (max-width: 960px) { .howto-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px)  { .howto-grid { grid-template-columns: 1fr; } }
