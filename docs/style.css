@@ -405,18 +405,19 @@ img{max-width:100%;display:block}
   /* No line-clamp — show full Groq analysis on featured card */
 }
 
-/* ── STANDARD CARDS (all except first-child) ──────────────────
-   Desktop: 4/12 columns, flex-direction: row (horizontal)
-   Image fixed left (~38%), text on right
+/* ── STANDARD CARDS — Elegant Vertical Layout (Apple/News style) ──
+   Desktop: 4/12 columns, flex-direction: column (VERTICAL)
+   Large image on top, text below. No squishing. Breathable spacing.
 ────────────────────────────────────────────────────────────── */
 .bento-standard {
-  flex-direction: row;    /* horizontal: image left, text right */
+  flex-direction: column;    /* image top, text below — no squishing */
   grid-column: span 4;
 }
 
-/* Standard image: fixed width column */
+/* Standard image: full width, fixed height */
 .bento-img-std {
-  width: 38%;
+  width: 100%;
+  height: 220px;
   flex-shrink: 0;
   overflow: hidden;
   position: relative;
@@ -439,22 +440,21 @@ img{max-width:100%;display:block}
 
 /* Standard body */
 .bento-body-std {
-  padding: 16px 16px 16px 14px;
+  padding: 20px;
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 10px;
   flex: 1;
   min-width: 0;
-  justify-content: center;
 }
 
-/* Standard headline */
+/* Standard headline — larger, more legible */
 .bento-hl-std {
   font-family: var(--serif);
-  font-size: 14.5px;
+  font-size: 17px;
   font-weight: 400;
   line-height: 1.3;
-  letter-spacing: -0.04em;    /* Apple spec */
+  letter-spacing: -0.04em;
   color: var(--ink);
   margin: 0;
   display: -webkit-box;
@@ -465,14 +465,14 @@ img{max-width:100%;display:block}
 .bento-hl-std a { color: inherit; text-decoration: none; }
 .bento-hl-std a:hover { color: var(--blue); }
 
-/* Standard summary: 2-line clamp */
+/* Standard summary — 4-line clamp shows meaningful content */
 .bento-sum-std {
-  font-size: 12px;
-  line-height: 1.6;
+  font-size: 13.5px;
+  line-height: 1.65;
   color: var(--ink3);
   margin: 0;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 4;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -546,23 +546,27 @@ img{max-width:100%;display:block}
 
 /* ── Mobile (<640px): single column, stack all ── */
 @media (max-width: 639px) {
-  #bentoGridLarge { gap: 1px; }
-
+  #bentoGridLarge {
+    gap: 16px;
+    background: transparent;
+    border: none;
+    padding: 0;
+  }
   .bento-grid-item:first-child,
   .bento-standard {
     grid-column: span 12;
     flex-direction: column;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
   }
-  .bento-img-featured,
-  .bento-img-std {
-    width: 100%;
-    height: 195px;
-  }
+  .bento-img-featured { height: 220px; }
+  .bento-img-std      { height: 195px; width: 100%; }
   .bento-body-featured,
-  .bento-body-std { padding: 14px; }
-  .bento-hl-featured { font-size: 18px; }
-  .bento-hl-std      { font-size: 14px; }
-  .bento-sum-featured { -webkit-line-clamp: 4; }
+  .bento-body-std { padding: 16px; }
+  .bento-hl-featured { font-size: 20px; }
+  .bento-hl-std      { font-size: 16px; }
+  .bento-sum-std { -webkit-line-clamp: 3; }
 }
 
 /* ── Section wrapper ── */

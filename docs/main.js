@@ -1,26 +1,28 @@
-/* ═══════════════════════════════════════════════════════════════
-   THE STREAMIC · main.js  v3
-   ─────────────────────────────────────────────────────────────
-   DATA FLOW:
-     1. Fetch data/news.json  → raw RSS items (title, url, teaser, source)
-     2. For EACH item, check  data/summaries/<slug>.json
-        • If found  → use card_summary (330-word Groq analysis)
-        • If absent → fall back to item.teaser
-     3. Render into #bentoGridLarge (12-col Apple bento grid)
-        • First card  → 8 col, vertical (big image top + full summary)
-        • Other cards → 4 col, horizontal (image left, text right)
-   ─────────────────────────────────────────────────────────────
-   All external links: rel="noopener noreferrer nofollow"
-   CTA copy: "Read Technical Analysis →"
-═══════════════════════════════════════════════════════════════ */
+/* THE STREAMIC · main.js  (Data-Desync Fix)
+   ────────────────────────────────────────────────────────────────
+   DATA SOURCE: docs/data/generated_articles.json
+     • Contains card_summary (330-word Groq analysis)
+     • Contains slug → links to internal article pages
+     • Sorted newest-first by build.py
+
+   CARD LAYOUT:
+     First card  → 8/12 col, vertical (large image top, full summary)
+     Other cards → 4/12 col, vertical (image top, text below) — Apple style
+     All links   → internal articles/slug.html first, source URL fallback
+   ────────────────────────────────────────────────────────────────
+   Links: rel="noopener noreferrer nofollow" on all external URLs
+*/
 (() => {
   'use strict';
 
   const BUST    = Date.now();
   const BATCH   = 12;
-  const SUM_MAX = 1950;   // clip Groq summaries
-  const TEAS_MAX= 320;    // clip raw teasers
 
+  let allItems   = [];
+  let shownCount = 0;
+  let lazyObs    = null;
+
+  // ── Fallback images (broadcast-safe Unsplash, no warehouse/food) ──
   const FALLBACK = {
     featured:            'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=900&q=80',
     newsroom:            'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=900&q=80',
@@ -32,293 +34,275 @@
     'ai-post-production':'https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=900&q=80',
   };
 
-  let allItems     = [];
-  let shownCount   = 0;
-  let lazyObserver = null;
-  let sumCache     = {};   // slug → data | null
-
-  // ── utils ──────────────────────────────────────────────────
-  function fb(cat) {
-    return FALLBACK[(cat||'').toLowerCase().trim()] || FALLBACK.featured;
-  }
-  function isUrl(u) {
-    u = (u||'').trim().toLowerCase();
-    return u.startsWith('http://') || u.startsWith('https://');
-  }
-  function pickImg(item) { return isUrl(item.image) ? item.image : fb(item.category); }
-  function clip(s, max) {
-    if (!s) return '';
-    s = s.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim();
-    return s.length > max ? s.slice(0,max).replace(/\s+\S*$/,'')+'…' : s;
-  }
-  function slugify(title, pub) {
-    const d = (pub||'').slice(0,10);
-    const t = (title||'').toLowerCase().replace(/[^a-z0-9\s]/g,'').replace(/\s+/g,'-').slice(0,60);
-    return d ? d+'-'+t : t;
+  function getImg(item) {
+    const src = item.image_url || item.image || '';
+    if (src && src.startsWith('http')) return src;
+    const cat = (item.category || 'featured').toLowerCase().trim();
+    return FALLBACK[cat] || FALLBACK.featured;
   }
 
-  // ── MODULE 1: summary merge ────────────────────────────────
-  async function enrichItem(item) {
-    const slug = item.slug || slugify(item.title, item.published || item.pubDate);
-
-    if (sumCache[slug] !== undefined) {
-      const c = sumCache[slug];
-      return { ...item, displayText: c ? clip(c.card_summary||'', SUM_MAX) : clip(item.teaser||'', TEAS_MAX), hasGroq: !!c };
-    }
-
-    try {
-      const r = await fetch('data/summaries/'+slug+'.json?v='+BUST);
-      if (r.ok) {
-        const d = await r.json();
-        sumCache[slug] = d;
-        return { ...item, displayText: clip(d.card_summary||'', SUM_MAX), hasGroq: true };
-      }
-    } catch(_) {}
-
-    sumCache[slug] = null;
-    return { ...item, displayText: clip(item.teaser||'', TEAS_MAX), hasGroq: false };
+  function getUrl(item) {
+    // Always prefer internal article page — keeps users on the site (AdSense friendly)
+    if (item.slug) return `articles/${item.slug}.html`;
+    // External source as fallback
+    const ext = item.url || item.link || item.source_url || '#';
+    return ext;
   }
 
-  async function enrichBatch(items) {
-    return Promise.all(items.map(enrichItem));
+  function isExternal(url) {
+    return url.startsWith('http://') || url.startsWith('https://');
   }
 
-  // ── lazy images ─────────────────────────────────────────────
-  function setupObserver() {
+  // ── Lazy image observer ──────────────────────────────────────
+  function setupLazy() {
     if (!('IntersectionObserver' in window)) return null;
     return new IntersectionObserver((entries, obs) => {
       entries.forEach(e => {
         if (e.isIntersecting && e.target.dataset.src) {
           e.target.src = e.target.dataset.src;
-          e.target.classList.remove('lz');
+          e.target.removeAttribute('data-src');
           obs.unobserve(e.target);
         }
       });
-    }, { rootMargin:'80px', threshold:0.01 });
+    }, { rootMargin: '80px', threshold: 0.01 });
   }
 
-  function makeImg(url, alt) {
-    const img = document.createElement('img');
-    img.alt = alt||'';
-    if (lazyObserver) {
-      img.dataset.src = url;
-      img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-      img.classList.add('lz');
-      lazyObserver.observe(img);
-    } else { img.src=url; img.loading='lazy'; }
-    return img;
+  function makeImgTag(url, alt, eager) {
+    if (eager) return `<img src="${url}" alt="${alt}" loading="eager">`;
+    if (lazyObs) {
+      return `<img data-src="${url}" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="${alt}" loading="lazy" class="lz">`;
+    }
+    return `<img src="${url}" alt="${alt}" loading="lazy">`;
   }
 
-  // ── MODULE 2: card builders ─────────────────────────────────
+  // After appending, observe all lazy images in the new fragment
+  function observeImgs(container) {
+    if (!lazyObs) return;
+    container.querySelectorAll('img.lz').forEach(img => lazyObs.observe(img));
+  }
 
-  /* FEATURED CARD — 8/12 cols, vertical layout */
+  // ── CARD BUILDERS ────────────────────────────────────────────
+
+  /* FEATURED (first card): 8/12 col, full-width image top, full Groq summary */
   function buildFeatured(item) {
-    const li = document.createElement('li');
-    li.className = 'bento-grid-item';
+    const li       = document.createElement('li');
+    li.className   = 'bento-grid-item';
 
-    const url   = isUrl(item.url) ? item.url : (isUrl(item.link) ? item.link : '#');
-    const title = (item.title||'Untitled').trim();
-    const cat   = (item.category||'featured').toLowerCase().trim();
-    const src   = (item.source||'').trim();
-    const text  = item.displayText || clip(item.teaser||'', SUM_MAX);
-    const catLbl= cat.replace(/-/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+    const url      = getUrl(item);
+    const imgUrl   = getImg(item);
+    const title    = (item.title || 'Untitled').trim();
+    const cat      = (item.category || 'featured').toLowerCase().trim();
+    const catLbl   = cat.replace(/-/g,' ').replace(/\b\w/g, c => c.toUpperCase());
+    const srcTxt   = (item.source_domain || item.source || '').replace(/https?:\/\//,'').replace('www.','').split('/')[0].toUpperCase();
+    // Groq card_summary first, then editorial dek, then meta_description, then RSS teaser
+    const text     = item.card_summary || item.dek || item.meta_description || item.teaser || '';
+    const isExt    = isExternal(url);
+    const rel      = isExt ? ' rel="noopener noreferrer nofollow"' : '';
+    const target   = isExt ? ' target="_blank"' : '';
 
-    const imgWrap = el('div','bento-img-wrap bento-img-featured');
-    const ia = link(url); ia.setAttribute('tabindex','-1'); ia.setAttribute('aria-hidden','true');
-    ia.appendChild(makeImg(pickImg(item),title)); imgWrap.appendChild(ia);
-
-    const body = el('div','bento-body bento-body-featured');
-
-    const tagEl = el('span','bento-cat-tag'); tagEl.textContent = catLbl;
-    body.appendChild(tagEl);
-
-    const h2 = el('h2','bento-hl bento-hl-featured');
-    const ha = link(url); ha.textContent = title; h2.appendChild(ha);
-    body.appendChild(h2);
-
-    if (item.hasGroq) {
-      const badge = el('span','bento-groq-badge'); badge.textContent = '✦ Technical Analysis';
-      body.appendChild(badge);
-    }
-
-    if (text) {
-      const p = el('p','bento-sum bento-sum-featured'); p.textContent = text;
-      body.appendChild(p);
-    }
-
-    const foot = buildFooter(src, url, true);
-    body.appendChild(foot);
-
-    li.appendChild(imgWrap);
-    li.appendChild(body);
+    li.innerHTML = `
+      <div class="bento-img-wrap bento-img-featured">
+        <a href="${url}"${target}${rel} tabindex="-1" aria-hidden="true">
+          ${makeImgTag(imgUrl, title, true)}
+        </a>
+      </div>
+      <div class="bento-body bento-body-featured">
+        <span class="bento-cat-tag">${catLbl}</span>
+        <h2 class="bento-hl bento-hl-featured">
+          <a href="${url}"${target}${rel}>${title}</a>
+        </h2>
+        ${item.card_summary ? '<span class="bento-groq-badge">✦ Technical Analysis</span>' : ''}
+        ${text ? `<p class="bento-sum bento-sum-featured">${text}</p>` : ''}
+        <div class="bento-foot">
+          ${srcTxt ? `<span class="bento-source">${srcTxt}</span>` : ''}
+          <a href="${url}"${target}${rel} class="bento-cta-featured">
+            ${item.slug ? 'Read Full Analysis →' : 'Read Technical Analysis →'}
+          </a>
+        </div>
+      </div>
+    `;
     return li;
   }
 
-  /* STANDARD CARD — 4/12 cols, horizontal layout */
+  /* STANDARD (all others): 4/12 col, vertical — image top, text below */
   function buildStandard(item) {
-    const li = document.createElement('li');
-    li.className = 'bento-grid-item bento-standard';
+    const li       = document.createElement('li');
+    li.className   = 'bento-grid-item bento-standard';
 
-    const url   = isUrl(item.url) ? item.url : (isUrl(item.link) ? item.link : '#');
-    const title = (item.title||'Untitled').trim();
-    const cat   = (item.category||'featured').toLowerCase().trim();
-    const src   = (item.source||'').trim();
-    const text  = item.displayText || clip(item.teaser||'', TEAS_MAX);
-    const catLbl= cat.replace(/-/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+    const url      = getUrl(item);
+    const imgUrl   = getImg(item);
+    const title    = (item.title || 'Untitled').trim();
+    const cat      = (item.category || 'featured').toLowerCase().trim();
+    const catLbl   = cat.replace(/-/g,' ').replace(/\b\w/g, c => c.toUpperCase());
+    const srcTxt   = (item.source_domain || item.source || '').replace(/https?:\/\//,'').replace('www.','').split('/')[0].toUpperCase();
+    const text     = item.card_summary || item.dek || item.meta_description || item.teaser || '';
+    const isExt    = isExternal(url);
+    const rel      = isExt ? ' rel="noopener noreferrer nofollow"' : '';
+    const target   = isExt ? ' target="_blank"' : '';
 
-    const imgWrap = el('div','bento-img-wrap bento-img-std');
-    const ia = link(url); ia.setAttribute('tabindex','-1'); ia.setAttribute('aria-hidden','true');
-    ia.appendChild(makeImg(pickImg(item),title)); imgWrap.appendChild(ia);
-
-    const body = el('div','bento-body bento-body-std');
-    const tagEl = el('span','bento-cat-tag'); tagEl.textContent = catLbl;
-    body.appendChild(tagEl);
-
-    const h3 = el('h3','bento-hl bento-hl-std');
-    const ha = link(url); ha.textContent = title; h3.appendChild(ha);
-    body.appendChild(h3);
-
-    if (text) {
-      const p = el('p','bento-sum bento-sum-std'); p.textContent = text;
-      body.appendChild(p);
-    }
-
-    const foot = buildFooter(src, url, false);
-    body.appendChild(foot);
-
-    li.appendChild(imgWrap);
-    li.appendChild(body);
+    li.innerHTML = `
+      <div class="bento-img-wrap bento-img-std">
+        <a href="${url}"${target}${rel} tabindex="-1" aria-hidden="true">
+          ${makeImgTag(imgUrl, title, false)}
+        </a>
+      </div>
+      <div class="bento-body bento-body-std">
+        <span class="bento-cat-tag">${catLbl}</span>
+        <h3 class="bento-hl bento-hl-std">
+          <a href="${url}"${target}${rel}>${title}</a>
+        </h3>
+        ${text ? `<p class="bento-sum bento-sum-std">${text}</p>` : ''}
+        <div class="bento-foot">
+          ${srcTxt ? `<span class="bento-source">${srcTxt}</span>` : ''}
+          <a href="${url}"${target}${rel} class="bento-cta">
+            ${item.slug ? 'Read Analysis →' : 'Read Technical Analysis →'}
+          </a>
+        </div>
+      </div>
+    `;
     return li;
   }
 
-  function buildFooter(src, url, featured) {
-    const foot = el('div','bento-foot');
-    if (src) {
-      const s = el('span','bento-source');
-      s.textContent = src.replace(/https?:\/\//,'').replace('www.','').split('/')[0].toUpperCase();
-      foot.appendChild(s);
-    }
-    if (url !== '#') {
-      const btn = link(url);
-      btn.className   = featured ? 'bento-cta-featured' : 'bento-cta';
-      btn.textContent = 'Read Technical Analysis \u2192';
-      foot.appendChild(btn);
-    }
-    return foot;
-  }
-
-  // helpers
-  function el(tag, cls) { const e=document.createElement(tag); if(cls)e.className=cls; return e; }
-  function link(url) {
-    const a = document.createElement('a');
-    a.href=''+url; a.target='_blank'; a.rel='noopener noreferrer nofollow';
-    return a;
-  }
-
-  // ── render ──────────────────────────────────────────────────
-  async function renderBatch(grid) {
-    const slice = allItems.slice(shownCount, shownCount+BATCH);
+  // ── RENDER ───────────────────────────────────────────────────
+  function renderBatch(grid) {
+    const slice = allItems.slice(shownCount, shownCount + BATCH);
     if (!slice.length) { hideMore(); return; }
-    const enriched = await enrichBatch(slice);
+
     const frag = document.createDocumentFragment();
-    enriched.forEach((item, idx) => {
+    slice.forEach((item, idx) => {
       frag.appendChild(
-        (shownCount+idx === 0) ? buildFeatured(item) : buildStandard(item)
+        (shownCount + idx === 0) ? buildFeatured(item) : buildStandard(item)
       );
     });
     grid.appendChild(frag);
+    observeImgs(grid);
     shownCount += slice.length;
     if (shownCount >= allItems.length) hideMore();
   }
 
   function hideMore() {
     const b = document.getElementById('ts-more');
-    if (b && b.parentElement) b.parentElement.style.display='none';
+    if (b && b.parentElement) b.parentElement.style.display = 'none';
   }
 
   function addMoreBtn(grid) {
     if (document.getElementById('ts-more')) return;
-    const wrap = el('div',''); wrap.style.cssText='margin:40px 0;text-align:center';
-    const btn  = el('button',''); btn.id='ts-more';
-    btn.textContent='Load More Stories';
-    btn.style.cssText='padding:13px 40px;border-radius:999px;border:1.5px solid var(--line);background:var(--white);color:var(--ink);font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font);letter-spacing:-0.02em;transition:all .15s';
-    btn.onmouseover=()=>{btn.style.background='var(--ink)';btn.style.color='#fff';};
-    btn.onmouseout =()=>{btn.style.background='var(--white)';btn.style.color='var(--ink)';};
-    btn.onclick    =()=>renderBatch(grid);
-    wrap.appendChild(btn); grid.parentElement.appendChild(wrap);
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'margin:40px 0;text-align:center';
+    const btn  = document.createElement('button');
+    btn.id = 'ts-more';
+    btn.textContent = 'Load More Stories';
+    btn.style.cssText = 'padding:13px 44px;border-radius:999px;border:1.5px solid var(--line);background:var(--white);color:var(--ink);font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font);letter-spacing:-0.02em;transition:all .15s';
+    btn.onmouseover = () => { btn.style.background='var(--ink)'; btn.style.color='#fff'; btn.style.borderColor='var(--ink)'; };
+    btn.onmouseout  = () => { btn.style.background='var(--white)'; btn.style.color='var(--ink)'; btn.style.borderColor='var(--line)'; };
+    btn.onclick     = () => renderBatch(grid);
+    wrap.appendChild(btn);
+    grid.parentElement.appendChild(wrap);
   }
 
-  // ── data ────────────────────────────────────────────────────
+  // ── DATA LOADER (MODULE 2 FIX) ───────────────────────────────
+  /**
+   * CRITICAL FIX: Load generated_articles.json (has Groq summaries + slugs)
+   * NOT news.json (which only has short RSS teasers, no internal links)
+   */
   async function loadNews() {
+    const paths = [
+      'data/generated_articles.json?v=' + BUST,
+      '/data/generated_articles.json?v=' + BUST,
+    ];
+    for (const p of paths) {
+      try {
+        const r = await fetch(p);
+        if (!r.ok) continue;
+        const raw = await r.json();
+        // Handle both flat array and {featured_priority, items} formats
+        if (Array.isArray(raw)) {
+          return { featured_priority: raw.slice(0, 6), items: raw.slice(6) };
+        }
+        if (raw.items !== undefined || raw.featured_priority !== undefined) {
+          return raw;
+        }
+        return { featured_priority: raw.slice ? raw.slice(0,6) : [], items: raw.slice ? raw.slice(6) : [] };
+      } catch (_) {}
+    }
+    // Graceful fallback to news.json (RSS teasers only)
     for (const p of ['data/news.json?v='+BUST, '/data/news.json?v='+BUST]) {
       try {
-        const r = await fetch(p); if (!r.ok) continue;
+        const r = await fetch(p);
+        if (!r.ok) continue;
         const raw = await r.json();
-        if (Array.isArray(raw)) return { featured_priority:raw.slice(0,6), items:raw.slice(6) };
-        if (raw.items!==undefined) return raw;
-        const flat=[];
-        Object.entries(raw).forEach(([cat,lst])=>(lst||[]).forEach(it=>flat.push({...it,category:it.category||cat})));
-        flat.sort((a,b)=>(b.pubDate||b.published||'').localeCompare(a.pubDate||a.published||''));
-        return { featured_priority:flat.slice(0,6), items:flat.slice(6) };
-      } catch(_) {}
+        if (Array.isArray(raw)) return { featured_priority: raw.slice(0,6), items: raw.slice(6) };
+        if (raw.items !== undefined) return raw;
+        return { featured_priority: [], items: [] };
+      } catch (_) {}
     }
-    throw new Error('news.json not reachable');
+    throw new Error('No data source reachable');
   }
 
   function filterCat(items, cat) {
-    if (!cat||cat==='featured') return items;
-    return items.filter(it=>(it.category||'').toLowerCase().trim()===cat);
+    if (!cat || cat === 'featured') return items;
+    return items.filter(it => (it.category || '').toLowerCase().trim() === cat);
   }
 
   function interleave(items) {
-    const g={};
-    items.forEach(it=>{(g[it.source||'x']=g[it.source||'x']||[]).push(it);});
-    const groups=Object.values(g); const out=[];
-    for(let i=0;out.length<items.length;i++){let ok=false;groups.forEach(a=>{if(i<a.length){out.push(a[i]);ok=true;}});if(!ok)break;}
+    const g = {};
+    items.forEach(it => { (g[it.source_domain || it.source || 'x'] = g[it.source_domain || it.source || 'x'] || []).push(it); });
+    const groups = Object.values(g);
+    const out = [];
+    for (let i = 0; out.length < items.length; i++) {
+      let ok = false;
+      groups.forEach(arr => { if (i < arr.length) { out.push(arr[i]); ok = true; } });
+      if (!ok) break;
+    }
     return out;
   }
 
-  // ── mobile nav ──────────────────────────────────────────────
+  // ── MOBILE NAV ───────────────────────────────────────────────
   function initNav() {
-    const tog=document.querySelector('.nav-toggle');
-    const mob=document.querySelector('.nav-mob');
-    if (!tog||!mob) return;
-    tog.addEventListener('click', e=>{e.stopPropagation();mob.classList.toggle('open');});
-    document.addEventListener('click', e=>{if(!mob.contains(e.target)&&!tog.contains(e.target))mob.classList.remove('open');});
-    mob.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>mob.classList.remove('open')));
+    const tog = document.querySelector('.nav-toggle');
+    const mob = document.querySelector('.nav-mob');
+    if (!tog || !mob) return;
+    tog.addEventListener('click', e => { e.stopPropagation(); mob.classList.toggle('open'); });
+    document.addEventListener('click', e => {
+      if (!mob.contains(e.target) && !tog.contains(e.target)) mob.classList.remove('open');
+    });
+    mob.querySelectorAll('a').forEach(a => a.addEventListener('click', () => mob.classList.remove('open')));
   }
 
-  // ── boot ────────────────────────────────────────────────────
+  // ── BOOT ─────────────────────────────────────────────────────
   async function boot() {
-    lazyObserver = setupObserver();
+    lazyObs = setupLazy();
     initNav();
 
     const grid = document.getElementById('bentoGridLarge');
     if (!grid) return;
 
-    const cat = (document.body.dataset.category||'').toLowerCase().trim();
+    const cat = (document.body.dataset.category || '').toLowerCase().trim();
     grid.innerHTML = '<li class="bento-loading">Loading latest broadcast news\u2026</li>';
 
     try {
       const data  = await loadNews();
-      const pool  = [...(data.featured_priority||[]),...(data.items||[])];
-      const valid = pool.filter(it=>isUrl(it.url||it.link));
-      allItems = (!cat||cat==='featured') ? valid : interleave(filterCat(valid,cat));
+      const pool  = [...(data.featured_priority || []), ...(data.items || [])];
+      // Filter to only items that have a valid URL (internal slug OR external link)
+      const valid = pool.filter(it => it.slug || it.url || it.link);
+      allItems    = (!cat || cat === 'featured')
+        ? valid
+        : interleave(filterCat(valid, cat));
 
       if (!allItems.length) {
-        grid.innerHTML='<li class="bento-loading">No live feed items yet. Editorial content above.</li>';
+        grid.innerHTML = '<li class="bento-loading">No content yet. Check back soon.</li>';
         return;
       }
-      grid.innerHTML='';
-      await renderBatch(grid);
-      if (allItems.length>BATCH) addMoreBtn(grid);
-    } catch(err) {
-      console.error('[Streamic]',err);
-      grid.innerHTML='<li class="bento-loading">Live feed unavailable.</li>';
+      grid.innerHTML = '';
+      renderBatch(grid);
+      if (allItems.length > BATCH) addMoreBtn(grid);
+    } catch (err) {
+      console.error('[Streamic]', err);
+      grid.innerHTML = '<li class="bento-loading">Live feed temporarily unavailable.</li>';
     }
   }
 
-  document.readyState==='loading'
-    ? document.addEventListener('DOMContentLoaded',boot)
+  document.readyState === 'loading'
+    ? document.addEventListener('DOMContentLoaded', boot)
     : boot();
 })();

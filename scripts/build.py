@@ -735,10 +735,13 @@ def main():
             cnt += 1
     print(f"  ✓ {cnt} articles mirrored to root")
 
-    # Prepare docs/data/news.json for main.js
-    news_src = os.path.join(ROOT,"data","news.json")
-    news_dst = os.path.join(DOCS,"data","news.json")
-    os.makedirs(os.path.dirname(news_dst), exist_ok=True)
+    # ── Prepare docs/data/ for client-side JS ──────────────────────────────
+    docs_data_dir = os.path.join(DOCS, "data")
+    os.makedirs(docs_data_dir, exist_ok=True)
+
+    # 1. news.json (live RSS feed)
+    news_src = os.path.join(ROOT, "data", "news.json")
+    news_dst = os.path.join(docs_data_dir, "news.json")
     if os.path.exists(news_src):
         with open(news_src,encoding="utf-8") as f: raw = json.load(f)
         if isinstance(raw,list):
@@ -754,6 +757,25 @@ def main():
             out = {"featured_priority":flat[:6],"items":flat[6:]}
         with open(news_dst,"w",encoding="utf-8") as f: json.dump(out,f,ensure_ascii=False)
         print(f"  ✓ docs/data/news.json ({len(out.get('items',[]))} items)")
+
+
+    # 2. CRITICAL: generated_articles.json (Groq summaries + internal URLs)
+    gen_src = os.path.join(ROOT, "data", "generated_articles.json")
+    if os.path.exists(gen_src):
+        with open(gen_src, encoding="utf-8") as _f:
+            raw_gen = json.load(_f)
+        # Sort newest first
+        raw_gen.sort(key=lambda a: a.get("published",""), reverse=True)
+        out_gen = {
+            "featured_priority": raw_gen[:6],
+            "items":             raw_gen[6:]
+        }
+        gen_dst = os.path.join(docs_data_dir, "generated_articles.json")
+        with open(gen_dst, "w", encoding="utf-8") as _f:
+            json.dump(out_gen, _f, ensure_ascii=False)
+        print(f"  ✓ docs/data/generated_articles.json ({len(raw_gen)} articles, Groq summaries included)")
+    else:
+        print("  ⚠ data/generated_articles.json not found")
 
     print(f"\n✅ Build complete: {len(arts)} articles, {len(by_cat)} categories")
 
