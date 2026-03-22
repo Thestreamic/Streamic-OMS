@@ -193,6 +193,11 @@ def footer(base=""):
       <a href="{base}privacy.html">Privacy Policy</a>
       <a href="{base}terms.html">Terms of Use</a>
     </div>
+    <div class="footer-col">
+      <h4>Follow</h4>
+      <a href="https://twitter.com/thestreamic" target="_blank" rel="noopener noreferrer">&#x1D54F; @thestreamic</a>
+      <a href="https://www.linkedin.com/company/thestreamic" target="_blank" rel="noopener noreferrer">in TheStreamic</a>
+    </div>
   </div>
   <div class="footer-bottom">
     <span>© {yr} The Streamic — thestreamic.in. All rights reserved.</span>
@@ -236,6 +241,7 @@ def news_card(a, base="", is_first=False):
     <h2 class="bento-hl bento-hl-featured"><a href="{href}">{title}</a></h2>
     <div class="bento-foot">
       {src_html_f}
+      <time style="font-size:11px;color:var(--ink4)">{d(a.get("published",""))}</time>
       <a href="{href}" class="bento-cta-featured">Read Full Article &rarr;</a>
     </div>
   </div>
@@ -254,6 +260,7 @@ def news_card(a, base="", is_first=False):
     <h3 class="bento-hl bento-hl-std"><a href="{href}">{title}</a></h3>
     <div class="bento-foot">
       {src_html_s}
+      <time style="font-size:11px;color:var(--ink4)">{d(a.get("published",""))}</time>
       <a href="{href}" class="bento-cta">Read Full Article &rarr;</a>
     </div>
   </div>
@@ -627,7 +634,7 @@ def article_page(a):
     <p class="art-dek">{e(dek)}</p>
     <div class="art-byline">
       <strong>{AUTHOR}</strong>
-      <span>{dt}</span>
+      <time datetime="{a.get("published","")}" style="color:var(--ink4);font-size:13px">{dt}</time>
       <span>{wc:,} words · {rm(wc)}</span>
       {analysis_badge}
     </div>
@@ -655,7 +662,7 @@ def article_page(a):
 
 # ── STATIC PAGES
 def about_page():
-    return f"""{head("About The Streamic","Independent broadcast and streaming technology journalism.",f"{BASE_URL}/about.html")}
+    return f"""{head("About The Streamic — Prerak K Mehta","Independent broadcast and streaming technology journalism from Dublin, Ireland.",f"{BASE_URL}/about.html")}
 <body>
 {nav()}
 <main><div class="w" style="padding:52px 0 80px;max-width:780px">
@@ -663,26 +670,107 @@ def about_page():
 <p style="font-size:17px;color:var(--ink2);line-height:1.65;margin-bottom:20px">The Streamic is an independent broadcast and streaming technology publication covering the tools, standards, and workflows that shape modern media production and delivery.</p>
 <p style="font-size:15px;color:var(--ink3);line-height:1.7;margin-bottom:20px">We publish original editorial analysis on topics including IP infrastructure (SMPTE ST 2110, NMOS), cloud-native production, operational AI, real-time graphics, playout automation, and newsroom technology. Our readership includes broadcast engineers, operations managers, technology directors, and media industry professionals.</p>
 <h2 style="font-family:var(--serif);font-size:22px;margin:36px 0 12px">Our editorial approach</h2>
-<p style="font-size:15px;color:var(--ink3);line-height:1.7;margin-bottom:16px">We write original analysis — not copied content. Our RSS-curated news feed clearly credits and links to original sources. Long-form articles represent our editorial team's independent perspective on industry developments.</p>
+<p style="font-size:15px;color:var(--ink3);line-height:1.7;margin-bottom:16px">We write original analysis — not copied content. Our RSS-curated news feed clearly credits and links to original sources. Long-form articles represent our editorial team&#39;s independent perspective on industry developments.</p>
+<h2 style="font-family:var(--serif);font-size:22px;margin:36px 0 12px">Editor &amp; Founder</h2>
+<div style="display:flex;align-items:flex-start;gap:20px;background:var(--bg);border-radius:14px;padding:24px;margin-bottom:28px">
+  <div style="flex-shrink:0;width:56px;height:56px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;font-family:var(--serif)">P</div>
+  <div>
+    <strong style="font-size:16px;color:var(--ink)">Prerak K Mehta</strong>
+    <p style="font-size:13px;color:var(--ink4);margin:2px 0 8px">Founder &amp; Editor-in-Chief, The Streamic · Dublin, Ireland</p>
+    <p style="font-size:14px;color:var(--ink3);line-height:1.7;margin:0">Broadcast technology professional with 25+ years of IT and media systems experience. Runs the YouTube channel <em>Prerak&#39;s Tech World</em> and covers broadcast engineering, streaming infrastructure, and media technology trends for The Streamic.</p>
+    <div style="display:flex;gap:12px;margin-top:12px;flex-wrap:wrap">
+      <a href="https://twitter.com/thestreamic" target="_blank" rel="noopener noreferrer"
+        style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--blue);text-decoration:none;font-weight:500">&#x1D54F; @thestreamic</a>
+      <a href="https://www.linkedin.com/company/thestreamic" target="_blank" rel="noopener noreferrer"
+        style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--blue);text-decoration:none;font-weight:500">in TheStreamic on LinkedIn</a>
+    </div>
+  </div>
+</div>
+<h2 style="font-family:var(--serif);font-size:22px;margin:36px 0 12px">Follow Us</h2>
+<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:28px">
+  <a href="https://twitter.com/thestreamic" target="_blank" rel="noopener noreferrer"
+    style="display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border:1px solid var(--line);border-radius:8px;font-size:14px;font-weight:500;color:var(--ink);text-decoration:none;background:#fff">
+    &#x1D54F; Twitter / X &nbsp;<strong>@thestreamic</strong>
+  </a>
+  <a href="https://www.linkedin.com/company/thestreamic" target="_blank" rel="noopener noreferrer"
+    style="display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border:1px solid var(--line);border-radius:8px;font-size:14px;font-weight:500;color:var(--ink);text-decoration:none;background:#fff">
+    in LinkedIn &nbsp;<strong>TheStreamic</strong>
+  </a>
+</div>
 <h2 style="font-family:var(--serif);font-size:22px;margin:36px 0 12px">Contact</h2>
-<p style="font-size:15px;color:var(--ink3);line-height:1.7">For editorial enquiries, corrections, or advertising: <a href="mailto:technodate3@gmail.com" style="color:var(--blue)">technodate3@gmail.com</a></p>
+<p style="font-size:15px;color:var(--ink3);line-height:1.7">For editorial enquiries, corrections, or advertising: <a href="mailto:technodate3@gmail.com" style="color:var(--blue)">technodate3@gmail.com</a> &nbsp;|&nbsp; <a href="contact.html" style="color:var(--blue)">Use our contact form &rarr;</a></p>
 </div></main>
 {footer()}
 {_cookie_banner()}
 </body></html>"""
 
 def contact_page():
-    return f"""{head("Contact — The Streamic","Get in touch with The Streamic editorial team.",f"{BASE_URL}/contact.html")}
+    return f"""{head("Contact — The Streamic","Get in touch with The Streamic editorial team in Dublin, Ireland.",f"{BASE_URL}/contact.html")}
 <body>
 {nav()}
-<main><div class="w" style="padding:52px 0 80px;max-width:640px">
-<h1 style="font-family:var(--serif);font-size:clamp(28px,4vw,40px);margin-bottom:14px">Contact</h1>
-<p style="font-size:15px;color:var(--ink3);line-height:1.7;margin-bottom:24px">We welcome editorial feedback, tips, corrections, and partnership enquiries.</p>
-<div style="background:var(--bg);border-radius:14px;padding:28px">
-  <p style="font-size:14px;color:var(--ink3);margin-bottom:10px"><strong style="color:var(--ink)">Email:</strong> <a href="mailto:technodate3@gmail.com" style="color:var(--blue)">technodate3@gmail.com</a></p>
-  <p style="font-size:14px;color:var(--ink3);margin-bottom:10px"><strong style="color:var(--ink)">Editorial:</strong> story tips, corrections, press releases</p>
-  <p style="font-size:14px;color:var(--ink3)"><strong style="color:var(--ink)">Advertising:</strong> For advertising enquiries, please include "Advertising" in the subject line.</p>
+<main><div class="w" style="padding:52px 0 80px;max-width:680px">
+<h1 style="font-family:var(--serif);font-size:clamp(28px,4vw,40px);margin-bottom:8px">Contact</h1>
+<p style="font-size:15px;color:var(--ink3);line-height:1.7;margin-bottom:32px">We welcome editorial feedback, tips, corrections, and partnership enquiries.</p>
+<div style="background:var(--bg);border-radius:14px;padding:24px 28px;margin-bottom:32px">
+  <p style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--ink4);margin-bottom:12px">Our Address</p>
+  <address style="font-style:normal;font-size:14px;color:var(--ink2);line-height:1.8">
+    <strong>The Streamic</strong><br>
+    Adamstown, Lucan<br>
+    Dublin, Ireland
+  </address>
+  <p style="font-size:14px;color:var(--ink3);margin-top:14px;margin-bottom:4px"><strong style="color:var(--ink)">Email:</strong> <a href="mailto:technodate3@gmail.com" style="color:var(--blue)">technodate3@gmail.com</a></p>
+  <p style="font-size:14px;color:var(--ink3);margin-bottom:4px"><strong style="color:var(--ink)">Editorial:</strong> Story tips, corrections, press releases</p>
+  <p style="font-size:14px;color:var(--ink3)"><strong style="color:var(--ink)">Advertising:</strong> Include &#34;Advertising&#34; in your subject line</p>
 </div>
+<h2 style="font-family:var(--serif);font-size:22px;margin-bottom:20px">Send us a message</h2>
+<form id="contactForm" style="display:flex;flex-direction:column;gap:16px">
+  <div>
+    <label for="cf-name" style="display:block;font-size:13px;font-weight:600;color:var(--ink);margin-bottom:6px">Your Name</label>
+    <input id="cf-name" type="text" name="name" required placeholder="Jane Smith"
+      style="width:100%;padding:10px 14px;border:1px solid var(--line);border-radius:8px;font-size:14px;color:var(--ink);background:#fff;box-sizing:border-box">
+  </div>
+  <div>
+    <label for="cf-email" style="display:block;font-size:13px;font-weight:600;color:var(--ink);margin-bottom:6px">Email Address</label>
+    <input id="cf-email" type="email" name="email" required placeholder="you@company.com"
+      style="width:100%;padding:10px 14px;border:1px solid var(--line);border-radius:8px;font-size:14px;color:var(--ink);background:#fff;box-sizing:border-box">
+  </div>
+  <div>
+    <label for="cf-subject" style="display:block;font-size:13px;font-weight:600;color:var(--ink);margin-bottom:6px">Subject</label>
+    <input id="cf-subject" type="text" name="subject" placeholder="Editorial feedback / Story tip / Advertising"
+      style="width:100%;padding:10px 14px;border:1px solid var(--line);border-radius:8px;font-size:14px;color:var(--ink);background:#fff;box-sizing:border-box">
+  </div>
+  <div>
+    <label for="cf-message" style="display:block;font-size:13px;font-weight:600;color:var(--ink);margin-bottom:6px">Message</label>
+    <textarea id="cf-message" name="message" required rows="5" placeholder="Your message..."
+      style="width:100%;padding:10px 14px;border:1px solid var(--line);border-radius:8px;font-size:14px;color:var(--ink);background:#fff;box-sizing:border-box;resize:vertical"></textarea>
+  </div>
+  <button type="submit" id="cf-submit"
+    style="align-self:flex-start;padding:11px 28px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:background .15s ease">
+    Send Message
+  </button>
+</form>
+<div id="cf-status" style="margin-top:16px;font-size:14px;display:none"></div>
+<script>
+(function(){{
+  var form=document.getElementById('contactForm');
+  var status=document.getElementById('cf-status');
+  var btn=document.getElementById('cf-submit');
+  form.addEventListener('submit',function(e){{
+    e.preventDefault();
+    btn.textContent='Sending...';btn.disabled=true;
+    var name=document.getElementById('cf-name').value;
+    var email=document.getElementById('cf-email').value;
+    var subj=document.getElementById('cf-subject').value||'Contact from The Streamic';
+    var msg=document.getElementById('cf-message').value;
+    var body='From: '+name+' <'+email+'>\n\n'+msg;
+    window.location.href='mailto:technodate3@gmail.com'
+      +'?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body);
+    status.textContent='Your email client has been opened with your message pre-filled.';
+    status.style.color='#34C759';status.style.display='block';
+    btn.textContent='Send Message';btn.disabled=false;
+  }});
+}})();
+</script>
 </div></main>
 {footer()}
 {_cookie_banner()}
@@ -762,6 +850,34 @@ def howto_page():
             "href": "articles/guide-avid-strawberry.html",
             "tag": "PAM · Avid",
             "time": "10 min",
+        },
+        {
+            "title": "Audio Conform: Avid Media Composer to Pro Tools and Back",
+            "desc": "Export AAF from Avid, open in Pro Tools for audio finishing, and return the mix in sync. Covers sample rates, BWF export, and timecode alignment.",
+            "href": "articles/guide-audio-conform-avid-protools.html",
+            "tag": "Avid · Pro Tools · Audio",
+            "time": "10 min",
+        },
+        {
+            "title": "Clearing Cache in Avid MediaCentral Cloud UX (2025)",
+            "desc": "Fix slow loads, stale thumbnails, and playback errors by clearing browser, application, and server-side proxy cache in MediaCentral Cloud UX.",
+            "href": "articles/guide-media-central-cache.html",
+            "tag": "MediaCentral · Admin",
+            "time": "7 min",
+        },
+        {
+            "title": "Avid MediaCentral Health Check: Services, Connections, and Logs",
+            "desc": "Run a full pre-air health check — verify MCPS services, Interplay and iNEWS connections, licensing, and system logs before going on air.",
+            "href": "articles/guide-avid-media-central-health-check.html",
+            "tag": "MediaCentral · Infrastructure",
+            "time": "12 min",
+        },
+        {
+            "title": "Integrating Vizrt Graphics with Avid MediaCentral and iNEWS",
+            "desc": "Configure the Vizrt Plugin for MediaCentral and the MOS Gateway to connect Viz Engine templates to iNEWS stories for story-driven graphics playout.",
+            "href": "articles/guide-vizrt-avid-integration.html",
+            "tag": "Vizrt · iNEWS · MOS",
+            "time": "14 min",
         },
         {
             "title": "Upgrade to Windows 11",
