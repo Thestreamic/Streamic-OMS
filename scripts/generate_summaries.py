@@ -48,8 +48,8 @@ os.makedirs(SUMMARIES_DIR, exist_ok=True)
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
 GROQ_URL     = "https://api.groq.com/openai/v1/chat/completions"
 GROQ_MODEL   = "llama-3.3-70b-versatile"   # fast + free tier
-MAX_PER_RUN  = 40                  # stay within Groq free tier rate limits
-SLEEP_SECS   = 1.5                 # pause between calls to avoid rate-limit
+MAX_PER_RUN  = 15  # 15 × ~2k tokens = 30k/run, safe within 100k TPD                  # stay within Groq free tier rate limits
+SLEEP_SECS   = 3.0                 # pause between calls — 3s minimum between each request
 
 # ── Slug builder (mirrors rewrite_feed.py) ────────────────────────────────────
 def make_slug(title, pub_date, cat=""):
@@ -60,25 +60,43 @@ def make_slug(title, pub_date, cat=""):
     prefix     = f"{date_part}-{cat_part}-" if cat_part else f"{date_part}-"
     return f"{prefix}{title_part[:65 - len(prefix)]}"
 
-# ── Groq API call ─────────────────────────────────────────────────────────────
-def groq_call(prompt: str, max_tokens: int = 1200) -> str:
+# ── Groq API call with automatic 429 retry ───────────────────────────────────
+def _parse_wait_seconds(error_msg: str) -> float:
+    """Extract wait time from Groq 429 message: 'try again in 4m1.055s'"""
+    m = re.search(r"try again in ([\d\.]+)m([\d\.]+)s", error_msg)
+    if m:
+        return float(m.group(1)) * 60 + float(m.group(2)) + 2
+    m = re.search(r"try again in ([\d\.]+)m", error_msg)
+    if m:
+        return float(m.group(1)) * 60 + 2
+    m = re.search(r"try again in ([\d\.]+)s", error_msg)
+    if m:
+        return float(m.group(1)) + 2
+    return 65.0  # safe default: wait 65s
+
+
+def groq_call(prompt: str, max_tokens: int = 800, max_retries: int = 6) -> str:
+    """Call Groq API with automatic retry on 429 rate-limit errors.
+    Parses the exact wait time from the error message and sleeps accordingly.
+    max_tokens default reduced to 800 to stay within 100k TPD limit.
+    """
     if not GROQ_API_KEY:
         raise RuntimeError("GROQ_API_KEY not set")
 
     payload = json.dumps({
-        "model": GROQ_MODEL,
-        "max_tokens": max_tokens,
-        "temperature": 0.7,
-        "frequency_penalty": 0.8,
-        "presence_penalty": 0.6,
+        "model":             GROQ_MODEL,
+        "max_tokens":        max_tokens,
+        "temperature":       0.7,
+        "frequency_penalty": 0.5,
+        "presence_penalty":  0.3,
         "messages": [
             {
-                "role": "system",
+                "role":    "system",
                 "content": (
-                    "You are a senior broadcast editor. Write precise 330-word technical analyses. "
-                    "Strict rule: never start two sentences with the same word. "
-                    "Do not use corporate buzzwords like delivers, seamless, or game-changer. "
-                    "Focus on specs (ST 2110, NMOS, latency, bitrate) and the So What for CTOs."
+                    "You are a senior broadcast technology editor. "
+                    "Write factual, specific technical analysis. "
+                    "Never use: delivers, seamless, game-changer, highlights, underscores, reflects. "
+                    "Focus on specs (ST 2110, NMOS, latency, bitrate) and practical engineering impact."
                 )
             },
             {"role": "user", "content": prompt}
@@ -86,29 +104,56 @@ def groq_call(prompt: str, max_tokens: int = 1200) -> str:
     }).encode("utf-8")
 
     headers = {
-        "Authorization":  f"Bearer {GROQ_API_KEY}",
-        "Content-Type":   "application/json",
-        "User-Agent":     "Mozilla/5.0 (compatible; TheStreamic/1.0)",
-        "Accept":         "application/json",
+        "Authorization": f"Bearer {GROQ_API_KEY}",
+        "Content-Type":  "application/json",
+        "User-Agent":    "Mozilla/5.0 (compatible; TheStreamic/1.0)",
+        "Accept":        "application/json",
     }
-    try:
-        if _USE_REQUESTS:
-            resp = _requests.post(GROQ_URL, data=payload, headers=headers, timeout=45)
-            if resp.status_code != 200:
-                raise RuntimeError(f"Groq HTTP {resp.status_code}: {resp.text[:300]}")
-            data = resp.json()
-        else:
-            req = urllib.request.Request(GROQ_URL, data=payload, headers=headers, method="POST")
-            with urllib.request.urlopen(req, timeout=45) as r:
-                data = json.load(r)
-        return data["choices"][0]["message"]["content"].strip()
-    except RuntimeError:
-        raise
-    except urllib.error.HTTPError as e:
-        body = e.read().decode("utf-8", errors="replace")
-        raise RuntimeError(f"Groq HTTP {e.code}: {body[:300]}")
-    except Exception as e:
-        raise RuntimeError(f"Groq call failed: {e}")
+
+    for attempt in range(max_retries):
+        try:
+            if _USE_REQUESTS:
+                resp = _requests.post(GROQ_URL, data=payload, headers=headers, timeout=60)
+                status = resp.status_code
+                body   = resp.text
+            else:
+                req = urllib.request.Request(GROQ_URL, data=payload, headers=headers, method="POST")
+                try:
+                    with urllib.request.urlopen(req, timeout=60) as r:
+                        body   = r.read().decode("utf-8")
+                        status = 200
+                except urllib.error.HTTPError as e:
+                    body   = e.read().decode("utf-8", errors="replace")
+                    status = e.code
+
+            if status == 200:
+                data = json.loads(body) if isinstance(body, str) else body
+                return data["choices"][0]["message"]["content"].strip()
+
+            if status == 429:
+                wait = _parse_wait_seconds(body)
+                print(f"      ⏱ Rate limit (429). Waiting {wait:.0f}s before retry {attempt+1}/{max_retries}...")
+                time.sleep(wait)
+                continue
+
+            if status == 403:
+                # Cloudflare block — short wait and retry
+                wait = 10 * (attempt + 1)
+                print(f"      ⚠ 403 (attempt {attempt+1}). Waiting {wait}s...")
+                time.sleep(wait)
+                continue
+
+            raise RuntimeError(f"Groq HTTP {status}: {body[:200]}")
+
+        except RuntimeError:
+            raise
+        except Exception as e:
+            if attempt < max_retries - 1:
+                time.sleep(5)
+                continue
+            raise RuntimeError(f"Groq call failed: {e}")
+
+    raise RuntimeError(f"Max retries ({max_retries}) exceeded")
 
 # ── Broadcast relevance filter ───────────────────────────────────────────────
 # Titles that contain these keywords are unlikely to be broadcast/streaming relevant
@@ -238,7 +283,7 @@ STRUCTURE (use these exact headings):
 [Forward-looking: what should engineers and technology directors monitor? Name specific standards, product roadmaps, or market developments to track.]
 
 STYLE RULES:
-- 700–1100 words total
+- 500–700 words total (concise and focused — do not pad)
 - Confident, analytical tone — write as a domain expert
 - Every paragraph adds new information (no repetition)
 - Prefer concrete technical terms over abstract language
@@ -405,7 +450,7 @@ def main():
             # ── Step 2: Generate factual article body ────────────────────
             raw_body = groq_call(
                 _ARTICLE_PROMPT.format(title=title, teaser=teaser, category=category),
-                max_tokens=2000
+                max_tokens=1200  # 700 words ≈ 1000 tokens + buffer
             )
             body_html = re.sub(r"```html?\n?|```\n?", "", raw_body).strip()
             time.sleep(SLEEP_SECS)
