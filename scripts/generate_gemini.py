@@ -125,7 +125,7 @@ def _parse_wait(msg: str) -> float:
     m = re.search(r"(\d+)\s*second", msg.lower())
     if m:
         return float(m.group(1)) + 2
-    return 65.0
+    return 32.0  # short default — resets within 60s
 
 
 def gemini_call(prompt: str, max_retries: int = 2) -> str:
@@ -156,7 +156,7 @@ def gemini_call(prompt: str, max_retries: int = 2) -> str:
         ],
         "generationConfig": {
             "temperature":     0.65,
-            "maxOutputTokens": 1200,
+            "maxOutputTokens": 900,   # 900 tokens ≈ 650 words — reduces quota usage
             "topP":            0.9,
         },
         "safetySettings": [
@@ -402,14 +402,18 @@ def main():
     batch = items_to_process[:MAX_PER_RUN]
     print(f"Items to process: {total} (this run: {len(batch)})")
 
-    processed  = 0
-    errors     = 0
-    _run_start = time.time()
-    _RUN_LIMIT = 180  # 3-minute hard stop — prevents GitHub Action hanging
+    processed       = 0
+    errors          = 0
+    consec_limits   = 0   # consecutive rate-limit errors — bail if too many
+    _run_start      = time.time()
+    _RUN_LIMIT      = 180  # 3-minute hard stop
 
     for item in batch:
         if time.time() - _run_start > _RUN_LIMIT:
             print(f"      ⏱ 3 min limit reached. Stopping cleanly ({processed} saved).")
+            break
+        if consec_limits >= 2:
+            print(f"      ⏱ Gemini rate limit hit {consec_limits}x in a row — skipping run. Will retry next scheduled run.")
             break
         slug     = item["slug"]
         title    = item["title"]
@@ -438,13 +442,19 @@ def main():
             body_html = re.sub(r"```html?\n?|```\n?", "", raw_body).strip()
 
             save_summary(slug, card_summary, body_html)
-            processed += 1
+            processed    += 1
+            consec_limits = 0  # reset on success
             print(f"      ✓ saved → data/summaries/{slug[:45]}.json")
 
         except Exception as ex:
             errors += 1
+            err_str = str(ex)
+            if '429' in err_str or 'rate' in err_str.lower() or 'quota' in err_str.lower():
+                consec_limits += 1
+            else:
+                consec_limits = 0  # reset on non-rate-limit errors
             print(f"      ✗ ERROR: {ex}")
-            time.sleep(5)
+            time.sleep(3)
 
     print(f"\n✓ Done: {processed} summaries saved, {errors} errors.")
     print(f"  Files in data/summaries/: {len(os.listdir(SUMMARIES_DIR))}")
