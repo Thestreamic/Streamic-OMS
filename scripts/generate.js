@@ -804,8 +804,29 @@ function buildPostsPage(arts) {
     }[art.category] || '#0066cc';
     const catLabel = (art.category || 'featured')
       .replace(/-/g,' ').replace(/\b\w/g, c => c.toUpperCase());
-    const href = `posts/${art.slug}.html`;
-    const imgSrc = esc(art.image || '');
+    // Link to articles/ (built by build.py) — posts/ may be empty if Node didn't run
+    const slug_  = art.slug || '';
+    const href   = slug_ ? `articles/${slug_}.html` : (art.sourceUrl || art.link || '#');
+    // Category-specific Unsplash image pools — prevents all cards showing same image
+    const IMG_POOLS = {
+      'featured':          ['photo-1598488035139-bdbb2231ce04','photo-1574629810360-7efbbe195018','photo-1560272564-c83b66b1ad12','photo-1540747913346-19212a4a3bdf','photo-1598921776785-44f6879c3b65'],
+      'streaming':         ['photo-1499364615650-ec38552f4f34','photo-1611532736597-de2d4265fba3','photo-1518770660439-4636190af475','photo-1461749280684-dccba630e2f6','photo-1551650975-87deedd944c3'],
+      'cloud':             ['photo-1544197150-b99a580bb7a8','photo-1531297484001-80022131f5a1','photo-1573164713988-8665fc963095','photo-1486312338219-ce68d2c6f44d','photo-1580584126903-c17d41830450'],
+      'infrastructure':    ['photo-1558494949-ef010cbdcc31','photo-1545987796-200677ee1011','photo-1504384308090-c894fdcc538d','photo-1560472354-b33ff0c44a43','photo-1451187580459-43490279c0fa'],
+      'ai-post-production':['photo-1677442135703-1787eea5ce01','photo-1620712943543-bcc4688e7485','photo-1605106702734-205df224ecce','photo-1572044162444-ad60f128bdea','photo-1535016120720-40c646be5580'],
+      'playout':           ['photo-1478737270239-2f02b77fc618','photo-1524253482453-3fed8d2fe12b','photo-1616401784845-180882ba9ba8','photo-1574717024653-61fd2cf4d44d','photo-1598488035139-bdbb2231ce04'],
+      'graphics':          ['photo-1504639725590-34d0984388bd','photo-1547658719-da2b51169166','photo-1551288049-bebda4e38f71','photo-1526256262350-7da7584cf5eb','photo-1504711434969-e33886168f5c'],
+      'newsroom':          ['photo-1504711434969-e33886168f5c','photo-1585829365295-ab7cd400c167','photo-1453738773917-9c3eff1db985','photo-1495020689067-958852a7765e','photo-1432821596592-e2c18b78144f'],
+    };
+    const _cat    = (art.category || 'featured').toLowerCase();
+    const _pool   = IMG_POOLS[_cat] || IMG_POOLS['featured'];
+    // Use slug hash to pick deterministically — different article = different image
+    const _hash   = (art.slug || art.title || '').split('').reduce((a,c)=>((a<<5)-a+c.charCodeAt(0))|0, 0);
+    const _pid    = _pool[Math.abs(_hash) % _pool.length];
+    const _rawImg = art.image || '';
+    // Only use art.image if it's a valid non-guitar-studio URL
+    const _badImg = _rawImg.includes('511379938547') || _rawImg.includes('537511446984') || !_rawImg;
+    const imgSrc  = esc(_badImg ? `https://images.unsplash.com/${_pid}?w=900&auto=format&fit=crop&q=80` : _rawImg);
     const titleEsc = esc(art.title || 'Untitled');
     const dekEsc = esc(art.dek || '');
     const srcEsc = esc(art.sourceName || '');
