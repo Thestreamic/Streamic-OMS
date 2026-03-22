@@ -588,5 +588,208 @@ def main():
     print(f"  Total articles: {len(arts)}")
 
 
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# GROQ-POWERED EDITORIAL DEEP-DIVES (Llama 3.3 70b Versatile)
+# Generates 1,200-word hero articles from topic prompts.
+# Runs AFTER the static EDITORIAL_ARTICLES above.
+# ════════════════════════════════════════════════════════════════════════════
+
+import urllib.request, urllib.error, time as _time
+
+GROQ_API_KEY   = os.environ.get("GROQ_API_KEY", "")
+GROQ_URL       = "https://api.groq.com/openai/v1/chat/completions"
+GROQ_EDI_MODEL = "llama-3.3-70b-versatile"
+
+try:
+    import requests as _req
+    _GROQ_USE_REQUESTS = True
+except ImportError:
+    _GROQ_USE_REQUESTS = False
+
+# Topics for Groq-generated deep-dives — add new slugs here to expand coverage
+GROQ_EDITORIAL_TOPICS = [
+    {
+        "slug":      "ip-transition-2026-practical-guide-broadcast-engineers",
+        "category":  "infrastructure",
+        "title":     "The IP Transition in 2026: A Practical Engineering Guide for Broadcasters",
+        "topic":     (
+            "The real-world challenges and solutions for broadcasters migrating from SDI to "
+            "IP infrastructure using SMPTE ST 2110, NMOS, and hybrid approaches. "
+            "Focus on small and mid-market broadcasters, not tier-1 networks."
+        ),
+        "published": "2026-03-22",
+        "image_url": "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1200&auto=format&fit=crop&q=80",
+    },
+    {
+        "slug":      "cloud-playout-economics-2026-build-vs-buy",
+        "category":  "cloud",
+        "title":     "Cloud Playout in 2026: The Build vs. Buy Decision Every Broadcaster Faces",
+        "topic":     (
+            "The economics of cloud playout platforms in 2026. Compare "
+            "AWS Elemental, Azure Media Services, Harmonic, and Grass Valley. "
+            "Focus on TCO, latency, redundancy, and the realistic migration path."
+        ),
+        "published": "2026-03-22",
+        "image_url": "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=1200&auto=format&fit=crop&q=80",
+    },
+]
+
+_EDI_SYSTEM = """You are a Lead Editorial Director at a major technology journal covering broadcast and media infrastructure.
+Write a 1,200-word long-form deep-dive analysis.
+
+Style: Long-form journalism (Wired or IEEE Spectrum level).
+Format: Use <h2> and <h3> subheads. Use <blockquote> for key industry observations. Bold important technical terms with <strong>.
+Goal: Provide a visionary, expert outlook on how this technology will shape broadcast engineering by 2030.
+
+STRICT RULES:
+- Minimum 1,100 words of substantive content
+- Every paragraph adds new information (no repetition)
+- Use specific technical standards: SMPTE ST 2110, NMOS, AES67, HLS, HEVC, AV1, SRT, RIST, NDI where relevant
+- Include at least one <blockquote> with an industry observation
+- DO NOT use: "In the ever-evolving", "this article explores", "game-changer", "seamless", "innovative"
+- DO NOT add a "Conclusion" heading
+- Output clean HTML only: <p>, <h2>, <h3>, <blockquote>, <ul>, <li>, <strong>, <em>"""
+
+def _parse_groq_wait(msg: str) -> float:
+    m = re.search(r"try again in ([\.\d]+)m([\d\.]+)s", msg)
+    if m: return float(m.group(1))*60 + float(m.group(2)) + 2
+    m = re.search(r"try again in ([\d\.]+)m", msg)
+    if m: return float(m.group(1))*60 + 2
+    m = re.search(r"try again in ([\d\.]+)s", msg)
+    if m: return float(m.group(1)) + 2
+    return 65.0
+
+def _groq_editorial_call(topic_title: str, topic_desc: str, max_retries: int = 5) -> str:
+    if not GROQ_API_KEY:
+        raise RuntimeError("GROQ_API_KEY not set")
+
+    prompt = (
+        f"Write a 1,200-word technical deep-dive analysis about:\n\n"
+        f"Topic: {topic_title}\n\n"
+        f"Context: {topic_desc}\n\n"
+        f"Write the complete long-form HTML article now:"
+    )
+
+    payload = json.dumps({
+        "model":             GROQ_EDI_MODEL,
+        "max_tokens":        2500,
+        "temperature":       0.72,
+        "frequency_penalty": 0.4,
+        "messages": [
+            {"role": "system", "content": _EDI_SYSTEM},
+            {"role": "user",   "content": prompt},
+        ]
+    }).encode("utf-8")
+
+    headers = {
+        "Authorization": f"Bearer {GROQ_API_KEY}",
+        "Content-Type":  "application/json",
+        "User-Agent":    "Mozilla/5.0 (compatible; TheStreamic/1.0)",
+    }
+
+    for attempt in range(max_retries):
+        try:
+            if _GROQ_USE_REQUESTS:
+                resp   = _req.post(GROQ_URL, data=payload, headers=headers, timeout=90)
+                status = resp.status_code
+                body   = resp.text
+            else:
+                req = urllib.request.Request(GROQ_URL, data=payload, headers=headers, method="POST")
+                try:
+                    with urllib.request.urlopen(req, timeout=90) as r:
+                        body   = r.read().decode("utf-8")
+                        status = 200
+                except urllib.error.HTTPError as he:
+                    body   = he.read().decode("utf-8", errors="replace")
+                    status = he.code
+
+            if status == 200:
+                data = json.loads(body)
+                return data["choices"][0]["message"]["content"].strip()
+
+            if status == 429:
+                wait = _parse_groq_wait(body)
+                print(f"      ⏱ Rate limit. Waiting {wait:.0f}s...")
+                _time.sleep(wait)
+                continue
+
+            raise RuntimeError(f"Groq HTTP {status}: {body[:200]}")
+
+        except RuntimeError:
+            raise
+        except Exception as ex:
+            if attempt < max_retries - 1:
+                _time.sleep(10); continue
+            raise RuntimeError(f"Groq call failed: {ex}")
+
+    raise RuntimeError("Groq: max retries exceeded")
+
+
+def run_groq_editorials():
+    """Generate Groq-powered editorial deep-dives for topics in GROQ_EDITORIAL_TOPICS."""
+    if not GROQ_API_KEY:
+        print("  ⚠ GROQ_API_KEY not set — skipping Groq editorial generation")
+        return
+
+    with open(DATA_F, "r", encoding="utf-8") as f:
+        arts = json.load(f)
+    existing_slugs = {a["slug"] for a in arts}
+
+    new_arts = []
+    for topic in GROQ_EDITORIAL_TOPICS:
+        slug = topic["slug"]
+        if slug in existing_slugs:
+            print(f"  ↩ Exists: {slug[:50]}")
+            continue
+
+        print(f"  🖊 Generating: {topic['title'][:55]}...")
+        try:
+            body_html = _groq_editorial_call(topic["title"], topic["topic"])
+            body_html = re.sub(r"```html?\n?|```\n?", "", body_html).strip()
+
+            wc = len(re.sub(r"<[^>]+>", " ", body_html).split())
+            art = {
+                "slug":               slug,
+                "category":           topic["category"],
+                "cat_label":          topic["category"].replace("-", " ").title(),
+                "cat_icon":           "📝",
+                "cat_color":          "#0066cc",
+                "cat_page":           f"{topic['category']}.html",
+                "type_label":         "Deep Dive",
+                "title":              topic["title"],
+                "dek":                topic.get("topic", "")[:200],
+                "meta_description":   topic.get("topic", "")[:160],
+                "published":          topic["published"],
+                "image_url":          topic.get("image_url", ""),
+                "word_count":         wc,
+                "body_html":          body_html,
+                "card_summary":       topic.get("topic", "")[:300],
+                "image_credit":       "Photo via Unsplash",
+                "image_license":      "Unsplash License",
+                "image_license_url":  "https://unsplash.com/license",
+                "source_url":         "",
+                "source_domain":      "",
+                "legacy_slug":        slug,
+                "guid":               hashlib.md5(slug.encode()).hexdigest(),
+                "editorial":          True,
+                "is_editorial":       True,
+            }
+            new_arts.append(art)
+            print(f"      ✓ {wc} words generated")
+            _time.sleep(6)
+
+        except Exception as ex:
+            print(f"      ✗ ERROR: {ex}")
+            _time.sleep(5)
+
+    if new_arts:
+        arts.extend(new_arts)
+        with open(DATA_F, "w", encoding="utf-8") as f:
+            json.dump(arts, f, indent=2, ensure_ascii=False)
+        print(f"  ✓ {len(new_arts)} new Groq editorial articles added")
+
 if __name__ == "__main__":
     main()
+    run_groq_editorials()

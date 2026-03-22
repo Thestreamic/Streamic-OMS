@@ -13,6 +13,18 @@ BASE_URL  = os.environ.get("SITE_BASE_URL", "https://www.thestreamic.in").rstrip
 GA        = "G-0VSHDN3ZR6"
 ADS       = "ca-pub-8033069131874524"
 AUTHOR    = "The Streamic Editorial Team"
+
+# ── Editor's Note (AdSense transparency) ─────────────────────────────────────
+_EDITORS_NOTE_HTML = (
+    '<hr style="margin-top:40px;border:0;border-top:1px solid #eee;">'
+    '<p style="font-style:italic;font-size:0.85rem;color:#666;line-height:1.5;margin-top:20px;">'
+    '<strong>Editor&#39;s Note:</strong> This technical analysis was synthesised from '
+    'industry sources and constructed with the assistance of AI tools. It has been '
+    'reviewed and formatted by <strong>The Streamic Editorial Team</strong> '
+    'to ensure accuracy and relevance for broadcast professionals.'
+    '</p>'
+)
+
 PAGE_SIZE = 24
 
 CAT = {
@@ -587,6 +599,7 @@ def article_page(a):
 </div>"""
 
     # Pre-compute variables for f-string compatibility (Python < 3.12)
+    editors_note = '' if is_ed else _EDITORS_NOTE_HTML
     cinfo_color = cinfo.get('color','')
     cinfo_lbl   = cinfo.get('label','')
     cinfo_icon2 = cinfo.get('icon','')
@@ -623,7 +636,7 @@ def article_page(a):
       <figcaption>{e(a.get("image_credit","Photo via Unsplash — free to use under the Unsplash License"))} — <a href="{lic_url}" rel="nofollow noopener" target="_blank" style="color:var(--ink4)">{lic_label}</a></figcaption>
     </figure>
     {_ad()}
-    <div class="art-body">{body}</div>
+    <div class="art-body">{body}{editors_note}</div>
     {source_credit}
     {_ad()}
     {author_box}
