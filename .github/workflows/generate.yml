@@ -3,21 +3,21 @@ name: The Streamic — Full Content Pipeline
 # ═══════════════════════════════════════════════════════════════════════════
 # DAILY SCHEDULE (all times UTC):
 #
-#  00:05  Full AI Run     — Gemini (220 articles, 37min) + Groq backup + build
-#  06:00  RSS Refresh     — Fetch new RSS + build (no heavy AI, stays fast)
+#  08:10  Full AI Run     — Gemini (220 articles, 37min) + Groq backup + build
+#  12:00  RSS Refresh     — Fetch new RSS + build (no heavy AI, stays fast)
 #  12:00  RSS Refresh     — Fetch new RSS + build
-#  18:00  Groq Top-up     — Groq card summaries for any gaps + build
+#  20:00  Groq Top-up     — Groq card summaries for any gaps + build
 #
-# Gemini free tier: 1,500 req/day resets at midnight UTC → run at 00:05
+# Gemini free tier: 1,500 req/day resets at midnight Pacific (08:00 UTC) → run at 08:10
 # Groq free tier: 100k tokens/day resets independently → run at 00:05 + 18:00
 # ═══════════════════════════════════════════════════════════════════════════
 
 on:
   schedule:
-    - cron: "5 0 * * *"    # 00:05 UTC — Full AI run (Gemini quota just reset)
-    - cron: "0 6 * * *"    # 06:00 UTC — RSS refresh only
+    - cron: "10 8 * * *"   # 08:10 UTC — Full AI run (Gemini resets at midnight Pacific = 08:00 UTC)
     - cron: "0 12 * * *"   # 12:00 UTC — RSS refresh only
-    - cron: "0 18 * * *"   # 18:00 UTC — Groq top-up run
+    - cron: "0 16 * * *"   # 16:00 UTC — RSS refresh only
+    - cron: "0 20 * * *"   # 20:00 UTC — Groq top-up + RSS
   workflow_dispatch:
     inputs:
       run_mode:
@@ -80,10 +80,10 @@ jobs:
           
           if [ -n "$INPUT" ]; then
             MODE="$INPUT"
-          elif [ "$HOUR" = "00" ]; then
-            MODE="full"        # 00:05 — full AI run
-          elif [ "$HOUR" = "18" ]; then
-            MODE="groq_only"   # 18:00 — Groq top-up
+          elif [ "$HOUR" = "08" ]; then
+            MODE="full"        # 08:10 — full AI run (Gemini reset)
+          elif [ "$HOUR" = "20" ]; then
+            MODE="groq_only"   # 20:00 — Groq top-up
           else
             MODE="rss_only"    # 06:00, 12:00 — RSS refresh
           fi
