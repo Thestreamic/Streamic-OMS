@@ -99,11 +99,18 @@ jobs:
       - name: "Stage 4: Generate editorial articles"
         run: python3 scripts/generate_editorial.py
 
-      # ── 10. STAGE 5: Groq summaries (optional) ───────────────────────────
+      # ── 10. STAGE 5: Groq card summaries (optional) ─────────────────────
       - name: "Stage 5: Groq card summaries (if key available)"
         env:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
         run: python3 scripts/generate_summaries.py || echo "Groq step skipped"
+
+      # ── 10b. STAGE 5b: Gemini 1.5 Flash summaries (redundant pipeline) ──
+      # Runs if GEMINI_API_KEY is set. Fills gaps when Groq hits rate limits.
+      - name: "Stage 5b: Gemini article generation (if key available)"
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python3 scripts/generate_gemini.py || echo "Gemini step skipped"
 
       # ── 11. STAGE 6: Build full static site (Python) ─────────────────────
       - name: "Stage 6: Build static site"
@@ -130,20 +137,20 @@ jobs:
           git config user.name  "Streamic Bot"
           git config user.email "technodate3@gmail.com"
 
-          # Stage all generated output
-          git add docs/
-          git add data/
-          git add posts.html 2>/dev/null || true
-          git add sitemap.xml 2>/dev/null || true
-          git add featured.html index.html 2>/dev/null || true
-          git add *.html 2>/dev/null || true
+          # Stage everything that was generated
+          git add -A docs/ data/
+          git add posts.html sitemap.xml featured.html index.html 2>/dev/null || true
 
           if git diff --cached --quiet; then
             echo "No changes to commit."
           else
             POSTS=$(find docs/posts -name '*.html' 2>/dev/null | wc -l)
             git commit -m "build: auto-refresh — ${POSTS} AI articles [skip ci]"
-            git pull --rebase origin main || true
+
+            # Pull remote changes before pushing — handles non-fast-forward
+            # Use --no-rebase to avoid "unstaged changes" error from rebase
+            git fetch origin main
+            git merge origin/main --no-edit -s recursive -X ours 2>/dev/null ||               git merge origin/main --no-edit || true
             git push origin main
             echo "✅ Committed and pushed"
           fi
