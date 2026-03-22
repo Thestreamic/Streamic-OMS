@@ -48,7 +48,7 @@ os.makedirs(SUMMARIES_DIR, exist_ok=True)
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
 GROQ_URL     = "https://api.groq.com/openai/v1/chat/completions"
 GROQ_MODEL   = "llama-3.3-70b-versatile"   # fast + free tier
-MAX_PER_RUN  = 15  # 15 × ~2k tokens = 30k/run, safe within 100k TPD                  # stay within Groq free tier rate limits
+MAX_PER_RUN  = 8   # Groq is now secondary — Gemini handles bulk. 8 × ~2k = 16k tokens/run
 SLEEP_SECS   = 3.0                 # pause between calls — 3s minimum between each request
 
 # ── Slug builder (mirrors rewrite_feed.py) ────────────────────────────────────
@@ -61,21 +61,24 @@ def make_slug(title, pub_date, cat=""):
     return f"{prefix}{title_part[:65 - len(prefix)]}"
 
 # ── Groq API call with automatic 429 retry ───────────────────────────────────
+_MAX_WAIT_SECS = 180  # Hard cap: never wait more than 3 minutes per retry
+
 def _parse_wait_seconds(error_msg: str) -> float:
-    """Extract wait time from Groq 429 message: 'try again in 4m1.055s'"""
+    """Extract wait time from Groq 429 message — capped at 3 minutes."""
     m = re.search(r"try again in ([\d\.]+)m([\d\.]+)s", error_msg)
     if m:
-        return float(m.group(1)) * 60 + float(m.group(2)) + 2
-    m = re.search(r"try again in ([\d\.]+)m", error_msg)
-    if m:
-        return float(m.group(1)) * 60 + 2
-    m = re.search(r"try again in ([\d\.]+)s", error_msg)
-    if m:
-        return float(m.group(1)) + 2
-    return 65.0  # safe default: wait 65s
+        wait = float(m.group(1)) * 60 + float(m.group(2)) + 2
+    else:
+        m = re.search(r"try again in ([\d\.]+)m", error_msg)
+        if m:
+            wait = float(m.group(1)) * 60 + 2
+        else:
+            m = re.search(r"try again in ([\d\.]+)s", error_msg)
+            wait = float(m.group(1)) + 2 if m else 65.0
+    return min(wait, _MAX_WAIT_SECS)  # never block the action for more than 3 min
 
 
-def groq_call(prompt: str, max_tokens: int = 800, max_retries: int = 6) -> str:
+def groq_call(prompt: str, max_tokens: int = 800, max_retries: int = 3) -> str:
     """Call Groq API with automatic retry on 429 rate-limit errors.
     Parses the exact wait time from the error message and sleeps accordingly.
     max_tokens default reduced to 800 to stay within 100k TPD limit.
@@ -113,13 +116,13 @@ def groq_call(prompt: str, max_tokens: int = 800, max_retries: int = 6) -> str:
     for attempt in range(max_retries):
         try:
             if _USE_REQUESTS:
-                resp = _requests.post(GROQ_URL, data=payload, headers=headers, timeout=60)
+                resp = _requests.post(GROQ_URL, data=payload, headers=headers, timeout=30)
                 status = resp.status_code
                 body   = resp.text
             else:
                 req = urllib.request.Request(GROQ_URL, data=payload, headers=headers, method="POST")
                 try:
-                    with urllib.request.urlopen(req, timeout=60) as r:
+                    with urllib.request.urlopen(req, timeout=30) as r:
                         body   = r.read().decode("utf-8")
                         status = 200
                 except urllib.error.HTTPError as e:
@@ -411,9 +414,16 @@ def main():
     print(f"Items to summarise: {len(items_to_process)} (max this run: {MAX_PER_RUN})")
     items_to_process = items_to_process[:MAX_PER_RUN]
 
-    processed = 0
-    errors    = 0
+    processed  = 0
+    errors     = 0
+    _run_start = time.time()
+    _RUN_LIMIT = 150  # 2.5 min hard stop — prevents GitHub Action hanging
+
     for item in items_to_process:
+        # Hard time limit: stop cleanly before GitHub kills the job
+        if time.time() - _run_start > _RUN_LIMIT:
+            print(f"      ⏱ 2.5 min limit reached. Stopping cleanly ({processed} saved).")
+            break
         slug     = item["slug"]
         title    = item["title"]
         teaser   = item["teaser"]

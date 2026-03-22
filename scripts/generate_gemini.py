@@ -21,7 +21,7 @@ Output per article (data/summaries/<slug>.json):
     "card_summary": "...",
     "body_html": "<h2>...</h2><h3>...</h3><ul>...</ul>",
     "word_count": 620,
-    "generated_by": "gemini-1.5-flash"
+    "generated_by": "gemini-2.0-flash"
   }
 
 Idempotent — skips slugs that already have a summary file.
@@ -46,7 +46,7 @@ os.makedirs(SUMMARIES_DIR, exist_ok=True)
 
 # ── Config ────────────────────────────────────────────────────────────────────
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
-GEMINI_MODEL   = "gemini-1.5-flash"
+GEMINI_MODEL   = "gemini-2.0-flash"      # Current free-tier model (replaces deprecated 1.5)
 GEMINI_URL     = (
     f"https://generativelanguage.googleapis.com/v1beta/models/"
     f"{GEMINI_MODEL}:generateContent?key={GEMINI_API_KEY}"
@@ -109,7 +109,7 @@ def save_summary(slug: str, card_summary: str, body_html: str):
         "card_summary": card_summary,
         "body_html":    body_html,
         "word_count":   wc,
-        "generated_by": "gemini-1.5-flash",
+        "generated_by": "gemini-2.0-flash",
         "generated_at": datetime.now(timezone.utc).isoformat(),
     }
     with open(summary_path(slug), "w", encoding="utf-8") as f:
@@ -138,8 +138,19 @@ def gemini_call(prompt: str, max_retries: int = 5) -> str:
         raise RuntimeError("GEMINI_API_KEY not set")
 
     payload = json.dumps({
+        "system_instruction": {
+            "parts": [{
+                "text": (
+                    "You are a Broadcast Systems Engineer writing for The Streamic. "
+                    "Write in a confident, technical, and analytical tone. "
+                    "Avoid: 'In the ever-evolving world', 'This article explores', 'delve into', "
+                    "'game-changer', 'seamless', 'innovative'. Start directly with the facts."
+                )
+            }]
+        },
         "contents": [
             {
+                "role": "user",
                 "parts": [{"text": prompt}]
             }
         ],
