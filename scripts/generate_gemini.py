@@ -52,8 +52,8 @@ GEMINI_URL     = (
     f"{GEMINI_MODEL}:generateContent?key={GEMINI_API_KEY}"
 )
 
-MAX_PER_RUN  = 20     # Gemini free tier: 1500 requests/day → 20/run × 4 runs safe
-SLEEP_SECS   = 4.0    # Stay within 15 RPM free-tier limit
+MAX_PER_RUN  = 10     # 10 × 2 calls × 4s = 80s min — stays well within action time
+SLEEP_SECS   = 2.0    # Gemini 2.0 Flash: 15 RPM = 4s gap needed, but 2s is fine for burst
 
 try:
     import requests as _requests
@@ -128,7 +128,7 @@ def _parse_wait(msg: str) -> float:
     return 65.0
 
 
-def gemini_call(prompt: str, max_retries: int = 5) -> str:
+def gemini_call(prompt: str, max_retries: int = 2) -> str:
     """
     Call Gemini 1.5 Flash generateContent endpoint.
     Auto-retries on 429 with parsed wait time.
@@ -175,13 +175,13 @@ def gemini_call(prompt: str, max_retries: int = 5) -> str:
     for attempt in range(max_retries):
         try:
             if _USE_REQUESTS:
-                resp   = _requests.post(GEMINI_URL, data=payload, headers=headers, timeout=60)
+                resp   = _requests.post(GEMINI_URL, data=payload, headers=headers, timeout=30)
                 status = resp.status_code
                 body   = resp.text
             else:
                 req  = urllib.request.Request(GEMINI_URL, data=payload, headers=headers, method="POST")
                 try:
-                    with urllib.request.urlopen(req, timeout=60) as r:
+                    with urllib.request.urlopen(req, timeout=30) as r:
                         body   = r.read().decode("utf-8")
                         status = 200
                 except urllib.error.HTTPError as he:
@@ -402,10 +402,15 @@ def main():
     batch = items_to_process[:MAX_PER_RUN]
     print(f"Items to process: {total} (this run: {len(batch)})")
 
-    processed = 0
-    errors    = 0
+    processed  = 0
+    errors     = 0
+    _run_start = time.time()
+    _RUN_LIMIT = 180  # 3-minute hard stop — prevents GitHub Action hanging
 
     for item in batch:
+        if time.time() - _run_start > _RUN_LIMIT:
+            print(f"      ⏱ 3 min limit reached. Stopping cleanly ({processed} saved).")
+            break
         slug     = item["slug"]
         title    = item["title"]
         teaser   = item["teaser"]
