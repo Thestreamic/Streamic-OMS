@@ -52,8 +52,8 @@ GEMINI_URL     = (
     f"{GEMINI_MODEL}:generateContent?key={GEMINI_API_KEY}"
 )
 
-MAX_PER_RUN  = 10     # 10 × 2 calls × 4s = 80s min — stays well within action time
-SLEEP_SECS   = 2.0    # Gemini 2.0 Flash: 15 RPM = 4s gap needed, but 2s is fine for burst
+MAX_PER_RUN  = 220    # Process all 225 articles in one run: 220 × 2 calls × 5s = 37min
+SLEEP_SECS   = 5.0    # 5s = 12 RPM — safely under 15 RPM free-tier limit
 
 try:
     import requests as _requests
@@ -474,7 +474,7 @@ def main():
     errors          = 0
     consec_limits   = 0   # consecutive rate-limit errors — bail if too many
     _run_start      = time.time()
-    _RUN_LIMIT      = 180  # 3-minute hard stop
+    _RUN_LIMIT      = 2400 # 40 min — fits inside 45-min GitHub Actions timeout
 
     for item in batch:
         if time.time() - _run_start > _RUN_LIMIT:

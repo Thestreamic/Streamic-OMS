@@ -1,5 +1,5 @@
 """
-scripts/build.py — The Streamic site builder
+scripts/build.py &#8212; The Streamic site builder
 Apple Newsroom-style static site generator
 """
 import json, os, re, shutil
@@ -29,7 +29,7 @@ PAGE_SIZE = 24
 
 CAT = {
     "featured":           {"label":"Featured",           "icon":"⭐","color":"#1d1d1f","desc":"Independent broadcast and streaming technology journalism."},
-    "streaming":          {"label":"Streaming",          "icon":"📡","color":"#0066cc","desc":"OTT platforms, encoding, CDN infrastructure, live streaming workflows."},
+    "streaming":          {"label":"Streaming",          "icon":"&#128225;","color":"#0066cc","desc":"OTT platforms, encoding, CDN infrastructure, live streaming workflows."},
     "cloud":              {"label":"Cloud Production",   "icon":"☁️","color":"#5856d6","desc":"Cloud-native broadcast production, remote workflows, REMI architecture."},
     "graphics":           {"label":"Graphics",           "icon":"🎨","color":"#FF9500","desc":"Real-time graphics, virtual sets, motion design, broadcast visuals."},
     "playout":            {"label":"Playout",            "icon":"▶️","color":"#34C759","desc":"Channel playout, broadcast automation, channel-in-a-box, transmission."},
@@ -92,7 +92,7 @@ def _cookie_banner():
 </script>"""
 
 def _ad():
-    # Ad slots removed — using Google Auto-Ads after AdSense approval
+    # Ad slots removed - using Google Auto-Ads after AdSense approval
     # The AdSense script in <head> remains for approval verification
     return ""
 
@@ -154,7 +154,7 @@ def nav(active="", base=""):
 
 def catbar(active_cat="", base=""):
     items = [
-        ("streaming","📡 Streaming"),("cloud","☁️ Cloud"),
+        ("streaming","&#128225; Streaming"),("cloud","☁️ Cloud"),
         ("graphics","🎨 Graphics"),("playout","▶️ Playout"),
         ("infrastructure","🏗️ Infra"),("ai-post-production","🎬 AI & Post"),
         ("newsroom","📰 Newsroom"),
@@ -198,7 +198,7 @@ def footer(base=""):
     </div>
   </div>
   <div class="footer-bottom">
-    <span>© {yr} The Streamic — thestreamic.in. All rights reserved.</span>
+    <span>© {yr} The Streamic &#8212; thestreamic.in. All rights reserved.</span>
     <span>Independent broadcast technology journalism. All trademarks belong to their respective owners.</span>
   </div>
 </footer>"""
@@ -214,7 +214,7 @@ def _nc_img(a, base=""):
     return f'<div class="nc-img nc-img-ph"></div>'
 
 def news_card(a, base="", is_first=False):
-    """SSR bento-grid-item — mirrors JS buildFeatured/buildStandard structure exactly."""
+    """SSR bento-grid-item &#8212; mirrors JS buildFeatured/buildStandard structure exactly."""
     cat   = a.get("category","featured")
     cinfo = CAT.get(cat, CAT["featured"])
     slug_ = a.get('slug', '')
@@ -226,7 +226,7 @@ def news_card(a, base="", is_first=False):
     cat_lbl = cinfo["label"]
 
     if is_first:
-        # Featured: vertical, large image — no summary (editorial feel)
+        # Featured: vertical, large image - no summary (editorial feel)
         src_html_f = f'<span class="bento-source">{src}</span>' if src else ""
         return f"""<li class="bento-grid-item">
   <div class="bento-img-wrap bento-img-featured">
@@ -245,7 +245,7 @@ def news_card(a, base="", is_first=False):
   </div>
 </li>"""
     else:
-        # Standard: vertical cards — no summary (clean editorial look)
+        # Standard: vertical cards - no summary (clean editorial look)
         src_html_s = f'<span class="bento-source">{src}</span>' if src else ""
         return f"""<li class="bento-grid-item bento-standard">
   <div class="bento-img-wrap bento-img-std">
@@ -265,7 +265,7 @@ def news_card(a, base="", is_first=False):
 </li>"""
 
 def news_grid(arts, base=""):
-    """SSR bento grid — JS hydrates from news.json, this provides SEO content."""
+    """SSR bento grid &#8212; JS hydrates from news.json, this provides SEO content."""
     if not arts: return ""
     cards = "\n".join(
         news_card(a, base, is_first=(i==0))
@@ -337,75 +337,245 @@ def hero_block(a, base=""):
 
 # ── FEATURED / INDEX PAGE
 def intelligence_feed_section(arts, base=""):
-    """3-column Apple Newsroom-style grid — title + source only (no AI summaries).
-    Cards are clean: image, category tag, headline, source/date. No card_summary shown.
-    Gemini/Groq will fill structured body_html on article pages in future runs.
+    """
+    Premium 3-column card grid: square cards, no image, Apple Newsroom / Tech Journal style.
+    Title styling: bold neo-grotesk, deep charcoal, 40px+, tight letter-spacing.
+    Cards: white background, 12px radius, subtle border, category dot, h3 title,
+           source + date footer, pill Read More button. Fully responsive.
     """
     rss = [a for a in arts if not a.get("is_editorial") and not a.get("editorial")][:15]
     if not rss:
         return ""
 
     cards_html = ""
-    for a in rss:
-        cat     = a.get("category", "featured")
-        cinfo   = CAT.get(cat, CAT["featured"])
-        slug_   = a.get("slug", "")
-        href    = f"{base}articles/{slug_}.html"
-        img     = e(a.get("image_url", ""))
-        fb      = f"{base}assets/fallback.jpg"
-        title   = e(a.get("title", ""))
-        src_dom = e(a.get("source_domain","").replace("https://","").replace("www.","").split("/")[0].upper())
-        dt      = d(a.get("published",""))
-        src_url = e(a.get("source_url","") or a.get("url","") or "")
-        cat_lbl = cinfo["label"]
-        cat_col = cinfo["color"]
-        # Determine if article has proper long-form body (700+ words with h2 structure)
-        body    = a.get("body_html","") or ""
-        wc      = len(re.sub(r"<[^>]+>"," ",body).split())
+    for i, a in enumerate(rss):
+        cat      = a.get("category", "featured")
+        cinfo    = CAT.get(cat, CAT["featured"])
+        slug_    = a.get("slug", "")
+        href     = f"{base}articles/{slug_}.html"
+        title    = e(a.get("title", ""))
+        src_dom  = e(a.get("source_domain","").replace("https://","").replace("www.","").split("/")[0])
+        dt       = d(a.get("published",""))
+        src_url  = e(a.get("source_url","") or a.get("url","") or "")
+        cat_lbl  = cinfo["label"]
+        cat_col  = cinfo["color"]
+        body     = a.get("body_html","") or ""
+        wc       = len(re.sub(r"<[^>]+>"," ",body).split())
         has_long = wc >= 500 and ("<h2>" in body or "<h3>" in body)
-        cta_txt = "Read Analysis &rarr;" if has_long else "View Source &rarr;"
-        cta_href = href if has_long else (src_url or href)
-        cta_target = ' target="_blank" rel="noopener noreferrer nofollow"' if (not has_long and src_url) else ''
+        btn_txt  = "Read Analysis" if has_long else "View Source"
+        btn_href = href if has_long else (src_url or href)
+        btn_tgt  = ' target="_blank" rel="noopener noreferrer nofollow"' if (not has_long and src_url) else ""
+        # Unique reference number for card (gives editorial credibility)
+        ref_num  = f"TS-{i+1:03d}"
 
         cards_html += f"""
-<article style="background:#fff;border-radius:12px;border:1px solid #eee;overflow:hidden;display:flex;flex-direction:column;transition:box-shadow 0.2s ease,transform 0.2s ease">
-  <a href="{href}" style="display:block;aspect-ratio:16/9;overflow:hidden;text-decoration:none">
-    <img src="{img}" alt="{title}" loading="lazy"
-      onerror="this.onerror=null;this.src='{fb}'"
-      style="width:100%;height:100%;object-fit:cover;transition:transform 0.3s ease;display:block">
-  </a>
-  <div style="padding:16px 18px 18px;display:flex;flex-direction:column;flex:1">
-    <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:{cat_col};margin-bottom:8px">{cat_lbl}</span>
-    <h3 style="font-family:var(--serif);font-size:17px;line-height:1.35;letter-spacing:-.02em;color:var(--ink);margin:0 0 auto">
+<article class="ic-card">
+  <div class="ic-inner">
+    <div class="ic-top">
+      <span class="ic-ref">{ref_num}</span>
+      <span class="ic-cat" style="color:{cat_col}">
+        <span class="ic-dot" style="background:{cat_col}"></span>{cat_lbl}
+      </span>
+    </div>
+    <h3 class="ic-title">
       <a href="{href}" style="color:inherit;text-decoration:none">{title}</a>
     </h3>
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px;padding-top:12px;border-top:1px solid #f0f0f0">
-      <span style="font-size:11px;color:var(--ink4)">{src_dom} &middot; <time>{dt}</time></span>
-      <a href="{cta_href}"{cta_target} style="font-size:12px;font-weight:600;color:var(--blue);text-decoration:none;white-space:nowrap">{cta_txt}</a>
+    <div class="ic-meta">
+      <span class="ic-src">{src_dom.upper()}</span>
+      <time class="ic-date">{dt}</time>
     </div>
+  </div>
+  <div class="ic-footer">
+    <a href="{btn_href}"{btn_tgt} class="ic-btn">{btn_txt} &rarr;</a>
   </div>
 </article>"""
 
-    disclosure = """<div style="grid-column:1/-1;margin-top:8px;padding:14px 18px;background:#f9f9f9;border-radius:8px;border:1px solid #eee">
-  <p style="font-style:italic;font-size:12px;color:#888;line-height:1.5;margin:0">
-    <strong style="font-style:normal;color:#666">Editor's Note:</strong> This technical analysis was synthesized from industry RSS feeds and constructed with the assistance of AI tools. It has been reviewed and formatted by <strong style="font-style:normal">The Streamic Editorial Team</strong> to ensure accuracy and relevance for broadcast professionals.
-  </p>
+    disclosure = """<div class="ic-disclosure">
+  <p><strong>Editor&rsquo;s Note:</strong> This technical analysis was synthesized from industry RSS feeds
+  and constructed with the assistance of AI tools. Reviewed and formatted by
+  <strong>The Streamic Editorial Team</strong> to ensure accuracy and relevance for broadcast professionals.</p>
 </div>"""
 
-    return f"""<section style="margin:48px 0 0">
-  <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:8px;padding-bottom:12px;border-bottom:2px solid var(--ink)">
-    <h2 style="font-family:var(--serif);font-size:clamp(20px,2.5vw,26px);letter-spacing:-.03em;margin:0">&#128202; Latest Technical Briefings &amp; Industry Analysis</h2>
-    <a href="posts.html" style="font-size:13px;font-weight:600;color:var(--blue);text-decoration:none;white-space:nowrap;flex-shrink:0;margin-left:16px">View all articles &rarr;</a>
-  </div>
-  <p style="font-size:14px;color:var(--ink3);margin:0 0 24px;line-height:1.6">Deep-dive reporting on the intersection of cloud production, AI-driven media workflows, and global streaming infrastructure.</p>
+    return f"""<section class="intel-section">
   <style>
-    .intel-grid{{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}}
-    @media(max-width:768px){{.intel-grid{{grid-template-columns:1fr}}}}
-    @media(max-width:1024px) and (min-width:769px){{.intel-grid{{grid-template-columns:repeat(2,1fr)}}}}
-    .intel-grid article:hover{{box-shadow:0 6px 24px rgba(0,0,0,.08);transform:translateY(-2px)}}
-    .intel-grid article:hover img{{transform:scale(1.03)}}
+    /* ── Intelligence Feed Section ─────────────────────────────────────── */
+    .intel-section {{
+      padding-top: 60px;
+      margin: 0;
+    }}
+    .intel-hdr {{
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 6px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid #1a1a1a;
+    }}
+    .intel-h2 {{
+      font-family: 'DM Sans', 'Helvetica Neue', Arial, sans-serif;
+      font-size: clamp(28px, 3.5vw, 42px);
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      color: #1a1a1a;
+      line-height: 1.1;
+      margin: 0;
+    }}
+    .intel-h2 span {{
+      color: #4a101d;
+    }}
+    .intel-view-all {{
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--blue);
+      text-decoration: none;
+      white-space: nowrap;
+      flex-shrink: 0;
+      padding-bottom: 2px;
+    }}
+    .intel-sub {{
+      font-size: 14px;
+      color: var(--ink3);
+      margin: 12px 0 28px;
+      line-height: 1.6;
+      max-width: 640px;
+    }}
+    /* ── 3-col responsive grid ─────────────────────────────────────────── */
+    .ic-grid {{
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }}
+    @media (max-width: 1024px) and (min-width: 641px) {{
+      .ic-grid {{ grid-template-columns: repeat(2, 1fr); }}
+    }}
+    @media (max-width: 640px) {{
+      .ic-grid {{ grid-template-columns: 1fr; gap: 12px; }}
+    }}
+    /* ── Square card ──────────────────────────────────────────────────── */
+    .ic-card {{
+      background: #ffffff;
+      border-radius: 12px;
+      border: 1px solid #e8e8e8;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 200px;
+      transition: box-shadow .2s ease, transform .2s ease;
+      overflow: hidden;
+    }}
+    .ic-card:hover {{
+      box-shadow: 0 8px 28px rgba(0,0,0,.09);
+      transform: translateY(-3px);
+    }}
+    .ic-inner {{
+      padding: 20px 20px 12px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }}
+    .ic-top {{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }}
+    .ic-ref {{
+      font-size: 10px;
+      font-weight: 700;
+      color: #bbb;
+      letter-spacing: .6px;
+      font-family: 'DM Sans', monospace;
+    }}
+    .ic-cat {{
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .7px;
+    }}
+    .ic-dot {{
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }}
+    .ic-title {{
+      font-family: var(--serif);
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 1.35;
+      letter-spacing: -.02em;
+      color: #1a1a1a;
+      margin: 0;
+      flex: 1;
+    }}
+    .ic-meta {{
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 14px;
+    }}
+    .ic-src {{
+      font-size: 10px;
+      font-weight: 700;
+      color: #999;
+      letter-spacing: .5px;
+    }}
+    .ic-date {{
+      font-size: 10px;
+      color: #bbb;
+    }}
+    .ic-date::before {{ content: "·"; margin-right: 8px; color: #ddd; }}
+    /* ── Card footer with pill button ─────────────────────────────────── */
+    .ic-footer {{
+      padding: 0 20px 18px;
+    }}
+    .ic-btn {{
+      display: inline-flex;
+      align-items: center;
+      padding: 7px 16px;
+      background: #1a1a1a;
+      color: #fff;
+      border-radius: 100px;
+      font-size: 11px;
+      font-weight: 700;
+      text-decoration: none;
+      letter-spacing: .3px;
+      transition: background .15s ease;
+    }}
+    .ic-btn:hover {{ background: #4a101d; }}
+    /* ── Disclosure strip ─────────────────────────────────────────────── */
+    .ic-disclosure {{
+      grid-column: 1/-1;
+      margin-top: 4px;
+      padding: 14px 18px;
+      background: #f8f8f8;
+      border-radius: 8px;
+      border: 1px solid #eee;
+    }}
+    .ic-disclosure p {{
+      font-style: italic;
+      font-size: 12px;
+      color: #999;
+      line-height: 1.5;
+      margin: 0;
+    }}
+    .ic-disclosure strong {{
+      font-style: normal;
+      color: #666;
+    }}
   </style>
-  <div class="intel-grid">
+
+  <div class="intel-hdr">
+    <h2 class="intel-h2">Latest Technical Briefings<br>&amp; <span>Industry Analysis</span></h2>
+    <a href="posts.html" class="intel-view-all">View all articles &rarr;</a>
+  </div>
+  <p class="intel-sub">Deep-dive reporting on the intersection of cloud production, AI-driven media workflows, and global streaming infrastructure.</p>
+
+  <div class="ic-grid">
     {cards_html}
     {disclosure}
   </div>
@@ -413,7 +583,7 @@ def intelligence_feed_section(arts, base=""):
 
 
 def all_articles_page(arts):
-    """Generate posts.html — All Articles bento grid linking to articles/."""
+    """Generate posts.html - All Articles bento grid linking to articles/."""
     # Use all non-editorial articles sorted newest first
     rss_arts   = [a for a in arts if not a.get("is_editorial") and not a.get("editorial")]
     ed_arts    = [a for a in arts if a.get("is_editorial") or a.get("editorial")]
@@ -468,7 +638,7 @@ def featured_page(arts):
     rss_arts  = [a for a in arts if not a.get("is_editorial") and not a.get("editorial")
                  and (not hero_art or a["slug"] != hero_art["slug"])][:12]
 
-    title  = "The Streamic — Independent Broadcast & Streaming Technology News"
+    title  = "The Streamic &#8212; Independent Broadcast & Streaming Technology News"
     desc   = "Original analysis, deep dives, and curated broadcast technology news for engineers and media professionals."
     canon  = f"{BASE_URL}/featured.html"
 
@@ -484,7 +654,7 @@ def featured_page(arts):
     intro_html = """<div style="max-width:680px;margin:28px auto 0;padding:0 24px 32px;text-align:center">
   <p style="font-size:15px;line-height:1.7;color:var(--ink2)">
     The Streamic covers broadcast and streaming technology for engineers, architects, and media technology leaders.
-    Our editorial team publishes original analysis, technical deep-dives, and curated industry updates — independent of vendor influence.
+    Our editorial team publishes original analysis, technical deep-dives, and curated industry updates &#8212; independent of vendor influence.
   </p>
 </div>"""
 
@@ -500,7 +670,7 @@ def featured_page(arts):
   <div class="w">
 {"" if not editorial else f'''<section class="editorial">
       <div class="sec-hdr">
-        <h2>📝 Editor's Picks</h2>
+        <h2>&#128221; Editor's Picks</h2>
         <span style="font-size:13px;color:var(--ink4);font-weight:400">Original analysis by The Streamic editorial team</span>
       </div>
       <div class="ed-list">{ed_html}</div>
@@ -509,7 +679,7 @@ def featured_page(arts):
     {_ad()}
     <section class="latest">
       <div class="sec-hdr">
-        <h2>📡 Latest Industry Updates</h2>
+        <h2>&#128225; Latest Industry Updates</h2>
         <span style="font-size:12px;color:var(--ink4)">Updated every 6 hours</span>
       </div>
       {news_grid(rss_arts)}
@@ -721,7 +891,7 @@ def article_page(a):
     src_dom  = a.get("source_domain","")
     is_ed    = a.get("is_editorial") or a.get("editorial")
 
-    # Clean body — card_summary as 2-para analysis (not boilerplate filler)
+    # Clean body - card_summary as 2-para analysis (not boilerplate filler)
     body  = _clean_body(a)
     body_words = len(body.replace("<p>","").replace("</p>","").split())
     wc    = body_words or a.get("word_count",300)
@@ -798,7 +968,7 @@ def article_page(a):
     </div>
     <figure>
       <img src="{e(img)}" alt="{e(title)}" loading="eager">
-      <figcaption>{e(a.get("image_credit","Photo via Unsplash — free to use under the Unsplash License"))} — <a href="{lic_url}" rel="nofollow noopener" target="_blank" style="color:var(--ink4)">{lic_label}</a></figcaption>
+      <figcaption>{e(a.get("image_credit","Photo via Unsplash &#8212; free to use under the Unsplash License"))} &#8212; <a href="{lic_url}" rel="nofollow noopener" target="_blank" style="color:var(--ink4)">{lic_label}</a></figcaption>
     </figure>
     {_ad()}
     <div class="art-body">{body}{editors_note}</div>
@@ -828,7 +998,7 @@ def about_page():
 <p style="font-size:17px;color:var(--ink2);line-height:1.65;margin-bottom:20px">The Streamic is an independent broadcast and streaming technology publication covering the tools, standards, and workflows that shape modern media production and delivery.</p>
 <p style="font-size:15px;color:var(--ink3);line-height:1.7;margin-bottom:20px">We publish original editorial analysis on topics including IP infrastructure (SMPTE ST 2110, NMOS), cloud-native production, operational AI, real-time graphics, playout automation, and newsroom technology. Our readership includes broadcast engineers, operations managers, technology directors, and media industry professionals.</p>
 <h2 style="font-family:var(--serif);font-size:22px;margin:36px 0 12px">Our editorial approach</h2>
-<p style="font-size:15px;color:var(--ink3);line-height:1.7;margin-bottom:16px">We write original analysis — not copied content. Our RSS-curated news feed clearly credits and links to original sources. Long-form articles represent our editorial team&#39;s independent perspective on industry developments.</p>
+<p style="font-size:15px;color:var(--ink3);line-height:1.7;margin-bottom:16px">We write original analysis &#8212; not copied content. Our RSS-curated news feed clearly credits and links to original sources. Long-form articles represent our editorial team&#39;s independent perspective on industry developments.</p>
 <h2 style="font-family:var(--serif);font-size:22px;margin:36px 0 12px">Editor &amp; Founder</h2>
 <div style="display:flex;align-items:flex-start;gap:20px;background:var(--bg);border-radius:14px;padding:24px;margin-bottom:28px">
   <div style="flex-shrink:0;width:56px;height:56px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;font-family:var(--serif)">P</div>
@@ -1025,7 +1195,7 @@ def howto_page():
         },
         {
             "title": "Avid MediaCentral Health Check: Services, Connections, and Logs",
-            "desc": "Run a full pre-air health check — verify MCPS services, Interplay and iNEWS connections, licensing, and system logs before going on air.",
+            "desc": "Run a full pre-air health check &#8212; verify MCPS services, Interplay and iNEWS connections, licensing, and system logs before going on air.",
             "href": "articles/guide-avid-media-central-health-check.html",
             "tag": "MediaCentral · Infrastructure",
             "time": "12 min",
@@ -1140,7 +1310,7 @@ def main():
         if leg and leg != a["slug"]:
             w(os.path.join(ARTS_D, f"{leg}.html"), html)
             written += 1
-    print(f"  ✓ {written} article files")
+    print(f"  &#10003; {written} article files")
 
     # Category pages
     by_cat = {}
@@ -1150,20 +1320,20 @@ def main():
         for pg, html in pages:
             fname = f"{cat}.html" if pg==0 else f"{cat}-p{pg+1}.html"
             w(os.path.join(DOCS, fname), html)
-    print(f"  ✓ {len(by_cat)} category pages")
+    print(f"  &#10003; {len(by_cat)} category pages")
 
     # Featured + index
     feat_arts = sorted(arts, key=lambda a: a["published"], reverse=True)
     fp = featured_page(feat_arts)
     w(os.path.join(DOCS,"featured.html"), fp)
     w(os.path.join(DOCS,"index.html"),    fp)
-    print("  ✓ featured.html + index.html")
+    print("  &#10003; featured.html + index.html")
 
-    # posts.html — All Articles page (links to articles/, not posts/)
+    # posts.html - All Articles page (links to articles/, not posts/)
     ap = all_articles_page(feat_arts)
     w(os.path.join(DOCS,"posts.html"), ap)
     w(os.path.join(ROOT,"posts.html"), ap)
-    print("  ✓ posts.html (All Articles)")
+    print("  &#10003; posts.html (All Articles)")
 
     # Static pages
     # Ensure all 8 category pages exist even if some have no articles yet
@@ -1175,7 +1345,7 @@ def main():
             for _pn, _ph in _pages:
                 _fname = f"{_cat_slug}.html" if _pn==0 else f"{_cat_slug}-p{_pn+1}.html"
                 w(os.path.join(DOCS, _fname), _ph)
-            print(f"  ✓ {_cat_slug}.html generated (empty category placeholder)")
+            print(f"  &#10003; {_cat_slug}.html generated (empty category placeholder)")
 
     w(os.path.join(DOCS,"about.html"),   about_page())
     w(os.path.join(DOCS,"contact.html"), contact_page())
@@ -1184,7 +1354,7 @@ def main():
     w(os.path.join(DOCS,"howto.html"),   howto_page())
     w(os.path.join(DOCS,"how-to.html"),  howto_page())
     w(os.path.join(DOCS,"vlog.html"),    vlog_page())
-    print("  ✓ static pages")
+    print("  &#10003; static pages")
 
     # Sitemap + robots
     w(os.path.join(DOCS,"sitemap.xml"), sitemap(arts))
@@ -1194,7 +1364,7 @@ def main():
     for f_name in ("style.css","main.js"):
         src = os.path.join(ROOT,f_name)
         if os.path.isfile(src): shutil.copy2(src, os.path.join(DOCS,f_name))
-    print("  ✓ style.css + main.js → docs/")
+    print("  &#10003; style.css + main.js → docs/")
 
     # Ads.txt + CNAME + .nojekyll
     w(os.path.join(DOCS,"ads.txt"), f"google.com, pub-8033069131874524, DIRECT, f08c47fec0942fa0\n")
@@ -1208,13 +1378,13 @@ def main():
         if os.path.isfile(src_f): shutil.copy2(src_f, os.path.join(ROOT,fn))
 
     # Mirror ONLY how-to guide articles to root/articles/
-    # (All other article mirrors removed — GitHub Pages serves from docs/ only)
+    # (All other article mirrors removed - GitHub Pages serves from docs/ only)
     root_arts = os.path.join(ROOT,"articles")
     os.makedirs(root_arts, exist_ok=True)
     howto_guides = [fn for fn in os.listdir(ARTS_D) if fn.startswith("guide-") and fn.endswith(".html")]
     for fn in howto_guides:
         shutil.copy2(os.path.join(ARTS_D,fn), os.path.join(root_arts,fn))
-    print(f"  ✓ {len(howto_guides)} how-to guides mirrored to root/articles/")
+    print(f"  &#10003; {len(howto_guides)} how-to guides mirrored to root/articles/")
 
     # ── Prepare docs/data/ for client-side JS ──────────────────────────────
     docs_data_dir = os.path.join(DOCS, "data")
@@ -1237,7 +1407,7 @@ def main():
             flat.sort(key=lambda x:x.get("pubDate",""),reverse=True)
             out = {"featured_priority":flat[:6],"items":flat[6:]}
         with open(news_dst,"w",encoding="utf-8") as f: json.dump(out,f,ensure_ascii=False)
-        print(f"  ✓ docs/data/news.json ({len(out.get('items',[]))} items)")
+        print(f"  &#10003; docs/data/news.json ({len(out.get('items',[]))} items)")
 
 
     # 2. CRITICAL: generated_articles.json (Groq summaries + internal URLs)
@@ -1254,7 +1424,7 @@ def main():
         gen_dst = os.path.join(docs_data_dir, "generated_articles.json")
         with open(gen_dst, "w", encoding="utf-8") as _f:
             json.dump(out_gen, _f, ensure_ascii=False)
-        print(f"  ✓ docs/data/generated_articles.json ({len(raw_gen)} articles, Groq summaries included)")
+        print(f"  &#10003; docs/data/generated_articles.json ({len(raw_gen)} articles, Groq summaries included)")
     else:
         print("  ⚠ data/generated_articles.json not found")
 

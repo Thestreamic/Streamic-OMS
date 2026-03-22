@@ -537,8 +537,14 @@ def main():
 
             # ── Step 2: Generate factual article body ────────────────────
             raw_body = groq_call(
-                _ARTICLE_PROMPT.format(title=title, teaser=teaser, category=category),
-                max_tokens=1200  # 700 words ≈ 1000 tokens + buffer
+                _ARTICLE_PROMPT.format(
+                    title=title, teaser=teaser, category=category,
+                    source_name=source_name,
+                    domain_label=ctx["label"],    domain_focus=ctx["focus"],
+                    domain_terms=ctx["terms"],     domain_guardrail=ctx["guardrail"],
+                    domain_roi=ctx["roi"],
+                ),
+                max_tokens=1200
             )
             body_html = re.sub(r"```html?\n?|```\n?", "", raw_body).strip()
             time.sleep(SLEEP_SECS)
