@@ -61,7 +61,7 @@ def make_slug(title, pub_date, cat=""):
     return f"{prefix}{title_part[:65 - len(prefix)]}"
 
 # ── Groq API call with automatic 429 retry ───────────────────────────────────
-_MAX_WAIT_SECS = 180  # Hard cap: never wait more than 3 minutes per retry
+_MAX_WAIT_SECS = 60   # Hard cap: 60s — Groq per-minute limit resets every 60s
 
 def _parse_wait_seconds(error_msg: str) -> float:
     """Extract wait time from Groq 429 message — capped at 3 minutes."""
@@ -414,15 +414,18 @@ def main():
     print(f"Items to summarise: {len(items_to_process)} (max this run: {MAX_PER_RUN})")
     items_to_process = items_to_process[:MAX_PER_RUN]
 
-    processed  = 0
-    errors     = 0
-    _run_start = time.time()
-    _RUN_LIMIT = 150  # 2.5 min hard stop — prevents GitHub Action hanging
+    processed     = 0
+    errors        = 0
+    consec_limits = 0  # bail if rate-limited multiple times in a row
+    _run_start    = time.time()
+    _RUN_LIMIT    = 120  # 2 min hard stop
 
     for item in items_to_process:
-        # Hard time limit: stop cleanly before GitHub kills the job
         if time.time() - _run_start > _RUN_LIMIT:
-            print(f"      ⏱ 2.5 min limit reached. Stopping cleanly ({processed} saved).")
+            print(f"      ⏱ 2 min limit reached. Stopping cleanly ({processed} saved).")
+            break
+        if consec_limits >= 2:
+            print(f"      ⏱ Groq rate-limited {consec_limits}x in a row — skipping run. Resets at midnight UTC.")
             break
         slug     = item["slug"]
         title    = item["title"]
@@ -478,13 +481,19 @@ def main():
                 pass  # insight is optional — never block on it
 
             save_summary(slug, card_summary, body_html)
-            processed += 1
+            processed     += 1
+            consec_limits  = 0  # reset on success
             print(f"      ✓ saved data/summaries/{slug}.json")
 
         except Exception as ex:
             errors += 1
+            err_str = str(ex)
+            if '429' in err_str or 'rate' in err_str.lower() or 'quota' in err_str.lower():
+                consec_limits += 1
+            else:
+                consec_limits = 0
             print(f"      ✗ ERROR: {ex}")
-            time.sleep(3)  # back-off on error
+            time.sleep(3)
 
     print(f"\n✓ Done: {processed} summaries saved, {errors} errors.")
     print(f"  Files in data/summaries/: {len(os.listdir(SUMMARIES_DIR))}")
