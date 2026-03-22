@@ -202,102 +202,76 @@ def _parse_wait(msg: str) -> float:
 
 
 def gemini_call(prompt: str, max_retries: int = 2) -> str:
-    """
-    Call Gemini 1.5 Flash generateContent endpoint.
-    Auto-retries on 429 with parsed wait time.
-    Returns generated text string.
-    """
-    if not GEMINI_API_KEY:
-        raise RuntimeError("GEMINI_API_KEY not set")
-
+    """Call Gemini API. Bails immediately on daily quota exhaustion."""
     payload = json.dumps({
         "system_instruction": {
-            "parts": [{
-                "text": (
-                    "You are a Broadcast Systems Engineer writing for The Streamic. "
-                    "Write in a confident, technical, and analytical tone. "
-                    "Avoid: 'In the ever-evolving world', 'This article explores', 'delve into', "
-                    "'game-changer', 'seamless', 'innovative'. Start directly with the facts."
-                )
-            }]
+            "parts": [{"text": (
+                "You are a Broadcast Systems Engineer writing for The Streamic. "
+                "Write in a confident, technical, and analytical tone. "
+                "Avoid: 'In the ever-evolving world', 'This article explores', 'delve into', "
+                "'game-changer', 'seamless', 'innovative'. Start directly with the facts."
+            )}]
         },
-        "contents": [
-            {
-                "role": "user",
-                "parts": [{"text": prompt}]
-            }
-        ],
+        "contents": [{"role": "user", "parts": [{"text": prompt}]}],
         "generationConfig": {
-            "temperature":     0.3,   # Strictly factual per domain guardrails
-            "maxOutputTokens": 900,   # 900 tokens ≈ 650 words — reduces quota usage
-            "topP":            0.9,
-        },
-        "safetySettings": [
-            {"category": "HARM_CATEGORY_HARASSMENT",        "threshold": "BLOCK_NONE"},
-            {"category": "HARM_CATEGORY_HATE_SPEECH",       "threshold": "BLOCK_NONE"},
-            {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
-            {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
-        ]
-    }).encode("utf-8")
+            "temperature":     0.3,
+            "maxOutputTokens": 900,
+        }
+    }).encode()
 
-    headers = {
-        "Content-Type": "application/json",
-        "User-Agent":   "Mozilla/5.0 (compatible; TheStreamic/1.0)",
-    }
+    headers = {"Content-Type": "application/json"}
 
     for attempt in range(max_retries):
         try:
-            if _USE_REQUESTS:
-                resp   = _requests.post(GEMINI_URL, data=payload, headers=headers, timeout=30)
+            try:
+                import requests as _req
+                resp = _req.post(GEMINI_URL, data=payload, headers=headers, timeout=30)
                 status = resp.status_code
                 body   = resp.text
-            else:
-                req  = urllib.request.Request(GEMINI_URL, data=payload, headers=headers, method="POST")
-                try:
-                    with urllib.request.urlopen(req, timeout=30) as r:
-                        body   = r.read().decode("utf-8")
-                        status = 200
-                except urllib.error.HTTPError as he:
-                    body   = he.read().decode("utf-8", errors="replace")
-                    status = he.code
+            except Exception:
+                import urllib.request
+                req = urllib.request.Request(GEMINI_URL, data=payload, headers=headers, method="POST")
+                with urllib.request.urlopen(req, timeout=30) as r:
+                    status = r.status
+                    body   = r.read().decode()
 
             if status == 200:
                 data = json.loads(body)
-                # Extract text from Gemini response structure
-                return (
-                    data["candidates"][0]["content"]["parts"][0]["text"].strip()
-                )
+                return data["candidates"][0]["content"]["parts"][0]["text"]
 
             if status == 429:
-                wait = _parse_wait(body)
+                body_lower = body.lower()
+                # Daily quota exhausted — no point retrying at all
+                if any(p in body_lower for p in [
+                    "daily", "per day", "resource_exhausted",
+                    "quota exceeded", "limit exceeded", "free tier"
+                ]):
+                    raise RuntimeError(f"DAILY_QUOTA_EXHAUSTED: {body[:120]}")
+                # Per-minute limit — wait and retry once
+                wait = _parse_wait_seconds(body)
+                wait = min(wait, 35)  # never wait more than 35s
                 print(f"      ⏱ Gemini rate limit. Waiting {wait:.0f}s (attempt {attempt+1}/{max_retries})...")
                 time.sleep(wait)
                 continue
 
-            raise RuntimeError(f"Gemini HTTP {status}: {body[:300]}")
+            raise RuntimeError(f"Gemini HTTP {status}: {body[:200]}")
 
-        except RuntimeError:
-            raise
+        except RuntimeError as ex:
+            if "DAILY_QUOTA_EXHAUSTED" in str(ex):
+                raise  # propagate immediately — caller handles bail
+            if attempt < max_retries - 1:
+                time.sleep(3)
+                continue
+            raise RuntimeError(f"Gemini: max retries ({max_retries}) exceeded")
         except Exception as ex:
             if attempt < max_retries - 1:
-                time.sleep(10)
+                time.sleep(3)
                 continue
-            raise RuntimeError(f"Gemini call failed: {ex}")
+            raise RuntimeError(f"Gemini error: {ex}")
 
     raise RuntimeError(f"Gemini: max retries ({max_retries}) exceeded")
 
 
-# ── Prompts ───────────────────────────────────────────────────────────────────
-
-# System context injected at the start of every prompt (Gemini uses single-turn)
-_SYSTEM = (
-    "You are a Broadcast Systems Engineer writing for The Streamic — "
-    "a professional publication for broadcast engineers, media architects, and CTOs. "
-    "Write in a confident, technical, and analytical tone. "
-    "Avoid these phrases entirely: 'In the ever-evolving world', 'This article explores', "
-    "'delve into', 'game-changer', 'seamless', 'innovative', 'it is worth noting'. "
-    "Start directly with the facts. Every paragraph must add new technical information."
-)
 
 def build_article_prompt(title: str, teaser: str, source: str, category: str) -> str:
     """Domain-aware 600-word article prompt for Gemini."""
@@ -517,12 +491,15 @@ def main():
         except Exception as ex:
             errors += 1
             err_str = str(ex)
-            if '429' in err_str or 'rate' in err_str.lower() or 'quota' in err_str.lower():
+            if 'DAILY_QUOTA_EXHAUSTED' in err_str:
+                print(f"      ✗ Daily quota exhausted — resets 08:00 UTC. Stopping now.")
+                break  # exit immediately — no point processing more articles
+            elif '429' in err_str or 'rate' in err_str.lower():
                 consec_limits += 1
             else:
-                consec_limits = 0  # reset on non-rate-limit errors
+                consec_limits = 0
             print(f"      ✗ ERROR: {ex}")
-            time.sleep(3)
+            time.sleep(2)
 
     print(f"\n✓ Done: {processed} summaries saved, {errors} errors.")
     print(f"  Files in data/summaries/: {len(os.listdir(SUMMARIES_DIR))}")
