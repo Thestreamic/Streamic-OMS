@@ -99,18 +99,21 @@ jobs:
       - name: "Stage 4: Generate editorial articles"
         run: python3 scripts/generate_editorial.py
 
-      # ── 10. STAGE 5: Groq card summaries (optional) ─────────────────────
-      - name: "Stage 5: Groq card summaries (if key available)"
-        env:
-          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-        run: python3 scripts/generate_summaries.py || echo "Groq step skipped"
-
-      # ── 10b. STAGE 5b: Gemini 1.5 Flash summaries (redundant pipeline) ──
-      # Runs if GEMINI_API_KEY is set. Fills gaps when Groq hits rate limits.
-      - name: "Stage 5b: Gemini article generation (if key available)"
+      # ── 10. STAGE 5: Gemini 1.5 Flash (PRIMARY — runs first, free tier) ──
+      # Gemini runs first: 1500 req/day free, no token-per-day cap like Groq.
+      # Writes summaries to data/summaries/<slug>.json for all RSS articles.
+      - name: "Stage 5: Gemini article generation (PRIMARY)"
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python3 scripts/generate_gemini.py || echo "Gemini step skipped"
+
+      # ── 10b. STAGE 5b: Groq (SECONDARY — fills gaps Gemini missed) ────────
+      # Groq skips slugs already processed by Gemini (idempotent).
+      # Handles any articles Gemini missed due to rate limits or off-topic filter.
+      - name: "Stage 5b: Groq card summaries (secondary, fills gaps)"
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+        run: python3 scripts/generate_summaries.py || echo "Groq step skipped"
 
       # ── 11. STAGE 6: Build full static site (Python) ─────────────────────
       - name: "Stage 6: Build static site"
