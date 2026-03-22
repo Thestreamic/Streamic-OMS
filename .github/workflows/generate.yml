@@ -30,7 +30,7 @@ permissions:
 
 env:
   SITE_BASE_URL: "https://www.thestreamic.in"
-  NODE_VERSION:  "20"
+  NODE_VERSION:  "22"  # Node 22 LTS — supported until April 2027
   PYTHON_VERSION: "3.11"
 
 jobs:
