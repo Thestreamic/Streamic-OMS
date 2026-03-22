@@ -1,7 +1,7 @@
 {
   "name": "thestreamic",
   "version": "3.0.0",
-  "description": "The Streamic — Broadcast & Streaming Technology Publication",
+  "description": "The Streamic \u2014 Broadcast & Streaming Technology Publication",
   "type": "commonjs",
   "scripts": {
     "generate": "node scripts/generate.js",
@@ -13,5 +13,8 @@
     "fs-extra": "^11.2.0",
     "slugify": "^1.6.6",
     "html-entities": "^2.5.2"
+  },
+  "engines": {
+    "node": ">=22.0.0"
   }
 }
