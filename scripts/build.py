@@ -207,13 +207,11 @@ def news_card(a, base="", is_first=False):
     img   = e(a.get("image_url",""))
     fb_   = f"{base}assets/fallback.jpg"
     title = e(a.get("title",""))
-    sum_  = e((a.get("card_summary") or a.get("dek") or a.get("meta_description",""))[:320 if not is_first else 1800])
     src   = e(a.get("source_domain","").replace("https://","").replace("www.","").split("/")[0].upper())
     cat_lbl = cinfo["label"]
 
     if is_first:
-        # Featured: vertical, large image, full summary
-        sum_html_f = f'<p class="bento-sum bento-sum-featured">{sum_}</p>' if sum_ else ""
+        # Featured: vertical, large image — no summary (editorial feel)
         src_html_f = f'<span class="bento-source">{src}</span>' if src else ""
         return f"""<li class="bento-grid-item">
   <div class="bento-img-wrap bento-img-featured">
@@ -224,16 +222,14 @@ def news_card(a, base="", is_first=False):
   <div class="bento-body bento-body-featured">
     <span class="bento-cat-tag">{cat_lbl}</span>
     <h2 class="bento-hl bento-hl-featured"><a href="{href}">{title}</a></h2>
-    {sum_html_f}
     <div class="bento-foot">
       {src_html_f}
-      <a href="{href}" class="bento-cta-featured">Read Technical Analysis &rarr;</a>
+      <a href="{href}" class="bento-cta-featured">Read Full Article &rarr;</a>
     </div>
   </div>
 </li>"""
     else:
-        # Standard: horizontal, image left
-        sum_html_s = f'<p class="bento-sum bento-sum-std">{sum_}</p>' if sum_ else ""
+        # Standard: vertical cards — no summary (clean editorial look)
         src_html_s = f'<span class="bento-source">{src}</span>' if src else ""
         return f"""<li class="bento-grid-item bento-standard">
   <div class="bento-img-wrap bento-img-std">
@@ -244,10 +240,9 @@ def news_card(a, base="", is_first=False):
   <div class="bento-body bento-body-std">
     <span class="bento-cat-tag">{cat_lbl}</span>
     <h3 class="bento-hl bento-hl-std"><a href="{href}">{title}</a></h3>
-    {sum_html_s}
     <div class="bento-foot">
       {src_html_s}
-      <a href="{href}" class="bento-cta">Read Technical Analysis &rarr;</a>
+      <a href="{href}" class="bento-cta">Read Full Article &rarr;</a>
     </div>
   </div>
 </li>"""
@@ -327,8 +322,9 @@ def hero_block(a, base=""):
 def featured_page(arts):
     editorial = [a for a in arts if a.get("is_editorial") or a.get("editorial")][:5]
     hero_art  = editorial[0] if editorial else (arts[0] if arts else None)
+    # Change 4c: limit to 12 RSS articles on homepage
     rss_arts  = [a for a in arts if not a.get("is_editorial") and not a.get("editorial")
-                 and (not hero_art or a["slug"] != hero_art["slug"])][:24]
+                 and (not hero_art or a["slug"] != hero_art["slug"])][:12]
 
     title  = "The Streamic — Independent Broadcast & Streaming Technology News"
     desc   = "Original analysis, deep dives, and curated broadcast technology news for engineers and media professionals."
@@ -342,21 +338,33 @@ def featured_page(arts):
         "publisher":{"@type":"Organization","name":"The Streamic","url":BASE_URL}
     })
 
+    # Change 4a: editorial intro text
+    intro_html = """<div style="max-width:680px;margin:28px auto 0;padding:0 24px 32px;text-align:center">
+  <p style="font-size:15px;line-height:1.7;color:var(--ink2)">
+    The Streamic covers broadcast and streaming technology for engineers, architects, and media technology leaders.
+    Our editorial team publishes original analysis, technical deep-dives, and curated industry updates — independent of vendor influence.
+  </p>
+</div>"""
+
     return f"""{head(title, desc, canon, og_img=(hero_art or {}).get('image_url',''))}
 <body data-category="featured">
 {nav("featured.html")}
 {catbar()}
 {hero_block(hero_art) if hero_art else ""}
+{intro_html}
 <main>
   <div class="w">
     {"" if not editorial else f'''<section class="editorial">
-      <div class="sec-hdr"><h2>📝 Original Analysis &amp; Deep Dives</h2></div>
+      <div class="sec-hdr">
+        <h2>📝 Editor's Picks</h2>
+        <span style="font-size:13px;color:var(--ink4);font-weight:400">Original analysis by The Streamic editorial team</span>
+      </div>
       <div class="ed-list">{ed_html}</div>
     </section>'''}
     {_ad()}
     <section class="latest">
       <div class="sec-hdr">
-        <h2>📡 Latest Broadcast &amp; Streaming News</h2>
+        <h2>📡 Latest Industry Updates</h2>
         <span style="font-size:12px;color:var(--ink4)">Updated every 6 hours</span>
       </div>
       {news_grid(rss_arts)}
