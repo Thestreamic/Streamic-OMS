@@ -1,5 +1,27 @@
 [
   {
+    "slug": "2026-03-22-building-intelligent-media-supply-chain-automation-using-amazon-bedroc",
+    "title": "Building intelligent media supply chain automation using Amazon Bedrock AgentCore",
+    "dek": "The media industry is experiencing a fundamental shift in how content is processed, analyzed, and monetized. Recent breakthroughs in vision-based generative AI models have dramatically reduced both th…",
+    "category": "cloud",
+    "sourceName": "AWS Media Blog",
+    "sourceUrl": "https://aws.amazon.com/blogs/media/building-intelligent-media-supply-chain-automation-using-amazon-bedrock-agentcore/",
+    "image": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1200&auto=format&fit=crop&q=80",
+    "published": "2026-03-22",
+    "wordCount": 1218
+  },
+  {
+    "slug": "2026-03-22-inside-nfl-iq-the-analytics-engine-behind-the-nfl-offseason",
+    "title": "Inside NFL IQ: The Analytics Engine Behind the NFL Offseason",
+    "dek": "The biggest decisions in the National Football League (NFL) don’t always happen under stadium lights. More often, they’re made weeks later — when scouts are replaying drills frame by frame, analysts a…",
+    "category": "cloud",
+    "sourceName": "AWS Media Blog",
+    "sourceUrl": "https://aws.amazon.com/blogs/media/inside-nfl-iq-the-analytics-engine-behind-the-nfl-offseason/",
+    "image": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1200&auto=format&fit=crop&q=80",
+    "published": "2026-03-22",
+    "wordCount": 1253
+  },
+  {
     "slug": "2026-03-22-caretta-research-broadcasters-rebuild-live-operations-around-ip-as-sat",
     "title": "Caretta Research: Broadcasters Rebuild Live Operations Around IP as Satellite Use Declines",
     "dek": "Broadcasters are rebuilding live operations workflows around IP delivery as satellite and dedicated fibre distribution decline, according to new research from Caretta Research produced in partnership…",
