@@ -198,21 +198,45 @@ Content: {teaser}
 Write the 2-paragraph factual summary now:"""
 
 
-_ARTICLE_PROMPT = """You are a senior broadcast technology editor. Write a factual 600-word article for broadcast engineers.
+_ARTICLE_PROMPT = """You are a senior broadcast technology analyst writing for a professional publication (TV Tech, IABM, or SVG Europe level). Transform the following news into a high-quality original technical analysis.
 
-STRICT RULES:
-- Use ONLY facts from the provided content. Do not invent details.
-- Include company name, product name, specific technical specs if present.
-- Structure: intro (2 sentences) → <h2>What Was Announced</h2> → <h2>Technical Details</h2> → <h2>Broadcast Operations Impact</h2> → <h2>Looking Ahead</h2>
-- Each section: 2 short paragraphs (2–3 sentences each).
-- NO generic phrases: "this reflects", "in today's landscape", "organizations should", "important to note".
-- Output valid HTML only: <h2> and <p> tags. No markdown.
+CRITICAL — DO NOT use any of these phrases:
+"this highlights", "this underscores", "this reflects", "in today's landscape",
+"it is worth noting", "rapidly evolving", "plays a key role", "organizations should consider",
+"this development builds on", "sustained demand", "announcement reflects".
+
+STRUCTURE (use these exact headings):
+
+<p>[Introduction — max 120 words. State factually what happened. Company name, product, location, date if known. No fluff.]</p>
+
+<h2>Technical Breakdown</h2>
+[Explain the actual technology. How does it work? Reference relevant broadcast standards: ST 2110, NMOS, AES67, HLS, HEVC, AV1, JPEG XS, SRT, NDI, MXF, DNxHD. What protocols, codecs, or APIs are involved? Be specific.]
+
+<h2>Operational Impact for Broadcast Engineers</h2>
+[How does this affect playout, MAM, ingest, post-production, or live production workflows? What must engineers evaluate or change? Be practical and specific — name the workflow step affected.]
+
+<h2>Real-World Scenario</h2>
+[MANDATORY: Describe one concrete realistic example. Name a broadcaster type (regional TV station, OTT platform, post house, live sports operator). Show the actual decision or consequence they now face.]
+
+<h2>Industry and Market Signals</h2>
+[What does this mean for the vendor ecosystem? Standards bodies? Competition? Cost implications? What is shifting in the market?]
+
+<h2>What to Watch Next</h2>
+[Forward-looking: what should engineers and technology directors monitor? Name specific standards, product roadmaps, or market developments to track.]
+
+STYLE RULES:
+- 700–1100 words total
+- Confident, analytical tone — write as a domain expert
+- Every paragraph adds new information (no repetition)
+- Prefer concrete technical terms over abstract language
+- Output valid HTML only: <p>, <h2>, <h3>, <ul>, <li> tags
+- NO "Conclusion" heading. NO meta-commentary. NO markdown.
 
 Title: {title}
 Category: {category}
 Content: {teaser}
 
-Write the factual HTML article now:"""
+Write the complete structured HTML analysis now:"""
 
 
 _INSIGHT_PROMPT = """Write ONE short technical insight (maximum 55 words) about this broadcast technology news.
@@ -274,20 +298,31 @@ def main():
     items_to_process = []
     seen_slugs = set()
 
-    # From news.json (RSS items)
-    for cat, items in news.items():
-        for item in items:
-            title  = (item.get("title") or "").strip()
-            teaser = (item.get("teaser") or "").strip()
-            pub    = (item.get("published") or "")[:10]
-            if not title: continue
-            slug = make_slug(title, pub, cat)
-            if slug in seen_slugs or summary_exists(slug): continue
-            seen_slugs.add(slug)
-            items_to_process.append({
-                "slug": slug, "title": title,
-                "teaser": teaser, "category": cat
-            })
+    # From news.json — handles both flat list and dict-of-categories format
+    if isinstance(news, list):
+        news_flat = news
+    else:
+        # dict-of-categories: flatten it
+        news_flat = []
+        for cat, items in news.items():
+            for it in (items or []):
+                it.setdefault("category", cat)
+                news_flat.append(it)
+
+    for item in news_flat:
+        title  = (item.get("title") or "").strip()
+        teaser = (item.get("teaser") or item.get("description") or "").strip()
+        cat    = (item.get("category") or "featured").strip()
+        pub    = (item.get("published") or item.get("pubDate") or "")[:10]
+        source = (item.get("source") or item.get("source_domain") or "")
+        if not title: continue
+        slug = make_slug(title, pub, cat)
+        if slug in seen_slugs or summary_exists(slug): continue
+        seen_slugs.add(slug)
+        items_to_process.append({
+            "slug": slug, "title": title, "teaser": teaser,
+            "category": cat, "source": source,
+        })
 
     # From generated_articles.json (items with generic summaries)
     generic_markers = [
@@ -298,9 +333,15 @@ def main():
     ]
     for a in gen_arts:
         slug = a.get("slug", "")
-        if not slug or slug in seen_slugs or summary_exists(slug): continue
-        body = a.get("body_html", "") + a.get("card_summary", "")
-        if any(m in body for m in generic_markers):
+        if not slug or slug in seen_slugs: continue
+        body = a.get("body_html", "") or ""
+        cs   = a.get("card_summary", "") or ""
+        # Re-generate if: no summary file, body has no h2 structure, OR generic markers
+        has_structure  = "<h2>" in body
+        has_generic    = any(m in (body + cs) for m in generic_markers)
+        needs_regen    = not summary_exists(slug) or not has_structure or has_generic
+        if not needs_regen: continue
+        if any(m in (body + cs) for m in generic_markers):
             seen_slugs.add(slug)
             items_to_process.append({
                 "slug": slug,
@@ -351,7 +392,7 @@ def main():
             # ── Step 2: Generate factual article body ────────────────────
             raw_body = groq_call(
                 _ARTICLE_PROMPT.format(title=title, teaser=teaser, category=category),
-                max_tokens=1200
+                max_tokens=2000
             )
             body_html = re.sub(r"```html?\n?|```\n?", "", raw_body).strip()
             time.sleep(SLEEP_SECS)
