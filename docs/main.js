@@ -118,8 +118,7 @@
         <h2 class="bento-hl bento-hl-featured">
           <a href="${titleHref}"${titleTarget}${titleRel}>${title}</a>
         </h2>
-        ${item.card_summary ? '<span class="bento-groq-badge">✦ Technical Analysis</span>' : ''}
-        ${text ? `<p class="bento-sum bento-sum-featured">${text}</p>` : ''}
+        ${item.card_summary && item.slug ? `<a href="articles/${item.slug}.html" class="bento-groq-badge">✦ Read Technical Analysis</a>` : ''}
         <div class="bento-foot">
           ${srcTxt ? `<span class="bento-source">${srcTxt}</span>` : ''}
           <a href="${ctaHref}"${ctaTarget}${ctaRel} class="bento-cta-featured">
@@ -162,11 +161,10 @@
         <h3 class="bento-hl bento-hl-std">
           <a href="${titleHref}"${titleTarget}${titleRel}>${title}</a>
         </h3>
-        ${text ? `<p class="bento-sum bento-sum-std">${text}</p>` : ''}
         <div class="bento-foot">
           ${srcTxt ? `<span class="bento-source">${srcTxt}</span>` : ''}
           <a href="${ctaHref}"${ctaTarget}${ctaRel} class="bento-cta">
-            ${item.slug ? 'Read Analysis →' : 'View Source →'}
+            ${item.slug ? 'Read Full Article →' : 'View Source →'}
           </a>
         </div>
       </div>
