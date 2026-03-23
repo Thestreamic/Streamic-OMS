@@ -295,7 +295,7 @@
       // Filter to only items that have a valid URL (internal slug OR external link)
       const valid = pool.filter(it => it.slug || it.url || it.link);
       allItems    = (!cat || cat === 'featured')
-        ? valid
+        ? interleave(valid)
         : interleave(filterCat(valid, cat));
 
       if (!allItems.length) {
