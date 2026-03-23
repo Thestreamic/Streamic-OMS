@@ -49,6 +49,27 @@ def w(path, txt):
     with open(path,"w",encoding="utf-8") as f: f.write(txt)
 def rm(wc): return f"{max(1,round(wc/200))} min read"
 
+def diversify_arts(arts, max_per_source=1):
+    """
+    Round-robin interleave articles so no consecutive items share the same source.
+    Groups by source_domain and picks one from each group in rotation.
+    Ensures feed like: Avid, Vizrt, Pebble, GV, Dalet, Harmonic, AWS, Telestream...
+    """
+    from collections import defaultdict
+    buckets = defaultdict(list)
+    for a in arts:
+        src = a.get("source_domain", "").replace("https://","").replace("www.","").split("/")[0].lower()
+        buckets[src].append(a)
+    # Sort buckets by the newest article so freshest sources lead
+    bucket_list = sorted(buckets.values(), key=lambda b: b[0].get("published",""), reverse=True)
+    result = []
+    while any(bucket_list):
+        for bucket in bucket_list:
+            if bucket:
+                result.append(bucket.pop(0))
+        bucket_list = [b for b in bucket_list if b]
+    return result
+
 # ── shared HTML blocks
 def _consent():
     return f"""<script>
@@ -338,15 +359,16 @@ def hero_block(a, base=""):
 # ── FEATURED / INDEX PAGE
 def intelligence_feed_section(arts, base=""):
     """
-    Premium 3-column card grid: square cards, no image, Apple Newsroom / Tech Journal style.
-    Title styling: bold neo-grotesk, deep charcoal, 40px+, tight letter-spacing.
-    Cards: white background, 12px radius, subtle border, category dot, h3 title,
-           source + date footer, pill Read More button. Fully responsive.
+    Apple Newsroom-style card grid with images and diversity.
+    Cards: image top, category tag, title, source + date, Read button.
+    Sources are round-robin interleaved for vendor diversity.
     """
-    rss = [a for a in arts if not a.get("is_editorial") and not a.get("editorial")][:15]
+    rss_pool = [a for a in arts if not a.get("is_editorial") and not a.get("editorial")]
+    rss = diversify_arts(rss_pool)[:12]
     if not rss:
         return ""
 
+    fb_ = f"{base}assets/fallback.jpg"
     cards_html = ""
     for i, a in enumerate(rss):
         cat      = a.get("category", "featured")
@@ -354,6 +376,7 @@ def intelligence_feed_section(arts, base=""):
         slug_    = a.get("slug", "")
         href     = f"{base}articles/{slug_}.html"
         title    = e(a.get("title", ""))
+        img      = e(a.get("image_url", ""))
         src_dom  = e(a.get("source_domain","").replace("https://","").replace("www.","").split("/")[0])
         dt       = d(a.get("published",""))
         src_url  = e(a.get("source_url","") or a.get("url","") or "")
@@ -365,40 +388,39 @@ def intelligence_feed_section(arts, base=""):
         btn_txt  = "Read Analysis" if has_long else "View Source"
         btn_href = href if has_long else (src_url or href)
         btn_tgt  = ' target="_blank" rel="noopener noreferrer nofollow"' if (not has_long and src_url) else ""
-        # Unique reference number for card (gives editorial credibility)
-        ref_num  = f"TS-{i+1:03d}"
+
+        # First card is a wide hero; rest are standard
+        card_cls = "ic-card ic-card-hero" if i == 0 else "ic-card"
+        img_load = "eager" if i == 0 else "lazy"
 
         cards_html += f"""
-<article class="ic-card">
-  <div class="ic-inner">
-    <div class="ic-top">
-      <span class="ic-ref">{ref_num}</span>
-      <span class="ic-cat" style="color:{cat_col}">
-        <span class="ic-dot" style="background:{cat_col}"></span>{cat_lbl}
-      </span>
-    </div>
+<article class="{card_cls}">
+  <div class="ic-img-wrap">
+    <a href="{href}" tabindex="-1" aria-hidden="true">
+      <img src="{img}" alt="{title}" loading="{img_load}" onerror="this.onerror=null;this.src='{fb_}'">
+    </a>
+  </div>
+  <div class="ic-body">
+    <span class="ic-cat-tag" style="color:{cat_col}">{cat_lbl}</span>
     <h3 class="ic-title">
-      <a href="{href}" style="color:inherit;text-decoration:none">{title}</a>
+      <a href="{href}">{title}</a>
     </h3>
-    <div class="ic-meta">
+    <div class="ic-foot">
       <span class="ic-src">{src_dom.upper()}</span>
       <time class="ic-date">{dt}</time>
+      <a href="{btn_href}"{btn_tgt} class="ic-btn">{btn_txt} &rarr;</a>
     </div>
-  </div>
-  <div class="ic-footer">
-    <a href="{btn_href}"{btn_tgt} class="ic-btn">{btn_txt} &rarr;</a>
   </div>
 </article>"""
 
     disclosure = """<div class="ic-disclosure">
-  <p><strong>Editor&rsquo;s Note:</strong> This technical analysis was synthesized from industry RSS feeds
-  and constructed with the assistance of AI tools. Reviewed and formatted by
-  <strong>The Streamic Editorial Team</strong> to ensure accuracy and relevance for broadcast professionals.</p>
+  <p><strong>Editor&rsquo;s Note:</strong> This technical briefing was synthesized from industry RSS feeds
+  with AI assistance. Reviewed and curated by <strong>The Streamic Editorial Team</strong>.</p>
 </div>"""
 
     return f"""<section class="intel-section">
   <style>
-    /* ── Intelligence Feed Section ─────────────────────────────────────── */
+    /* ── Intelligence Feed — Apple Newsroom Cards ─────────────────────── */
     .intel-section {{
       padding-top: 60px;
       margin: 0;
@@ -421,9 +443,7 @@ def intelligence_feed_section(arts, base=""):
       line-height: 1.1;
       margin: 0;
     }}
-    .intel-h2 span {{
-      color: #4a101d;
-    }}
+    .intel-h2 span {{ color: #4a101d; }}
     .intel-view-all {{
       font-size: 13px;
       font-weight: 600;
@@ -431,7 +451,6 @@ def intelligence_feed_section(arts, base=""):
       text-decoration: none;
       white-space: nowrap;
       flex-shrink: 0;
-      padding-bottom: 2px;
     }}
     .intel-sub {{
       font-size: 14px;
@@ -440,83 +459,125 @@ def intelligence_feed_section(arts, base=""):
       line-height: 1.6;
       max-width: 640px;
     }}
-    /* ── 3-col responsive grid ─────────────────────────────────────────── */
+    /* ── Apple Newsroom 3-col grid ─────────────────────────────────────── */
     .ic-grid {{
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
+      gap: 20px;
     }}
     @media (max-width: 1024px) and (min-width: 641px) {{
       .ic-grid {{ grid-template-columns: repeat(2, 1fr); }}
     }}
     @media (max-width: 640px) {{
-      .ic-grid {{ grid-template-columns: 1fr; gap: 12px; }}
+      .ic-grid {{ grid-template-columns: 1fr; gap: 16px; }}
     }}
-    /* ── Square card ──────────────────────────────────────────────────── */
+    /* ── Base card — white rounded, Apple style ────────────────────────── */
     .ic-card {{
       background: #ffffff;
-      border-radius: 12px;
-      border: 1px solid #e8e8e8;
+      border-radius: 14px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.06);
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
-      min-height: 200px;
-      transition: box-shadow .2s ease, transform .2s ease;
       overflow: hidden;
+      transition: box-shadow .2s ease, transform .2s ease;
     }}
     .ic-card:hover {{
-      box-shadow: 0 8px 28px rgba(0,0,0,.09);
+      box-shadow: 0 10px 32px rgba(0,0,0,.11);
       transform: translateY(-3px);
     }}
-    .ic-inner {{
-      padding: 20px 20px 12px;
+    /* Hero card spans all columns */
+    .ic-card-hero {{
+      grid-column: 1 / -1;
+      flex-direction: row;
+    }}
+    .ic-card-hero .ic-img-wrap {{
+      width: 52%;
+      min-height: 280px;
+    }}
+    .ic-card-hero .ic-body {{
       flex: 1;
+      padding: 32px 36px;
       display: flex;
       flex-direction: column;
+      justify-content: center;
     }}
-    .ic-top {{
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 14px;
+    .ic-card-hero .ic-title {{
+      font-size: clamp(18px, 2vw, 24px);
     }}
-    .ic-ref {{
-      font-size: 10px;
-      font-weight: 700;
-      color: #bbb;
-      letter-spacing: .6px;
-      font-family: 'DM Sans', monospace;
+    @media (max-width: 800px) {{
+      .ic-card-hero {{
+        flex-direction: column;
+      }}
+      .ic-card-hero .ic-img-wrap {{
+        width: 100%;
+        min-height: 220px;
+      }}
+      .ic-card-hero .ic-body {{
+        padding: 20px 22px;
+      }}
     }}
-    .ic-cat {{
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 10px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: .7px;
-    }}
-    .ic-dot {{
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
+    /* ── Card image ───────────────────────────────────────────────────── */
+    .ic-img-wrap {{
+      width: 100%;
+      height: 190px;
+      overflow: hidden;
       flex-shrink: 0;
+    }}
+    .ic-img-wrap a {{
+      display: block;
+      width: 100%;
+      height: 100%;
+    }}
+    .ic-img-wrap img {{
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.35s ease;
+    }}
+    .ic-card:hover .ic-img-wrap img {{
+      transform: scale(1.04);
+    }}
+    /* ── Card body ────────────────────────────────────────────────────── */
+    .ic-body {{
+      padding: 20px 22px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+    }}
+    .ic-cat-tag {{
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.9px;
     }}
     .ic-title {{
       font-family: var(--serif);
       font-size: 16px;
-      font-weight: 700;
-      line-height: 1.35;
-      letter-spacing: -.02em;
+      line-height: 1.3;
+      letter-spacing: -0.03em;
       color: #1a1a1a;
       margin: 0;
       flex: 1;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }}
-    .ic-meta {{
+    .ic-title a {{
+      color: inherit;
+      text-decoration: none;
+    }}
+    .ic-title a:hover {{ color: var(--blue); }}
+    .ic-foot {{
       display: flex;
       align-items: center;
-      gap: 8px;
-      margin-top: 14px;
+      gap: 10px;
+      padding-top: 10px;
+      border-top: 1px solid #f0f0f0;
+      flex-wrap: wrap;
+      margin-top: auto;
     }}
     .ic-src {{
       font-size: 10px;
@@ -527,16 +588,12 @@ def intelligence_feed_section(arts, base=""):
     .ic-date {{
       font-size: 10px;
       color: #bbb;
-    }}
-    .ic-date::before {{ content: "·"; margin-right: 8px; color: #ddd; }}
-    /* ── Card footer with pill button ─────────────────────────────────── */
-    .ic-footer {{
-      padding: 0 20px 18px;
+      flex: 1;
     }}
     .ic-btn {{
       display: inline-flex;
       align-items: center;
-      padding: 7px 16px;
+      padding: 6px 14px;
       background: #1a1a1a;
       color: #fff;
       border-radius: 100px;
@@ -544,13 +601,14 @@ def intelligence_feed_section(arts, base=""):
       font-weight: 700;
       text-decoration: none;
       letter-spacing: .3px;
+      white-space: nowrap;
       transition: background .15s ease;
+      flex-shrink: 0;
     }}
-    .ic-btn:hover {{ background: #4a101d; }}
-    /* ── Disclosure strip ─────────────────────────────────────────────── */
+    .ic-btn:hover {{ background: var(--blue); }}
+    /* ── Disclosure ───────────────────────────────────────────────────── */
     .ic-disclosure {{
-      grid-column: 1/-1;
-      margin-top: 4px;
+      grid-column: 1 / -1;
       padding: 14px 18px;
       background: #f8f8f8;
       border-radius: 8px;
@@ -563,10 +621,7 @@ def intelligence_feed_section(arts, base=""):
       line-height: 1.5;
       margin: 0;
     }}
-    .ic-disclosure strong {{
-      font-style: normal;
-      color: #666;
-    }}
+    .ic-disclosure strong {{ font-style: normal; color: #666; }}
   </style>
 
   <div class="intel-hdr">
@@ -634,9 +689,10 @@ def all_articles_page(arts):
 def featured_page(arts):
     editorial = [a for a in arts if a.get("is_editorial") or a.get("editorial")][:5]
     hero_art  = editorial[0] if editorial else (arts[0] if arts else None)
-    # Change 4c: limit to 12 RSS articles on homepage
-    rss_arts  = [a for a in arts if not a.get("is_editorial") and not a.get("editorial")
-                 and (not hero_art or a["slug"] != hero_art["slug"])][:12]
+    # Diversified RSS articles for Latest Industry Updates — no consecutive same-source
+    rss_pool  = [a for a in arts if not a.get("is_editorial") and not a.get("editorial")
+                 and (not hero_art or a["slug"] != hero_art["slug"])]
+    rss_arts  = diversify_arts(rss_pool)[:12]
 
     title  = "The Streamic &#8212; Independent Broadcast & Streaming Technology News"
     desc   = "Original analysis, deep dives, and curated broadcast technology news for engineers and media professionals."
@@ -650,7 +706,7 @@ def featured_page(arts):
         "publisher":{"@type":"Organization","name":"The Streamic","url":BASE_URL}
     })
 
-    # Change 4a: editorial intro text
+    # editorial intro text
     intro_html = """<div style="max-width:680px;margin:28px auto 0;padding:0 24px 32px;text-align:center">
   <p style="font-size:15px;line-height:1.7;color:var(--ink2)">
     The Streamic covers broadcast and streaming technology for engineers, architects, and media technology leaders.
@@ -658,7 +714,8 @@ def featured_page(arts):
   </p>
 </div>"""
 
-    intel_feed = intelligence_feed_section(feat_arts if "feat_arts" in dir() else arts)
+    # intel_feed uses diversified arts — must be defined after rss_pool above
+    intel_feed = intelligence_feed_section(arts)
 
     return f"""{head(title, desc, canon, og_img=(hero_art or {}).get('image_url',''))}
 <body data-category="featured">
@@ -705,9 +762,12 @@ def category_page(cat, arts):
 
     # First article: editorial hero card
     # Top 3 articles: editorial-style horizontal cards
-    # Rest: news grid
+    # Rest: news grid with source diversity
     editorial = [a for a in arts if a.get("is_editorial") or a.get("editorial")]
     regular   = [a for a in arts if not a.get("is_editorial") and not a.get("editorial")]
+    # Sort regular by date then diversify
+    regular.sort(key=lambda a: a.get("published",""), reverse=True)
+    regular = diversify_arts(regular)
     all_arts  = editorial + regular
     all_arts.sort(key=lambda a: a.get("published",""), reverse=True)
 

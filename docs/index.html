@@ -160,7 +160,7 @@
     </section>
     <section class="intel-section">
   <style>
-    /* ── Intelligence Feed Section ─────────────────────────────────────── */
+    /* ── Intelligence Feed — Apple Newsroom Cards ─────────────────────── */
     .intel-section {
       padding-top: 60px;
       margin: 0;
@@ -183,9 +183,7 @@
       line-height: 1.1;
       margin: 0;
     }
-    .intel-h2 span {
-      color: #4a101d;
-    }
+    .intel-h2 span { color: #4a101d; }
     .intel-view-all {
       font-size: 13px;
       font-weight: 600;
@@ -193,7 +191,6 @@
       text-decoration: none;
       white-space: nowrap;
       flex-shrink: 0;
-      padding-bottom: 2px;
     }
     .intel-sub {
       font-size: 14px;
@@ -202,83 +199,125 @@
       line-height: 1.6;
       max-width: 640px;
     }
-    /* ── 3-col responsive grid ─────────────────────────────────────────── */
+    /* ── Apple Newsroom 3-col grid ─────────────────────────────────────── */
     .ic-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
+      gap: 20px;
     }
     @media (max-width: 1024px) and (min-width: 641px) {
       .ic-grid { grid-template-columns: repeat(2, 1fr); }
     }
     @media (max-width: 640px) {
-      .ic-grid { grid-template-columns: 1fr; gap: 12px; }
+      .ic-grid { grid-template-columns: 1fr; gap: 16px; }
     }
-    /* ── Square card ──────────────────────────────────────────────────── */
+    /* ── Base card — white rounded, Apple style ────────────────────────── */
     .ic-card {
       background: #ffffff;
-      border-radius: 12px;
-      border: 1px solid #e8e8e8;
+      border-radius: 14px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.06);
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
-      min-height: 200px;
-      transition: box-shadow .2s ease, transform .2s ease;
       overflow: hidden;
+      transition: box-shadow .2s ease, transform .2s ease;
     }
     .ic-card:hover {
-      box-shadow: 0 8px 28px rgba(0,0,0,.09);
+      box-shadow: 0 10px 32px rgba(0,0,0,.11);
       transform: translateY(-3px);
     }
-    .ic-inner {
-      padding: 20px 20px 12px;
+    /* Hero card spans all columns */
+    .ic-card-hero {
+      grid-column: 1 / -1;
+      flex-direction: row;
+    }
+    .ic-card-hero .ic-img-wrap {
+      width: 52%;
+      min-height: 280px;
+    }
+    .ic-card-hero .ic-body {
       flex: 1;
+      padding: 32px 36px;
       display: flex;
       flex-direction: column;
+      justify-content: center;
     }
-    .ic-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 14px;
+    .ic-card-hero .ic-title {
+      font-size: clamp(18px, 2vw, 24px);
     }
-    .ic-ref {
-      font-size: 10px;
-      font-weight: 700;
-      color: #bbb;
-      letter-spacing: .6px;
-      font-family: 'DM Sans', monospace;
+    @media (max-width: 800px) {
+      .ic-card-hero {
+        flex-direction: column;
+      }
+      .ic-card-hero .ic-img-wrap {
+        width: 100%;
+        min-height: 220px;
+      }
+      .ic-card-hero .ic-body {
+        padding: 20px 22px;
+      }
     }
-    .ic-cat {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 10px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: .7px;
-    }
-    .ic-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
+    /* ── Card image ───────────────────────────────────────────────────── */
+    .ic-img-wrap {
+      width: 100%;
+      height: 190px;
+      overflow: hidden;
       flex-shrink: 0;
+    }
+    .ic-img-wrap a {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+    .ic-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.35s ease;
+    }
+    .ic-card:hover .ic-img-wrap img {
+      transform: scale(1.04);
+    }
+    /* ── Card body ────────────────────────────────────────────────────── */
+    .ic-body {
+      padding: 20px 22px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+    }
+    .ic-cat-tag {
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.9px;
     }
     .ic-title {
       font-family: var(--serif);
       font-size: 16px;
-      font-weight: 700;
-      line-height: 1.35;
-      letter-spacing: -.02em;
+      line-height: 1.3;
+      letter-spacing: -0.03em;
       color: #1a1a1a;
       margin: 0;
       flex: 1;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
-    .ic-meta {
+    .ic-title a {
+      color: inherit;
+      text-decoration: none;
+    }
+    .ic-title a:hover { color: var(--blue); }
+    .ic-foot {
       display: flex;
       align-items: center;
-      gap: 8px;
-      margin-top: 14px;
+      gap: 10px;
+      padding-top: 10px;
+      border-top: 1px solid #f0f0f0;
+      flex-wrap: wrap;
+      margin-top: auto;
     }
     .ic-src {
       font-size: 10px;
@@ -289,16 +328,12 @@
     .ic-date {
       font-size: 10px;
       color: #bbb;
-    }
-    .ic-date::before { content: "·"; margin-right: 8px; color: #ddd; }
-    /* ── Card footer with pill button ─────────────────────────────────── */
-    .ic-footer {
-      padding: 0 20px 18px;
+      flex: 1;
     }
     .ic-btn {
       display: inline-flex;
       align-items: center;
-      padding: 7px 16px;
+      padding: 6px 14px;
       background: #1a1a1a;
       color: #fff;
       border-radius: 100px;
@@ -306,13 +341,14 @@
       font-weight: 700;
       text-decoration: none;
       letter-spacing: .3px;
+      white-space: nowrap;
       transition: background .15s ease;
+      flex-shrink: 0;
     }
-    .ic-btn:hover { background: #4a101d; }
-    /* ── Disclosure strip ─────────────────────────────────────────────── */
+    .ic-btn:hover { background: var(--blue); }
+    /* ── Disclosure ───────────────────────────────────────────────────── */
     .ic-disclosure {
-      grid-column: 1/-1;
-      margin-top: 4px;
+      grid-column: 1 / -1;
       padding: 14px 18px;
       background: #f8f8f8;
       border-radius: 8px;
@@ -325,10 +361,7 @@
       line-height: 1.5;
       margin: 0;
     }
-    .ic-disclosure strong {
-      font-style: normal;
-      color: #666;
-    }
+    .ic-disclosure strong { font-style: normal; color: #666; }
   </style>
 
   <div class="intel-hdr">
@@ -339,310 +372,225 @@
 
   <div class="ic-grid">
     
-<article class="ic-card">
-  <div class="ic-inner">
-    <div class="ic-top">
-      <span class="ic-ref">TS-001</span>
-      <span class="ic-cat" style="color:#0066cc">
-        <span class="ic-dot" style="background:#0066cc"></span>Streaming
-      </span>
-    </div>
+<article class="ic-card ic-card-hero">
+  <div class="ic-img-wrap">
+    <a href="articles/2026-03-23-graphics-ask-the-experts-building-your-own-professiona.html" tabindex="-1" aria-hidden="true">
+      <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=900&amp;auto=format&amp;fit=crop&amp;q=80" alt="Ask the Experts: Building Your Own Professional Studio on a Budget" loading="eager" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+    </a>
+  </div>
+  <div class="ic-body">
+    <span class="ic-cat-tag" style="color:#FF9500">Graphics</span>
     <h3 class="ic-title">
-      <a href="articles/2026-03-23-streaming-intelligent-camera-card-ingest-for-modern-me.html" style="color:inherit;text-decoration:none">Intelligent Camera Card Ingest for Modern Media Production</a>
+      <a href="articles/2026-03-23-graphics-ask-the-experts-building-your-own-professiona.html">Ask the Experts: Building Your Own Professional Studio on a Budget</a>
     </h3>
-    <div class="ic-meta">
-      <span class="ic-src">TELESTREAM</span>
-      <time class="ic-date">March 23, 2026</time>
-    </div>
-  </div>
-  <div class="ic-footer">
-    <a href="articles/2026-03-23-streaming-intelligent-camera-card-ingest-for-modern-me.html" class="ic-btn">Read Analysis &rarr;</a>
-  </div>
-</article>
-<article class="ic-card">
-  <div class="ic-inner">
-    <div class="ic-top">
-      <span class="ic-ref">TS-002</span>
-      <span class="ic-cat" style="color:#b8860b">
-        <span class="ic-dot" style="background:#b8860b"></span>Newsroom
-      </span>
-    </div>
-    <h3 class="ic-title">
-      <a href="articles/2026-03-23-newsroom-miri-v410-live-4k-encoderdecoder-to-make-nort.html" style="color:inherit;text-decoration:none">Miri V410 Live 4K Encoder/Decoder to Make North American Debut at 2026 NAB Show</a>
-    </h3>
-    <div class="ic-meta">
-      <span class="ic-src">BROADCASTBEAT</span>
-      <time class="ic-date">March 23, 2026</time>
-    </div>
-  </div>
-  <div class="ic-footer">
-    <a href="articles/2026-03-23-newsroom-miri-v410-live-4k-encoderdecoder-to-make-nort.html" class="ic-btn">Read Analysis &rarr;</a>
-  </div>
-</article>
-<article class="ic-card">
-  <div class="ic-inner">
-    <div class="ic-top">
-      <span class="ic-ref">TS-003</span>
-      <span class="ic-cat" style="color:#FF2D55">
-        <span class="ic-dot" style="background:#FF2D55"></span>AI & Post-Production
-      </span>
-    </div>
-    <h3 class="ic-title">
-      <a href="articles/2026-03-23-ai-post-prod-why-we-chose-a-credit-based-model-for-vid.html" style="color:inherit;text-decoration:none">Why We Chose a Credit-Based Model for VideoAI</a>
-    </h3>
-    <div class="ic-meta">
-      <span class="ic-src">POND5</span>
-      <time class="ic-date">March 23, 2026</time>
-    </div>
-  </div>
-  <div class="ic-footer">
-    <a href="articles/2026-03-23-ai-post-prod-why-we-chose-a-credit-based-model-for-vid.html" class="ic-btn">Read Analysis &rarr;</a>
-  </div>
-</article>
-<article class="ic-card">
-  <div class="ic-inner">
-    <div class="ic-top">
-      <span class="ic-ref">TS-004</span>
-      <span class="ic-cat" style="color:#FF9500">
-        <span class="ic-dot" style="background:#FF9500"></span>Graphics
-      </span>
-    </div>
-    <h3 class="ic-title">
-      <a href="articles/2026-03-23-graphics-ask-the-experts-building-your-own-professiona.html" style="color:inherit;text-decoration:none">Ask the Experts: Building Your Own Professional Studio on a Budget</a>
-    </h3>
-    <div class="ic-meta">
+    <div class="ic-foot">
       <span class="ic-src">VIZRT</span>
       <time class="ic-date">March 23, 2026</time>
+      <a href="articles/2026-03-23-graphics-ask-the-experts-building-your-own-professiona.html" class="ic-btn">Read Analysis &rarr;</a>
     </div>
-  </div>
-  <div class="ic-footer">
-    <a href="articles/2026-03-23-graphics-ask-the-experts-building-your-own-professiona.html" class="ic-btn">Read Analysis &rarr;</a>
   </div>
 </article>
 <article class="ic-card">
-  <div class="ic-inner">
-    <div class="ic-top">
-      <span class="ic-ref">TS-005</span>
-      <span class="ic-cat" style="color:#FF9500">
-        <span class="ic-dot" style="background:#FF9500"></span>Graphics
-      </span>
-    </div>
+  <div class="ic-img-wrap">
+    <a href="articles/2026-03-23-graphics-death-howl-launch-trailer-blublu-studios.html" tabindex="-1" aria-hidden="true">
+      <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=900&amp;auto=format&amp;fit=crop&amp;q=80" alt="Death Howl – Launch Trailer | BluBlu Studios" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+    </a>
+  </div>
+  <div class="ic-body">
+    <span class="ic-cat-tag" style="color:#FF9500">Graphics</span>
     <h3 class="ic-title">
-      <a href="articles/2026-03-23-graphics-how-vizrt-education-solutions-prepare-student.html" style="color:inherit;text-decoration:none">How Vizrt Education Solutions Prepare Students for Real-World Media Careers</a>
+      <a href="articles/2026-03-23-graphics-death-howl-launch-trailer-blublu-studios.html">Death Howl – Launch Trailer | BluBlu Studios</a>
     </h3>
-    <div class="ic-meta">
-      <span class="ic-src">VIZRT</span>
-      <time class="ic-date">March 23, 2026</time>
-    </div>
-  </div>
-  <div class="ic-footer">
-    <a href="articles/2026-03-23-graphics-how-vizrt-education-solutions-prepare-student.html" class="ic-btn">Read Analysis &rarr;</a>
-  </div>
-</article>
-<article class="ic-card">
-  <div class="ic-inner">
-    <div class="ic-top">
-      <span class="ic-ref">TS-006</span>
-      <span class="ic-cat" style="color:#FF9500">
-        <span class="ic-dot" style="background:#FF9500"></span>Graphics
-      </span>
-    </div>
-    <h3 class="ic-title">
-      <a href="articles/2026-03-23-graphics-on-air-2025-a-global-broadcast-powered-by-stu.html" style="color:inherit;text-decoration:none">On Air 2025: A Global Broadcast Powered by Students and Vizrt</a>
-    </h3>
-    <div class="ic-meta">
-      <span class="ic-src">VIZRT</span>
-      <time class="ic-date">March 23, 2026</time>
-    </div>
-  </div>
-  <div class="ic-footer">
-    <a href="articles/2026-03-23-graphics-on-air-2025-a-global-broadcast-powered-by-stu.html" class="ic-btn">Read Analysis &rarr;</a>
-  </div>
-</article>
-<article class="ic-card">
-  <div class="ic-inner">
-    <div class="ic-top">
-      <span class="ic-ref">TS-007</span>
-      <span class="ic-cat" style="color:#FF9500">
-        <span class="ic-dot" style="background:#FF9500"></span>Graphics
-      </span>
-    </div>
-    <h3 class="ic-title">
-      <a href="articles/2026-03-23-graphics-turning-archives-into-intelligence-vizrt-and-.html" style="color:inherit;text-decoration:none">Turning archives into intelligence: Vizrt and DeepVA introduce AI-driven metadata enrichment in Viz One media asset management</a>
-    </h3>
-    <div class="ic-meta">
-      <span class="ic-src">VIZRT</span>
-      <time class="ic-date">March 23, 2026</time>
-    </div>
-  </div>
-  <div class="ic-footer">
-    <a href="https://routing.vizrt.com/community/blog/turning-archives-into-intelligence-vizrt-and-deepva-introduce-ai-driven-metadata-enrichment-in-viz-one-media-asset-management/" target="_blank" rel="noopener noreferrer nofollow" class="ic-btn">View Source &rarr;</a>
-  </div>
-</article>
-<article class="ic-card">
-  <div class="ic-inner">
-    <div class="ic-top">
-      <span class="ic-ref">TS-008</span>
-      <span class="ic-cat" style="color:#FF9500">
-        <span class="ic-dot" style="background:#FF9500"></span>Graphics
-      </span>
-    </div>
-    <h3 class="ic-title">
-      <a href="articles/2026-03-23-graphics-vizrt-launches-ai-powered-advances-for-speed-.html" style="color:inherit;text-decoration:none">Vizrt launches AI-powered advances for speed and accuracy in media management</a>
-    </h3>
-    <div class="ic-meta">
-      <span class="ic-src">VIZRT</span>
-      <time class="ic-date">March 23, 2026</time>
-    </div>
-  </div>
-  <div class="ic-footer">
-    <a href="articles/2026-03-23-graphics-vizrt-launches-ai-powered-advances-for-speed-.html" class="ic-btn">Read Analysis &rarr;</a>
-  </div>
-</article>
-<article class="ic-card">
-  <div class="ic-inner">
-    <div class="ic-top">
-      <span class="ic-ref">TS-009</span>
-      <span class="ic-cat" style="color:#FF9500">
-        <span class="ic-dot" style="background:#FF9500"></span>Graphics
-      </span>
-    </div>
-    <h3 class="ic-title">
-      <a href="articles/2026-03-23-graphics-vizrt-powers-a-new-era-of-corporate-viewer-en.html" style="color:inherit;text-decoration:none">Vizrt Powers a New Era of Corporate Viewer Engagement with Expanded Enterprise Team</a>
-    </h3>
-    <div class="ic-meta">
-      <span class="ic-src">VIZRT</span>
-      <time class="ic-date">March 23, 2026</time>
-    </div>
-  </div>
-  <div class="ic-footer">
-    <a href="https://routing.vizrt.com/vizrt/press-center/new-era-of-corporate-viewer-engagement/" target="_blank" rel="noopener noreferrer nofollow" class="ic-btn">View Source &rarr;</a>
-  </div>
-</article>
-<article class="ic-card">
-  <div class="ic-inner">
-    <div class="ic-top">
-      <span class="ic-ref">TS-010</span>
-      <span class="ic-cat" style="color:#FF9500">
-        <span class="ic-dot" style="background:#FF9500"></span>Graphics
-      </span>
-    </div>
-    <h3 class="ic-title">
-      <a href="articles/2026-03-23-graphics-vizrt-revolutionizes-corporate-communications.html" style="color:inherit;text-decoration:none">Vizrt revolutionizes corporate communications with AI-powered augmented reality in Zoom</a>
-    </h3>
-    <div class="ic-meta">
-      <span class="ic-src">VIZRT</span>
-      <time class="ic-date">March 23, 2026</time>
-    </div>
-  </div>
-  <div class="ic-footer">
-    <a href="https://routing.vizrt.com/vizrt/press-center/vizrt-revolutionizes-communications-with-ai-powered-augmented-reality-in-zoom/" target="_blank" rel="noopener noreferrer nofollow" class="ic-btn">View Source &rarr;</a>
-  </div>
-</article>
-<article class="ic-card">
-  <div class="ic-inner">
-    <div class="ic-top">
-      <span class="ic-ref">TS-011</span>
-      <span class="ic-cat" style="color:#FF9500">
-        <span class="ic-dot" style="background:#FF9500"></span>Graphics
-      </span>
-    </div>
-    <h3 class="ic-title">
-      <a href="articles/2026-03-23-graphics-vizrt-launches-sports-production-bundles-to-e.html" style="color:inherit;text-decoration:none">Vizrt Launches Sports Production Bundles to Empower US Students to Produce Like the Pros</a>
-    </h3>
-    <div class="ic-meta">
-      <span class="ic-src">VIZRT</span>
-      <time class="ic-date">March 23, 2026</time>
-    </div>
-  </div>
-  <div class="ic-footer">
-    <a href="articles/2026-03-23-graphics-vizrt-launches-sports-production-bundles-to-e.html" class="ic-btn">Read Analysis &rarr;</a>
-  </div>
-</article>
-<article class="ic-card">
-  <div class="ic-inner">
-    <div class="ic-top">
-      <span class="ic-ref">TS-012</span>
-      <span class="ic-cat" style="color:#FF9500">
-        <span class="ic-dot" style="background:#FF9500"></span>Graphics
-      </span>
-    </div>
-    <h3 class="ic-title">
-      <a href="articles/2026-03-23-graphics-death-howl-launch-trailer-blublu-studios.html" style="color:inherit;text-decoration:none">Death Howl – Launch Trailer | BluBlu Studios</a>
-    </h3>
-    <div class="ic-meta">
+    <div class="ic-foot">
       <span class="ic-src">MOTIONOGRAPHER</span>
       <time class="ic-date">March 23, 2026</time>
+      <a href="https://motionographer.com/quickie/death-howl-launch-trailer-blublu-studios/" target="_blank" rel="noopener noreferrer nofollow" class="ic-btn">View Source &rarr;</a>
     </div>
-  </div>
-  <div class="ic-footer">
-    <a href="https://motionographer.com/quickie/death-howl-launch-trailer-blublu-studios/" target="_blank" rel="noopener noreferrer nofollow" class="ic-btn">View Source &rarr;</a>
   </div>
 </article>
 <article class="ic-card">
-  <div class="ic-inner">
-    <div class="ic-top">
-      <span class="ic-ref">TS-013</span>
-      <span class="ic-cat" style="color:#FF9500">
-        <span class="ic-dot" style="background:#FF9500"></span>Graphics
-      </span>
-    </div>
-    <h3 class="ic-title">
-      <a href="articles/2026-03-23-graphics-king-of-fighters-afk-volt-tv-lee-jaewoo.html" style="color:inherit;text-decoration:none">King of Fighters AFK | VOLT tv / Lee jaewoo</a>
-    </h3>
-    <div class="ic-meta">
-      <span class="ic-src">MOTIONOGRAPHER</span>
-      <time class="ic-date">March 23, 2026</time>
-    </div>
+  <div class="ic-img-wrap">
+    <a href="articles/2026-03-23-newsroom-caretta-research-broadcasters-rebuild-live-op.html" tabindex="-1" aria-hidden="true">
+      <img src="https://images.unsplash.com/photo-1453738773917-9c3eff1db985?w=900&amp;auto=format&amp;fit=crop&amp;q=80" alt="Caretta Research: Broadcasters Rebuild Live Operations Around IP as Satellite Use Declines" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+    </a>
   </div>
-  <div class="ic-footer">
-    <a href="https://motionographer.com/quickie/king-of-fighters-afk-volt-tv-lee-jaewoo/" target="_blank" rel="noopener noreferrer nofollow" class="ic-btn">View Source &rarr;</a>
-  </div>
-</article>
-<article class="ic-card">
-  <div class="ic-inner">
-    <div class="ic-top">
-      <span class="ic-ref">TS-014</span>
-      <span class="ic-cat" style="color:#b8860b">
-        <span class="ic-dot" style="background:#b8860b"></span>Newsroom
-      </span>
-    </div>
+  <div class="ic-body">
+    <span class="ic-cat-tag" style="color:#b8860b">Newsroom</span>
     <h3 class="ic-title">
-      <a href="articles/2026-03-23-newsroom-caretta-research-broadcasters-rebuild-live-op.html" style="color:inherit;text-decoration:none">Caretta Research: Broadcasters Rebuild Live Operations Around IP as Satellite Use Declines</a>
+      <a href="articles/2026-03-23-newsroom-caretta-research-broadcasters-rebuild-live-op.html">Caretta Research: Broadcasters Rebuild Live Operations Around IP as Satellite Use Declines</a>
     </h3>
-    <div class="ic-meta">
+    <div class="ic-foot">
       <span class="ic-src">BROADCASTBEAT</span>
       <time class="ic-date">March 23, 2026</time>
+      <a href="https://www.broadcastbeat.com/caretta-research-broadcasters-rebuild-live-operations-around-ip-as-satellite-use-declines/" target="_blank" rel="noopener noreferrer nofollow" class="ic-btn">View Source &rarr;</a>
     </div>
-  </div>
-  <div class="ic-footer">
-    <a href="https://www.broadcastbeat.com/caretta-research-broadcasters-rebuild-live-operations-around-ip-as-satellite-use-declines/" target="_blank" rel="noopener noreferrer nofollow" class="ic-btn">View Source &rarr;</a>
   </div>
 </article>
 <article class="ic-card">
-  <div class="ic-inner">
-    <div class="ic-top">
-      <span class="ic-ref">TS-015</span>
-      <span class="ic-cat" style="color:#b8860b">
-        <span class="ic-dot" style="background:#b8860b"></span>Newsroom
-      </span>
-    </div>
+  <div class="ic-img-wrap">
+    <a href="articles/2026-03-23-newsroom-study-repurposed-traditional-tv-ads-for-ctv-i.html" tabindex="-1" aria-hidden="true">
+      <img src="https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=900&amp;auto=format&amp;fit=crop&amp;q=80" alt="Study: Repurposed Traditional TV Ads for CTV Is a Missed Opportunity" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+    </a>
+  </div>
+  <div class="ic-body">
+    <span class="ic-cat-tag" style="color:#b8860b">Newsroom</span>
     <h3 class="ic-title">
-      <a href="articles/2026-03-23-newsroom-study-repurposed-traditional-tv-ads-for-ctv-i.html" style="color:inherit;text-decoration:none">Study: Repurposed Traditional TV Ads for CTV Is a Missed Opportunity</a>
+      <a href="articles/2026-03-23-newsroom-study-repurposed-traditional-tv-ads-for-ctv-i.html">Study: Repurposed Traditional TV Ads for CTV Is a Missed Opportunity</a>
     </h3>
-    <div class="ic-meta">
+    <div class="ic-foot">
       <span class="ic-src">TV TECHNOLOGY</span>
       <time class="ic-date">March 23, 2026</time>
+      <a href="https://www.tvtechnology.com/business/study-repurposed-traditional-tv-ads-for-ctv-is-a-missed-opportunity" target="_blank" rel="noopener noreferrer nofollow" class="ic-btn">View Source &rarr;</a>
     </div>
   </div>
-  <div class="ic-footer">
-    <a href="https://www.tvtechnology.com/business/study-repurposed-traditional-tv-ads-for-ctv-is-a-missed-opportunity" target="_blank" rel="noopener noreferrer nofollow" class="ic-btn">View Source &rarr;</a>
+</article>
+<article class="ic-card">
+  <div class="ic-img-wrap">
+    <a href="articles/2026-03-23-ai-post-prod-watch-important-looking-pirates-vfx-break.html" tabindex="-1" aria-hidden="true">
+      <img src="https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=900&amp;auto=format&amp;fit=crop&amp;q=80" alt="Watch Important Looking Pirates’ VFX breakdown for ‘Predator: Badlands’" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+    </a>
+  </div>
+  <div class="ic-body">
+    <span class="ic-cat-tag" style="color:#FF2D55">AI & Post-Production</span>
+    <h3 class="ic-title">
+      <a href="articles/2026-03-23-ai-post-prod-watch-important-looking-pirates-vfx-break.html">Watch Important Looking Pirates’ VFX breakdown for ‘Predator: Badlands’</a>
+    </h3>
+    <div class="ic-foot">
+      <span class="ic-src">BEFORES &AMP; AFTERS</span>
+      <time class="ic-date">March 23, 2026</time>
+      <a href="https://beforesandafters.com/2026/03/21/watch-important-looking-pirates-vfx-breakdown-for-predator-badlands/" target="_blank" rel="noopener noreferrer nofollow" class="ic-btn">View Source &rarr;</a>
+    </div>
+  </div>
+</article>
+<article class="ic-card">
+  <div class="ic-img-wrap">
+    <a href="articles/2026-03-23-ai-post-prod-national-retail-federation-builds-its-own.html" tabindex="-1" aria-hidden="true">
+      <img src="https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=900&amp;auto=format&amp;fit=crop&amp;q=80" alt="National Retail Federation builds its own broadcast studio" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+    </a>
+  </div>
+  <div class="ic-body">
+    <span class="ic-cat-tag" style="color:#FF2D55">AI & Post-Production</span>
+    <h3 class="ic-title">
+      <a href="articles/2026-03-23-ai-post-prod-national-retail-federation-builds-its-own.html">National Retail Federation builds its own broadcast studio</a>
+    </h3>
+    <div class="ic-foot">
+      <span class="ic-src">AV MAGAZINE</span>
+      <time class="ic-date">March 23, 2026</time>
+      <a href="https://www.avinteractive.com/territories-news/us-canada/national-retail-federation-builds-its-own-broadcast-studio-19-03-2026/" target="_blank" rel="noopener noreferrer nofollow" class="ic-btn">View Source &rarr;</a>
+    </div>
+  </div>
+</article>
+<article class="ic-card">
+  <div class="ic-img-wrap">
+    <a href="articles/2026-03-23-ai-post-prod-introducing-videoai-on-pond5-high-quality.html" tabindex="-1" aria-hidden="true">
+      <img src="https://images.unsplash.com/photo-1535016120720-40c646be5580?w=900&amp;auto=format&amp;fit=crop&amp;q=80" alt="Introducing VideoAI on Pond5: High-Quality Video, On Your Terms" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+    </a>
+  </div>
+  <div class="ic-body">
+    <span class="ic-cat-tag" style="color:#FF2D55">AI & Post-Production</span>
+    <h3 class="ic-title">
+      <a href="articles/2026-03-23-ai-post-prod-introducing-videoai-on-pond5-high-quality.html">Introducing VideoAI on Pond5: High-Quality Video, On Your Terms</a>
+    </h3>
+    <div class="ic-foot">
+      <span class="ic-src">POND5</span>
+      <time class="ic-date">March 23, 2026</time>
+      <a href="https://blog.pond5.com/81403-introducing-videoai-on-pond5-high-quality-video-on-your-terms/" target="_blank" rel="noopener noreferrer nofollow" class="ic-btn">View Source &rarr;</a>
+    </div>
+  </div>
+</article>
+<article class="ic-card">
+  <div class="ic-img-wrap">
+    <a href="articles/2026-03-23-ai-post-prod-the-beginners-guide-to-ai-video.html" tabindex="-1" aria-hidden="true">
+      <img src="https://images.unsplash.com/photo-1535016120720-40c646be5580?w=900&amp;auto=format&amp;fit=crop&amp;q=80" alt="The Beginner’s Guide to AI Video" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+    </a>
+  </div>
+  <div class="ic-body">
+    <span class="ic-cat-tag" style="color:#FF2D55">AI & Post-Production</span>
+    <h3 class="ic-title">
+      <a href="articles/2026-03-23-ai-post-prod-the-beginners-guide-to-ai-video.html">The Beginner’s Guide to AI Video</a>
+    </h3>
+    <div class="ic-foot">
+      <span class="ic-src">JONNY ELWYN</span>
+      <time class="ic-date">March 23, 2026</time>
+      <a href="https://jonnyelwyn.co.uk/film-and-video-editing/the-beginners-guide-to-ai-video/" target="_blank" rel="noopener noreferrer nofollow" class="ic-btn">View Source &rarr;</a>
+    </div>
+  </div>
+</article>
+<article class="ic-card">
+  <div class="ic-img-wrap">
+    <a href="articles/2026-03-23-ai-post-prod-the-ultimate-black-friday-video-editing-d.html" tabindex="-1" aria-hidden="true">
+      <img src="https://images.unsplash.com/photo-1535016120720-40c646be5580?w=900&amp;auto=format&amp;fit=crop&amp;q=80" alt="The Ultimate Black Friday Video Editing Deal: Gal Toolkit Plugin at 40% Off" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+    </a>
+  </div>
+  <div class="ic-body">
+    <span class="ic-cat-tag" style="color:#FF2D55">AI & Post-Production</span>
+    <h3 class="ic-title">
+      <a href="articles/2026-03-23-ai-post-prod-the-ultimate-black-friday-video-editing-d.html">The Ultimate Black Friday Video Editing Deal: Gal Toolkit Plugin at 40% Off</a>
+    </h3>
+    <div class="ic-foot">
+      <span class="ic-src">PREMIERE GAL</span>
+      <time class="ic-date">March 23, 2026</time>
+      <a href="https://premieregal.com/blog/2024/11/28/the-ultimate-black-friday-video-editing-deal-gal-toolkit-plugin-at-40-off" target="_blank" rel="noopener noreferrer nofollow" class="ic-btn">View Source &rarr;</a>
+    </div>
+  </div>
+</article>
+<article class="ic-card">
+  <div class="ic-img-wrap">
+    <a href="articles/2026-03-23-infrastructu-fbi-links-signal-phishing-attacks-to-russ.html" tabindex="-1" aria-hidden="true">
+      <img src="https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=900&amp;auto=format&amp;fit=crop&amp;q=80" alt="FBI links Signal phishing attacks to Russian intelligence services" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+    </a>
+  </div>
+  <div class="ic-body">
+    <span class="ic-cat-tag" style="color:#636366">Infrastructure</span>
+    <h3 class="ic-title">
+      <a href="articles/2026-03-23-infrastructu-fbi-links-signal-phishing-attacks-to-russ.html">FBI links Signal phishing attacks to Russian intelligence services</a>
+    </h3>
+    <div class="ic-foot">
+      <span class="ic-src">BLEEPINGCOMPUTER</span>
+      <time class="ic-date">March 23, 2026</time>
+      <a href="https://www.bleepingcomputer.com/news/security/fbi-links-signal-phishing-attacks-to-russian-intelligence-services/" target="_blank" rel="noopener noreferrer nofollow" class="ic-btn">View Source &rarr;</a>
+    </div>
+  </div>
+</article>
+<article class="ic-card">
+  <div class="ic-img-wrap">
+    <a href="articles/2026-03-23-infrastructu-introducing-the-new-cloudinary-studio-enh.html" tabindex="-1" aria-hidden="true">
+      <img src="https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=900&amp;auto=format&amp;fit=crop&amp;q=80" alt="Introducing the New Cloudinary Studio: Enhanced Image Transformation at Your Fingertips" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+    </a>
+  </div>
+  <div class="ic-body">
+    <span class="ic-cat-tag" style="color:#636366">Infrastructure</span>
+    <h3 class="ic-title">
+      <a href="articles/2026-03-23-infrastructu-introducing-the-new-cloudinary-studio-enh.html">Introducing the New Cloudinary Studio: Enhanced Image Transformation at Your Fingertips</a>
+    </h3>
+    <div class="ic-foot">
+      <span class="ic-src">CLOUDINARY</span>
+      <time class="ic-date">March 23, 2026</time>
+      <a href="https://cloudinary.com/blog/introducing-new-cloudinary-studio" target="_blank" rel="noopener noreferrer nofollow" class="ic-btn">View Source &rarr;</a>
+    </div>
+  </div>
+</article>
+<article class="ic-card">
+  <div class="ic-img-wrap">
+    <a href="articles/2026-03-23-infrastructu-what-is-the-best-nas-for-video-production.html" tabindex="-1" aria-hidden="true">
+      <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=900&amp;auto=format&amp;fit=crop&amp;q=80" alt="What Is The Best NAS For Video Production in 2026?" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+    </a>
+  </div>
+  <div class="ic-body">
+    <span class="ic-cat-tag" style="color:#636366">Infrastructure</span>
+    <h3 class="ic-title">
+      <a href="articles/2026-03-23-infrastructu-what-is-the-best-nas-for-video-production.html">What Is The Best NAS For Video Production in 2026?</a>
+    </h3>
+    <div class="ic-foot">
+      <span class="ic-src">STUDIO NETWORK SOLUTIONS</span>
+      <time class="ic-date">March 23, 2026</time>
+      <a href="https://www.studionetworksolutions.com/best-nas-for-video-production/" target="_blank" rel="noopener noreferrer nofollow" class="ic-btn">View Source &rarr;</a>
+    </div>
   </div>
 </article>
     <div class="ic-disclosure">
-  <p><strong>Editor&rsquo;s Note:</strong> This technical analysis was synthesized from industry RSS feeds
-  and constructed with the assistance of AI tools. Reviewed and formatted by
-  <strong>The Streamic Editorial Team</strong> to ensure accuracy and relevance for broadcast professionals.</p>
+  <p><strong>Editor&rsquo;s Note:</strong> This technical briefing was synthesized from industry RSS feeds
+  with AI assistance. Reviewed and curated by <strong>The Streamic Editorial Team</strong>.</p>
 </div>
   </div>
 </section>
@@ -655,177 +603,17 @@
       <ul id="bentoGridLarge" class="bento-grid-large">
 <li class="bento-grid-item">
   <div class="bento-img-wrap bento-img-featured">
-    <a href="articles/2026-03-23-streaming-intelligent-camera-card-ingest-for-modern-me.html" tabindex="-1" aria-hidden="true">
-      <img src="https://images.unsplash.com/photo-1574717025058-97e3af4ef9b5?w=900&amp;auto=format&amp;fit=crop&amp;q=80" alt="Intelligent Camera Card Ingest for Modern Media Production" loading="eager" onerror="this.onerror=null;this.src=assets/fallback.jpg">
+    <a href="articles/2026-03-23-graphics-ask-the-experts-building-your-own-professiona.html" tabindex="-1" aria-hidden="true">
+      <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=900&amp;auto=format&amp;fit=crop&amp;q=80" alt="Ask the Experts: Building Your Own Professional Studio on a Budget" loading="eager" onerror="this.onerror=null;this.src=assets/fallback.jpg">
     </a>
   </div>
   <div class="bento-body bento-body-featured">
-    <span class="bento-cat-tag">Streaming</span>
-    <h2 class="bento-hl bento-hl-featured"><a href="articles/2026-03-23-streaming-intelligent-camera-card-ingest-for-modern-me.html">Intelligent Camera Card Ingest for Modern Media Production</a></h2>
-    <div class="bento-foot">
-      <span class="bento-source">TELESTREAM</span>
-      <time style="font-size:11px;color:var(--ink4)">March 23, 2026</time>
-      <a href="articles/2026-03-23-streaming-intelligent-camera-card-ingest-for-modern-me.html" class="bento-cta-featured">Read Full Article &rarr;</a>
-    </div>
-  </div>
-</li>
-<li class="bento-grid-item bento-standard">
-  <div class="bento-img-wrap bento-img-std">
-    <a href="articles/2026-03-23-newsroom-miri-v410-live-4k-encoderdecoder-to-make-nort.html" tabindex="-1" aria-hidden="true">
-      <img src="https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=900&amp;auto=format&amp;fit=crop&amp;q=80" alt="Miri V410 Live 4K Encoder/Decoder to Make North American Debut at 2026 NAB Show" loading="lazy" onerror="this.onerror=null;this.src=assets/fallback.jpg">
-    </a>
-  </div>
-  <div class="bento-body bento-body-std">
-    <span class="bento-cat-tag">Newsroom</span>
-    <h3 class="bento-hl bento-hl-std"><a href="articles/2026-03-23-newsroom-miri-v410-live-4k-encoderdecoder-to-make-nort.html">Miri V410 Live 4K Encoder/Decoder to Make North American Debut at 2026 NAB Show</a></h3>
-    <div class="bento-foot">
-      <span class="bento-source">BROADCASTBEAT</span>
-      <time style="font-size:11px;color:var(--ink4)">March 23, 2026</time>
-      <a href="articles/2026-03-23-newsroom-miri-v410-live-4k-encoderdecoder-to-make-nort.html" class="bento-cta">Read Full Article &rarr;</a>
-    </div>
-  </div>
-</li>
-<li class="bento-grid-item bento-standard">
-  <div class="bento-img-wrap bento-img-std">
-    <a href="articles/2026-03-23-ai-post-prod-why-we-chose-a-credit-based-model-for-vid.html" tabindex="-1" aria-hidden="true">
-      <img src="https://images.unsplash.com/photo-1605106702734-205df224ecce?w=900&amp;auto=format&amp;fit=crop&amp;q=80" alt="Why We Chose a Credit-Based Model for VideoAI" loading="lazy" onerror="this.onerror=null;this.src=assets/fallback.jpg">
-    </a>
-  </div>
-  <div class="bento-body bento-body-std">
-    <span class="bento-cat-tag">AI & Post-Production</span>
-    <h3 class="bento-hl bento-hl-std"><a href="articles/2026-03-23-ai-post-prod-why-we-chose-a-credit-based-model-for-vid.html">Why We Chose a Credit-Based Model for VideoAI</a></h3>
-    <div class="bento-foot">
-      <span class="bento-source">POND5</span>
-      <time style="font-size:11px;color:var(--ink4)">March 23, 2026</time>
-      <a href="articles/2026-03-23-ai-post-prod-why-we-chose-a-credit-based-model-for-vid.html" class="bento-cta">Read Full Article &rarr;</a>
-    </div>
-  </div>
-</li>
-<li class="bento-grid-item bento-standard">
-  <div class="bento-img-wrap bento-img-std">
-    <a href="articles/2026-03-23-graphics-ask-the-experts-building-your-own-professiona.html" tabindex="-1" aria-hidden="true">
-      <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=900&amp;auto=format&amp;fit=crop&amp;q=80" alt="Ask the Experts: Building Your Own Professional Studio on a Budget" loading="lazy" onerror="this.onerror=null;this.src=assets/fallback.jpg">
-    </a>
-  </div>
-  <div class="bento-body bento-body-std">
     <span class="bento-cat-tag">Graphics</span>
-    <h3 class="bento-hl bento-hl-std"><a href="articles/2026-03-23-graphics-ask-the-experts-building-your-own-professiona.html">Ask the Experts: Building Your Own Professional Studio on a Budget</a></h3>
+    <h2 class="bento-hl bento-hl-featured"><a href="articles/2026-03-23-graphics-ask-the-experts-building-your-own-professiona.html">Ask the Experts: Building Your Own Professional Studio on a Budget</a></h2>
     <div class="bento-foot">
       <span class="bento-source">VIZRT</span>
       <time style="font-size:11px;color:var(--ink4)">March 23, 2026</time>
-      <a href="articles/2026-03-23-graphics-ask-the-experts-building-your-own-professiona.html" class="bento-cta">Read Full Article &rarr;</a>
-    </div>
-  </div>
-</li>
-<li class="bento-grid-item bento-standard">
-  <div class="bento-img-wrap bento-img-std">
-    <a href="articles/2026-03-23-graphics-how-vizrt-education-solutions-prepare-student.html" tabindex="-1" aria-hidden="true">
-      <img src="https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?w=900&amp;auto=format&amp;fit=crop&amp;q=80" alt="How Vizrt Education Solutions Prepare Students for Real-World Media Careers" loading="lazy" onerror="this.onerror=null;this.src=assets/fallback.jpg">
-    </a>
-  </div>
-  <div class="bento-body bento-body-std">
-    <span class="bento-cat-tag">Graphics</span>
-    <h3 class="bento-hl bento-hl-std"><a href="articles/2026-03-23-graphics-how-vizrt-education-solutions-prepare-student.html">How Vizrt Education Solutions Prepare Students for Real-World Media Careers</a></h3>
-    <div class="bento-foot">
-      <span class="bento-source">VIZRT</span>
-      <time style="font-size:11px;color:var(--ink4)">March 23, 2026</time>
-      <a href="articles/2026-03-23-graphics-how-vizrt-education-solutions-prepare-student.html" class="bento-cta">Read Full Article &rarr;</a>
-    </div>
-  </div>
-</li>
-<li class="bento-grid-item bento-standard">
-  <div class="bento-img-wrap bento-img-std">
-    <a href="articles/2026-03-23-graphics-on-air-2025-a-global-broadcast-powered-by-stu.html" tabindex="-1" aria-hidden="true">
-      <img src="https://images.unsplash.com/photo-1504639725590-34d0984388bd?w=900&amp;auto=format&amp;fit=crop&amp;q=80" alt="On Air 2025: A Global Broadcast Powered by Students and Vizrt" loading="lazy" onerror="this.onerror=null;this.src=assets/fallback.jpg">
-    </a>
-  </div>
-  <div class="bento-body bento-body-std">
-    <span class="bento-cat-tag">Graphics</span>
-    <h3 class="bento-hl bento-hl-std"><a href="articles/2026-03-23-graphics-on-air-2025-a-global-broadcast-powered-by-stu.html">On Air 2025: A Global Broadcast Powered by Students and Vizrt</a></h3>
-    <div class="bento-foot">
-      <span class="bento-source">VIZRT</span>
-      <time style="font-size:11px;color:var(--ink4)">March 23, 2026</time>
-      <a href="articles/2026-03-23-graphics-on-air-2025-a-global-broadcast-powered-by-stu.html" class="bento-cta">Read Full Article &rarr;</a>
-    </div>
-  </div>
-</li>
-<li class="bento-grid-item bento-standard">
-  <div class="bento-img-wrap bento-img-std">
-    <a href="articles/2026-03-23-graphics-turning-archives-into-intelligence-vizrt-and-.html" tabindex="-1" aria-hidden="true">
-      <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=900&amp;auto=format&amp;fit=crop&amp;q=80" alt="Turning archives into intelligence: Vizrt and DeepVA introduce AI-driven metadata enrichment in Viz One media asset management" loading="lazy" onerror="this.onerror=null;this.src=assets/fallback.jpg">
-    </a>
-  </div>
-  <div class="bento-body bento-body-std">
-    <span class="bento-cat-tag">Graphics</span>
-    <h3 class="bento-hl bento-hl-std"><a href="articles/2026-03-23-graphics-turning-archives-into-intelligence-vizrt-and-.html">Turning archives into intelligence: Vizrt and DeepVA introduce AI-driven metadata enrichment in Viz One media asset management</a></h3>
-    <div class="bento-foot">
-      <span class="bento-source">VIZRT</span>
-      <time style="font-size:11px;color:var(--ink4)">March 23, 2026</time>
-      <a href="articles/2026-03-23-graphics-turning-archives-into-intelligence-vizrt-and-.html" class="bento-cta">Read Full Article &rarr;</a>
-    </div>
-  </div>
-</li>
-<li class="bento-grid-item bento-standard">
-  <div class="bento-img-wrap bento-img-std">
-    <a href="articles/2026-03-23-graphics-vizrt-launches-ai-powered-advances-for-speed-.html" tabindex="-1" aria-hidden="true">
-      <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=900&amp;auto=format&amp;fit=crop&amp;q=80" alt="Vizrt launches AI-powered advances for speed and accuracy in media management" loading="lazy" onerror="this.onerror=null;this.src=assets/fallback.jpg">
-    </a>
-  </div>
-  <div class="bento-body bento-body-std">
-    <span class="bento-cat-tag">Graphics</span>
-    <h3 class="bento-hl bento-hl-std"><a href="articles/2026-03-23-graphics-vizrt-launches-ai-powered-advances-for-speed-.html">Vizrt launches AI-powered advances for speed and accuracy in media management</a></h3>
-    <div class="bento-foot">
-      <span class="bento-source">VIZRT</span>
-      <time style="font-size:11px;color:var(--ink4)">March 23, 2026</time>
-      <a href="articles/2026-03-23-graphics-vizrt-launches-ai-powered-advances-for-speed-.html" class="bento-cta">Read Full Article &rarr;</a>
-    </div>
-  </div>
-</li>
-<li class="bento-grid-item bento-standard">
-  <div class="bento-img-wrap bento-img-std">
-    <a href="articles/2026-03-23-graphics-vizrt-powers-a-new-era-of-corporate-viewer-en.html" tabindex="-1" aria-hidden="true">
-      <img src="https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?w=900&amp;auto=format&amp;fit=crop&amp;q=80" alt="Vizrt Powers a New Era of Corporate Viewer Engagement with Expanded Enterprise Team" loading="lazy" onerror="this.onerror=null;this.src=assets/fallback.jpg">
-    </a>
-  </div>
-  <div class="bento-body bento-body-std">
-    <span class="bento-cat-tag">Graphics</span>
-    <h3 class="bento-hl bento-hl-std"><a href="articles/2026-03-23-graphics-vizrt-powers-a-new-era-of-corporate-viewer-en.html">Vizrt Powers a New Era of Corporate Viewer Engagement with Expanded Enterprise Team</a></h3>
-    <div class="bento-foot">
-      <span class="bento-source">VIZRT</span>
-      <time style="font-size:11px;color:var(--ink4)">March 23, 2026</time>
-      <a href="articles/2026-03-23-graphics-vizrt-powers-a-new-era-of-corporate-viewer-en.html" class="bento-cta">Read Full Article &rarr;</a>
-    </div>
-  </div>
-</li>
-<li class="bento-grid-item bento-standard">
-  <div class="bento-img-wrap bento-img-std">
-    <a href="articles/2026-03-23-graphics-vizrt-revolutionizes-corporate-communications.html" tabindex="-1" aria-hidden="true">
-      <img src="https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?w=900&amp;auto=format&amp;fit=crop&amp;q=80" alt="Vizrt revolutionizes corporate communications with AI-powered augmented reality in Zoom" loading="lazy" onerror="this.onerror=null;this.src=assets/fallback.jpg">
-    </a>
-  </div>
-  <div class="bento-body bento-body-std">
-    <span class="bento-cat-tag">Graphics</span>
-    <h3 class="bento-hl bento-hl-std"><a href="articles/2026-03-23-graphics-vizrt-revolutionizes-corporate-communications.html">Vizrt revolutionizes corporate communications with AI-powered augmented reality in Zoom</a></h3>
-    <div class="bento-foot">
-      <span class="bento-source">VIZRT</span>
-      <time style="font-size:11px;color:var(--ink4)">March 23, 2026</time>
-      <a href="articles/2026-03-23-graphics-vizrt-revolutionizes-corporate-communications.html" class="bento-cta">Read Full Article &rarr;</a>
-    </div>
-  </div>
-</li>
-<li class="bento-grid-item bento-standard">
-  <div class="bento-img-wrap bento-img-std">
-    <a href="articles/2026-03-23-graphics-vizrt-launches-sports-production-bundles-to-e.html" tabindex="-1" aria-hidden="true">
-      <img src="https://images.unsplash.com/photo-1504639725590-34d0984388bd?w=900&amp;auto=format&amp;fit=crop&amp;q=80" alt="Vizrt Launches Sports Production Bundles to Empower US Students to Produce Like the Pros" loading="lazy" onerror="this.onerror=null;this.src=assets/fallback.jpg">
-    </a>
-  </div>
-  <div class="bento-body bento-body-std">
-    <span class="bento-cat-tag">Graphics</span>
-    <h3 class="bento-hl bento-hl-std"><a href="articles/2026-03-23-graphics-vizrt-launches-sports-production-bundles-to-e.html">Vizrt Launches Sports Production Bundles to Empower US Students to Produce Like the Pros</a></h3>
-    <div class="bento-foot">
-      <span class="bento-source">VIZRT</span>
-      <time style="font-size:11px;color:var(--ink4)">March 23, 2026</time>
-      <a href="articles/2026-03-23-graphics-vizrt-launches-sports-production-bundles-to-e.html" class="bento-cta">Read Full Article &rarr;</a>
+      <a href="articles/2026-03-23-graphics-ask-the-experts-building-your-own-professiona.html" class="bento-cta-featured">Read Full Article &rarr;</a>
     </div>
   </div>
 </li>
@@ -842,6 +630,166 @@
       <span class="bento-source">MOTIONOGRAPHER</span>
       <time style="font-size:11px;color:var(--ink4)">March 23, 2026</time>
       <a href="articles/2026-03-23-graphics-death-howl-launch-trailer-blublu-studios.html" class="bento-cta">Read Full Article &rarr;</a>
+    </div>
+  </div>
+</li>
+<li class="bento-grid-item bento-standard">
+  <div class="bento-img-wrap bento-img-std">
+    <a href="articles/2026-03-23-newsroom-caretta-research-broadcasters-rebuild-live-op.html" tabindex="-1" aria-hidden="true">
+      <img src="https://images.unsplash.com/photo-1453738773917-9c3eff1db985?w=900&amp;auto=format&amp;fit=crop&amp;q=80" alt="Caretta Research: Broadcasters Rebuild Live Operations Around IP as Satellite Use Declines" loading="lazy" onerror="this.onerror=null;this.src=assets/fallback.jpg">
+    </a>
+  </div>
+  <div class="bento-body bento-body-std">
+    <span class="bento-cat-tag">Newsroom</span>
+    <h3 class="bento-hl bento-hl-std"><a href="articles/2026-03-23-newsroom-caretta-research-broadcasters-rebuild-live-op.html">Caretta Research: Broadcasters Rebuild Live Operations Around IP as Satellite Use Declines</a></h3>
+    <div class="bento-foot">
+      <span class="bento-source">BROADCASTBEAT</span>
+      <time style="font-size:11px;color:var(--ink4)">March 23, 2026</time>
+      <a href="articles/2026-03-23-newsroom-caretta-research-broadcasters-rebuild-live-op.html" class="bento-cta">Read Full Article &rarr;</a>
+    </div>
+  </div>
+</li>
+<li class="bento-grid-item bento-standard">
+  <div class="bento-img-wrap bento-img-std">
+    <a href="articles/2026-03-23-newsroom-study-repurposed-traditional-tv-ads-for-ctv-i.html" tabindex="-1" aria-hidden="true">
+      <img src="https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=900&amp;auto=format&amp;fit=crop&amp;q=80" alt="Study: Repurposed Traditional TV Ads for CTV Is a Missed Opportunity" loading="lazy" onerror="this.onerror=null;this.src=assets/fallback.jpg">
+    </a>
+  </div>
+  <div class="bento-body bento-body-std">
+    <span class="bento-cat-tag">Newsroom</span>
+    <h3 class="bento-hl bento-hl-std"><a href="articles/2026-03-23-newsroom-study-repurposed-traditional-tv-ads-for-ctv-i.html">Study: Repurposed Traditional TV Ads for CTV Is a Missed Opportunity</a></h3>
+    <div class="bento-foot">
+      <span class="bento-source">TV TECHNOLOGY</span>
+      <time style="font-size:11px;color:var(--ink4)">March 23, 2026</time>
+      <a href="articles/2026-03-23-newsroom-study-repurposed-traditional-tv-ads-for-ctv-i.html" class="bento-cta">Read Full Article &rarr;</a>
+    </div>
+  </div>
+</li>
+<li class="bento-grid-item bento-standard">
+  <div class="bento-img-wrap bento-img-std">
+    <a href="articles/2026-03-23-ai-post-prod-watch-important-looking-pirates-vfx-break.html" tabindex="-1" aria-hidden="true">
+      <img src="https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=900&amp;auto=format&amp;fit=crop&amp;q=80" alt="Watch Important Looking Pirates’ VFX breakdown for ‘Predator: Badlands’" loading="lazy" onerror="this.onerror=null;this.src=assets/fallback.jpg">
+    </a>
+  </div>
+  <div class="bento-body bento-body-std">
+    <span class="bento-cat-tag">AI & Post-Production</span>
+    <h3 class="bento-hl bento-hl-std"><a href="articles/2026-03-23-ai-post-prod-watch-important-looking-pirates-vfx-break.html">Watch Important Looking Pirates’ VFX breakdown for ‘Predator: Badlands’</a></h3>
+    <div class="bento-foot">
+      <span class="bento-source">BEFORES &amp; AFTERS</span>
+      <time style="font-size:11px;color:var(--ink4)">March 23, 2026</time>
+      <a href="articles/2026-03-23-ai-post-prod-watch-important-looking-pirates-vfx-break.html" class="bento-cta">Read Full Article &rarr;</a>
+    </div>
+  </div>
+</li>
+<li class="bento-grid-item bento-standard">
+  <div class="bento-img-wrap bento-img-std">
+    <a href="articles/2026-03-23-ai-post-prod-national-retail-federation-builds-its-own.html" tabindex="-1" aria-hidden="true">
+      <img src="https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=900&amp;auto=format&amp;fit=crop&amp;q=80" alt="National Retail Federation builds its own broadcast studio" loading="lazy" onerror="this.onerror=null;this.src=assets/fallback.jpg">
+    </a>
+  </div>
+  <div class="bento-body bento-body-std">
+    <span class="bento-cat-tag">AI & Post-Production</span>
+    <h3 class="bento-hl bento-hl-std"><a href="articles/2026-03-23-ai-post-prod-national-retail-federation-builds-its-own.html">National Retail Federation builds its own broadcast studio</a></h3>
+    <div class="bento-foot">
+      <span class="bento-source">AV MAGAZINE</span>
+      <time style="font-size:11px;color:var(--ink4)">March 23, 2026</time>
+      <a href="articles/2026-03-23-ai-post-prod-national-retail-federation-builds-its-own.html" class="bento-cta">Read Full Article &rarr;</a>
+    </div>
+  </div>
+</li>
+<li class="bento-grid-item bento-standard">
+  <div class="bento-img-wrap bento-img-std">
+    <a href="articles/2026-03-23-ai-post-prod-introducing-videoai-on-pond5-high-quality.html" tabindex="-1" aria-hidden="true">
+      <img src="https://images.unsplash.com/photo-1535016120720-40c646be5580?w=900&amp;auto=format&amp;fit=crop&amp;q=80" alt="Introducing VideoAI on Pond5: High-Quality Video, On Your Terms" loading="lazy" onerror="this.onerror=null;this.src=assets/fallback.jpg">
+    </a>
+  </div>
+  <div class="bento-body bento-body-std">
+    <span class="bento-cat-tag">AI & Post-Production</span>
+    <h3 class="bento-hl bento-hl-std"><a href="articles/2026-03-23-ai-post-prod-introducing-videoai-on-pond5-high-quality.html">Introducing VideoAI on Pond5: High-Quality Video, On Your Terms</a></h3>
+    <div class="bento-foot">
+      <span class="bento-source">POND5</span>
+      <time style="font-size:11px;color:var(--ink4)">March 23, 2026</time>
+      <a href="articles/2026-03-23-ai-post-prod-introducing-videoai-on-pond5-high-quality.html" class="bento-cta">Read Full Article &rarr;</a>
+    </div>
+  </div>
+</li>
+<li class="bento-grid-item bento-standard">
+  <div class="bento-img-wrap bento-img-std">
+    <a href="articles/2026-03-23-ai-post-prod-the-beginners-guide-to-ai-video.html" tabindex="-1" aria-hidden="true">
+      <img src="https://images.unsplash.com/photo-1535016120720-40c646be5580?w=900&amp;auto=format&amp;fit=crop&amp;q=80" alt="The Beginner’s Guide to AI Video" loading="lazy" onerror="this.onerror=null;this.src=assets/fallback.jpg">
+    </a>
+  </div>
+  <div class="bento-body bento-body-std">
+    <span class="bento-cat-tag">AI & Post-Production</span>
+    <h3 class="bento-hl bento-hl-std"><a href="articles/2026-03-23-ai-post-prod-the-beginners-guide-to-ai-video.html">The Beginner’s Guide to AI Video</a></h3>
+    <div class="bento-foot">
+      <span class="bento-source">JONNY ELWYN</span>
+      <time style="font-size:11px;color:var(--ink4)">March 23, 2026</time>
+      <a href="articles/2026-03-23-ai-post-prod-the-beginners-guide-to-ai-video.html" class="bento-cta">Read Full Article &rarr;</a>
+    </div>
+  </div>
+</li>
+<li class="bento-grid-item bento-standard">
+  <div class="bento-img-wrap bento-img-std">
+    <a href="articles/2026-03-23-ai-post-prod-the-ultimate-black-friday-video-editing-d.html" tabindex="-1" aria-hidden="true">
+      <img src="https://images.unsplash.com/photo-1535016120720-40c646be5580?w=900&amp;auto=format&amp;fit=crop&amp;q=80" alt="The Ultimate Black Friday Video Editing Deal: Gal Toolkit Plugin at 40% Off" loading="lazy" onerror="this.onerror=null;this.src=assets/fallback.jpg">
+    </a>
+  </div>
+  <div class="bento-body bento-body-std">
+    <span class="bento-cat-tag">AI & Post-Production</span>
+    <h3 class="bento-hl bento-hl-std"><a href="articles/2026-03-23-ai-post-prod-the-ultimate-black-friday-video-editing-d.html">The Ultimate Black Friday Video Editing Deal: Gal Toolkit Plugin at 40% Off</a></h3>
+    <div class="bento-foot">
+      <span class="bento-source">PREMIERE GAL</span>
+      <time style="font-size:11px;color:var(--ink4)">March 23, 2026</time>
+      <a href="articles/2026-03-23-ai-post-prod-the-ultimate-black-friday-video-editing-d.html" class="bento-cta">Read Full Article &rarr;</a>
+    </div>
+  </div>
+</li>
+<li class="bento-grid-item bento-standard">
+  <div class="bento-img-wrap bento-img-std">
+    <a href="articles/2026-03-23-infrastructu-fbi-links-signal-phishing-attacks-to-russ.html" tabindex="-1" aria-hidden="true">
+      <img src="https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=900&amp;auto=format&amp;fit=crop&amp;q=80" alt="FBI links Signal phishing attacks to Russian intelligence services" loading="lazy" onerror="this.onerror=null;this.src=assets/fallback.jpg">
+    </a>
+  </div>
+  <div class="bento-body bento-body-std">
+    <span class="bento-cat-tag">Infrastructure</span>
+    <h3 class="bento-hl bento-hl-std"><a href="articles/2026-03-23-infrastructu-fbi-links-signal-phishing-attacks-to-russ.html">FBI links Signal phishing attacks to Russian intelligence services</a></h3>
+    <div class="bento-foot">
+      <span class="bento-source">BLEEPINGCOMPUTER</span>
+      <time style="font-size:11px;color:var(--ink4)">March 23, 2026</time>
+      <a href="articles/2026-03-23-infrastructu-fbi-links-signal-phishing-attacks-to-russ.html" class="bento-cta">Read Full Article &rarr;</a>
+    </div>
+  </div>
+</li>
+<li class="bento-grid-item bento-standard">
+  <div class="bento-img-wrap bento-img-std">
+    <a href="articles/2026-03-23-infrastructu-introducing-the-new-cloudinary-studio-enh.html" tabindex="-1" aria-hidden="true">
+      <img src="https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=900&amp;auto=format&amp;fit=crop&amp;q=80" alt="Introducing the New Cloudinary Studio: Enhanced Image Transformation at Your Fingertips" loading="lazy" onerror="this.onerror=null;this.src=assets/fallback.jpg">
+    </a>
+  </div>
+  <div class="bento-body bento-body-std">
+    <span class="bento-cat-tag">Infrastructure</span>
+    <h3 class="bento-hl bento-hl-std"><a href="articles/2026-03-23-infrastructu-introducing-the-new-cloudinary-studio-enh.html">Introducing the New Cloudinary Studio: Enhanced Image Transformation at Your Fingertips</a></h3>
+    <div class="bento-foot">
+      <span class="bento-source">CLOUDINARY</span>
+      <time style="font-size:11px;color:var(--ink4)">March 23, 2026</time>
+      <a href="articles/2026-03-23-infrastructu-introducing-the-new-cloudinary-studio-enh.html" class="bento-cta">Read Full Article &rarr;</a>
+    </div>
+  </div>
+</li>
+<li class="bento-grid-item bento-standard">
+  <div class="bento-img-wrap bento-img-std">
+    <a href="articles/2026-03-23-infrastructu-what-is-the-best-nas-for-video-production.html" tabindex="-1" aria-hidden="true">
+      <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=900&amp;auto=format&amp;fit=crop&amp;q=80" alt="What Is The Best NAS For Video Production in 2026?" loading="lazy" onerror="this.onerror=null;this.src=assets/fallback.jpg">
+    </a>
+  </div>
+  <div class="bento-body bento-body-std">
+    <span class="bento-cat-tag">Infrastructure</span>
+    <h3 class="bento-hl bento-hl-std"><a href="articles/2026-03-23-infrastructu-what-is-the-best-nas-for-video-production.html">What Is The Best NAS For Video Production in 2026?</a></h3>
+    <div class="bento-foot">
+      <span class="bento-source">STUDIO NETWORK SOLUTIONS</span>
+      <time style="font-size:11px;color:var(--ink4)">March 23, 2026</time>
+      <a href="articles/2026-03-23-infrastructu-what-is-the-best-nas-for-video-production.html" class="bento-cta">Read Full Article &rarr;</a>
     </div>
   </div>
 </li>
