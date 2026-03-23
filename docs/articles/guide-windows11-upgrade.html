@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script>
+    window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+    gtag('consent','default',{'analytics_storage':'denied','ad_storage':'denied',
+    'ad_user_data':'denied','ad_personalization':'denied','wait_for_update':500});
+  </script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-0VSHDN3ZR6"></script>
+  <script>gtag('js',new Date());gtag('config','G-0VSHDN3ZR6');</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8033069131874524" crossorigin="anonymous"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Upgrading to Windows 11 on Broadcast Workstations &#8212; The Streamic How-To Guides</title>
+  <meta name="description" content="Step-by-step upgrade guide for broadcast workstations and edit suites. Hardware compatibility checks, NLE verification, driver handling, and rollback procedure.">
+  <meta name="robots" content="index,follow">
+  <meta name="author" content="Prerak K Mehta, The Streamic">
+  <link rel="canonical" href="https://www.thestreamic.in/articles/guide-windows11-upgrade.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Upgrading to Windows 11 on Broadcast Workstations &#8212; The Streamic">
+  <meta property="og:description" content="Step-by-step upgrade guide for broadcast workstations and edit suites. Hardware compatibility checks, NLE verification, driver handling, and rollback procedure.">
+  <meta property="og:url" content="https://www.thestreamic.in/articles/guide-windows11-upgrade.html">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"HowTo","name":"Upgrading to Windows 11 on Broadcast Workstations","description":"Step-by-step upgrade guide for broadcast workstations and edit suites. Hardware compatibility checks, NLE verification, driver handling, and rollback procedure.",
+   "author":{"@type":"Organization","name":"The Streamic"},"datePublished":"2026-03-22",
+   "publisher":{"@type":"Organization","name":"The Streamic","url":"https://www.thestreamic.in"}}
+  </script>
+</head>
+<body>
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="../featured.html" class="nav-logo">
+      <img src="../assets/logo.png" alt="The Streamic"><span>The Streamic</span>
+    </a>
+    <ul class="nav-links"><li><a href="../featured.html">Featured</a></li><li><a href="../infrastructure.html">Infrastructure</a></li><li><a href="../posts.html">All Articles</a></li><li><a href="../howto.html">How-To</a></li></ul>
+    <div class="nav-right"><a href="../vlog.html" class="nav-desk">Editor&#39;s Desk</a>
+      <button class="nav-toggle" aria-label="Menu" onclick="document.querySelector('.nav-mob').classList.toggle('open')"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+  <div class="nav-mob"><a href="../featured.html">Featured</a><a href="../infrastructure.html">Infrastructure</a><a href="../posts.html">All Articles</a><a href="../howto.html">How-To</a></div>
+</nav>
+<main>
+<div class="guide-wrap">
+  <div class="breadcrumb">
+    <a href="../featured.html">Home</a><span>&#8250;</span>
+    <a href="../howto.html">How-To Guides</a><span>&#8250;</span>
+    <span style="color:var(--ink)">Upgrading to Windows 11 on Broadcast Workstations</span>
+  </div>
+  <span style="display:inline-flex;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.2px;padding:4px 12px;border-radius:999px;background:var(--blue);color:#fff;margin-bottom:18px">IT · Windows · Broadcast</span>
+  <h1>Upgrading to Windows 11 on Broadcast Workstations</h1>
+  <p style="font-size:18px;color:var(--ink2);font-weight:300;margin-bottom:20px">Step-by-step upgrade guide for broadcast workstations and edit suites. Hardware compatibility checks, NLE verification, driver handling, and rollback procedure.</p>
+  <p style="font-size:13px;color:var(--ink4);margin-bottom:32px">By The Streamic Editorial Team &#183; <time datetime="2026-03-22">March 2026</time> &#183; 8 min read</p>
+  
+<h2>Before You Begin: Compatibility Check</h2>
+<p>Windows 11 requires TPM 2.0, Secure Boot, and a 64-bit CPU on the supported list. For broadcast workstations running NLE software (Avid, Premiere, DaVinci Resolve), NIC firmware, and GPU drivers, the upgrade path needs careful planning to avoid disrupting production.</p>
+<h3>Hardware Prerequisites</h3>
+<ul>
+  <li><strong>TPM 2.0:</strong> Open <code>tpm.msc</code> — Status should read "The TPM is ready for use." If not, enable in UEFI/BIOS under Security.</li>
+  <li><strong>Secure Boot:</strong> Check in UEFI. Must be enabled for Win 11 upgrade to proceed.</li>
+  <li><strong>CPU:</strong> Intel 8th Gen (Coffee Lake) or newer, or AMD Zen 2 or newer.</li>
+  <li><strong>RAM:</strong> 4GB minimum, 16GB+ recommended for broadcast editing workstations.</li>
+  <li><strong>Storage:</strong> 64GB minimum free on system drive. NVMe recommended for NLE cache.</li>
+</ul>
+<p>Run the <strong>PC Health Check app</strong> (from Microsoft) to get a definitive pass/fail on your hardware before attempting the upgrade.</p>
+
+<h2>Step 1: NLE and Plugin Compatibility Audit</h2>
+<p>Before upgrading any broadcast workstation, verify that your NLE and critical plugins support Windows 11:</p>
+<ul>
+  <li><strong>Avid Media Composer:</strong> v21.x and later support Windows 11. Check Avid's official compatibility matrix at avid.com for your exact version.</li>
+  <li><strong>Adobe Premiere Pro:</strong> v22.0 (2022) and later support Windows 11. Older versions (2021 and prior) may have issues.</li>
+  <li><strong>DaVinci Resolve:</strong> v17.4.3 and later. GPU driver compatibility is critical — verify your specific GPU model.</li>
+  <li><strong>Telestream Vantage:</strong> Check Telestream's compatibility matrix. Vantage 8.x supports Windows Server 2019/2022; desktop clients need Win 11 verification.</li>
+  <li><strong>GPU Drivers:</strong> Download the latest NVIDIA or AMD driver <em>before</em> upgrading. Older drivers may not install cleanly on Win 11.</li>
+</ul>
+<p><strong>Document every plugin, codec pack, and third-party driver installed on the machine before upgrading.</strong> Create a spreadsheet with version numbers and vendor support status.</p>
+
+<h2>Step 2: Backup and Snapshot</h2>
+<ul>
+  <li>Create a full system image backup using Windows Backup or a third-party tool (Acronis, Macrium Reflect).</li>
+  <li>Export your NLE project files and media cache settings.</li>
+  <li>Note your network share mappings, Avid Interplay credentials, and storage area network (SAN) client configuration.</li>
+  <li>Screenshot your GPU and NIC driver version numbers from Device Manager.</li>
+</ul>
+
+<h2>Step 3: Perform the Upgrade</h2>
+<ol>
+  <li>Download the Windows 11 Installation Assistant from microsoft.com/software-download/windows11.</li>
+  <li>Run as Administrator. The tool will check eligibility and begin the download.</li>
+  <li>Select <strong>Keep my files and apps</strong> when prompted.</li>
+  <li>Allow 45–90 minutes for the upgrade to complete. The machine will reboot 2–3 times.</li>
+  <li>Do not interrupt power during the process.</li>
+</ol>
+
+<h2>Step 4: Post-Upgrade Verification</h2>
+<ul>
+  <li><strong>GPU drivers:</strong> Open Device Manager — if the GPU shows a yellow warning, reinstall the driver from the vendor site.</li>
+  <li><strong>NIC / network:</strong> Verify all network shares reconnect. Re-map any drives that dropped.</li>
+  <li><strong>Avid / Premiere:</strong> Launch your NLE and open a test project. Check that media links resolve correctly.</li>
+  <li><strong>Audio devices:</strong> Verify Pro Tools or your DAW sees all audio interfaces. ASIO drivers may need reinstalling.</li>
+  <li><strong>Activation:</strong> Windows 11 should activate automatically using your existing Windows 10 digital license.</li>
+</ul>
+
+<h2>Rollback Procedure</h2>
+<p>Within 10 days of the upgrade, you can roll back via Settings &#8594; System &#8594; Recovery &#8594; Go back. After 10 days, use your system image backup to restore. Always test upgrades on a non-production machine first before rolling out to edit suites.</p>
+
+  <hr style="margin:40px 0 20px;border:0;border-top:1px solid #eee">
+  <p style="font-size:12px;color:#999;font-style:italic">This guide is maintained by The Streamic editorial team. For the most current product documentation, always refer to the official vendor knowledge base. <a href="https://www.microsoft.com/software-download/windows11" target="_blank" rel="noopener noreferrer" style="color:var(--blue)">Official documentation &#8594;</a></p>
+</div>
+</main>
+<footer class="footer">
+  <div class="footer-inner">
+    <a href="../featured.html" class="footer-logo"><span>The Streamic</span></a>
+    <p style="font-size:12px;color:#888;margin:8px 0 0">Independent broadcast and streaming technology journalism. Dublin, Ireland.</p>
+    <div style="margin-top:12px;display:flex;gap:16px;flex-wrap:wrap">
+      <a href="../about.html" style="font-size:12px;color:#888;text-decoration:none">About</a>
+      <a href="../contact.html" style="font-size:12px;color:#888;text-decoration:none">Contact</a>
+      <a href="../privacy.html" style="font-size:12px;color:#888;text-decoration:none">Privacy</a>
+      <a href="../howto.html" style="font-size:12px;color:#888;text-decoration:none">How-To Guides</a>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

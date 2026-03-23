@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script>
+    window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+    gtag('consent','default',{'analytics_storage':'denied','ad_storage':'denied',
+    'ad_user_data':'denied','ad_personalization':'denied','wait_for_update':500});
+  </script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-0VSHDN3ZR6"></script>
+  <script>gtag('js',new Date());gtag('config','G-0VSHDN3ZR6');</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8033069131874524" crossorigin="anonymous"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Upgrading to macOS Sequoia on Post-Production Macs &#8212; The Streamic How-To Guides</title>
+  <meta name="description" content="How to safely upgrade a post-production Mac to macOS Sequoia. NLE compatibility matrix, plugin audit, audio interface handling, and what to do if plugins break.">
+  <meta name="robots" content="index,follow">
+  <meta name="author" content="Prerak K Mehta, The Streamic">
+  <link rel="canonical" href="https://www.thestreamic.in/articles/guide-macos-upgrade.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Upgrading to macOS Sequoia on Post-Production Macs &#8212; The Streamic">
+  <meta property="og:description" content="How to safely upgrade a post-production Mac to macOS Sequoia. NLE compatibility matrix, plugin audit, audio interface handling, and what to do if plugins break.">
+  <meta property="og:url" content="https://www.thestreamic.in/articles/guide-macos-upgrade.html">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"HowTo","name":"Upgrading to macOS Sequoia on Post-Production Macs","description":"How to safely upgrade a post-production Mac to macOS Sequoia. NLE compatibility matrix, plugin audit, audio interface handling, and what to do if plugins break.",
+   "author":{"@type":"Organization","name":"The Streamic"},"datePublished":"2026-03-22",
+   "publisher":{"@type":"Organization","name":"The Streamic","url":"https://www.thestreamic.in"}}
+  </script>
+</head>
+<body>
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="../featured.html" class="nav-logo">
+      <img src="../assets/logo.png" alt="The Streamic"><span>The Streamic</span>
+    </a>
+    <ul class="nav-links"><li><a href="../featured.html">Featured</a></li><li><a href="../infrastructure.html">Infrastructure</a></li><li><a href="../posts.html">All Articles</a></li><li><a href="../howto.html">How-To</a></li></ul>
+    <div class="nav-right"><a href="../vlog.html" class="nav-desk">Editor&#39;s Desk</a>
+      <button class="nav-toggle" aria-label="Menu" onclick="document.querySelector('.nav-mob').classList.toggle('open')"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+  <div class="nav-mob"><a href="../featured.html">Featured</a><a href="../infrastructure.html">Infrastructure</a><a href="../posts.html">All Articles</a><a href="../howto.html">How-To</a></div>
+</nav>
+<main>
+<div class="guide-wrap">
+  <div class="breadcrumb">
+    <a href="../featured.html">Home</a><span>&#8250;</span>
+    <a href="../howto.html">How-To Guides</a><span>&#8250;</span>
+    <span style="color:var(--ink)">Upgrading to macOS Sequoia on Post-Production Macs</span>
+  </div>
+  <span style="display:inline-flex;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.2px;padding:4px 12px;border-radius:999px;background:var(--blue);color:#fff;margin-bottom:18px">IT · macOS · Post-Production</span>
+  <h1>Upgrading to macOS Sequoia on Post-Production Macs</h1>
+  <p style="font-size:18px;color:var(--ink2);font-weight:300;margin-bottom:20px">How to safely upgrade a post-production Mac to macOS Sequoia. NLE compatibility matrix, plugin audit, audio interface handling, and what to do if plugins break.</p>
+  <p style="font-size:13px;color:var(--ink4);margin-bottom:32px">By The Streamic Editorial Team &#183; <time datetime="2026-03-22">March 2026</time> &#183; 9 min read</p>
+  
+<h2>Overview: macOS Sequoia for Broadcast and Post</h2>
+<p>macOS Sequoia (15.x) introduced significant changes to system security, GPU driver architecture (Metal 3), and USB audio handling that directly affect broadcast and post-production environments. This guide covers the safe upgrade path for edit suites, audio suites, and graphics workstations.</p>
+
+<h2>Step 1: Pre-Upgrade Compatibility Check</h2>
+<h3>NLE Compatibility Matrix</h3>
+<ul>
+  <li><strong>Avid Media Composer:</strong> v23.x and later officially support macOS Sequoia. Earlier versions: check Avid's compatibility chart at avid.com/resource-center. Media Composer 2022 and prior are <em>not supported</em> on Sequoia.</li>
+  <li><strong>Adobe Premiere Pro / After Effects:</strong> Version 24.0 (2024) and later support Sequoia. Creative Cloud will alert you if your version is incompatible.</li>
+  <li><strong>DaVinci Resolve:</strong> Version 18.6.4 and later. Apple Silicon users should ensure they have the ARM-native version installed.</li>
+  <li><strong>Pro Tools:</strong> Version 2023.9 or later supports Sequoia. Older versions have known compatibility issues with Core Audio on macOS 15.</li>
+  <li><strong>Telestream Wirecast / Switch:</strong> Check telestream.net for your specific version's Sequoia compatibility.</li>
+</ul>
+
+<h2>Step 2: Third-Party Plugin Audit</h2>
+<p>macOS Sequoia tightened Gatekeeper enforcement. Plugins signed with older developer certificates may fail. Before upgrading:</p>
+<ul>
+  <li>List all installed plugins (AAX for Pro Tools, AU/VST for Logic/Nuendo, OFX for Resolve).</li>
+  <li>Check each vendor's website for a Sequoia-compatible version.</li>
+  <li>Download updates <em>before</em> upgrading — some vendors gated Sequoia support behind paid updates.</li>
+  <li><strong>Avid NEXIS client:</strong> Download the latest client software from Avid downloads — older NEXIS clients do not reconnect reliably after a macOS major version upgrade.</li>
+</ul>
+
+<h2>Step 3: Backup</h2>
+<ul>
+  <li>Create a Time Machine backup to an external drive or NAS.</li>
+  <li>Export Avid project settings, bins, and user profiles.</li>
+  <li>Note your audio interface firmware version (MOTU, Apogee, Universal Audio, RME).</li>
+  <li>Screenshot all DAW I/O configurations and routing.</li>
+</ul>
+
+<h2>Step 4: Perform the Upgrade</h2>
+<ol>
+  <li>Go to System Settings &#8594; General &#8594; Software Update.</li>
+  <li>Click Upgrade Now next to macOS Sequoia.</li>
+  <li>Allow 30–60 minutes. Apple Silicon Macs are significantly faster than Intel.</li>
+  <li>The Mac will restart 1–2 times during the process.</li>
+</ol>
+
+<h2>Step 5: Post-Upgrade Verification</h2>
+<ul>
+  <li><strong>Audio interfaces:</strong> macOS 15 changed USB audio class handling. If your interface isn't detected, install the vendor's latest driver, or toggle the USB port.</li>
+  <li><strong>Avid NEXIS:</strong> Open NEXIS client and verify workspace mounts. Re-authenticate if required.</li>
+  <li><strong>Pro Tools:</strong> Launch Pro Tools and open a session. Check all AAX plugins load. Go to Help &#8594; Diagnostics &#8594; Run to identify any failed plugins.</li>
+  <li><strong>DaVinci Resolve:</strong> Open Preferences &#8594; Memory and GPU &#8594; confirm GPU is listed and Metal is selected.</li>
+  <li><strong>Premiere / Media Encoder:</strong> Check that all media encoder codecs are available. Apple ProRes rendering should work natively.</li>
+</ul>
+
+<h2>Known Issues on Sequoia for Broadcast</h2>
+<ul>
+  <li><strong>AJA / Blackmagic capture cards:</strong> Require driver updates specific to Sequoia. Check aja.com and blackmagicdesign.com for the latest macOS 15 drivers before upgrading.</li>
+  <li><strong>Logic Pro:</strong> Fully supported. All Apple-native plugins updated automatically.</li>
+  <li><strong>Older USB audio interfaces:</strong> Class-compliant devices generally work. Devices using custom kext drivers may not — contact the manufacturer.</li>
+</ul>
+
+  <hr style="margin:40px 0 20px;border:0;border-top:1px solid #eee">
+  <p style="font-size:12px;color:#999;font-style:italic">This guide is maintained by The Streamic editorial team. For the most current product documentation, always refer to the official vendor knowledge base. <a href="https://support.apple.com/macos" target="_blank" rel="noopener noreferrer" style="color:var(--blue)">Official documentation &#8594;</a></p>
+</div>
+</main>
+<footer class="footer">
+  <div class="footer-inner">
+    <a href="../featured.html" class="footer-logo"><span>The Streamic</span></a>
+    <p style="font-size:12px;color:#888;margin:8px 0 0">Independent broadcast and streaming technology journalism. Dublin, Ireland.</p>
+    <div style="margin-top:12px;display:flex;gap:16px;flex-wrap:wrap">
+      <a href="../about.html" style="font-size:12px;color:#888;text-decoration:none">About</a>
+      <a href="../contact.html" style="font-size:12px;color:#888;text-decoration:none">Contact</a>
+      <a href="../privacy.html" style="font-size:12px;color:#888;text-decoration:none">Privacy</a>
+      <a href="../howto.html" style="font-size:12px;color:#888;text-decoration:none">How-To Guides</a>
+    </div>
+  </div>
+</footer>
+</body>
+</html>
