@@ -278,24 +278,23 @@ img{max-width:100%;display:block}
 .pag .dis{opacity:.35;pointer-events:none}
 .pag .info{border:none;background:none;color:var(--ink4);font-weight:400;min-width:auto;padding:0 8px}
 
-/* ─── MODULE 2: APPLE BENTO GRID ─────────────────────────────
-   12-column grid.
-   First card: span 8 cols desktop, vertical (image top, text below)
-   Other cards: span 4 cols, horizontal (image left, text right)
-   letter-spacing: -0.04em on all headlines (Apple spec)
-   backdrop-filter: blur(20px) on overlays
-   White background, #f5f5f7 borders
+/* ─── MODULE 2: APPLE NEWSROOM CARD GRID ─────────────────────
+   Apple Newsroom style: individual white rounded cards on light bg
+   First card: full-width hero (image left 55%, text right 45%)
+   Other cards: 2-per-row equal columns, image top, text below
+   White cards, border-radius 14px, subtle shadow on hover
+   NO bordered grid — each card is independent
 ───────────────────────────────────────────────────────────── */
 
-/* Grid container */
+/* ── Grid container — clean card layout ── */
 #bentoGridLarge {
   display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: 2px;
-  background: var(--line);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  overflow: hidden;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  overflow: visible;
   list-style: none;
   padding: 0;
   margin: 0;
@@ -303,38 +302,46 @@ img{max-width:100%;display:block}
 
 /* Loading state */
 .bento-loading {
-  grid-column: span 12;
+  grid-column: 1 / -1;
   padding: 56px;
   text-align: center;
   color: var(--ink4);
   font-size: 14px;
   background: var(--white);
+  border-radius: 14px;
 }
 
-/* ── Base card (all cards share these) ── */
+/* ── Base card — Apple Newsroom white rounded card ── */
 .bento-grid-item {
   background: var(--white);
   display: flex;
-  transition: background 0.15s;
-  position: relative;
+  flex-direction: column;
+  border-radius: 14px;
   overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0,0,0,.07);
+  transition: box-shadow 0.22s ease, transform 0.22s ease;
+  position: relative;
+  cursor: pointer;
 }
-.bento-grid-item:hover { background: #fafafa; }
+.bento-grid-item:hover {
+  background: var(--white);
+  box-shadow: 0 10px 36px rgba(0,0,0,.12);
+  transform: translateY(-4px);
+}
 
-/* ── FEATURED CARD (first-child) ─────────────────────────────
-   Desktop: 8/12 columns, flex-direction: column (vertical)
-   Large image full width on top; body text below
-   letter-spacing: -0.04em on headline (Apple spec)
+/* ── HERO CARD (first-child) ─────────────────────────────────
+   Spans both columns. Image left 55%, text right 45%.
+   Apple Newsroom large hero style.
 ────────────────────────────────────────────────────────────── */
 .bento-grid-item:first-child {
-  grid-column: span 8;
-  flex-direction: column;   /* vertical: image top, text below */
+  grid-column: 1 / -1;
+  flex-direction: row;
 }
 
-/* Featured image: full-width, tall */
+/* Hero image: left side, 55% width */
 .bento-img-featured {
-  width: 100%;
-  height: 340px;
+  width: 55%;
+  min-height: 320px;
   overflow: hidden;
   flex-shrink: 0;
   position: relative;
@@ -355,73 +362,41 @@ img{max-width:100%;display:block}
   transform: scale(1.025);
 }
 
-/* Featured body: generous padding */
+/* Hero body: right side, vertically centred */
 .bento-body-featured {
-  padding: 28px 28px 24px;
+  padding: 36px 40px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
   flex: 1;
+  justify-content: center;
 }
 
-/* Featured headline: DM Serif, large, Apple -0.04em tracking */
+/* Hero headline */
 .bento-hl-featured {
   font-family: var(--serif);
-  font-size: clamp(20px, 2vw, 26px);
+  font-size: clamp(22px, 2.2vw, 30px);
   font-weight: 400;
   line-height: 1.2;
-  letter-spacing: -0.04em;       /* Apple spec */
+  letter-spacing: -0.04em;
   color: var(--ink);
   margin: 0;
 }
-.bento-hl-featured a {
-  color: inherit;
-  text-decoration: none;
-}
+.bento-hl-featured a { color: inherit; text-decoration: none; }
 .bento-hl-featured a:hover { color: var(--blue); }
 
-/* Groq analysis badge */
-.bento-groq-badge {
-  display: inline-block;
-  background: var(--blue);
-  color: #fff !important;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: .6px;
-  text-transform: uppercase;
-  padding: 4px 10px;
-  border-radius: 20px;
-  text-decoration: none !important;
-  margin-bottom: 8px;
-  transition: background 0.15s ease, opacity 0.15s ease;
-}
-.bento-groq-badge:hover {
-  background: #0052a3;
-  opacity: 0.9;
-}
-
-/* Featured summary: shows the full 330-word Groq text */
-.bento-sum-featured {
-  font-size: 14px;
-  line-height: 1.72;
-  color: var(--ink2);
-  margin: 0;
-  /* No line-clamp — show full Groq analysis on featured card */
-}
-
-/* ── STANDARD CARDS — Elegant Vertical Layout (Apple/News style) ──
-   Desktop: 4/12 columns, flex-direction: column (VERTICAL)
-   Large image on top, text below. No squishing. Breathable spacing.
+/* ── STANDARD CARDS — 2-per-row vertical cards ──────────────
+   Image top, text below. No spanning. Equal columns.
 ────────────────────────────────────────────────────────────── */
 .bento-standard {
-  flex-direction: column;    /* image top, text below — no squishing */
-  grid-column: span 4;
+  flex-direction: column;
+  grid-column: auto;
 }
 
-/* Standard image: full width, fixed height */
+/* Standard image: full-width top */
 .bento-img-std {
   width: 100%;
-  height: 220px;
+  height: 210px;
   flex-shrink: 0;
   overflow: hidden;
   position: relative;
@@ -444,7 +419,7 @@ img{max-width:100%;display:block}
 
 /* Standard body */
 .bento-body-std {
-  padding: 20px;
+  padding: 22px 24px 20px;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -452,7 +427,7 @@ img{max-width:100%;display:block}
   min-width: 0;
 }
 
-/* Standard headline — larger, more legible */
+/* Standard headline */
 .bento-hl-std {
   font-family: var(--serif);
   font-size: 17px;
@@ -469,22 +444,22 @@ img{max-width:100%;display:block}
 .bento-hl-std a { color: inherit; text-decoration: none; }
 .bento-hl-std a:hover { color: var(--blue); }
 
-/* Standard summary — 4-line clamp shows meaningful content */
+/* Standard summary */
 .bento-sum-std {
   font-size: 13.5px;
   line-height: 1.65;
   color: var(--ink3);
   margin: 0;
   display: -webkit-box;
-  -webkit-line-clamp: 4;
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-/* ── Shared elements ───────────────────────────────────────── */
+/* ── Shared card elements ──────────────────────────────────── */
 .bento-cat-tag {
   font-size: 10px;
-  font-weight: 700;
+  font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.8px;
   color: var(--blue);
@@ -493,42 +468,43 @@ img{max-width:100%;display:block}
 .bento-foot {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding-top: 9px;
-  border-top: 1px solid var(--bg);
-  margin-top: auto;
   gap: 8px;
+  padding-top: 10px;
+  border-top: 1px solid #f0f0f0;
+  margin-top: auto;
+  flex-wrap: wrap;
 }
 
 .bento-source {
   font-size: 10.5px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--ink4);
   letter-spacing: 0.4px;
+  flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 50%;
 }
 
-/* Featured CTA: prominent blue button */
+/* Hero CTA button */
 .bento-cta-featured {
   display: inline-flex;
   align-items: center;
-  padding: 8px 18px;
+  padding: 9px 20px;
   background: var(--blue);
   color: #fff;
-  border-radius: var(--radius-sm);
+  border-radius: 100px;
   font-size: 12.5px;
-  font-weight: 600;
-  letter-spacing: -0.02em;
+  font-weight: 700;
+  letter-spacing: -0.01em;
   text-decoration: none;
   flex-shrink: 0;
   transition: background 0.15s;
+  align-self: flex-start;
 }
 .bento-cta-featured:hover { background: var(--blue2); }
 
-/* Standard CTA: text link */
+/* Standard CTA text link */
 .bento-cta {
   font-size: 11.5px;
   font-weight: 600;
@@ -539,42 +515,50 @@ img{max-width:100%;display:block}
 }
 .bento-cta:hover { text-decoration: underline; }
 
-/* ── Tablet (640–1023px): 2 equal columns ── */
-@media (min-width: 640px) and (max-width: 1023px) {
+/* ── Tablet (641–1023px): hero stacks, 2-col cards ── */
+@media (min-width: 641px) and (max-width: 1023px) {
   .bento-grid-item:first-child {
-    grid-column: span 12;
     flex-direction: column;
   }
-  .bento-standard { grid-column: span 6; }
+  .bento-img-featured {
+    width: 100%;
+    min-height: 260px;
+  }
+  .bento-body-featured {
+    padding: 24px 28px;
+  }
 }
 
-/* ── Mobile (<640px): single column, stack all ── */
-@media (max-width: 639px) {
+/* ── Mobile (<640px): single column ── */
+@media (max-width: 640px) {
   #bentoGridLarge {
+    grid-template-columns: 1fr;
     gap: 16px;
-    background: transparent;
-    border: none;
-    padding: 0;
   }
-  .bento-grid-item:first-child,
-  .bento-standard {
-    grid-column: span 12;
+  .bento-grid-item:first-child {
     flex-direction: column;
-    border: 1px solid var(--line);
-    border-radius: var(--radius);
-    overflow: hidden;
   }
-  .bento-img-featured { height: 220px; }
-  .bento-img-std      { height: 195px; width: 100%; }
-  .bento-body-featured,
-  .bento-body-std { padding: 16px; }
-  .bento-hl-featured { font-size: 20px; }
-  .bento-hl-std      { font-size: 16px; }
-  .bento-sum-std { -webkit-line-clamp: 3; }
+  .bento-img-featured {
+    width: 100%;
+    min-height: 200px;
+    height: 220px;
+  }
+  .bento-body-featured { padding: 18px 20px; }
+  .bento-img-std       { height: 195px; }
+  .bento-body-std      { padding: 16px 18px; }
+  .bento-hl-featured   { font-size: 20px; }
+  .bento-hl-std        { font-size: 16px; }
 }
 
-/* ── Section wrapper ── */
-.latest { padding: 52px 0; }
+/* ── Section wrapper — Apple Newsroom light grey background ── */
+.latest {
+  padding: 52px 0;
+  background: #f5f5f7;
+  margin-left: -24px;
+  margin-right: -24px;
+  padding-left: 24px;
+  padding-right: 24px;
+}
 
 /* ─── FOOTER ──────────────────────────────────────────────── */
 .footer{background:var(--bg);border-top:1px solid var(--line);padding:52px 0 32px}
@@ -719,31 +703,26 @@ img{max-width:100%;display:block}
 /* ─── BENTO GRID LARGE (alias used by generate.js posts.html) ──────── */
 .bento-grid-large {
   display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: 2px;
-  background: var(--line);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  overflow: hidden;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  overflow: visible;
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-/* ─── APPLE NEWSROOM CARD INTERACTIONS ──────────────────────────────── */
-/* Hover: subtle lift + shadow — Apple's exact interaction pattern */
-.bento-grid-item {
-  cursor: pointer;
-}
+/* ─── CARD HOVER INTERACTIONS ────────────────────────────────────────── */
 .bento-grid-item:hover {
-  background: #f0f0f5;
+  background: var(--white);
   z-index: 1;
 }
 .bento-grid-item:active,
 .bento-grid-item:focus-within {
-  background: #e8e8ed;     /* deeper press state — touch feedback */
-  transform: scale(0.995);
-  transition: transform 0.1s ease, background 0.1s ease;
+  transform: scale(0.997);
+  transition: transform 0.1s ease;
 }
 
 /* Image zoom on card hover */
