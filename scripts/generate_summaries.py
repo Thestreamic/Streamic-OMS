@@ -48,7 +48,7 @@ os.makedirs(SUMMARIES_DIR, exist_ok=True)
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
 GROQ_URL     = "https://api.groq.com/openai/v1/chat/completions"
 GROQ_MODEL   = "llama-3.3-70b-versatile"   # fast + free tier
-MAX_PER_RUN  = 8   # Groq is now secondary — Gemini handles bulk. 8 × ~2k = 16k tokens/run
+MAX_PER_RUN  = 51  # Groq is now secondary — Gemini handles bulk. 51 × ~2k = ~102k tokens/run
 SLEEP_SECS   = 3.0                 # pause between calls — 3s minimum between each request
 
 # ── Slug builder (mirrors rewrite_feed.py) ────────────────────────────────────
