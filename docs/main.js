@@ -296,7 +296,7 @@
       const valid = pool.filter(it => it.slug || it.url || it.link);
       allItems    = (!cat || cat === 'featured')
         ? interleave(valid)
-        : interleave(filterCat(valid, cat));
+        : interleave(filterCat(valid, cat)).slice(1); // skip first — already shown as SSR hero above grid
 
       if (!allItems.length) {
         grid.innerHTML = '<li class="bento-loading">No content yet. Check back soon.</li>';
