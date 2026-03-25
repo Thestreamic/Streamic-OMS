@@ -111,32 +111,32 @@ img{max-width:100%;display:block}
 .hero{border-bottom:1px solid var(--line)}
 .hero-inner{
   max-width:var(--max);margin:0 auto;padding:0 24px;
-  display:grid;grid-template-columns:1fr 420px;
-  min-height:400px;align-items:stretch;
+  display:grid;grid-template-columns:1fr 380px;
+  min-height:320px;align-items:stretch;
 }
 .hero-img{overflow:hidden;position:relative}
-.hero-img img{width:100%;height:100%;min-height:300px;object-fit:cover;
+.hero-img img{width:100%;height:100%;min-height:240px;object-fit:cover;
   transition:transform .45s ease}
 .hero-img:hover img{transform:scale(1.025)}
 .hero-body{
-  padding:52px 0 52px 52px;display:flex;flex-direction:column;
+  padding:40px 0 40px 48px;display:flex;flex-direction:column;
   justify-content:center;background:var(--white);
 }
 .hero-tag{
   display:inline-flex;align-items:center;gap:5px;font-size:10px;
   font-weight:800;text-transform:uppercase;letter-spacing:1.2px;
   padding:4px 11px;border-radius:6px;color:#fff;
-  margin-bottom:20px;align-self:flex-start;
+  margin-bottom:16px;align-self:flex-start;
 }
 .hero-hl{
-  font-family:var(--serif);font-size:clamp(22px,2.6vw,34px);
-  line-height:1.18;letter-spacing:-.3px;color:var(--ink);margin-bottom:14px;
+  font-family:var(--serif);font-size:clamp(20px,2.3vw,30px);
+  line-height:1.2;letter-spacing:-.3px;color:var(--ink);margin-bottom:12px;
 }
 .hero-hl a{color:inherit}
 .hero-hl a:hover{color:var(--blue)}
-.hero-dek{font-size:15px;line-height:1.65;color:var(--ink2);margin-bottom:22px;
-  display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
-.hero-meta{font-size:12px;color:var(--ink4);margin-bottom:20px;
+.hero-dek{font-size:14.5px;line-height:1.65;color:var(--ink2);margin-bottom:18px;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.hero-meta{font-size:12px;color:var(--ink4);margin-bottom:16px;
   display:flex;gap:12px;flex-wrap:wrap;align-items:center}
 .hero-cta{
   display:inline-flex;align-items:center;gap:5px;font-size:13.5px;
@@ -147,10 +147,57 @@ img{max-width:100%;display:block}
 .hero-cta:hover{gap:10px}
 @media(max-width:900px){
   .hero-inner{grid-template-columns:1fr;min-height:auto}
-  .hero-img img{min-height:220px;height:220px}
-  .hero-body{padding:28px 0}
-  .hero-hl{font-size:22px}
+  .hero-img img{min-height:200px;height:200px}
+  .hero-body{padding:24px 0}
+  .hero-hl{font-size:20px}
 }
+
+/* ── Logo fix — hide broken img, show text cleanly ── */
+.nav-logo img{height:28px;width:auto;display:inline-block}
+.nav-logo img[src=""]{display:none}
+.nav-logo img:not([src]){display:none}
+
+/* ── RSS Card Grid — 20 broadcast news cards ─────────────────────────── */
+.rss-section{padding:52px 0;border-top:1px solid var(--line)}
+.rss-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:16px;
+}
+@media(max-width:1100px){.rss-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:740px) {.rss-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px) {.rss-grid{grid-template-columns:1fr}}
+.rss-card{
+  display:flex;flex-direction:column;
+  background:var(--white);border:1px solid var(--line);border-radius:10px;
+  overflow:hidden;transition:box-shadow .18s,transform .18s;
+  cursor:pointer;
+}
+.rss-card:hover{
+  box-shadow:0 6px 22px rgba(0,0,0,.09);transform:translateY(-2px);
+  border-color:#d0d0d5;
+}
+.rss-card-img{width:100%;height:130px;overflow:hidden;flex-shrink:0;background:#f0f0f2}
+.rss-card-img img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s}
+.rss-card:hover .rss-card-img img{transform:scale(1.04)}
+.rss-card-body{padding:14px;display:flex;flex-direction:column;gap:8px;flex:1}
+.rss-card-src{
+  font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;
+}
+.rss-card-hl{
+  font-family:var(--serif);font-size:13.5px;font-weight:400;
+  line-height:1.35;color:var(--ink);margin:0;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
+}
+.rss-card-foot{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-top:auto;padding-top:8px;border-top:1px solid var(--bg);
+  font-size:10.5px;color:var(--ink4);
+}
+.rss-card-src-link a{
+  font-size:10.5px;font-weight:600;color:var(--blue);text-decoration:none;
+}
+.rss-card-src-link a:hover{text-decoration:underline}
 
 /* ─── SECTION HEADER ──────────────────────────────────────── */
 .sec-hdr{

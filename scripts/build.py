@@ -165,7 +165,7 @@ def nav(active="", base=""):
     return f"""<nav class="nav">
   <div class="nav-inner">
     <a href="{base}featured.html" class="nav-logo">
-      <img src="{base}assets/logo.png" alt="The Streamic">
+      <img src="{base}assets/logo.png" alt="" onerror="this.style.display='none'" aria-hidden="true">
       <span>The Streamic</span>
     </a>
     <ul class="nav-links">{lis}</ul>
@@ -817,30 +817,60 @@ def featured_page(arts):
   </div>
 </section>"""
 
-    # ── Industry News (5 curated links, no AI summaries) ─────────────────
+    # ── Industry News — 20-card round-robin from broadcast categories ─────
+    # Interleave sources so no vendor dominates: Avid,Grass Valley,EVS,Harmonic,
+    # Pebble,Ross,Vizrt,Maxon,MAM,IP,streaming,playout,newsroom etc.
     news_items_html = ""
-    if industry_news:
-        items_li = ""
-        for a in industry_news:
-            src = e(a.get("source_domain","").replace("https://","").replace("www.","").split("/")[0])
+    if arts:
+        # Round-robin by source_domain — guarantees variety across vendors
+        from collections import defaultdict
+        _buckets = defaultdict(list)
+        for a in arts:
+            if a["slug"] in used_slugs: continue
+            src = a.get("source_domain","").replace("https://","").replace("www.","").split("/")[0].lower()
+            _buckets[src].append(a)
+        # Sort buckets newest-first per source
+        _bucket_list = sorted(_buckets.values(), key=lambda b: b[0].get("published",""), reverse=True)
+        rss_cards = []
+        while len(rss_cards) < 20 and _bucket_list:
+            for bucket in list(_bucket_list):
+                if bucket:
+                    rss_cards.append(bucket.pop(0))
+                    if len(rss_cards) >= 20: break
+            _bucket_list = [b for b in _bucket_list if b]
+
+        cards_html = ""
+        for a in rss_cards:
+            src = e(a.get("source_domain","").replace("https://","").replace("www.","").split("/")[0].upper())
             src_url = a.get("source_url") or a.get("url") or f"articles/{a['slug']}.html"
             art_url = f"articles/{a['slug']}.html"
-            items_li += f"""<li style="padding:16px 0;border-bottom:1px solid var(--bg);display:flex;align-items:flex-start;gap:16px">
-      <div style="flex:1">
-        <a href="{e(art_url)}" style="font-size:15px;font-weight:600;color:var(--ink);text-decoration:none;line-height:1.4;display:block;margin-bottom:6px">{e(a.get("title",""))}</a>
-        <div style="display:flex;align-items:center;gap:10px">
-          <span style="font-size:11px;font-weight:700;color:var(--ink4);text-transform:uppercase;letter-spacing:.4px">{src}</span>
-          <span style="font-size:11px;color:var(--ink4)">{d(a.get("published",""))}</span>
-        </div>
-      </div>
-      <a href="{e(src_url)}" target="_blank" rel="noopener noreferrer nofollow" style="flex-shrink:0;font-size:12px;color:var(--blue);font-weight:600;white-space:nowrap;padding-top:2px">Source &rarr;</a>
-    </li>"""
-        news_items_html = f"""<section style="padding:52px 0;border-top:1px solid var(--line)">
-  <div class="sec-hdr" style="margin-bottom:4px">
-    <h2>Industry News</h2>
-    <span style="font-size:13px;color:var(--ink4);font-weight:400">Curated from original sources — no AI summaries</span>
+            cat = a.get("category","featured")
+            cat_color = {"streaming":"#0066cc","cloud":"#5856d6","graphics":"#FF9500",
+                         "playout":"#34C759","infrastructure":"#636366",
+                         "ai-post-production":"#FF2D55","newsroom":"#b8860b"}.get(cat,"#1d1d1f")
+            img = e(a.get("image_url",""))
+            title = e(a.get("title",""))
+            dt = d(a.get("published",""))
+            cards_html += f"""<a href="{e(art_url)}" class="rss-card" style="text-decoration:none">
+  <div class="rss-card-img">
+    <img src="{img}" alt="{title}" loading="lazy" onerror="this.style.display='none'">
   </div>
-  <ul style="list-style:none;padding:0;margin:0">{items_li}</ul>
+  <div class="rss-card-body">
+    <span class="rss-card-src" style="color:{cat_color}">{src}</span>
+    <h3 class="rss-card-hl">{title}</h3>
+    <div class="rss-card-foot">
+      <time>{dt}</time>
+      <span class="rss-card-src-link"><a href="{e(src_url)}" target="_blank" rel="noopener noreferrer nofollow" onclick="event.stopPropagation()">Source ↗</a></span>
+    </div>
+  </div>
+</a>"""
+
+        news_items_html = f"""<section class="rss-section">
+  <div class="sec-hdr" style="margin-bottom:24px">
+    <h2>Latest Broadcast &amp; Media Technology News</h2>
+    <span style="font-size:13px;color:var(--ink4);font-weight:400">Round-robin from Avid, Grass Valley, EVS, Harmonic, Pebble, Ross, Vizrt, Maxon &amp; more</span>
+  </div>
+  <div class="rss-grid">{cards_html}</div>
 </section>"""
 
     return f"""{head(title, desc, canon, og_img=(hero_art or {}).get('image_url',''))}
