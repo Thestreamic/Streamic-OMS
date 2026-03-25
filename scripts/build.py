@@ -27,6 +27,12 @@ _EDITORS_NOTE_HTML = (
 
 PAGE_SIZE = 24
 
+# ── AdSense approval mode ─────────────────────────────────────────────────────
+# Only show high-quality curated content. Hide the full dataset.
+MAX_ARTICLES   = 25          # hard ceiling across entire site
+VISIBLE_CAT    = "ai-post-production"  # only this category page is indexed
+MIN_BODY_SCORE = 50          # minimum editorial score to appear on homepage
+
 CAT = {
     "featured":           {"label":"Featured",           "icon":"⭐","color":"#1d1d1f","desc":"Independent broadcast and streaming technology journalism."},
     "streaming":          {"label":"Streaming",          "icon":"&#128225;","color":"#0066cc","desc":"OTT platforms, encoding, CDN infrastructure, live streaming workflows."},
@@ -144,18 +150,18 @@ def head(title, desc, canon, css="style.css", og_img="", robots="index,follow"):
 </head>"""
 
 def nav(active="", base=""):
+    # AdSense mode: only Home, AI Post category, and How-To visible
     cats = [
-        ("featured.html","Featured"),("infrastructure.html","Infrastructure"),("posts.html","All Articles"),
-        ("graphics.html","Graphics"),("cloud.html","Cloud Production"),
-        ("streaming.html","Streaming"),("ai-post-production.html","AI & Post"),
-        ("playout.html","Playout"),("newsroom.html","Newsroom"),("howto.html","How-To"),
+        ("featured.html", "Home"),
+        ("ai-post-production.html", "AI in Broadcasting"),
+        ("howto.html", "How-To Guides"),
     ]
     def _nav_li(h, lbl, base=base, active=active):
         cls = ' class="active"' if h == active else ''
         return f'<li><a href="{base}{h}"{cls}>{lbl}</a></li>'
     lis = "".join(_nav_li(h, lbl) for h, lbl in cats)
     mob_links = "".join(
-        f'<a href="{base}{h}">{lbl}</a>' for h,lbl in cats)
+        f'<a href="{base}{h}">{lbl}</a>' for h, lbl in cats)
     return f"""<nav class="nav">
   <div class="nav-inner">
     <a href="{base}featured.html" class="nav-logo">
@@ -164,26 +170,18 @@ def nav(active="", base=""):
     </a>
     <ul class="nav-links">{lis}</ul>
     <div class="nav-right">
-      <a href="{base}vlog.html" class="nav-desk">Editor's Desk</a>
+      <a href="{base}about.html" class="nav-desk">About</a>
       <button class="nav-toggle" aria-label="Menu" onclick="document.querySelector('.nav-mob').classList.toggle('open')">
         <span></span><span></span><span></span>
       </button>
     </div>
   </div>
-  <div class="nav-mob">{mob_links}</div>
+  <div class="nav-mob">{mob_links}<a href="{base}about.html">About</a><a href="{base}contact.html">Contact</a></div>
 </nav>"""
 
 def catbar(active_cat="", base=""):
-    items = [
-        ("streaming","&#128225; Streaming"),("cloud","☁️ Cloud"),
-        ("graphics","🎨 Graphics"),("playout","▶️ Playout"),
-        ("infrastructure","🏗️ Infra"),("ai-post-production","🎬 AI & Post"),
-        ("newsroom","📰 Newsroom"),
-    ]
-    pills = "".join(
-        f'<a href="{base}{c}.html" class="cpill{"active" if c==active_cat else ""}">{lbl}</a>'
-        for c,lbl in items)
-    return f'<div class="catbar"><div class="catbar-inner">{pills}</div></div>'
+    # Hidden during AdSense review — only AI Post visible via nav
+    return ""
 
 def footer(base=""):
     yr = datetime.now().year
@@ -195,21 +193,14 @@ def footer(base=""):
     </div>
     <div class="footer-col">
       <h4>Coverage</h4>
-      <a href="{base}streaming.html">Streaming</a>
-      <a href="{base}cloud.html">Cloud Production</a>
-      <a href="{base}ai-post-production.html">AI &amp; Post</a>
-      <a href="{base}graphics.html">Graphics</a>
-      <a href="{base}playout.html">Playout</a>
-      <a href="{base}infrastructure.html">Infrastructure</a>
-      <a href="{base}newsroom.html">Newsroom</a>
+      <a href="{base}ai-post-production.html">AI in Broadcasting</a>
+      <a href="{base}howto.html">How-To Guides</a>
     </div>
     <div class="footer-col">
       <h4>Site</h4>
       <a href="{base}about.html">About</a>
       <a href="{base}contact.html">Contact</a>
       <a href="{base}editorial-policy.html">Editorial Policy</a>
-      <a href="{base}vlog.html">Editor's Desk</a>
-      <a href="{base}howto.html">How-To Guides</a>
       <a href="{base}privacy.html">Privacy Policy</a>
       <a href="{base}terms.html">Terms of Use</a>
     </div>
@@ -687,39 +678,76 @@ def all_articles_page(arts):
 </html>"""
 
 
+def _score_art(a):
+    """Score article quality for homepage curation. Higher = better."""
+    body = a.get("body_html","") or ""
+    wc   = len(re.sub(r"<[^>]+>"," ",body).split())
+    s = 0
+    if a.get("is_editorial") or a.get("editorial"): s += 50
+    if "<h2>" in body: s += 30
+    if wc >= 500: s += 20
+    elif wc >= 200: s += 10
+    if a.get("quality_score",0) >= 75: s += 25
+    return s
+
+
 def featured_page(arts):
-    editorial = [a for a in arts if a.get("is_editorial") or a.get("editorial")][:5]
-    hero_art  = editorial[0] if editorial else (arts[0] if arts else None)
-    # Diversified RSS articles for Latest Industry Updates — no consecutive same-source
-    rss_pool  = [a for a in arts if not a.get("is_editorial") and not a.get("editorial")
-                 and (not hero_art or a["slug"] != hero_art["slug"])]
-    rss_arts  = diversify_arts(rss_pool)[:12]
+    """
+    Editorial homepage — strict 25-item maximum.
+    Structure: Hero(1) + Editor Picks(4) + Why Exists + Deep Dives(4) + Guides(6) + Industry News(5) = 20 visible + guides
+    No feed grids. No pagination links. No RSS-style blocks.
+    """
+    import re as _re
 
-    title  = "The Streamic &#8212; Independent Broadcast & Streaming Technology News"
-    desc   = "Original analysis, deep dives, and curated broadcast technology news for engineers and media professionals."
+    # ── Pool: editorial first, then best-scored articles ──────────────────
+    editorial = [a for a in arts if a.get("is_editorial") or a.get("editorial")]
+    regular   = [a for a in arts if not a.get("is_editorial") and not a.get("editorial")]
+    # Score and sort
+    regular_scored = sorted(regular, key=lambda a: (-_score_art(a), a.get("published","")[:10]), reverse=False)
+    regular_scored.sort(key=lambda a: (-_score_art(a)))
+
+    # ── Slot allocation (max 25 total) ────────────────────────────────────
+    hero_art       = editorial[0] if editorial else (regular_scored[0] if regular_scored else None)
+    editor_picks   = [a for a in editorial[1:5]] if len(editorial) > 1 else regular_scored[:4]
+    # Deep dives: editorial not already used, or best scored regular
+    used_slugs     = {hero_art["slug"]} if hero_art else set()
+    used_slugs    |= {a["slug"] for a in editor_picks}
+    deep_pool      = [a for a in (editorial[5:] + regular_scored) if a["slug"] not in used_slugs]
+    deep_dives     = deep_pool[:4]
+    used_slugs    |= {a["slug"] for a in deep_dives}
+    # Industry news: 5 most recent from any category NOT already shown
+    news_pool      = [a for a in regular_scored if a["slug"] not in used_slugs]
+    industry_news  = news_pool[:5]
+
+    title  = "The Streamic — AI in Broadcasting & Streaming Technology"
+    desc   = "Expert analysis on AI automation, cloud workflows, and operational intelligence for broadcast and streaming professionals."
     canon  = f"{BASE_URL}/featured.html"
-
-    ed_html = "\n".join(ed_card(a) for a in editorial)
-
     schema = json.dumps({
         "@context":"https://schema.org","@type":"WebPage",
         "name":"The Streamic","description":desc,"url":f"{BASE_URL}/",
         "publisher":{"@type":"Organization","name":"The Streamic","url":BASE_URL}
     })
 
-    # editorial intro text
-    intro_html = """<div style="max-width:680px;margin:28px auto 0;padding:0 24px 32px;text-align:center">
-  <p style="font-size:15px;line-height:1.7;color:var(--ink2)">
-    The Streamic covers broadcast and streaming technology for engineers, architects, and media technology leaders.
-    Our editorial team publishes original analysis, technical deep-dives, and curated industry updates &#8212; independent of vendor influence.
-  </p>
-</div>"""
+    # ── Hero section ──────────────────────────────────────────────────────
+    hero_html = hero_block(hero_art) if hero_art else ""
 
-    why_exists_html = """<section style="background:#f5f5f7;border-radius:16px;padding:44px 48px;margin:0 0 52px">
-  <h2 style="font-family:var(--serif);font-size:clamp(22px,2.5vw,30px);letter-spacing:-.03em;color:var(--ink);margin:0 0 18px">Why Streamic Exists</h2>
+    # ── Editor's Picks (4 cards, horizontal ed_card style) ───────────────
+    picks_html = ""
+    if editor_picks:
+        picks_cards = "\n".join(ed_card(a) for a in editor_picks)
+        picks_html = f"""<section class="editorial" style="padding:52px 0;border-bottom:1px solid var(--line)">
+  <div class="sec-hdr" style="margin-bottom:28px">
+    <h2>Editor&#8217;s Picks</h2>
+    <span style="font-size:13px;color:var(--ink4);font-weight:400">Original analysis — independent of vendor influence</span>
+  </div>
+  <div class="ed-list">{picks_cards}</div>
+</section>"""
+
+    # ── Why Streamic Exists ───────────────────────────────────────────────
+    why_html = """<section style="background:#f5f5f7;border-radius:16px;padding:44px 48px;margin:52px 0">
+  <h2 style="font-family:var(--serif);font-size:clamp(22px,2.5vw,28px);letter-spacing:-.03em;color:var(--ink);margin:0 0 18px">Why Streamic Exists</h2>
   <p style="font-size:15px;line-height:1.75;color:var(--ink2);margin-bottom:16px">Streamic exists to help broadcasters, media teams, and streaming professionals make sense of a rapidly evolving technology landscape. The industry is being reshaped by cloud workflows, AI-driven automation, and changing audience expectations &#8212; but much of the available information is either too generic, overly technical, or fragmented across sources.</p>
   <p style="font-size:15px;line-height:1.75;color:var(--ink2);margin-bottom:24px">Streamic bridges that gap by delivering clear, practical, and relevant insights focused specifically on real-world broadcast and streaming operations.</p>
-  <p style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--ink4);margin-bottom:14px">We focus on three core areas</p>
   <ul style="list-style:none;padding:0;margin:0 0 24px;display:flex;flex-direction:column;gap:12px">
     <li style="display:flex;align-items:flex-start;gap:12px">
       <span style="flex-shrink:0;width:28px;height:28px;background:var(--blue);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700;margin-top:1px">1</span>
@@ -734,40 +762,98 @@ def featured_page(arts):
       <div><strong style="font-size:14px;color:var(--ink)">Actionable Guides &amp; Troubleshooting</strong> <span style="font-size:14px;color:var(--ink3)">&#8212; step-by-step how-tos, setup guides, and real solutions for tools and systems used in daily broadcast environments</span></div>
     </li>
   </ul>
-  <p style="font-size:14px;line-height:1.7;color:var(--ink3);margin-bottom:0;border-top:1px solid var(--line);padding-top:18px">Our goal is not just to report what&#39;s happening, but to explain why it matters and how it can be applied. Streamic is built for professionals who need clarity, not noise &#8212; and insights they can actually use.</p>
+  <p style="font-size:14px;line-height:1.7;color:var(--ink3);border-top:1px solid var(--line);padding-top:18px;margin:0">Our goal is not just to report what&#39;s happening, but to explain why it matters and how it can be applied. Streamic is built for professionals who need clarity, not noise.</p>
 </section>"""
 
-    # intel_feed uses diversified arts — must be defined after rss_pool above
-    intel_feed = intelligence_feed_section(arts)
+    # ── Deep Dives (4 articles, editorial card style) ─────────────────────
+    dives_html = ""
+    if deep_dives:
+        dives_cards = "\n".join(ed_card(a) for a in deep_dives)
+        dives_html = f"""<section style="padding:52px 0;border-top:1px solid var(--line)">
+  <div class="sec-hdr" style="margin-bottom:28px">
+    <h2>Deep Dives &amp; Analysis</h2>
+    <span style="font-size:13px;color:var(--ink4);font-weight:400">Long-form technical analysis for broadcast engineers</span>
+  </div>
+  <div class="ed-list">{dives_cards}</div>
+</section>"""
+
+    # ── How-To Guides teaser (6 items, compact list) ─────────────────────
+    guides_teaser = """<section style="padding:52px 0;border-top:1px solid var(--line)">
+  <div class="sec-hdr" style="margin-bottom:24px">
+    <h2>How-To Guides</h2>
+    <a href="howto.html" style="font-size:13px;font-weight:600;color:var(--blue)">View all guides &rarr;</a>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px">
+    <a href="articles/guide-premiere-to-avid.html" style="display:block;padding:18px 20px;background:var(--bg);border-radius:10px;text-decoration:none;border:1px solid var(--line)">
+      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--blue)">Post-Production</span>
+      <p style="font-size:14px;font-weight:600;color:var(--ink);margin:6px 0 4px;line-height:1.35">Premiere Pro to Avid Media Composer</p>
+      <span style="font-size:12px;color:var(--ink4)">&#128337; 8 min read</span>
+    </a>
+    <a href="articles/guide-vantage-nas-transcode.html" style="display:block;padding:18px 20px;background:var(--bg);border-radius:10px;text-decoration:none;border:1px solid var(--line)">
+      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--blue)">Encoding</span>
+      <p style="font-size:14px;font-weight:600;color:var(--ink);margin:6px 0 4px;line-height:1.35">Vantage: Transcode to MP4 on NAS</p>
+      <span style="font-size:12px;color:var(--ink4)">&#128337; 6 min read</span>
+    </a>
+    <a href="articles/guide-vantage-aws-transcode.html" style="display:block;padding:18px 20px;background:var(--bg);border-radius:10px;text-decoration:none;border:1px solid var(--line)">
+      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--blue)">Cloud</span>
+      <p style="font-size:14px;font-weight:600;color:var(--ink);margin:6px 0 4px;line-height:1.35">Vantage: Output to AWS S3</p>
+      <span style="font-size:12px;color:var(--ink4)">&#128337; 6 min read</span>
+    </a>
+    <a href="articles/guide-avid-media-central-health-check.html" style="display:block;padding:18px 20px;background:var(--bg);border-radius:10px;text-decoration:none;border:1px solid var(--line)">
+      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--blue)">Avid</span>
+      <p style="font-size:14px;font-weight:600;color:var(--ink);margin:6px 0 4px;line-height:1.35">MediaCentral Health Check</p>
+      <span style="font-size:12px;color:var(--ink4)">&#128337; 7 min read</span>
+    </a>
+    <a href="articles/guide-audio-conform-avid-protools.html" style="display:block;padding:18px 20px;background:var(--bg);border-radius:10px;text-decoration:none;border:1px solid var(--line)">
+      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--blue)">Audio</span>
+      <p style="font-size:14px;font-weight:600;color:var(--ink);margin:6px 0 4px;line-height:1.35">Audio Conform: Avid to Pro Tools</p>
+      <span style="font-size:12px;color:var(--ink4)">&#128337; 9 min read</span>
+    </a>
+    <a href="articles/guide-avid-strawberry.html" style="display:block;padding:18px 20px;background:var(--bg);border-radius:10px;text-decoration:none;border:1px solid var(--line)">
+      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--blue)">MAM</span>
+      <p style="font-size:14px;font-weight:600;color:var(--ink);margin:6px 0 4px;line-height:1.35">Strawberry PAM + Avid Workflow</p>
+      <span style="font-size:12px;color:var(--ink4)">&#128337; 10 min read</span>
+    </a>
+  </div>
+</section>"""
+
+    # ── Industry News (5 curated links, no AI summaries) ─────────────────
+    news_items_html = ""
+    if industry_news:
+        items_li = ""
+        for a in industry_news:
+            src = e(a.get("source_domain","").replace("https://","").replace("www.","").split("/")[0])
+            src_url = a.get("source_url") or a.get("url") or f"articles/{a['slug']}.html"
+            art_url = f"articles/{a['slug']}.html"
+            items_li += f"""<li style="padding:16px 0;border-bottom:1px solid var(--bg);display:flex;align-items:flex-start;gap:16px">
+      <div style="flex:1">
+        <a href="{e(art_url)}" style="font-size:15px;font-weight:600;color:var(--ink);text-decoration:none;line-height:1.4;display:block;margin-bottom:6px">{e(a.get("title",""))}</a>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-size:11px;font-weight:700;color:var(--ink4);text-transform:uppercase;letter-spacing:.4px">{src}</span>
+          <span style="font-size:11px;color:var(--ink4)">{d(a.get("published",""))}</span>
+        </div>
+      </div>
+      <a href="{e(src_url)}" target="_blank" rel="noopener noreferrer nofollow" style="flex-shrink:0;font-size:12px;color:var(--blue);font-weight:600;white-space:nowrap;padding-top:2px">Source &rarr;</a>
+    </li>"""
+        news_items_html = f"""<section style="padding:52px 0;border-top:1px solid var(--line)">
+  <div class="sec-hdr" style="margin-bottom:4px">
+    <h2>Industry News</h2>
+    <span style="font-size:13px;color:var(--ink4);font-weight:400">Curated from original sources — no AI summaries</span>
+  </div>
+  <ul style="list-style:none;padding:0;margin:0">{items_li}</ul>
+</section>"""
 
     return f"""{head(title, desc, canon, og_img=(hero_art or {}).get('image_url',''))}
 <body data-category="featured">
 {nav("featured.html")}
-{catbar()}
-{hero_block(hero_art) if hero_art else ""}
-{intro_html}
 <main>
   <div class="w">
-{"" if not editorial else f'''<section class="editorial">
-      <div class="sec-hdr">
-        <h2>&#128313; Infrastructure Spotlight</h2>
-        <span style="font-size:13px;color:var(--ink4);font-weight:400">Original analysis by The Streamic editorial team</span>
-      </div>
-      <div class="ed-list">{ed_html}</div>
-    </section>'''}
-    {intel_feed}
-    {_ad()}
-    <div class="w">
-      {why_exists_html}
-    </div>
-    <section class="latest">
-      <div class="latest-hdr">
-        <h2 class="latest-h2">Latest Industry Updates</h2>
-        <a href="newsroom.html" class="latest-view-all">View all updates &rarr;</a>
-      </div>
-      <p class="latest-sub">Real-time news and product updates from across the broadcast and streaming technology industry.</p>
-      {news_grid(rss_arts)}
-    </section>
+    {hero_html}
+    {picks_html}
+    {why_html}
+    {dives_html}
+    {guides_teaser}
+    {news_items_html}
     {_ad()}
   </div>
 </main>
@@ -1441,89 +1527,128 @@ def main():
     with open(ARTS_F,"r",encoding="utf-8") as f: arts = json.load(f)
     if not arts: raise SystemExit("No articles")
 
+    # ── Deduplicate by slug ───────────────────────────────────────────────
+    seen_slugs, deduped = set(), []
+    for a in arts:
+        if a["slug"] not in seen_slugs:
+            seen_slugs.add(a["slug"])
+            deduped.append(a)
+    arts = deduped
+    print(f"  After dedup: {len(arts)} unique articles")
+
+    # ── Select top MAX_ARTICLES by quality — editorial always first ───────
+    ed_arts  = [a for a in arts if a.get("is_editorial") or a.get("editorial")]
+    rss_pool = [a for a in arts if not a.get("is_editorial") and not a.get("editorial")]
+    rss_pool.sort(key=lambda a: -_score_art(a))
+    visible_list  = (ed_arts + rss_pool)[:MAX_ARTICLES]
+    visible_slugs = {a["slug"] for a in visible_list}
+    print(f"  Visible (indexed): {len(visible_slugs)} | Hidden (noindex): {len(arts)-len(visible_slugs)}")
+
     os.makedirs(ARTS_D, exist_ok=True)
 
-    # Write article pages
+    # ── Article pages — visible indexed, rest noindex ─────────────────────
     written = 0
     for a in arts:
-        html = article_page(a)
-        slug_ = a.get('slug', '')
+        html  = article_page(a)
+        if a["slug"] not in visible_slugs:
+            html = html.replace(
+                '<meta name="robots" content="index,follow">',
+                '<meta name="robots" content="noindex,nofollow">'
+            )
+        slug_ = a.get("slug","")
         w(os.path.join(ARTS_D, f"{slug_}.html"), html)
         written += 1
         leg = a.get("legacy_slug")
-        if leg and leg != a["slug"]:
+        if leg and leg != slug_:
             w(os.path.join(ARTS_D, f"{leg}.html"), html)
             written += 1
-    print(f"  &#10003; {written} article files")
+    print(f"  &#10003; {written} article files ({len(visible_slugs)} indexed, {written-len(visible_slugs)} noindex)")
 
-    # Category pages
+    # ── Category pages ────────────────────────────────────────────────────
+    # VISIBLE_CAT: full indexed page, page 1 only
+    # All others: noindex placeholder (file preserved for broken-link safety)
     by_cat = {}
     for a in arts: by_cat.setdefault(a["category"],[]).append(a)
-    for cat,ca in by_cat.items():
-        pages = category_page(cat, ca)
-        for pg, html in pages:
-            fname = f"{cat}.html" if pg==0 else f"{cat}-p{pg+1}.html"
-            w(os.path.join(DOCS, fname), html)
-    print(f"  &#10003; {len(by_cat)} category pages")
 
-    # Featured + index
+    for cat, ca in by_cat.items():
+        if cat == VISIBLE_CAT:
+            cat_vis = [a for a in ca if a["slug"] in visible_slugs]
+            pages   = category_page(cat, cat_vis)
+            for pg, html in pages:
+                if pg > 0:
+                    html = html.replace(
+                        '<meta name="robots" content="index,follow">',
+                        '<meta name="robots" content="noindex,follow">'
+                    )
+                fname = f"{cat}.html" if pg == 0 else f"{cat}-p{pg+1}.html"
+                w(os.path.join(DOCS, fname), html)
+        else:
+            ci    = CAT.get(cat, CAT["featured"])
+            _ph   = head(
+                ci.get("label","") + " — The Streamic",
+                ci.get("desc",""),
+                f"{BASE_URL}/{cat}.html",
+                robots="noindex,follow"
+            )
+            placeholder = f"""{_ph}
+<body>{nav()}<main><div class="w" style="padding:80px 0 120px;text-align:center">
+<h1 style="font-family:var(--serif);font-size:28px;margin-bottom:16px">{ci.get("label","")}</h1>
+<p style="color:var(--ink3)">This section is coming soon.
+<a href="featured.html" style="color:var(--blue)">Return to homepage &rarr;</a></p>
+</div></main>{footer()}</body></html>"""
+            w(os.path.join(DOCS, f"{cat}.html"), placeholder)
+
+    print(f"  &#10003; {VISIBLE_CAT} indexed | {len(by_cat)-1} other categories noindex placeholder")
+
+    # ── Homepage ──────────────────────────────────────────────────────────
     feat_arts = sorted(arts, key=lambda a: a["published"], reverse=True)
     fp = featured_page(feat_arts)
     w(os.path.join(DOCS,"featured.html"), fp)
     w(os.path.join(DOCS,"index.html"),    fp)
     print("  &#10003; featured.html + index.html")
 
-    # posts.html - All Articles page (links to articles/, not posts/)
+    # ── posts.html — noindex (preserve links, hide from Google) ──────────
     ap = all_articles_page(feat_arts)
+    ap = ap.replace(
+        '<meta name="robots" content="index,follow">',
+        '<meta name="robots" content="noindex,follow">'
+    )
     w(os.path.join(DOCS,"posts.html"), ap)
     w(os.path.join(ROOT,"posts.html"), ap)
-    print("  &#10003; posts.html (All Articles)")
+    print("  &#10003; posts.html (noindex)")
 
-    # Static pages
-    # Ensure all 8 category pages exist even if some have no articles yet
-    for _cat_slug in ["graphics"]:
-        _cp = os.path.join(DOCS, f"{_cat_slug}.html")
-        if not os.path.exists(_cp):
-            _ci = CAT.get(_cat_slug, {})
-            _pages = category_page(_cat_slug, [])
-            for _pn, _ph in _pages:
-                _fname = f"{_cat_slug}.html" if _pn==0 else f"{_cat_slug}-p{_pn+1}.html"
-                w(os.path.join(DOCS, _fname), _ph)
-            print(f"  &#10003; {_cat_slug}.html generated (empty category placeholder)")
-
-    w(os.path.join(DOCS,"about.html"),   about_page())
-    w(os.path.join(DOCS,"contact.html"), contact_page())
-    w(os.path.join(DOCS,"privacy.html"), privacy_page())
-    w(os.path.join(DOCS,"terms.html"),   terms_page())
+    # ── Static pages ──────────────────────────────────────────────────────
+    w(os.path.join(DOCS,"about.html"),            about_page())
+    w(os.path.join(DOCS,"contact.html"),          contact_page())
+    w(os.path.join(DOCS,"privacy.html"),          privacy_page())
+    w(os.path.join(DOCS,"terms.html"),            terms_page())
     w(os.path.join(DOCS,"editorial-policy.html"), editorial_policy_page())
-    w(os.path.join(DOCS,"howto.html"),   howto_page())
-    w(os.path.join(DOCS,"how-to.html"),  howto_page())
-    w(os.path.join(DOCS,"vlog.html"),    vlog_page())
+    w(os.path.join(DOCS,"howto.html"),            howto_page())
+    w(os.path.join(DOCS,"how-to.html"),           howto_page())
+    w(os.path.join(DOCS,"vlog.html"),             vlog_page())
     print("  &#10003; static pages")
 
-    # Sitemap + robots
-    w(os.path.join(DOCS,"sitemap.xml"), sitemap(arts))
-    w(os.path.join(DOCS,"robots.txt"),  f"User-agent: *\nAllow: /\n\nSitemap: {BASE_URL}/sitemap.xml\n")
+    # ── Sitemap — only visible articles + core pages ──────────────────────
+    w(os.path.join(DOCS,"sitemap.xml"), sitemap([a for a in arts if a["slug"] in visible_slugs]))
+    w(os.path.join(DOCS,"robots.txt"),
+      f"User-agent: *\nAllow: /\nDisallow: /posts.html\n\nSitemap: {BASE_URL}/sitemap.xml\n")
 
-    # Copy style.css + main.js to docs/
+    # ── Assets ────────────────────────────────────────────────────────────
     for f_name in ("style.css","main.js"):
-        src = os.path.join(ROOT,f_name)
-        if os.path.isfile(src): shutil.copy2(src, os.path.join(DOCS,f_name))
-    print("  &#10003; style.css + main.js → docs/")
+        src = os.path.join(ROOT, f_name)
+        if os.path.isfile(src): shutil.copy2(src, os.path.join(DOCS, f_name))
+    print("  &#10003; style.css + main.js -> docs/")
 
-    # Ads.txt + CNAME + .nojekyll
-    w(os.path.join(DOCS,"ads.txt"), f"google.com, pub-8033069131874524, DIRECT, f08c47fec0942fa0\n")
-    w(os.path.join(DOCS,"CNAME"), "thestreamic.in\n")
+    w(os.path.join(DOCS,"ads.txt"),  "google.com, pub-8033069131874524, DIRECT, f08c47fec0942fa0\n")
+    w(os.path.join(DOCS,"CNAME"),    "thestreamic.in\n")
     open(os.path.join(DOCS,".nojekyll"),"w").close()
-    w(os.path.join(ROOT,"CNAME"), "thestreamic.in\n")
+    w(os.path.join(ROOT,"CNAME"),    "thestreamic.in\n")
 
-    # Copy style.css + main.js to root (referenced by root articles/ fallback)
     for fn in ["style.css","main.js","ads.txt","robots.txt"]:
-        src_f = os.path.join(DOCS,fn)
-        if os.path.isfile(src_f): shutil.copy2(src_f, os.path.join(ROOT,fn))
+        src_f = os.path.join(DOCS, fn)
+        if os.path.isfile(src_f): shutil.copy2(src_f, os.path.join(ROOT, fn))
 
-    # Mirror ONLY how-to guide articles to root/articles/
-    # (All other article mirrors removed - GitHub Pages serves from docs/ only)
+    # ── How-to guides to root/articles/ ──────────────────────────────────
     root_arts = os.path.join(ROOT,"articles")
     os.makedirs(root_arts, exist_ok=True)
     howto_guides = [fn for fn in os.listdir(ARTS_D) if fn.startswith("guide-") and fn.endswith(".html")]
@@ -1531,13 +1656,11 @@ def main():
         shutil.copy2(os.path.join(ARTS_D,fn), os.path.join(root_arts,fn))
     print(f"  &#10003; {len(howto_guides)} how-to guides mirrored to root/articles/")
 
-    # ── Prepare docs/data/ for client-side JS ──────────────────────────────
+    # ── docs/data/ for client-side JS — only visible articles ────────────
     docs_data_dir = os.path.join(DOCS, "data")
     os.makedirs(docs_data_dir, exist_ok=True)
 
-    # 1. news.json (live RSS feed)
     news_src = os.path.join(ROOT, "data", "news.json")
-    news_dst = os.path.join(docs_data_dir, "news.json")
     if os.path.exists(news_src):
         with open(news_src,encoding="utf-8") as f: raw = json.load(f)
         if isinstance(raw,list):
@@ -1547,33 +1670,24 @@ def main():
         else:
             flat=[]
             for cat,lst in raw.items():
-                for it in (lst or []):
-                    it.setdefault("category",cat); flat.append(it)
+                for it in (lst or []): it.setdefault("category",cat); flat.append(it)
             flat.sort(key=lambda x:x.get("pubDate",""),reverse=True)
             out = {"featured_priority":flat[:6],"items":flat[6:]}
-        with open(news_dst,"w",encoding="utf-8") as f: json.dump(out,f,ensure_ascii=False)
+        with open(os.path.join(docs_data_dir,"news.json"),"w",encoding="utf-8") as f:
+            json.dump(out,f,ensure_ascii=False)
         print(f"  &#10003; docs/data/news.json ({len(out.get('items',[]))} items)")
 
-
-    # 2. CRITICAL: generated_articles.json (Groq summaries + internal URLs)
     gen_src = os.path.join(ROOT, "data", "generated_articles.json")
     if os.path.exists(gen_src):
-        with open(gen_src, encoding="utf-8") as _f:
-            raw_gen = json.load(_f)
-        # Sort newest first
-        raw_gen.sort(key=lambda a: a.get("published",""), reverse=True)
-        out_gen = {
-            "featured_priority": raw_gen[:6],
-            "items":             raw_gen[6:]
-        }
-        gen_dst = os.path.join(docs_data_dir, "generated_articles.json")
-        with open(gen_dst, "w", encoding="utf-8") as _f:
-            json.dump(out_gen, _f, ensure_ascii=False)
-        print(f"  &#10003; docs/data/generated_articles.json ({len(raw_gen)} articles, Groq summaries included)")
-    else:
-        print("  ⚠ data/generated_articles.json not found")
+        with open(gen_src,encoding="utf-8") as _f: raw_gen = json.load(_f)
+        vis_gen = [a for a in raw_gen if a.get("slug") in visible_slugs]
+        vis_gen.sort(key=lambda a: a.get("published",""), reverse=True)
+        out_gen = {"featured_priority":vis_gen[:6],"items":vis_gen[6:]}
+        gen_dst = os.path.join(docs_data_dir,"generated_articles.json")
+        with open(gen_dst,"w",encoding="utf-8") as _f: json.dump(out_gen,_f,ensure_ascii=False)
+        print(f"  &#10003; docs/data/generated_articles.json ({len(vis_gen)} visible articles)")
 
-    print(f"\n✅ Build complete: {len(arts)} articles, {len(by_cat)} categories")
+    print(f"\n✅ Build complete: {len(visible_slugs)}/{len(arts)} articles visible | AdSense mode ON")
 
 if __name__ == "__main__":
     main()

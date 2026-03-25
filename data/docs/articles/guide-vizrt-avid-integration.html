@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script>
+    window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+    gtag('consent','default',{'analytics_storage':'denied','ad_storage':'denied',
+    'ad_user_data':'denied','ad_personalization':'denied','wait_for_update':500});
+  </script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-0VSHDN3ZR6"></script>
+  <script>gtag('js',new Date());gtag('config','G-0VSHDN3ZR6');</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8033069131874524" crossorigin="anonymous"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Integrate Vizrt Graphics with Avid MediaCentral and iNEWS — The Streamic How-To Guides</title>
+  <meta name="description" content="A technical guide to integrating Vizrt real-time graphics with Avid MediaCentral and iNEWS — configuring the Vizrt Plugin, NCS connection, and template-driven workflow for broadcast newsrooms.">
+  <meta name="robots" content="index,follow">
+  <meta name="author" content="Prerak K Mehta, The Streamic">
+  <link rel="canonical" href="https://www.thestreamic.in/articles/guide-vizrt-avid-integration.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="How to Integrate Vizrt Graphics with Avid MediaCentral and iNEWS — The Streamic">
+  <meta property="og:description" content="A technical guide to integrating Vizrt real-time graphics with Avid MediaCentral and iNEWS — configuring the Vizrt Plugin, NCS connection, and template-driven workflow for broadcast newsrooms.">
+  <meta property="og:url" content="https://www.thestreamic.in/articles/guide-vizrt-avid-integration.html">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"HowTo","name":"How to Integrate Vizrt Graphics with Avid MediaCentral and iNEWS","description":"A technical guide to integrating Vizrt real-time graphics with Avid MediaCentral and iNEWS — configuring the Vizrt Plugin, NCS connection, and template-driven workflow for broadcast newsrooms.",
+   "author":{"@type":"Organization","name":"The Streamic"},"datePublished":"2026-03-22",
+   "publisher":{"@type":"Organization","name":"The Streamic","url":"https://www.thestreamic.in"}}
+  </script>
+</head>
+<body>
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="../featured.html" class="nav-logo">
+      <img src="../assets/logo.png" alt="The Streamic"><span>The Streamic</span>
+    </a>
+    <ul class="nav-links"><li><a href="../featured.html">Featured</a></li><li><a href="../infrastructure.html">Infrastructure</a></li><li><a href="../posts.html">All Articles</a></li><li><a href="../howto.html">How-To</a></li></ul>
+    <div class="nav-right"><a href="../vlog.html" class="nav-desk">Editor&#39;s Desk</a>
+      <button class="nav-toggle" aria-label="Menu" onclick="document.querySelector('.nav-mob').classList.toggle('open')"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+  <div class="nav-mob"><a href="../featured.html">Featured</a><a href="../infrastructure.html">Infrastructure</a><a href="../posts.html">All Articles</a><a href="../howto.html">How-To</a></div>
+</nav>
+<main>
+<div class="guide-wrap">
+  <div class="breadcrumb">
+    <a href="../featured.html">Home</a><span>›</span>
+    <a href="../howto.html">How-To Guides</a><span>›</span>
+    <span style="color:var(--ink)">How to Integrate Vizrt Graphics with Avid MediaCentral and iNEWS</span>
+  </div>
+  <span style="display:inline-flex;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.2px;padding:4px 12px;border-radius:999px;background:var(--blue);color:#fff;margin-bottom:18px">How-To Guide</span>
+  <h1>How to Integrate Vizrt Graphics with Avid MediaCentral and iNEWS</h1>
+  <p style="font-size:18px;color:var(--ink2);font-weight:300;margin-bottom:20px">Connecting Vizrt's real-time graphics engine to Avid's newsroom and production systems enables journalists to control lower-thirds and fullscreens directly from the iNEWS rundown — without touching the graphics workstation. This guide covers the full integration.</p>
+  <p style="font-size:13px;color:var(--ink4);margin-bottom:32px">By The Streamic Editorial Team · <time datetime="2026-03-22">March 2026</time> · 14 min read</p>
+  
+
+<h2>Architecture Overview</h2>
+<p>The Vizrt–Avid integration operates through two connection layers:</p>
+<ul>
+  <li><strong>Vizrt Plugin for MediaCentral:</strong> A MediaCentral panel that allows browsing and previewing Viz template graphics from within MediaCentral Cloud UX</li>
+  <li><strong>Viz Gateway / MOS Gateway:</strong> A MOS (Media Object Server) protocol bridge that connects Viz Engine templates to iNEWS stories, enabling story-driven graphics playout from the rundown</li>
+</ul>
+<p>Both connections are required for a full broadcast newsroom integration. The plugin alone provides browsing; the MOS Gateway adds the critical story-driven automation.</p>
+
+<h2>Prerequisites</h2>
+<ul>
+  <li>Viz Engine 4.x or later (with Viz Pilot or Viz Trio for template control)</li>
+  <li>Avid MediaCentral Platform Services 2023.x or later</li>
+  <li>iNEWS 9.x or later with MOS capability enabled</li>
+  <li>Network connectivity: MCPS server must reach Viz Engine on <strong>TCP 6100</strong> (Viz Engine default port) and <strong>TCP 10540</strong> (MOS port)</li>
+</ul>
+
+<h2>Step 1: Install the Vizrt Plugin for MediaCentral</h2>
+<ol>
+  <li>Download the Vizrt Plugin installer from the Vizrt Customer Portal (requires Vizrt support contract)</li>
+  <li>Run the installer on the <strong>MediaCentral Platform Services server</strong> — not a client workstation</li>
+  <li>After installation, navigate to MCPS Admin &rarr; <strong>Plug-ins &rarr; Installed Plug-ins</strong></li>
+  <li>Verify <strong>Vizrt Graphics Plugin</strong> appears with status <strong>Active</strong></li>
+  <li>Restart MCPS Core service: <code>sudo systemctl restart avid-mcs</code></li>
+</ol>
+
+<h2>Step 2: Configure the Viz Engine Connection in MCPS</h2>
+<ol>
+  <li>In MCPS Admin, go to <strong>Connections &rarr; Add Connection &rarr; Vizrt</strong></li>
+  <li>Enter the <strong>Viz Engine hostname or IP</strong></li>
+  <li>Set <strong>Port: 6100</strong> (Viz Engine REST API port)</li>
+  <li>Set <strong>Protocol: HTTP</strong> (or HTTPS if your Viz Engine has TLS configured)</li>
+  <li>Click <strong>Test Connection</strong> — you should see a list of Viz template folders returned</li>
+  <li>Assign the connection to your <strong>MediaCentral user group</strong> — only users in enabled groups will see the Vizrt panel</li>
+</ol>
+
+<h3>Viz Engine Port Reference</h3>
+<ul>
+  <li><strong>TCP 6100:</strong> Viz Engine REST API (template browsing, preview)</li>
+  <li><strong>TCP 6800:</strong> Viz Engine control interface (for Viz Pilot)</li>
+  <li><strong>TCP 10540:</strong> MOS gateway port (iNEWS MOS object handling)</li>
+  <li><strong>UDP 50002:</strong> Viz Engine render output (video)</li>
+</ul>
+
+<h2>Step 3: Configure the MOS Gateway (iNEWS Integration)</h2>
+<p>The MOS Gateway enables iNEWS journalists to embed Viz graphic items directly inside story slugs. When a story goes to air, the graphics fire automatically via the MOS protocol.</p>
+<ol>
+  <li>On the Viz Pilot server, open <strong>Viz Pilot Edge</strong> &rarr; <strong>MOS Settings</strong></li>
+  <li>Set <strong>NCS Host</strong> to your iNEWS server IP or hostname</li>
+  <li>Set <strong>MOS ID</strong> — this must match exactly the MOS ID configured in iNEWS. Typically formatted as: <code>VIZRT.NEWSROOM01</code></li>
+  <li>Set <strong>Port: 10540</strong> (iNEWS default MOS port)</li>
+  <li>Click <strong>Connect</strong> — the iNEWS MOS Active indicator should turn green</li>
+</ol>
+
+<h2>Step 4: Configure iNEWS for MOS</h2>
+<ol>
+  <li>In iNEWS System Configuration, open <strong>MOS Configuration</strong></li>
+  <li>Add a new MOS device with the MOS ID matching your Viz Pilot Edge setting</li>
+  <li>Set <strong>Active MOS Connection: Enabled</strong></li>
+  <li>Assign the MOS device to your production database</li>
+  <li>Verify: open a rundown in the iNEWS client and confirm the Vizrt MOS plugin appears in the story editor toolbar</li>
+</ol>
+
+<h2>Step 5: Test the End-to-End Workflow</h2>
+<ol>
+  <li>In iNEWS, create a test story. Click the Vizrt graphic icon in the toolbar.</li>
+  <li>Browse and select a lower-third template. Fill in the name and title fields.</li>
+  <li>Save the story. The MOS item should appear as a graphic cue in the rundown.</li>
+  <li>In MediaCentral, open the same story — verify the Vizrt graphic preview renders in the MediaCentral Vizrt panel.</li>
+  <li>On the Viz Engine, trigger the cue manually via Viz Trio. Confirm the graphic appears on the Viz output.</li>
+</ol>
+
+<h2>Troubleshooting Common Integration Issues</h2>
+
+<h3>MOS items not appearing in iNEWS</h3>
+<p>Check that the MOS ID in Viz Pilot Edge exactly matches the MOS ID in iNEWS configuration — including capitalisation and punctuation. A single character difference causes silent MOS connection failure.</p>
+
+<h3>Template thumbnails not showing in MediaCentral</h3>
+<p>The MCPS-to-Viz Engine TCP 6100 connection may be blocked by a firewall. Confirm with: <code>telnet [viz-engine-ip] 6100</code> from the MCPS server. If it times out, raise a firewall rule with your network team.</p>
+
+<h3>Graphics fire at wrong timecode</h3>
+<p>iNEWS sends MOS active commands on story transition, not on item timecode. If your facility requires timecode-accurate graphic firing, use <strong>Viz Pilot</strong> with a rundown control surface rather than iNEWS MOS alone.</p>
+
+<h2>Recommended Integration Testing Checklist</h2>
+<ul>
+  <li>Viz Engine TCP 6100 accessible from MCPS server ✓</li>
+  <li>Viz Pilot MOS Gateway connected to iNEWS (green indicator) ✓</li>
+  <li>Template thumbnails browse correctly in MediaCentral Vizrt panel ✓</li>
+  <li>MOS graphic item creates correctly in iNEWS story ✓</li>
+  <li>Test graphic fires on Viz Engine output on rundown transition ✓</li>
+  <li>Failover tested: Viz Engine secondary (if configured) activates on primary failure ✓</li>
+</ul>
+  
+  <div style="margin-top:40px;padding-top:24px;border-top:1px solid var(--line)">
+    <p style="font-size:13px;color:var(--ink4)">← <a href="../howto.html" style="color:var(--blue)">Back to all How-To Guides</a></p>
+  </div>
+</div>
+</main>
+<footer class="footer">
+  <div class="footer-grid">
+    <div><div class="footer-brand">The Streamic</div>
+    <p class="footer-tag">Independent broadcast &amp; streaming technology journalism.</p></div>
+    <div class="footer-col"><h4>Guides</h4>
+      <a href="guide-premiere-to-avid.html">Premiere to Avid</a>
+      <a href="guide-vantage-nas-transcode.html">Vantage NAS Transcode</a>
+      <a href="guide-avid-strawberry.html">Avid + Strawberry</a>
+      <a href="guide-audio-conform-avid-protools.html">Avid to Pro Tools</a>
+      <a href="guide-media-central-cache.html">Media Central Cache</a>
+    </div>
+    <div class="footer-col"><h4>Site</h4>
+      <a href="../about.html">About</a>
+      <a href="../contact.html">Contact</a>
+      <a href="../privacy.html">Privacy</a>
+      <a href="../terms.html">Terms</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>&copy; 2026 The Streamic. All rights reserved.</span>
+  </div>
+</footer>
+</body>
+</html>
