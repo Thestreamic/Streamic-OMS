@@ -120,7 +120,7 @@ def _ad():
 def _fonts():
     return '<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">'
 
-def head(title, desc, canon, css="style.css", og_img=""):
+def head(title, desc, canon, css="style.css", og_img="", robots="index,follow"):
     og = f'  <meta property="og:image" content="{e(og_img)}">\n' if og_img else ""
     return f"""<!DOCTYPE html>
 <html lang="en">
@@ -130,7 +130,7 @@ def head(title, desc, canon, css="style.css", og_img=""):
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>{e(title)}</title>
   <meta name="description" content="{e(desc)}">
-  <meta name="robots" content="index,follow">
+  <meta name="robots" content="{robots}">
   <meta name="author" content="{AUTHOR}">
   <link rel="canonical" href="{e(canon)}">
   <meta property="og:type" content="article">
@@ -207,6 +207,7 @@ def footer(base=""):
       <h4>Site</h4>
       <a href="{base}about.html">About</a>
       <a href="{base}contact.html">Contact</a>
+      <a href="{base}editorial-policy.html">Editorial Policy</a>
       <a href="{base}vlog.html">Editor's Desk</a>
       <a href="{base}howto.html">How-To Guides</a>
       <a href="{base}privacy.html">Privacy Policy</a>
@@ -714,6 +715,28 @@ def featured_page(arts):
   </p>
 </div>"""
 
+    why_exists_html = """<section style="background:#f5f5f7;border-radius:16px;padding:44px 48px;margin:0 0 52px">
+  <h2 style="font-family:var(--serif);font-size:clamp(22px,2.5vw,30px);letter-spacing:-.03em;color:var(--ink);margin:0 0 18px">Why Streamic Exists</h2>
+  <p style="font-size:15px;line-height:1.75;color:var(--ink2);margin-bottom:16px">Streamic exists to help broadcasters, media teams, and streaming professionals make sense of a rapidly evolving technology landscape. The industry is being reshaped by cloud workflows, AI-driven automation, and changing audience expectations &#8212; but much of the available information is either too generic, overly technical, or fragmented across sources.</p>
+  <p style="font-size:15px;line-height:1.75;color:var(--ink2);margin-bottom:24px">Streamic bridges that gap by delivering clear, practical, and relevant insights focused specifically on real-world broadcast and streaming operations.</p>
+  <p style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--ink4);margin-bottom:14px">We focus on three core areas</p>
+  <ul style="list-style:none;padding:0;margin:0 0 24px;display:flex;flex-direction:column;gap:12px">
+    <li style="display:flex;align-items:flex-start;gap:12px">
+      <span style="flex-shrink:0;width:28px;height:28px;background:var(--blue);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700;margin-top:1px">1</span>
+      <div><strong style="font-size:14px;color:var(--ink)">Practical AI in Broadcasting</strong> <span style="font-size:14px;color:var(--ink3)">&#8212; how AI is actually used in production, playout, quality control, and content workflows</span></div>
+    </li>
+    <li style="display:flex;align-items:flex-start;gap:12px">
+      <span style="flex-shrink:0;width:28px;height:28px;background:var(--blue);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700;margin-top:1px">2</span>
+      <div><strong style="font-size:14px;color:var(--ink)">Cost Optimisation Without Compromise</strong> <span style="font-size:14px;color:var(--ink3)">&#8212; strategies to improve efficiency and reduce operational costs without replacing critical human expertise</span></div>
+    </li>
+    <li style="display:flex;align-items:flex-start;gap:12px">
+      <span style="flex-shrink:0;width:28px;height:28px;background:var(--blue);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700;margin-top:1px">3</span>
+      <div><strong style="font-size:14px;color:var(--ink)">Actionable Guides &amp; Troubleshooting</strong> <span style="font-size:14px;color:var(--ink3)">&#8212; step-by-step how-tos, setup guides, and real solutions for tools and systems used in daily broadcast environments</span></div>
+    </li>
+  </ul>
+  <p style="font-size:14px;line-height:1.7;color:var(--ink3);margin-bottom:0;border-top:1px solid var(--line);padding-top:18px">Our goal is not just to report what&#39;s happening, but to explain why it matters and how it can be applied. Streamic is built for professionals who need clarity, not noise &#8212; and insights they can actually use.</p>
+</section>"""
+
     # intel_feed uses diversified arts — must be defined after rss_pool above
     intel_feed = intelligence_feed_section(arts)
 
@@ -734,6 +757,9 @@ def featured_page(arts):
     </section>'''}
     {intel_feed}
     {_ad()}
+    <div class="w">
+      {why_exists_html}
+    </div>
     <section class="latest">
       <div class="latest-hdr">
         <h2 class="latest-h2">Latest Industry Updates</h2>
@@ -790,9 +816,10 @@ def category_page(cat, arts):
         cinfo_icon = cinfo.get('icon','')
         cinfo_label = cinfo.get('label','')
         pg_canon = canon if pg==0 else f"{BASE_URL}/{cat}-p{pg+1}.html"
+        pg_robots = "index,follow" if pg==0 else "noindex,follow"
 
         latest_section = f'<section class="latest">{grid_html}</section>' if grid_html else ""
-        html = f"""{head(pg_title, desc, pg_canon, og_img=(first[0].get('image_url','') if first else ''))}
+        html = f"""{head(pg_title, desc, pg_canon, og_img=(first[0].get('image_url','') if first else ''), robots=pg_robots)}
 <body data-category="{cat}">
 {nav(cpg)}
 {catbar(cat)}
@@ -988,10 +1015,25 @@ def article_page(a):
 </div>"""
 
     about_txt = "Original analysis and commentary by The Streamic Editorial Team. Independent broadcast technology journalism for engineers and media professionals." if is_ed else "Editorial commentary and analysis by The Streamic Editorial Team. For the original source, see the attribution above."
-    author_box = f"""<div class="art-author">
+    # Use professional bio block if body_html already contains one from AI generation;
+    # otherwise render the default author box for editorial articles and the bio for RSS-sourced ones.
+    has_bio = "art-author-bio" in body_raw
+    if has_bio:
+        author_box = ""   # bio already embedded in body_html by the AI prompt
+    elif is_ed:
+        author_box = f"""<div class="art-author">
   <strong>About this article</strong>
   {about_txt}
   <a href="/about.html" style="color:var(--blue);margin-left:6px;">About The Streamic &rarr;</a>
+</div>"""
+    else:
+        author_box = f"""<div class="art-author-bio">
+  <div class="bio-avatar">PK</div>
+  <div class="bio-body">
+    <strong class="bio-name">Prerak K Mehta</strong>
+    <span class="bio-title">Broadcast Systems &amp; Post-Production Engineer &middot; Editor-in-Chief, The Streamic</span>
+    <p class="bio-text">Prerak has 25+ years of experience designing and operating broadcast and media technology infrastructure across enterprise environments &mdash; including IP signal transport (ST&nbsp;2110, NDI, SRT), cloud-native production workflows, MAM/PAM systems, and OTT origin and delivery stacks. He founded The Streamic to provide broadcast engineers with analysis that goes beyond vendor press releases. Based in Dublin, Ireland.</p>
+  </div>
 </div>"""
 
     # Pre-compute variables for f-string compatibility (Python < 3.12)
@@ -1210,6 +1252,47 @@ def terms_page():
 {_cookie_banner()}
 </body></html>"""
 
+def editorial_policy_page():
+    yr = datetime.now().year
+    return f"""{head("Editorial Policy — The Streamic","How The Streamic produces, reviews, and attributes broadcast technology content.",f"{BASE_URL}/editorial-policy.html")}
+<body>
+{nav()}
+<main><div class="w" style="padding:52px 0 80px;max-width:780px">
+<h1 style="font-family:var(--serif);font-size:clamp(26px,4vw,42px);margin-bottom:16px;letter-spacing:-.5px">Editorial Policy</h1>
+<p style="font-size:13px;color:var(--ink4);margin-bottom:32px">Last updated: {yr}</p>
+
+<h2 style="font-family:var(--serif);font-size:22px;margin:0 0 12px">Our Editorial Mission</h2>
+<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:20px">The Streamic is an independent broadcast and streaming technology publication. Our mission is to provide clear, practical analysis for broadcast engineers, media operations teams, and streaming professionals — not press release rewrites, and not generic AI summaries.</p>
+
+<h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">How We Use AI Tools</h2>
+<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">Some articles on The Streamic are produced with the assistance of AI language models (Google Gemini and Groq/Llama). These tools are used to:</p>
+<ul style="font-size:15px;color:var(--ink3);line-height:1.9;padding-left:22px;margin-bottom:20px">
+  <li>Draft initial analysis from RSS-sourced industry news</li>
+  <li>Identify domain-specific technical signals and implications</li>
+  <li>Structure content into our editorial framework (domain extraction, technology intelligence, engineering takeaways)</li>
+</ul>
+<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:20px">AI-generated drafts are reviewed against our quality standards. Articles that pass a minimum word count, structural depth, and domain terminology threshold are published. Those that do not are regenerated or withheld.</p>
+
+<h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">Human Review Process</h2>
+<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:20px">All published editorial content is reviewed by Prerak K Mehta, Founder and Editor-in-Chief, or a designated editorial team member. Review covers factual accuracy relative to the source material, domain relevance, and tone. Articles found to contain generic or misleading content are not published.</p>
+
+<h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">Source Attribution</h2>
+<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:20px">Industry news items curated from RSS feeds always credit and link to their original source. We do not reproduce original articles verbatim. All external links to source material carry <code>rel="nofollow noopener"</code>. RSS-sourced items are clearly distinguished from original editorial content.</p>
+
+<h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">Corrections Policy</h2>
+<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:20px">We correct factual errors promptly. If you identify an error, please contact us at <a href="mailto:technodate3@gmail.com" style="color:var(--blue)">technodate3@gmail.com</a> with the article URL and the specific correction. Significant corrections are noted inline on the article.</p>
+
+<h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">Independence &amp; Advertising</h2>
+<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:20px">The Streamic is independently owned. Advertising (served via Google AdSense) does not influence editorial decisions. We do not accept sponsored articles or paid coverage. Vendor mentions reflect genuine editorial relevance, not commercial arrangements.</p>
+
+<h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">Contact the Editor</h2>
+<p style="font-size:15px;color:var(--ink3);line-height:1.75">Editorial enquiries, corrections, and feedback: <a href="mailto:technodate3@gmail.com" style="color:var(--blue)">technodate3@gmail.com</a> &nbsp;|&nbsp; <a href="contact.html" style="color:var(--blue)">Use our contact form &rarr;</a></p>
+
+</div></main>
+{footer()}
+{_cookie_banner()}
+</body></html>"""
+
 def howto_page():
     guides = [
         {
@@ -1412,6 +1495,7 @@ def main():
     w(os.path.join(DOCS,"contact.html"), contact_page())
     w(os.path.join(DOCS,"privacy.html"), privacy_page())
     w(os.path.join(DOCS,"terms.html"),   terms_page())
+    w(os.path.join(DOCS,"editorial-policy.html"), editorial_policy_page())
     w(os.path.join(DOCS,"howto.html"),   howto_page())
     w(os.path.join(DOCS,"how-to.html"),  howto_page())
     w(os.path.join(DOCS,"vlog.html"),    vlog_page())

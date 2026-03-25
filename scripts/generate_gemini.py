@@ -21,7 +21,7 @@ Output per article (data/summaries/<slug>.json):
     "card_summary": "...",
     "body_html": "<h2>...</h2><h3>...</h3><ul>...</ul>",
     "word_count": 620,
-    "generated_by": "gemini-2.0-flash"
+    "generated_by": "gemini-2.5-flash-lite"
   }
 
 Idempotent — skips slugs that already have a summary file.
@@ -46,14 +46,46 @@ os.makedirs(SUMMARIES_DIR, exist_ok=True)
 
 # ── Config ────────────────────────────────────────────────────────────────────
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
-GEMINI_MODEL   = "gemini-2.0-flash"      # Current free-tier model (replaces deprecated 1.5)
-GEMINI_URL     = (
+
+# ── DUAL MODEL STRATEGY ───────────────────────────────────────────────────────
+# Flash-Lite: 15 RPM / 1,000 RPD — use for ALL regular summaries (220 articles)
+# Pro:        10 RPM / 100 RPD   — reserve ONLY for top "featured" pillar posts
+#
+# Limits reset at Midnight Pacific Time (PT).
+# If running from India (IST = PT + 13.5h), your PT midnight = 13:30 IST next day.
+# Plan runs accordingly: morning IST run hits yesterday's quota; afternoon is fresh.
+#
+# NOTE: "gemini-3.1-flash-lite" doesn't exist as of 2026.
+# Correct model strings used below. Update if Google releases newer versions.
+
+GEMINI_FLASH_LITE_MODEL = "gemini-2.5-flash-lite"   # 15 RPM / 1,000 RPD — bulk summaries
+GEMINI_PRO_MODEL        = "gemini-2.5-pro"           # 10 RPM / 100 RPD  — featured pillar posts
+
+GEMINI_FLASH_LITE_URL = (
     f"https://generativelanguage.googleapis.com/v1beta/models/"
-    f"{GEMINI_MODEL}:generateContent?key={GEMINI_API_KEY}"
+    f"{GEMINI_FLASH_LITE_MODEL}:generateContent?key={GEMINI_API_KEY}"
+)
+GEMINI_PRO_URL = (
+    f"https://generativelanguage.googleapis.com/v1beta/models/"
+    f"{GEMINI_PRO_MODEL}:generateContent?key={GEMINI_API_KEY}"
 )
 
-MAX_PER_RUN  = 220    # Process all 225 articles in one run: 220 × 2 calls × 5s = 37min
-SLEEP_SECS   = 5.0    # 5s = 12 RPM — safely under 15 RPM free-tier limit
+# Keep GEMINI_MODEL/GEMINI_URL aliases so nothing else in the file breaks
+GEMINI_MODEL = GEMINI_FLASH_LITE_MODEL
+GEMINI_URL   = GEMINI_FLASH_LITE_URL
+
+# Categories that get Pro model treatment (deep pillar analysis)
+# All other categories use Flash-Lite
+PRO_CATEGORIES = {"featured", "featured_priority", "infrastructure"}
+PRO_BUDGET_PER_RUN = 10    # never spend more than this many Pro calls in one run
+
+MAX_PER_RUN  = 220    # Total queue size ceiling
+SLEEP_SECS   = 5.0    # 5s = 12 RPM — safely under Flash-Lite 15 RPM limit
+SLEEP_PRO    = 8.0    # 8s between Pro calls — stays under 10 RPM
+
+# ── Batch + fallback config (easy to tune) ────────────────────────────────────
+MAX_ITEMS_PER_RUN  = 40     # Hard cap per run — raise to process more per cycle
+USE_GROQ_FALLBACK  = False  # Set True to fall back to Groq when Gemini quota exhausted
 
 # Load balancing threshold: articles with quality_score >= this are skipped by Gemini
 # (Groq already produced high-quality output — no need to spend Gemini quota)
@@ -234,8 +266,9 @@ def needs_gemini_processing(slug: str) -> tuple:
     except Exception:
         return True, "corrupt_summary"
 
-    # Already processed by Gemini — don't re-process
-    if s.get("generated_by") == "gemini-2.0-flash" and s.get("quality_score", 0) >= GEMINI_QUALITY_THRESHOLD:
+    # Already processed by Gemini at good quality — don't re-process
+    if (s.get("generated_by") in ("gemini-2.5-flash-lite", "gemini-2.5-pro")
+            and s.get("quality_score", 0) >= GEMINI_QUALITY_THRESHOLD):
         return False, "already_good_gemini"
 
     # Groq flagged it
@@ -272,8 +305,9 @@ def summary_path(slug: str) -> str:
 def summary_exists(slug: str) -> bool:
     return os.path.exists(summary_path(slug))
 
-def save_summary(slug: str, card_summary: str, body_html: str, qs: int = None):
-    """Save Gemini-generated summary. Always marks generated_by and quality_score."""
+def save_summary(slug: str, card_summary: str, body_html: str, qs: int = None,
+                 model: str = "gemini-2.5-flash-lite"):
+    """Save Gemini-generated summary. Records which model produced it."""
     wc   = len(re.sub(r"<[^>]+>", " ", body_html).split())
     if qs is None:
         qs = compute_quality_score(body_html, card_summary)
@@ -283,8 +317,8 @@ def save_summary(slug: str, card_summary: str, body_html: str, qs: int = None):
         "body_html":     body_html,
         "word_count":    wc,
         "quality_score": qs,
-        "needs_gemini":  False,   # Gemini has now processed it
-        "generated_by":  "gemini-2.0-flash",
+        "needs_gemini":  False,
+        "generated_by":  model,
         "generated_at":  datetime.now(timezone.utc).isoformat(),
     }
     with open(summary_path(slug), "w", encoding="utf-8") as f:
@@ -303,8 +337,13 @@ def _parse_wait(msg: str) -> float:
     return 32.0  # short default — resets within 60s
 
 
-def gemini_call(prompt: str, max_retries: int = 2) -> str:
-    """Call Gemini API. Bails immediately on daily quota exhaustion."""
+def gemini_call(prompt: str, max_retries: int = 2, use_pro: bool = False) -> str:
+    """Call Gemini API. Routes to Pro model for featured pillar posts, Flash-Lite for everything else.
+    Bails immediately on daily quota exhaustion.
+    """
+    url          = GEMINI_PRO_URL if use_pro else GEMINI_FLASH_LITE_URL
+    model_label  = "Pro" if use_pro else "Flash-Lite"
+    max_tokens   = 1800 if use_pro else 1200   # Pro can go deeper
     payload = json.dumps({
         "system_instruction": {
             "parts": [{"text": (
@@ -327,7 +366,7 @@ def gemini_call(prompt: str, max_retries: int = 2) -> str:
         "contents": [{"role": "user", "parts": [{"text": prompt}]}],
         "generationConfig": {
             "temperature":     0.3,
-            "maxOutputTokens": 1200,
+            "maxOutputTokens": max_tokens,
         }
     }).encode()
 
@@ -337,12 +376,12 @@ def gemini_call(prompt: str, max_retries: int = 2) -> str:
         try:
             try:
                 import requests as _req
-                resp = _req.post(GEMINI_URL, data=payload, headers=headers, timeout=30)
+                resp = _req.post(url, data=payload, headers=headers, timeout=30)
                 status = resp.status_code
                 body   = resp.text
             except Exception:
                 import urllib.request
-                req = urllib.request.Request(GEMINI_URL, data=payload, headers=headers, method="POST")
+                req = urllib.request.Request(url, data=payload, headers=headers, method="POST")
                 with urllib.request.urlopen(req, timeout=30) as r:
                     status = r.status
                     body   = r.read().decode()
@@ -358,15 +397,15 @@ def gemini_call(prompt: str, max_retries: int = 2) -> str:
                     "daily", "per day", "resource_exhausted",
                     "quota exceeded", "limit exceeded", "free tier"
                 ]):
-                    raise RuntimeError(f"DAILY_QUOTA_EXHAUSTED: {body[:120]}")
+                    raise RuntimeError(f"DAILY_QUOTA_EXHAUSTED_{model_label}: {body[:120]}")
                 # Per-minute limit — wait and retry once
                 wait = _parse_wait(body)
                 wait = min(wait, 35)  # never wait more than 35s
-                print(f"      ⏱ Gemini rate limit. Waiting {wait:.0f}s (attempt {attempt+1}/{max_retries})...")
+                print(f"      ⏱ Gemini {model_label} rate limit. Waiting {wait:.0f}s (attempt {attempt+1}/{max_retries})...")
                 time.sleep(wait)
                 continue
 
-            raise RuntimeError(f"Gemini HTTP {status}: {body[:200]}")
+            raise RuntimeError(f"Gemini {model_label} HTTP {status}: {body[:200]}")
 
         except RuntimeError as ex:
             if "DAILY_QUOTA_EXHAUSTED" in str(ex):
@@ -374,26 +413,25 @@ def gemini_call(prompt: str, max_retries: int = 2) -> str:
             if attempt < max_retries - 1:
                 time.sleep(3)
                 continue
-            raise RuntimeError(f"Gemini: max retries ({max_retries}) exceeded")
+            raise RuntimeError(f"Gemini {model_label}: max retries ({max_retries}) exceeded")
         except Exception as ex:
             if attempt < max_retries - 1:
                 time.sleep(3)
                 continue
-            raise RuntimeError(f"Gemini error: {ex}")
+            raise RuntimeError(f"Gemini {model_label} error: {ex}")
 
     raise RuntimeError(f"Gemini: max retries ({max_retries}) exceeded")
 
 
 
 def build_article_prompt(title: str, teaser: str, source: str, category: str) -> str:
-    """Humanized expert analyst article prompt — opinionated, human voice, Editorial Perspective section."""
+    """Pillar-post E-E-A-T prompt — vendor specifics, table, diagram placeholder, author bio."""
     domain = classify_domain(title, teaser)
     ctx    = _DOMAIN_CONTEXT[domain]
 
-    return f"""You are writing as a named senior analyst at The Streamic with 15+ years in broadcast engineering, OTT infrastructure, and media systems. Your audience: broadcast CTOs, streaming architects, media engineers who make real purchasing and architecture decisions.
+    return f"""You are a Senior Technical Editor and Broadcast Systems Engineer at The Streamic with 15+ years of hands-on experience deploying enterprise media infrastructure — broadcast playout, IP signal transport, OTT origin stacks, MAM systems, and post-production pipelines. You write for broadcast CTOs, infrastructure engineers, and media operations leads who make real purchasing decisions.
 
-CRITICAL SHIFT: You are NOT generating analysis from an article.
-You are: interpreting an industry signal → forming an expert viewpoint → explaining what engineers should DO with this information.
+YOUR ROLE: Do NOT summarize the source. Rewrite it as a Pillar Post — a definitive, authoritative reference article that demonstrates Experience, Expertise, Authoritativeness, and Trustworthiness (E-E-A-T) for Google Search.
 
 DOMAIN: {ctx['label']}
 FOCUS: {ctx['focus']}
@@ -405,72 +443,74 @@ CATEGORY: {category}
 TITLE: {title}
 CONTENT: {teaser}
 
-Write a decisive, technically opinionated analysis using this HTML structure. Prioritise insight over structure — if a section needs more depth, give it more depth. Write like a human expert, not a system.
+OUTPUT FORMAT — PILLAR POST STRUCTURE. Use this exact HTML. Do not deviate from section order.
 
-<h2>[Write a sharp, insight-driven headline that signals your expert take — not a restatement of the title. Make it specific enough that an engineer knows immediately what they're about to learn.]</h2>
+<h2>[Write a decisive, expert headline that signals your take — not the source title. Example format: "Why [Technology] Is Forcing Broadcasters to Rethink [Architecture]"]</h2>
 
-<p>[Opening: 2–3 sentences. Don't start with the company name or "This article". Drop the reader into the context immediately — what does this development mean for broadcast infrastructure right now? Vary sentence length.]</p>
+<p>[Opening paragraph: 2–3 sentences. Drop straight into the operational context. What pressure, shift, or inflection point does this development represent? Do not open with the company name. Vary sentence length.]</p>
 
-<h3>Domain Signal Extraction</h3>
+<h2>What This Development Actually Means</h2>
+<p>[2–3 sentences: State what happened. Company, product, announcement, or capability. Be specific — name the product, standard, or architecture involved. Rewrite completely from the source. No sentence similarity with the original.]</p>
+<p>[1–2 sentences: Explain the industry context this sits within. Why now? What pressure or trend is this responding to?]</p>
+
+<h2>Why It Matters for Broadcast Operations</h2>
+<p>[3–4 sentences of original expert analysis. NOT a rewrite of the source. What does this mean for a broadcast engineer's infrastructure decisions over the next 12–18 months? Reference real operational implications — CapEx/OpEx trade-offs, integration complexity, workflow disruption, or competitive dynamics. Mention 2–3 specific, real-world vendors relevant to this development — e.g. if discussing IP gateways: Matrox ConvertIP, Riedel MediorNet; if discussing newsroom: Avid iNEWS, Vizrt Trio; if discussing playout: Pebble Beach Systems, Evertz Mediator-X; if discussing encoding: Harmonic VOS360, Telestream Vantage. Name them naturally, not as a list.]</p>
+
+<h3>Impact by Stakeholder</h3>
 <ul>
-<li><strong>Broadcast technologies:</strong> [Specific protocols, codecs, or standards this touches — HLS, MPEG-DASH, AV1, HEVC, ST 2110, JPEG XS, NDI, SRT. Identify adjacent technologies affected even if not mentioned in source.]</li>
-<li><strong>Architecture layer:</strong> [Which stage of the media chain — CDN edge, encoding pipeline, SSAI insertion, MAM ingest, playout automation, signal transport. Be specific about where in the workflow this lands.]</li>
-<li><strong>Cybersecurity surface:</strong> [DRM, Zero Trust, watermarking, ransomware exposure, compliance obligation — or "No direct security vector" if genuinely absent.]</li>
-<li><strong>Business signal:</strong> [The underlying commercial pressure, competitive dynamic, or cost driver — what is the industry actually responding to here?]</li>
+<li><strong>Regional and national broadcasters:</strong> [CapEx/OpEx impact specific to this type of operator. Reference: {ctx['roi']}. Be concrete — not "may benefit from" but "will need to budget for" or "can eliminate".]</li>
+<li><strong>OTT and streaming platforms:</strong> [What changes operationally for a platform running HLS/DASH delivery at scale? ABR ladder, CDN cost per GB, SSAI complexity, or latency budget — pick what's relevant and be specific.]</li>
+<li><strong>Post-production and MAM teams:</strong> [Workflow implications for ingest, QC, archive, or content operations. If not applicable, replace with a different affected persona — sports rights holders, news operations, etc.]</li>
 </ul>
 
-<h3>Technology Intelligence</h3>
-<p>[4–5 sentences of your expert interpretation. Not what the press release says — what does this mean for broadcast infrastructure decisions over the next 12–18 months? Reference specific standards, architectural trade-offs, or protocol implications. Take a clear stance where you have one. Vary sentence structure — mix short declarative sentences with longer analytical ones.]</p>
+<h2>Deep Insight: The Broader Industry Shift</h2>
+<p>[4–5 sentences. Expert commentary that cannot be reconstructed from the source. Identify the trend this is part of. Name specific competing approaches, predecessor technologies, or alternative architectures. What is the industry moving away from, and toward? Include a prediction: "By [year], we expect…" or "The vendors who will struggle here are…" or "The real risk is not X — it's Y." Take a clear stance.]</p>
 
-<h3>Why This Matters</h3>
+[Insert Diagram: [Write a specific, useful description of a technical diagram that would help a broadcast engineer understand the architecture or workflow described in this article. Example: "A signal flow diagram showing IP media ingest from a Matrox ConvertIP gateway through an ST 2110 fabric to a cloud MAM and playout system, with NMOS IS-04 discovery layer annotated."]]
+
+<h2>Comparison: Key Approaches at a Glance</h2>
+<p>[1 sentence introducing the comparison table.]</p>
+[GENERATE A MARKDOWN TABLE comparing 2–4 approaches, architectures, protocols, or vendor options relevant to this article. Use these columns where appropriate: | Approach | Best For | Key Trade-off | Typical Vendors | Standards Compliance |. The table must contain real, accurate data — not placeholders.]
+
+<h2>Practical Takeaways for Engineering Teams</h2>
 <ul>
-<li><strong>Broadcasters:</strong> [CapEx/OpEx impact, infrastructure complexity, or scalability pressure — be specific about which type of broadcaster feels this most acutely. Reference: {ctx['roi']}.]</li>
-<li><strong>Streaming platforms:</strong> [OTT operator impact — ABR ladder decisions, origin infrastructure, SSAI complexity, latency budget, or CDN cost per GB. Name what actually changes operationally.]</li>
-<li><strong>Cybersecurity risk:</strong> [The specific threat vector or compliance implication in broadcast environments. If low risk, say so directly and explain why.]</li>
-<li><strong>Market impact:</strong> [Who wins, who loses, what consolidates. Name vendors, standards bodies, or buyer personas where appropriate.]</li>
+<li><strong>What to assess first:</strong> [The most important thing an engineering team should evaluate before deploying or integrating this technology. Specific — a particular spec, a certification requirement, or a vendor interop question.]</li>
+<li><strong>Standards and compliance to check:</strong> [Named standard with version — e.g. SMPTE ST 2110-20, NMOS IS-04/IS-05, HLS CMAF, DASH-IF IOP 4.3, EBU R 148. No vague references.]</li>
+<li><strong>Integration risk to flag:</strong> [The one integration dependency or compatibility issue that will surprise teams who haven't deployed this before.]</li>
+<li><strong>What to watch in the next 12 months:</strong> [A specific working group decision, regulatory deadline, vendor product release, or standards update. Name the body or vendor specifically.]</li>
 </ul>
 
-<h3>Key Technologies in Context</h3>
-<ul>
-<li><strong>[Technology 1]:</strong> [Why it matters specifically here — not a definition. One sentence.]</li>
-<li><strong>[Technology 2]:</strong> [Why it matters specifically here.]</li>
-<li><strong>[Technology 3]:</strong> [Why it matters specifically here.]</li>
-</ul>
+<h2>Source Attribution</h2>
+<p>This analysis is based on reporting from <strong>{source}</strong>. The editorial commentary, technical assessment, and industry context above represent original analysis by The Streamic and should not be attributed to the source publication.</p>
 
-<h3>Hidden Implications</h3>
-<ul>
-<li>[The integration dependency, standards conflict, vendor lock-in consequence, or regulatory complication an experienced engineer would spot immediately — not in the original article.]</li>
-<li>[The competitive or adoption-curve dynamic this accelerates or disrupts. Be specific about timelines or market positions where you can form a view.]</li>
-</ul>
-
-<h3>Editorial Perspective</h3>
-<p>[This is where your 15+ years shows. Take a clear stance. Use at least one of these phrases naturally — not as a template — where it fits: "In practice, this means…" / "For engineering teams, the real challenge is…" / "The trade-off here is…" / "What gets missed in coverage like this is…". State a prediction or opinion that goes beyond the source material. If this development is overhyped, say so. If most engineers aren't ready for it, say that. 3–5 sentences.]</p>
-
-<h3>Engineering Takeaways</h3>
-<ul>
-<li><strong>Deployment requirement:</strong> [Specific hardware spec, bandwidth budget, software dependency, or certification — something an engineer can act on.]</li>
-<li><strong>Standards compliance:</strong> [Named standard with version — SMPTE ST 2110-20, NMOS IS-04/IS-05, HLS CMAF, DASH-IF IOP 4.3. No vague references.]</li>
-<li><strong>What to track:</strong> [One concrete forward-looking item — a specific working group, IETF draft, vendor roadmap announcement, or regulatory deadline.]</li>
-</ul>
-
-<p>[Closing — 2 sentences. A direct recommendation or prediction. Not "engineering teams should evaluate" — tell them what to do or what to expect.]</p>
+<div class="art-author-bio">
+  <div class="bio-avatar">PK</div>
+  <div class="bio-body">
+    <strong class="bio-name">Prerak K Mehta</strong>
+    <span class="bio-title">Broadcast Systems &amp; Post-Production Engineer · Editor-in-Chief, The Streamic</span>
+    <p class="bio-text">Prerak has 25+ years of experience designing and operating broadcast and media technology infrastructure across enterprise environments — including IP signal transport (ST 2110, NDI, SRT), cloud-native production workflows, MAM/PAM systems, and OTT origin and delivery stacks. He founded The Streamic to provide broadcast engineers with analysis that goes beyond vendor press releases. Based in Dublin, Ireland.</p>
+  </div>
+</div>
 
 {_MANDATORY_FOOTER}
 
 MANDATORY FINAL CHECK before outputting:
-— Is there at least one strong opinion or prediction that goes beyond the source? If not, rewrite the Editorial Perspective.
-— Is there at least one real-world trade-off discussed with specifics? If not, add it.
-— Can the content be reconstructed from the source article alone? If yes, rewrite.
-— Does it read like a template? If yes, vary the structure and tone until it doesn't.
+— Does the article include at least 2–3 real vendor names used naturally in context? If not, add them.
+— Is there a Markdown table with real, accurate comparative data? If not, generate one.
+— Is there a [Insert Diagram: ...] placeholder with a specific, useful description? If not, add one.
+— Does the Deep Insight section contain at least one prediction or clear stance? If not, rewrite it.
+— Can the content be reconstructed from the source alone? If yes, it's not analysis — rewrite.
+— Does the author bio present Prerak K Mehta as named author? If not, add it.
 
 RULES:
+- 800–1100 words of body content (not counting bio or source attribution)
 - Use minimum 4 domain-specific terms from: {ctx['terms']}
-- 700–850 words of body content (not counting footer)
-- FORBIDDEN: "this highlights", "this underscores", "this reflects", "in today's landscape", "important to note", "rapidly evolving", "plays a key role", "gap between", "game-changer", "seamless", "delivers", "delve into", "innovative"
+- FORBIDDEN: "this highlights", "this underscores", "this reflects", "in today's landscape", "important to note", "rapidly evolving", "plays a key role", "game-changer", "seamless", "delivers", "delve into", "innovative"
 - {ctx['guardrail']}
-- Output valid HTML only: <h2>, <h3>, <p>, <ul>, <li>, <strong>. No markdown. No triple backticks.
+- Output valid HTML. Markdown tables within HTML are acceptable.
+- No markdown fences. No triple backticks.
 
-Write the full article now:"""
+Write the full pillar post now:"""
 
 
 
@@ -609,23 +649,33 @@ def main():
         })
 
     total = len(items_to_process)
-    batch = items_to_process[:MAX_PER_RUN]
+    batch = items_to_process[:MAX_ITEMS_PER_RUN]
     print(f"Items to process: {total} (this run: {len(batch)}) | "
           f"Skipped (high-quality Groq): {skipped_high_quality}")
 
     processed       = 0
     errors          = 0
-    consec_limits   = 0   # consecutive rate-limit errors — bail if too many
+    consec_limits   = 0
+    quota_exhausted = False  # Flash-Lite quota hit
+    pro_exhausted   = False  # Pro quota hit (separate — Flash-Lite still works)
+    pro_used        = 0      # Pro calls used this run — capped at PRO_BUDGET_PER_RUN
     _run_start      = time.time()
-    _RUN_LIMIT      = 2400 # 40 min — fits inside 45-min GitHub Actions timeout
+    _RUN_LIMIT      = 2400   # 40 min — fits inside 45-min GitHub Actions timeout
 
     for item in batch:
         if time.time() - _run_start > _RUN_LIMIT:
-            print(f"      ⏱ 3 min limit reached. Stopping cleanly ({processed} saved).")
+            print(f"      ⏱ Run time limit reached. Stopping cleanly ({processed} saved).")
             break
         if consec_limits >= 2:
-            print(f"      ⏱ Gemini rate limit hit {consec_limits}x in a row — skipping run. Will retry next scheduled run.")
+            print(f"      ⏱ Gemini rate limit hit {consec_limits}x in a row — skipping run.")
             break
+
+        # Skip remaining items gracefully if quota hit — don't break (lets patch run)
+        if quota_exhausted:
+            errors += 1
+            print(f"  [{processed+errors}/{len(batch)}] Skipped due to quota")
+            continue
+
         slug     = item["slug"]
         title    = item["title"]
         teaser   = item["teaser"]
@@ -633,15 +683,25 @@ def main():
         source   = item["source"] or "industry source"
         reason   = item.get("reason", "unknown")
 
-        print(f"  [{processed+1}/{len(batch)}] {title[:55]}... (reason: {reason})")
+        # Decide which model to use for this article
+        # Pro: featured/infrastructure categories, budget available, Pro not exhausted
+        use_pro = (
+            category in PRO_CATEGORIES
+            and pro_used < PRO_BUDGET_PER_RUN
+            and not pro_exhausted
+        )
+        model_label = f"Pro (#{pro_used+1}/{PRO_BUDGET_PER_RUN})" if use_pro else "Flash-Lite"
+        sleep_time  = SLEEP_PRO if use_pro else SLEEP_SECS
+
+        print(f"  [{processed+1}/{len(batch)}] [{model_label}] {title[:50]}... (reason: {reason})")
 
         try:
             domain = classify_domain(title, teaser)
             ctx    = _DOMAIN_CONTEXT[domain]
 
-            # ── Step 1: Card summary ─────────────────────────────────────
-            raw_card = gemini_call(build_card_prompt(title, teaser, source))
-            time.sleep(SLEEP_SECS)
+            # ── Step 1: Card summary — single call, fail fast ────────────
+            raw_card = gemini_call(build_card_prompt(title, teaser, source), use_pro=use_pro)
+            time.sleep(sleep_time)
 
             if not raw_card or is_generic(raw_card):
                 print(f"      ⚠ Generic card — using fallback")
@@ -649,44 +709,85 @@ def main():
             else:
                 card_summary = re.sub(r"\s+", " ", raw_card).strip()
 
-            # ── Step 2: Full article body — with quality gate + 1 retry ──
-            body_html  = ""
-            body_valid = False
-            MAX_BODY_RETRIES = 1   # Gemini: 1 retry (rate limit is tighter)
+            # ── Step 2: Full article body — single call, no retry (fail fast) ──
+            raw_body  = gemini_call(build_article_prompt(title, teaser, source, category), use_pro=use_pro)
+            body_html = re.sub(r"```html?\n?|```\n?", "", raw_body).strip()
+            time.sleep(sleep_time)
 
-            for body_attempt in range(MAX_BODY_RETRIES + 1):
-                raw_body  = gemini_call(build_article_prompt(title, teaser, source, category))
-                body_html = re.sub(r"```html?\n?|```\n?", "", raw_body).strip()
-                time.sleep(SLEEP_SECS)
-
-                body_valid, failures = validate_body_quality(body_html, ctx["terms"])
-                if body_valid:
-                    if body_attempt > 0:
-                        print(f"      ✓ Quality gate passed on retry {body_attempt}")
-                    break
-                if body_attempt < MAX_BODY_RETRIES:
-                    print(f"      ⚠ Quality gate failed: {'; '.join(failures)} — retrying...")
-                    time.sleep(SLEEP_SECS)
-                else:
-                    print(f"      ⚠ Quality gate still failed after retry: {'; '.join(failures)} — saving anyway")
+            body_valid, failures = validate_body_quality(body_html, ctx["terms"])
+            if not body_valid:
+                print(f"      ⚠ Quality gate: {'; '.join(failures)} — saving anyway")
 
             qs = compute_quality_score(body_html, card_summary)
-            save_summary(slug, card_summary, body_html, qs=qs)
+            used_model = GEMINI_PRO_MODEL if use_pro else GEMINI_FLASH_LITE_MODEL
+            save_summary(slug, card_summary, body_html, qs=qs, model=used_model)
             processed    += 1
             consec_limits = 0
-            print(f"      ✓ saved (score={qs}/100) → data/summaries/{slug[:40]}.json")
+            if use_pro:
+                pro_used += 1
+            print(f"      ✓ saved (score={qs}/100, model={model_label}) → data/summaries/{slug[:35]}.json")
 
         except Exception as ex:
             errors += 1
             err_str = str(ex)
-            if 'DAILY_QUOTA_EXHAUSTED' in err_str:
-                print(f"      ✗ Daily quota exhausted — resets 08:00 UTC. Stopping now.")
-                break  # exit immediately — no point processing more articles
+            is_quota = ('DAILY_QUOTA_EXHAUSTED' in err_str
+                        or any(k in err_str.lower() for k in ['quota', 'exhausted']))
+
+            if is_quota and use_pro:
+                # Pro quota hit — downgrade this article to Flash-Lite, keep going
+                pro_exhausted = True
+                print(f"      ✗ Gemini Pro quota exhausted (used {pro_used} this run) — retrying with Flash-Lite")
+                try:
+                    raw_card2    = gemini_call(build_card_prompt(title, teaser, source), use_pro=False)
+                    time.sleep(SLEEP_SECS)
+                    card_summary2 = re.sub(r"\s+", " ", raw_card2).strip() if raw_card2 else fallback_card(title, teaser)
+                    raw_body2    = gemini_call(build_article_prompt(title, teaser, source, category), use_pro=False)
+                    body_html2   = re.sub(r"```html?\n?|```\n?", "", raw_body2).strip()
+                    time.sleep(SLEEP_SECS)
+                    qs2 = compute_quality_score(body_html2, card_summary2)
+                    save_summary(slug, card_summary2, body_html2, qs=qs2, model=GEMINI_FLASH_LITE_MODEL)
+                    processed += 1
+                    errors    -= 1
+                    print(f"      ✓ Flash-Lite fallback saved (score={qs2}/100)")
+                except Exception as fl_ex:
+                    print(f"      ✗ Flash-Lite fallback also failed: {fl_ex}")
+
+            elif is_quota:
+                # Flash-Lite quota hit — nothing left to try, skip remaining
+                quota_exhausted = True
+                print(f"      ✗ Gemini Flash-Lite quota exhausted — skipping remaining items")
+                if USE_GROQ_FALLBACK:
+                    try:
+                        from generate_summaries import groq_call, _CARD_PROMPT, _ARTICLE_PROMPT, _DOMAIN_CONTEXT as _GS_CTX
+                        print(f"      → Using Groq fallback")
+                        domain2 = classify_domain(title, teaser)
+                        ctx2    = _GS_CTX[domain2]
+                        raw_card2 = groq_call(_CARD_PROMPT.format(
+                            title=title, teaser=teaser, source_name=source,
+                            domain_label=ctx2["label"], domain_focus=ctx2["focus"],
+                            domain_terms=ctx2["terms"], domain_guardrail=ctx2["guardrail"],
+                        ), max_tokens=400)
+                        raw_body2 = groq_call(_ARTICLE_PROMPT.format(
+                            title=title, teaser=teaser, category=category,
+                            source_name=source, domain_label=ctx2["label"],
+                            domain_focus=ctx2["focus"], domain_terms=ctx2["terms"],
+                            domain_guardrail=ctx2["guardrail"], domain_roi=ctx2["roi"],
+                        ), max_tokens=1200)
+                        body2 = re.sub(r"```html?\n?|```\n?", "", raw_body2).strip()
+                        qs2   = compute_quality_score(body2, raw_card2)
+                        save_summary(slug, raw_card2, body2, qs=qs2, model="groq-fallback")
+                        processed += 1
+                        errors    -= 1
+                        print(f"      ✓ Groq fallback saved (score={qs2}/100)")
+                    except Exception as groq_ex:
+                        print(f"      ✗ Groq fallback failed: {groq_ex}")
+
             elif '429' in err_str or 'rate' in err_str.lower():
                 consec_limits += 1
+                print(f"      ✗ Rate limit error: {ex}")
             else:
                 consec_limits = 0
-            print(f"      ✗ ERROR: {ex}")
+                print(f"      ✗ ERROR: {ex}")
             time.sleep(2)
 
     print(f"\n✓ Done: {processed} summaries saved, {errors} errors.")
