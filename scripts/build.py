@@ -1605,6 +1605,7 @@ def main():
     fp = featured_page(feat_arts)
     w(os.path.join(DOCS,"featured.html"), fp)
     w(os.path.join(DOCS,"index.html"),    fp)
+    w(os.path.join(ROOT,"index.html"),    fp)   # Also at root — fixes 404 when Pages serves from branch root
     print("  &#10003; featured.html + index.html")
 
     # ── posts.html — noindex (preserve links, hide from Google) ──────────
@@ -1642,6 +1643,7 @@ def main():
     w(os.path.join(DOCS,"ads.txt"),  "google.com, pub-8033069131874524, DIRECT, f08c47fec0942fa0\n")
     w(os.path.join(DOCS,"CNAME"),    "thestreamic.in\n")
     open(os.path.join(DOCS,".nojekyll"),"w").close()
+    open(os.path.join(ROOT,".nojekyll"),"w").close()  # Also at root — prevents Jekyll from running at all
     w(os.path.join(ROOT,"CNAME"),    "thestreamic.in\n")
 
     for fn in ["style.css","main.js","ads.txt","robots.txt"]:
