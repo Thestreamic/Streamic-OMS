@@ -28,8 +28,8 @@ _EDITORS_NOTE_HTML = (
 PAGE_SIZE = 24
 
 # ── AdSense approval mode ─────────────────────────────────────────────────────
-# Only show high-quality curated content. Hide the full dataset.
-MAX_ARTICLES   = 25          # hard ceiling across entire site
+# Show curated high-quality content. Full dataset remains hidden.
+MAX_ARTICLES   = 35          # raised to accommodate all 13 editorial + top RSS
 VISIBLE_CAT    = "ai-post-production"  # only this category page is indexed
 MIN_BODY_SCORE = 50          # minimum editorial score to appear on homepage
 
@@ -155,6 +155,7 @@ def nav(active="", base=""):
         ("featured.html", "Home"),
         ("ai-post-production.html", "AI in Broadcasting"),
         ("howto.html", "How-To Guides"),
+        ("broadcast-systems-hub.html", "Systems Hub"),
     ]
     def _nav_li(h, lbl, base=base, active=active):
         cls = ' class="active"' if h == active else ''
@@ -195,6 +196,7 @@ def footer(base=""):
       <h4>Coverage</h4>
       <a href="{base}ai-post-production.html">AI in Broadcasting</a>
       <a href="{base}howto.html">How-To Guides</a>
+      <a href="{base}broadcast-systems-hub.html">Systems Hub</a>
     </div>
     <div class="footer-col">
       <h4>Site</h4>
@@ -693,31 +695,47 @@ def _score_art(a):
 
 def featured_page(arts):
     """
-    Editorial homepage — strict 25-item maximum.
-    Structure: Hero(1) + Editor Picks(4) + Why Exists + Deep Dives(4) + Guides(6) + Industry News(5) = 20 visible + guides
-    No feed grids. No pagination links. No RSS-style blocks.
+    Editorial homepage.
+    Structure: Hero(1) + Editor Picks(4) + Why Exists + Deep Dives(7) + Guides(6) + Industry News(5)
+    Deep Dives explicitly shows the 7 new long-form articles.
+    Hero + Editor Picks uses the 5 original editorial analyses.
     """
     import re as _re
 
-    # ── Pool: editorial first, then best-scored articles ──────────────────
-    editorial = [a for a in arts if a.get("is_editorial") or a.get("editorial")]
-    regular   = [a for a in arts if not a.get("is_editorial") and not a.get("editorial")]
-    # Score and sort
-    regular_scored = sorted(regular, key=lambda a: (-_score_art(a), a.get("published","")[:10]), reverse=False)
-    regular_scored.sort(key=lambda a: (-_score_art(a)))
+    # ── Split editorial into two pools ────────────────────────────────────
+    # DEEP_DIVE_SLUGS: the 7 new topic articles — always go to the Deep Dives section
+    DEEP_DIVE_SLUGS = {
+        "future-of-ai-in-broadcast-deployment-2026",
+        "cloud-broadcast-workflows-remote-production-2026",
+        "ai-video-post-production-editing-vfx-automation-2026",
+        "ip-broadcasting-smpte-st2110-engineering-guide-2026",
+        "media-asset-management-ai-era-monetisation-2026",
+        "live-production-ai-automation-real-time-broadcasting-2026",
+        "broadcast-automation-systems-guide-2026",
+    }
 
-    # ── Slot allocation (max 25 total) ────────────────────────────────────
-    hero_art       = editorial[0] if editorial else (regular_scored[0] if regular_scored else None)
-    editor_picks   = [a for a in editorial[1:5]] if len(editorial) > 1 else regular_scored[:4]
-    # Deep dives: editorial not already used, or best scored regular
-    used_slugs     = {hero_art["slug"]} if hero_art else set()
-    used_slugs    |= {a["slug"] for a in editor_picks}
-    deep_pool      = [a for a in (editorial[5:] + regular_scored) if a["slug"] not in used_slugs]
-    deep_dives     = deep_pool[:4]
-    used_slugs    |= {a["slug"] for a in deep_dives}
-    # Industry news: 5 most recent from any category NOT already shown
-    news_pool      = [a for a in regular_scored if a["slug"] not in used_slugs]
-    industry_news  = news_pool[:5]
+    editorial_all  = [a for a in arts if a.get("is_editorial") or a.get("editorial")]
+    # Original analyses: long-form signed editorial — used in Hero + Editor Picks
+    editorial_orig = [a for a in editorial_all if a["slug"] not in DEEP_DIVE_SLUGS]
+    # Deep dive articles: always shown in the Deep Dives section
+    editorial_deep = [a for a in editorial_all if a["slug"] in DEEP_DIVE_SLUGS]
+
+    regular   = [a for a in arts if not a.get("is_editorial") and not a.get("editorial")]
+    regular_scored = sorted(regular, key=lambda a: -_score_art(a))
+
+    # ── Slot allocation ───────────────────────────────────────────────────
+    # Hero: newest original editorial (the main feature article)
+    hero_art     = editorial_orig[0] if editorial_orig else (regular_scored[0] if regular_scored else None)
+    # Editor Picks: next 4 original editorial articles
+    editor_picks = editorial_orig[1:5] if len(editorial_orig) > 1 else regular_scored[:4]
+    # Deep Dives: all 7 new topic articles
+    deep_dives   = editorial_deep  # show all 7
+
+    used_slugs   = {hero_art["slug"]} if hero_art else set()
+    used_slugs  |= {a["slug"] for a in editor_picks}
+    used_slugs  |= {a["slug"] for a in deep_dives}
+    # Industry news: 5 most recent RSS articles not already shown
+    industry_news = [a for a in regular_scored if a["slug"] not in used_slugs][:5]
 
     title  = "The Streamic — AI in Broadcasting & Streaming Technology"
     desc   = "Expert analysis on AI automation, cloud workflows, and operational intelligence for broadcast and streaming professionals."
@@ -1533,13 +1551,11 @@ def sitemap(arts):
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     statics = [
         ("index.html","daily","1.0"),("featured.html","daily","0.98"),
-        ("streaming.html","daily","0.9"),("cloud.html","daily","0.9"),
-        ("graphics.html","daily","0.9"),("playout.html","daily","0.9"),
-        ("infrastructure.html","daily","0.9"),("ai-post-production.html","daily","0.9"),
-        ("newsroom.html","daily","0.9"),("howto.html","weekly","0.8"),
+        ("ai-post-production.html","daily","0.9"),
+        ("howto.html","weekly","0.85"),("broadcast-systems-hub.html","weekly","0.85"),
         ("about.html","monthly","0.6"),("contact.html","monthly","0.5"),
+        ("editorial-policy.html","monthly","0.6"),
         ("privacy.html","yearly","0.3"),("terms.html","yearly","0.3"),
-        ("vlog.html","weekly","0.7"),
     ]
     lines = ['<?xml version="1.0" encoding="UTF-8"?>',
              '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
@@ -1602,7 +1618,20 @@ def main():
 
     for cat, ca in by_cat.items():
         if cat == VISIBLE_CAT:
+            # Base: articles for this category that are in visible_slugs
             cat_vis = [a for a in ca if a["slug"] in visible_slugs]
+            # Also pin 3 relevant deep-dive articles to this page
+            # even if they sit in a different category (infrastructure/cloud)
+            PINNED_TO_AI_POST = {
+                "ai-video-post-production-editing-vfx-automation-2026",
+                "media-asset-management-ai-era-monetisation-2026",
+                "future-of-ai-in-broadcast-deployment-2026",
+            }
+            pinned_slugs = {a["slug"] for a in cat_vis}
+            for a in arts:
+                if a["slug"] in PINNED_TO_AI_POST and a["slug"] not in pinned_slugs:
+                    cat_vis.append(a)
+            cat_vis.sort(key=lambda a: a.get("published",""), reverse=True)
             pages   = category_page(cat, cat_vis)
             for pg, html in pages:
                 if pg > 0:
@@ -1657,6 +1686,19 @@ def main():
     w(os.path.join(DOCS,"howto.html"),            howto_page())
     w(os.path.join(DOCS,"how-to.html"),           howto_page())
     w(os.path.join(DOCS,"vlog.html"),             vlog_page())
+    # Hub page — only copy to docs/ if generate_vendor_hub.py has already produced it
+    hub_src = os.path.join(DOCS, "broadcast-systems-hub.html")
+    if not os.path.exists(hub_src):
+        _hub_placeholder = f"""{head("Key Broadcast Systems Hub — The Streamic",
+            "Engineering integration briefs for Avid, EVS, Vizrt, Grass Valley, Dalet, Pebble Beach, Harmonic, Telestream and more.",
+            f"{BASE_URL}/broadcast-systems-hub.html",
+            robots="noindex,follow")}
+<body>{nav("broadcast-systems-hub.html")}<main><div class="w" style="padding:80px 0 120px;text-align:center">
+<h1 style="font-family:var(--serif);font-size:28px;margin-bottom:16px">Broadcast Systems Hub</h1>
+<p style="color:var(--ink3)">This reference page is being generated. Run <code>python3 scripts/generate_vendor_hub.py</code> to build it.</p>
+<p><a href="featured.html" style="color:var(--blue)">Return to homepage &rarr;</a></p>
+</div></main>{footer()}</body></html>"""
+        w(hub_src, _hub_placeholder)
     print("  &#10003; static pages")
 
     # ── Sitemap — only visible articles + core pages ──────────────────────
