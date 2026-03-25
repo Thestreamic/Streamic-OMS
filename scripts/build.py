@@ -886,7 +886,6 @@ def featured_page(arts):
         news_items_html = f"""<section class="rss-section">
   <div class="sec-hdr" style="margin-bottom:24px">
     <h2>Latest Broadcast &amp; Media Technology News</h2>
-    <span style="font-size:13px;color:var(--ink4);font-weight:400">Round-robin from Avid, Grass Valley, EVS, Harmonic, Pebble, Ross, Vizrt, Maxon &amp; more</span>
   </div>
   <div class="rss-grid">{cards_html}</div>
 </section>"""
@@ -1025,28 +1024,69 @@ def _is_boilerplate(text):
 
 def _clean_body(a):
     """
-    Return clean article body: strip ALL boilerplate filler sentences.
-    Use card_summary if available, else dek + real content paragraphs only.
+    Return clean article body for rendering.
+
+    Anti-truncation rule:
+    - If body_html has <h2> OR word_count > 300 → return the FULL body_html untouched.
+      Gemini-generated articles are complete. Truncating them strips the analysis.
+    - Fallback: only strip/limit for raw RSS teasers with no AI enhancement.
     """
     is_ed = a.get("is_editorial") or a.get("editorial")
+
+    # ── Full editorial articles — always return complete body ─────────────
     if is_ed:
-        body = a.get("body_html","")
+        body = a.get("body_html", "")
         if body and len(body) > 300:
             return body
 
-    cs_raw = re.sub(r"<[^>]+>", " ", a.get("card_summary","") or "").strip()
+    body_html  = a.get("body_html", "") or ""
+    word_count = a.get("word_count", 0)
+
+    # ── AI-enhanced articles: has h2 structure OR substantial word count ──
+    # Return the full body without ANY stripping — Gemini output is complete.
+    if "<h2>" in body_html or "<h3>" in body_html or word_count > 300:
+        # Only strip accidental markdown fences Gemini occasionally produces
+        body_clean = re.sub(r"```html?\n?|```\n?", "", body_html).strip()
+        # Remove boilerplate filler sentences while keeping all structure
+        paras = re.findall(r"<p[^>]*>(.*?)</p>", body_clean, re.DOTALL)
+        clean_paras = []
+        for p in paras:
+            txt = re.sub(r"<[^>]+>", " ", p).strip()
+            txt = re.sub(r"\s+", " ", txt)
+            if len(txt.split()) < 5:
+                continue   # skip truly empty placeholders
+            if _is_boilerplate(txt):
+                continue   # strip known filler sentences
+            clean_paras.append(p)
+        # Reconstruct: non-paragraph blocks (h2, h3, ul, ol, table, div) pass through untouched
+        # Strategy: replace only the <p> tags we cleaned, keep everything else
+        result = body_clean
+        for orig_p, clean_p in zip(paras, clean_paras):
+            pass  # we'll use a simpler approach below
+        # Simpler: just strip boilerplate paragraphs from the full HTML
+        for p_content in paras:
+            txt = re.sub(r"<[^>]+>", " ", p_content).strip()
+            txt = re.sub(r"\s+", " ", txt)
+            if _is_boilerplate(txt):
+                result = result.replace(f"<p>{p_content}</p>", "", 1)
+                result = result.replace(f"<p>{p_content.strip()}</p>", "", 1)
+        return result.strip() or body_clean
+
+    # ── Fallback: raw RSS teaser with no AI enhancement ───────────────────
+    # card_summary is the Groq/Gemini 120-150 word intel card — show it in full
+    cs_raw = re.sub(r"<[^>]+>", " ", a.get("card_summary", "") or "").strip()
     cs_raw = re.sub(r"\s+", " ", cs_raw)
     cs_words = cs_raw.split()
 
     if len(cs_words) >= 120 and not _is_boilerplate(cs_raw):
         mid = len(cs_words) // 2
-        for i in range(mid, min(mid+25, len(cs_words))):
-            if cs_words[i].endswith((".", "?")): mid = i+1; break
+        for i in range(mid, min(mid + 25, len(cs_words))):
+            if cs_words[i].endswith((".", "?")): mid = i + 1; break
         p1 = " ".join(cs_words[:mid])
         p2 = " ".join(cs_words[mid:])
         return f"<p>{p1}</p>\n" + (f"<p>{p2}</p>" if p2 else "")
 
-    body_html = a.get("body_html","") or ""
+    # Raw paragraphs — limit to 4, strip boilerplate
     paras = re.findall(r"<p[^>]*>(.*?)</p>", body_html, re.DOTALL)
     clean = []
     for p in paras:
@@ -1057,11 +1097,12 @@ def _clean_body(a):
         clean.append(f"<p>{p.strip()}</p>")
 
     if clean:
-        return "\n".join(clean[:4])
+        return "\n".join(clean[:4])   # limit raw RSS to 4 paragraphs
 
-    dek = (a.get("dek") or "").strip()
+    # Last resort: dek + short teaser
+    dek    = (a.get("dek") or "").strip()
     teaser = (a.get("meta_description") or a.get("teaser") or "").strip()
-    parts = []
+    parts  = []
     if dek: parts.append(f"<p><strong>{dek}</strong></p>")
     if len(cs_words) >= 20 and cs_raw != dek: parts.append(f"<p>{cs_raw}</p>")
     elif teaser and teaser != dek: parts.append(f"<p>{teaser}</p>")
@@ -1170,8 +1211,27 @@ def article_page(a):
   </div>
 </div>"""
 
-    # Pre-compute variables for f-string compatibility (Python < 3.12)
-    editors_note = '' if is_ed else _EDITORS_NOTE_HTML
+    # ── Editor's Note with generated_by attribution (AdSense transparency) ──
+    gen_by    = a.get("generated_by", "") or ""
+    gen_label = {
+        "gemini-2.5-pro":       "Gemini 2.5 Pro (Google)",
+        "gemini-2.5-flash-lite":"Gemini 2.5 Flash-Lite (Google)",
+        "groq-fallback":        "Groq / Llama (fallback)",
+    }.get(gen_by, gen_by if gen_by else "AI-assisted")
+
+    if is_ed:
+        editors_note = ""
+    else:
+        editors_note = (
+            '<hr style="margin-top:40px;border:0;border-top:1px solid #eee;">'
+            '<p style="font-style:italic;font-size:0.85rem;color:#666;line-height:1.5;margin-top:20px;">'
+            '<strong>Editor&#39;s Note:</strong> This technical analysis was synthesised from '
+            'industry sources and constructed with the assistance of AI tools '
+            f'(<strong>{gen_label}</strong>). '
+            'It has been reviewed and formatted by <strong>The Streamic Editorial Team</strong> '
+            'to ensure accuracy and relevance for broadcast professionals.'
+            '</p>'
+        )
     cinfo_color = cinfo.get('color','')
     cinfo_lbl   = cinfo.get('label','')
     cinfo_icon2 = cinfo.get('icon','')
