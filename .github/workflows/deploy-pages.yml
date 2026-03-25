@@ -1,0 +1,49 @@
+name: Deploy to GitHub Pages (Static)
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Deploys docs/ as a static site — NO Jekyll processing.
+# Triggers only after the main build workflow commits to main.
+# This replaces the default Jekyll pages deployment.
+# ─────────────────────────────────────────────────────────────────────────────
+
+on:
+  # Run after every push to main (including commits from the build bot)
+  push:
+    branches: ["main"]
+    paths:
+      - "docs/**"          # Only re-deploy if site files actually changed
+  # Allow manual trigger
+  workflow_dispatch:
+
+# GitHub Pages requires these exact permissions
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Only one deployment at a time — cancel in-progress if a newer one starts
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Deploy static site
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Upload docs/ as a static artifact — no Jekyll, no SCSS processing
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/     # Deploy exactly what build.py produced
+
+      - name: Deploy to GitHub Pages
+        id: deploy
+        uses: actions/deploy-pages@v4
