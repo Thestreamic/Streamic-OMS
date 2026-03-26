@@ -156,7 +156,7 @@ def nav(active="", base=""):
         ("featured.html", "Home"),
         ("ai-post-production.html", "AI in Broadcasting"),
         ("howto.html", "How-To Guides"),
-        ("post-production-workflows.html", "Post-Production"),
+        ("post-production-workflows.html", "Post Production Workflows"),
         ("broadcast-systems-hub.html", "Systems Hub"),
     ]
     def _nav_li(h, lbl, base=base, active=active):
@@ -198,7 +198,7 @@ def footer(base=""):
       <h4>Coverage</h4>
       <a href="{base}ai-post-production.html">AI in Broadcasting</a>
       <a href="{base}howto.html">How-To Guides</a>
-      <a href="{base}post-production-workflows.html">Post-Production</a>
+      <a href="{base}post-production-workflows.html">Post Production Workflows</a>
       <a href="{base}broadcast-systems-hub.html">Systems Hub</a>
     </div>
     <div class="footer-col">
