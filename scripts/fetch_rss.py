@@ -63,133 +63,98 @@ OUTPUT_FILE = DATA_DIR / "news.json"
 ARCHIVE_FILE = DATA_DIR / "archive.json"
 
 # Performance settings
-MAX_ITEMS_PER_FEED = 20
+MAX_ITEMS_PER_FEED = 8    # Reduced: quality > quantity — 8 per feed, ~28 feeds = ~224 pool
 FEED_FETCH_TIMEOUT = 12
 ARTICLE_FETCH_TIMEOUT = 5
-MAX_ARTICLE_FETCHES = 8
+MAX_ARTICLE_FETCHES = 5
 
-# Balancing settings
-MIN_PER_CATEGORY = 18
-MIN_REQUIRED_EACH = 3
-MAX_NEWS_ITEMS = 300
+# Balancing settings — tuned down to keep total RSS pool ≤ 120 items
+MIN_PER_CATEGORY = 6
+MIN_REQUIRED_EACH = 2
+MAX_NEWS_ITEMS = 120      # Hard cap — only quality broadcast content reaches the site
 
 
 # ===== DIRECT FETCH FEEDS (Bypass Cloudflare Worker) =====
+# Curated to ≤ 30 high-quality, broadcast-specific sources only.
+# Removed: security blogs (Krebs, BleepingComputer, SecurityWeek, DarkReading, Microsoft Security),
+#          general tech, Cloudinary, Frame.io, SNS/storage-only, ProcessExcellenceNetwork,
+#          Premiere Gal (consumer-level), FilterGrade (consumer), VideocopilotSnet (tutorials only)
 DIRECT_FEEDS = [
-    # Streaming category (core + vendors)
+    # Core broadcast news (tier-1 trade publications)
+    'https://www.tvtechnology.com/news/rss.xml',
+    'https://www.broadcastbeat.com/feed/',
     'https://www.streamingmediablog.com/feed',
-    'https://www.broadcastnow.co.uk/full-rss/',
+
+    # IP / infrastructure (broadcast-specific)
     'https://www.haivision.com/feed/',
     'https://blog.telestream.com/feed/',
+    'https://www.harmonicinc.com/insights/blog/rss.xml',
+
+    # Post-production and editing (professional level)
+    'https://jonnyelwyn.co.uk/feed/',
+    'https://beforesandafters.com/feed/',
+
+    # Cloud / streaming vendors
+    'https://aws.amazon.com/blogs/media/feed/',
     'https://openrss.org/https://bitmovin.com/blog/',
-
-    # Infrastructure - MAM/PAM / Vendors
-    'https://api.client.notified.com/api/rss/publish/view/47032?type=press',   # Avid Press (Notified)
-    'https://openrss.org/https://blog.developer.adobe.com/',                   # Adobe Developers via OpenRSS
-    'https://chesa.com/feed',
-    'https://cloudinary.com/blog/feed',
-
-    # Storage
-    'https://www.studionetworksolutions.com/feed',
-    'https://openrss.org/https://scalelogicinc.com/blog/protecting-valuable-media-assets/',
-    'https://openrss.org/https://qsan.io/solutions/media-production/',
-    'https://openrss.org/https://www.keycodemedia.com/capabilities/media-shared-storage-cloud-storage/',
-
-    # Production Ops
-    'https://www.processexcellencenetwork.com/rss-feeds',
-
-    # Legacy direct fetch (kept)
-    'https://www.inbroadcast.com/rss.xml',
-    'https://www.imaginecommunications.com/news/rss.xml'
 ]
 
+# ===== CATEGORY-SPECIFIC FEED REGISTRY =====
+# Total unique feeds across all categories: 28
+# Feeds are de-duped across categories during fetch — no double-processing.
+CATEGORY_FEEDS = {
 
-# ===== FEED GROUPS =====
-FEED_GROUPS = {
     'newsroom': [
-        'https://www.newscaststudio.com/feed/',
+        # Tier-1 broadcast trade press
         'https://www.tvtechnology.com/news/rss.xml',
         'https://www.broadcastbeat.com/feed/',
-        'https://www.svgeurope.org/feed/'
+        'https://www.inbroadcast.com/rss.xml',
+        # Vendor press — directly relevant to newsroom tech
+        'https://api.client.notified.com/api/rss/publish/view/47032?type=press',  # Avid
+        'https://www.rossvideo.com/news/feed/',
     ],
 
     'playout': [
-        'https://www.inbroadcast.com/rss.xml',
         'https://www.tvtechnology.com/playout/rss.xml',
-        'https://www.rossvideo.com/news/feed/',
+        'https://www.inbroadcast.com/rss.xml',
         'https://www.harmonicinc.com/insights/blog/rss.xml',
-        'https://www.evertz.com/news/rss',
-        'https://www.imaginecommunications.com/news/rss.xml'
+        'https://www.imaginecommunications.com/news/rss.xml',
     ],
 
     'infrastructure': [
-        'https://www.thebroadcastbridge.com/rss/infrastructure',
         'https://www.tvtechnology.com/infrastructure/rss.xml',
-        'https://www.broadcastbridge.com/rss/security',
-        'https://www.tvtechnology.com/security/rss.xml',
-        'https://aws.amazon.com/security/blog/feed/',
-        'https://krebsonsecurity.com/feed/',
-        'https://www.darkreading.com/rss.xml',
-        'https://www.bleepingcomputer.com/feed/',
-        'https://www.securityweek.com/feed/',
-        'https://feeds.feedburner.com/TheHackerNews',
-        'https://cloud.google.com/blog/topics/security/rss/',
-        'https://www.microsoft.com/en-us/security/blog/feed/',
-
-        # MAM/PAM + Vendors
-        'https://api.client.notified.com/api/rss/publish/view/47032?type=press',   # Avid Press
-        'https://openrss.org/https://blog.developer.adobe.com/',                   # Adobe Developers
-        'https://chesa.com/feed',
-        'https://cloudinary.com/blog/feed',
-
-        # Storage
-        'https://www.studionetworksolutions.com/feed',
-        'https://openrss.org/https://scalelogicinc.com/blog/protecting-valuable-media-assets/',
-        'https://openrss.org/https://qsan.io/solutions/media-production/',
-        'https://openrss.org/https://www.keycodemedia.com/capabilities/media-shared-storage-cloud-storage/',
-
-        # Production Ops
-        'https://www.processexcellencenetwork.com/rss-feeds'
+        'https://www.haivision.com/feed/',
+        'https://www.inbroadcast.com/rss.xml',
+        'https://www.evertz.com/news/rss',
     ],
 
     'graphics': [
-        'https://www.thebroadcastbridge.com/rss/graphics',
         'https://www.tvtechnology.com/graphics/rss.xml',
         'https://www.vizrt.com/news/rss',
-        'https://routing.vizrt.com/rss',
-        'https://motionographer.com/feed/'
+        'https://motionographer.com/feed/',
     ],
 
     'cloud': [
-        'https://www.thebroadcastbridge.com/rss/cloud',
         'https://www.tvtechnology.com/cloud/rss.xml',
         'https://aws.amazon.com/blogs/media/feed/',
-        'https://blog.frame.io/feed/'
+        'https://openrss.org/https://bitmovin.com/blog/',
     ],
 
     'streaming': [
-        'https://www.thebroadcastbridge.com/rss/streaming',
         'https://www.tvtechnology.com/streaming/rss.xml',
-
-        # Direct fetch streaming vendors
         'https://www.streamingmediablog.com/feed',
-        'https://www.broadcastnow.co.uk/full-rss/',
         'https://www.haivision.com/feed/',
         'https://blog.telestream.com/feed/',
-        'https://openrss.org/https://bitmovin.com/blog/'
     ],
 
-    # Renamed from 'audio-ai' -> 'ai-post-production'
+    # Professional broadcast post-production and AI workflow
     'ai-post-production': [
-        'https://premiumbeat.com/blog/category/video-editing/feed/',
-        'https://premieregal.com/blog?format=RSS',
-        'https://videocopilot.net/feeds/tutorials/',
         'https://jonnyelwyn.co.uk/feed/',
-        'https://blog.pond5.com/feed/',
-        'https://filtergrade.com/category/video/feed/',
         'https://beforesandafters.com/feed/',
-        'https://avinteractive.com/feed/'
-    ]
+        'https://blog.pond5.com/feed/',
+        'https://aws.amazon.com/blogs/media/feed/',
+    ],
+
 }
 
 

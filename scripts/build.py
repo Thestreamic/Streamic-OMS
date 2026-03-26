@@ -47,6 +47,7 @@ CAT_PAGE = {c: f"{c}.html" for c in CAT}
 
 # ── helpers
 def e(s): return str(s).replace("&","&amp;").replace("<","&lt;").replace(">","&gt;").replace('"',"&quot;")
+def eu(s): return str(s).replace("<","&lt;").replace(">","&gt;").replace('"',"&quot;")  # URL-safe: keeps & raw in src/href attrs
 def d(iso):
     try: return datetime.strptime(iso[:10],"%Y-%m-%d").strftime("%B %d, %Y")
     except: return iso
@@ -127,7 +128,7 @@ def _fonts():
     return '<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">'
 
 def head(title, desc, canon, css="style.css", og_img="", robots="index,follow"):
-    og = f'  <meta property="og:image" content="{e(og_img)}">\n' if og_img else ""
+    og = f'  <meta property="og:image" content="{eu(og_img)}">\n' if og_img else ""
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -155,6 +156,7 @@ def nav(active="", base=""):
         ("featured.html", "Home"),
         ("ai-post-production.html", "AI in Broadcasting"),
         ("howto.html", "How-To Guides"),
+        ("post-production-workflows.html", "Post-Production"),
         ("broadcast-systems-hub.html", "Systems Hub"),
     ]
     def _nav_li(h, lbl, base=base, active=active):
@@ -196,6 +198,7 @@ def footer(base=""):
       <h4>Coverage</h4>
       <a href="{base}ai-post-production.html">AI in Broadcasting</a>
       <a href="{base}howto.html">How-To Guides</a>
+      <a href="{base}post-production-workflows.html">Post-Production</a>
       <a href="{base}broadcast-systems-hub.html">Systems Hub</a>
     </div>
     <div class="footer-col">
@@ -220,7 +223,7 @@ def footer(base=""):
 
 # ── NEWS GRID (SSR from generated_articles.json)
 def _nc_img(a, base=""):
-    img = e(a.get("image_url",""))
+    img = eu(a.get("image_url",""))
     fb  = f"{base}assets/fallback.jpg"
     title = e(a.get("title",""))
     if img:
@@ -234,7 +237,7 @@ def news_card(a, base="", is_first=False):
     cinfo = CAT.get(cat, CAT["featured"])
     slug_ = a.get('slug', '')
     href  = f"{base}articles/{slug_}.html"
-    img   = e(a.get("image_url",""))
+    img   = eu(a.get("image_url",""))
     fb_   = f"{base}assets/fallback.jpg"
     title = e(a.get("title",""))
     src   = e(a.get("source_domain","").replace("https://","").replace("www.","").split("/")[0].upper())
@@ -294,10 +297,11 @@ def ed_card(a, base=""):
     cinfo = CAT.get(cat, CAT["featured"])
     slug_ = a.get('slug', '')
     href  = f"{base}articles/{slug_}.html"
-    img   = e(a.get("image_url",""))
+    img   = eu(a.get("image_url",""))
     fb    = f"{base}assets/fallback.jpg"
     title = e(a.get("title",""))
-    dek   = e((a.get("dek") or a.get("meta_description",""))[:200])
+    raw_dek = (a.get("dek") or a.get("meta_description",""))[:200]
+    dek   = raw_dek.replace("<","&lt;").replace(">","&gt;")  # allow &mdash; etc, block tags
     wc    = a.get("word_count",1000)
     dt    = d(a.get("published",""))
     return f"""<article class="ed-card">
@@ -323,10 +327,10 @@ def hero_block(a, base=""):
     cinfo = CAT.get(cat, CAT["featured"])
     slug_ = a.get('slug', '')
     href  = f"{base}articles/{slug_}.html"
-    img   = e(a.get("image_url",""))
+    img   = eu(a.get("image_url",""))
     fb    = f"{base}assets/fallback.jpg"
     title = e(a.get("title",""))
-    dek   = e((a.get("card_summary") or a.get("dek") or "")[:200])
+    dek   = (a.get("card_summary") or a.get("dek") or "")[:200].replace("<","&lt;").replace(">","&gt;")
     wc    = a.get("word_count",800)
     dt    = d(a.get("published",""))
     return f"""<section class="hero">
@@ -370,7 +374,7 @@ def intelligence_feed_section(arts, base=""):
         slug_    = a.get("slug", "")
         href     = f"{base}articles/{slug_}.html"
         title    = e(a.get("title", ""))
-        img      = e(a.get("image_url", ""))
+        img      = eu(a.get("image_url", ""))
         src_dom  = e(a.get("source_domain","").replace("https://","").replace("www.","").split("/")[0])
         dt       = d(a.get("published",""))
         src_url  = e(a.get("source_url","") or a.get("url","") or "")
@@ -866,7 +870,7 @@ def featured_page(arts):
             cat_color = {"streaming":"#0066cc","cloud":"#5856d6","graphics":"#FF9500",
                          "playout":"#34C759","infrastructure":"#636366",
                          "ai-post-production":"#FF2D55","newsroom":"#b8860b"}.get(cat,"#1d1d1f")
-            img = e(a.get("image_url",""))
+            img = eu(a.get("image_url",""))
             title = e(a.get("title",""))
             dt = d(a.get("published",""))
             cards_html += f"""<a href="{e(art_url)}" class="rss-card" style="text-decoration:none">
@@ -1256,7 +1260,7 @@ def article_page(a):
     </div>
     <span class="art-tag" style="background:{cinfo_color}">{cinfo_icon2} {cinfo_lbl}</span>
     {title_html}
-    <p class="art-dek">{e(dek)}</p>
+    <p class="art-dek">{dek.replace(chr(60),"&lt;").replace(chr(62),"&gt;")}</p>
     <div class="art-byline">
       <strong>{AUTHOR}</strong>
       <time datetime="{a.get("published","")}" style="color:var(--ink4);font-size:13px">{dt}</time>
@@ -1264,7 +1268,7 @@ def article_page(a):
       {analysis_badge}
     </div>
     <figure>
-      <img src="{e(img)}" alt="{e(title)}" loading="eager">
+      <img src="{eu(img)}" alt="{e(title)}" loading="eager">
       <figcaption>{e(a.get("image_credit","Photo via Unsplash &#8212; free to use under the Unsplash License"))} &#8212; <a href="{lic_url}" rel="nofollow noopener" target="_blank" style="color:var(--ink4)">{lic_label}</a></figcaption>
     </figure>
     {_ad()}
@@ -1612,7 +1616,7 @@ def sitemap(arts):
     statics = [
         ("index.html","daily","1.0"),("featured.html","daily","0.98"),
         ("ai-post-production.html","daily","0.9"),
-        ("howto.html","weekly","0.85"),("broadcast-systems-hub.html","weekly","0.85"),
+        ("howto.html","weekly","0.85"),("post-production-workflows.html","weekly","0.90"),("broadcast-systems-hub.html","weekly","0.85"),
         ("about.html","monthly","0.6"),("contact.html","monthly","0.5"),
         ("editorial-policy.html","monthly","0.6"),
         ("privacy.html","yearly","0.3"),("terms.html","yearly","0.3"),

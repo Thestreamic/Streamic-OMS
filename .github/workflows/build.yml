@@ -17,6 +17,7 @@ permissions:
 
 env:
   SITE_BASE_URL: "https://www.thestreamic.in"
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 jobs:
   build:

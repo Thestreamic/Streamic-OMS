@@ -48,8 +48,8 @@ os.makedirs(SUMMARIES_DIR, exist_ok=True)
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
 GROQ_URL     = "https://api.groq.com/openai/v1/chat/completions"
 GROQ_MODEL   = "llama-3.3-70b-versatile"   # fast + free tier
-MAX_PER_RUN  = 51  # Groq is now secondary — Gemini handles bulk. 51 × ~2k = ~102k tokens/run
-SLEEP_SECS   = 3.0                 # pause between calls — 3s minimum between each request
+MAX_PER_RUN  = 15  # Groq secondary — 15 × 8s = 120s max, safely within GitHub Actions step budget
+SLEEP_SECS   = 8.0                 # 8s between calls — Groq free tier: ~6 RPM to stay under 30 RPM limit
 
 # ── Slug builder (mirrors rewrite_feed.py) ────────────────────────────────────
 def make_slug(title, pub_date, cat=""):
@@ -618,7 +618,7 @@ def main():
     errors        = 0
     consec_limits = 0  # bail if rate-limited multiple times in a row
     _run_start    = time.time()
-    _RUN_LIMIT    = 120  # 2 min hard stop
+    _RUN_LIMIT    = 90   # 90s hard stop — prevents blocking GitHub Actions job
 
     for item in items_to_process:
         if time.time() - _run_start > _RUN_LIMIT:
@@ -683,7 +683,7 @@ def main():
                         domain_terms=ctx["terms"],   domain_guardrail=ctx["guardrail"],
                         domain_roi=ctx["roi"],
                     ),
-                    max_tokens=1200
+                    max_tokens=600
                 )
                 body_html = re.sub(r"```html?\n?|```\n?", "", raw_body).strip()
                 time.sleep(SLEEP_SECS)

@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script>
+    window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+    gtag('consent','default',{'analytics_storage':'denied','ad_storage':'denied',
+    'ad_user_data':'denied','ad_personalization':'denied','wait_for_update':500});
+  </script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-0VSHDN3ZR6"></script>
+  <script>gtag('js',new Date());gtag('config','G-0VSHDN3ZR6');</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8033069131874524" crossorigin="anonymous"></script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Post-Production Workflow: Studio-Grade Video Pipeline (2026) | The Streamic</title>
+  <meta name="description" content="Complete broadcast-level post-production workflow guide for 2026 — covering pre-production through LTO archival, colour grading, VFX, mastering, and QC. Used by OTT platforms, studios, and DI facilities.">
+  <meta name="robots" content="index,follow">
+  <meta name="author" content="The Streamic Editorial Team">
+  <link rel="canonical" href="https://www.thestreamic.in/post-production-workflows.html">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="The Streamic">
+  <meta property="og:title" content="Post-Production Workflow: Studio-Grade Video Pipeline (2026) | The Streamic">
+  <meta property="og:description" content="Complete broadcast-level post-production workflow: pre-production through LTO archival, colour grading, VFX, mastering, and QC.">
+  <meta property="og:url" content="https://www.thestreamic.in/post-production-workflows.html">
+  <meta property="og:image" content="https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=1200&auto=format&fit=crop&q=80">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    /* ── Page-specific overrides ── */
+    .pp-hero {
+      background: linear-gradient(135deg, #0a0a0f 0%, #111827 60%, #1a1040 100%);
+      color: #fff;
+      padding: 64px 0 72px;
+      margin-bottom: 0;
+    }
+    .pp-hero h1 {
+      font-family: var(--serif);
+      font-size: clamp(28px, 4vw, 52px);
+      letter-spacing: -.04em;
+      line-height: 1.1;
+      margin: 0 0 18px;
+      color: #fff;
+    }
+    .pp-hero p.lead {
+      font-size: clamp(15px, 1.6vw, 18px);
+      color: rgba(255,255,255,.75);
+      line-height: 1.7;
+      max-width: 680px;
+      margin: 0 0 28px;
+    }
+    .pp-badge {
+      display: inline-block;
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.2);
+      color: rgba(255,255,255,.85);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+    /* Workflow pipeline */
+    .pp-pipeline {
+      background: #f0f7ff;
+      border-radius: 16px;
+      padding: 32px 36px;
+      margin: 40px 0;
+    }
+    .pp-pipeline h3 {
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--blue);
+      margin: 0 0 20px;
+    }
+    .pipeline-flow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0;
+      align-items: center;
+    }
+    .pipeline-step {
+      background: #fff;
+      border: 1.5px solid #dbe6f8;
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--ink);
+      text-align: center;
+      letter-spacing: .2px;
+      white-space: nowrap;
+    }
+    .pipeline-arrow {
+      color: var(--blue);
+      font-size: 18px;
+      padding: 0 6px;
+      font-weight: 300;
+    }
+    @media(max-width: 700px) {
+      .pipeline-flow { flex-direction: column; align-items: flex-start; gap: 2px; }
+      .pipeline-arrow { transform: rotate(90deg); }
+    }
+    /* Stage cards */
+    .pp-stages { margin: 48px 0; }
+    .pp-stage {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      margin-bottom: 20px;
+      overflow: hidden;
+      transition: box-shadow .2s;
+    }
+    .pp-stage:hover { box-shadow: 0 4px 24px rgba(0,0,0,.08); }
+    .pp-stage-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 20px 28px;
+      background: var(--white);
+      border-bottom: 1px solid var(--line);
+      cursor: pointer;
+    }
+    .pp-stage-num {
+      flex-shrink: 0;
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 800;
+      color: #fff;
+    }
+    .pp-stage-title {
+      flex: 1;
+    }
+    .pp-stage-title h2 {
+      font-family: var(--serif);
+      font-size: clamp(17px, 1.8vw, 21px);
+      margin: 0 0 3px;
+      letter-spacing: -.02em;
+    }
+    .pp-stage-title p {
+      font-size: 13px;
+      color: var(--ink4);
+      margin: 0;
+    }
+    .pp-stage-body {
+      padding: 24px 28px 28px;
+      background: #fafafa;
+    }
+    .pp-tasks {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .pp-tasks li {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 13.5px;
+      color: var(--ink2);
+      line-height: 1.5;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .pp-tasks li::before {
+      content: "▸";
+      color: var(--blue);
+      font-size: 11px;
+      margin-top: 2px;
+      flex-shrink: 0;
+    }
+    .pp-sub-h { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: var(--ink3); margin: 18px 0 10px; }
+    /* Colour table */
+    .pp-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 13.5px; }
+    .pp-table th { background: #1d1d1f; color: #fff; padding: 10px 14px; text-align: left; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
+    .pp-table td { padding: 10px 14px; border-bottom: 1px solid var(--line); color: var(--ink2); }
+    .pp-table tr:nth-child(even) td { background: #f5f5f7; }
+    /* Delivery table */
+    .tag-chip { display: inline-block; background: #f0f0f5; color: var(--ink); font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; letter-spacing: .3px; margin: 1px; }
+    /* QC split */
+    .qc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+    .qc-col { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; }
+    .qc-col h4 { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .8px; margin: 0 0 12px; }
+    .qc-col ul { margin: 0; padding-left: 18px; }
+    .qc-col li { font-size: 13.5px; color: var(--ink2); line-height: 1.7; }
+    @media(max-width: 580px) { .qc-grid { grid-template-columns: 1fr; } }
+    /* Stage colour palette */
+    .s1 { background: #3B82F6; } /* pre-prod — blue */
+    .s2 { background: #8B5CF6; } /* production — purple */
+    .s3 { background: #06B6D4; } /* ingest — cyan */
+    .s4 { background: #10B981; } /* editorial — green */
+    .s5 { background: #F59E0B; } /* conform — amber */
+    .s6 { background: #EF4444; } /* colour — red */
+    .s7 { background: #EC4899; } /* VFX — pink */
+    .s8 { background: #6366F1; } /* mastering — indigo */
+    .s9 { background: #84CC16; } /* QC — lime */
+    .s10 { background: #64748B; } /* archive — slate */
+    /* CTA box */
+    .pp-cta { background: linear-gradient(135deg, #1d1d1f, #2d2d2f); border-radius: 16px; padding: 36px 40px; margin-top: 52px; color: #fff; text-align: center; }
+    .pp-cta h3 { font-family: var(--serif); font-size: 22px; margin: 0 0 12px; }
+    .pp-cta p { color: rgba(255,255,255,.7); font-size: 14px; margin: 0 0 24px; }
+    .pp-cta a { display: inline-block; background: var(--blue); color: #fff; padding: 12px 28px; border-radius: 8px; font-size: 14px; font-weight: 600; text-decoration: none; }
+    .pp-cta a:hover { opacity: .9; }
+    /* TOC sidebar */
+    .pp-layout { display: grid; grid-template-columns: 1fr 260px; gap: 48px; align-items: start; }
+    .pp-toc { position: sticky; top: 80px; background: var(--bg); border-radius: 12px; padding: 20px 22px; }
+    .pp-toc h4 { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--blue); margin: 0 0 14px; }
+    .pp-toc a { display: block; font-size: 13px; color: var(--ink3); text-decoration: none; padding: 5px 0; border-bottom: 1px solid var(--line); line-height: 1.4; }
+    .pp-toc a:hover { color: var(--blue); }
+    .pp-toc a:last-child { border-bottom: none; }
+    @media(max-width: 900px) {
+      .pp-layout { grid-template-columns: 1fr; }
+      .pp-toc { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="featured.html" class="nav-logo">
+      <img src="assets/logo.png" alt="" onerror="this.style.display='none'" aria-hidden="true">
+      <span>The Streamic</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="featured.html">Home</a></li>
+      <li><a href="ai-post-production.html">AI in Broadcasting</a></li>
+      <li><a href="howto.html">How-To Guides</a></li>
+      <li><a href="broadcast-systems-hub.html">Systems Hub</a></li>
+    </ul>
+    <div class="nav-right">
+      <a href="about.html" class="nav-desk">About</a>
+      <button class="nav-toggle" aria-label="Menu" onclick="document.querySelector('.nav-mob').classList.toggle('open')">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+  <div class="nav-mob">
+    <a href="featured.html">Home</a>
+    <a href="ai-post-production.html">AI in Broadcasting</a>
+    <a href="howto.html">How-To Guides</a>
+    <a href="broadcast-systems-hub.html">Systems Hub</a>
+    <a href="about.html">About</a>
+    <a href="contact.html">Contact</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<div class="pp-hero">
+  <div class="w" style="max-width:860px">
+    <span class="pp-badge">Implementation Blueprint &middot; 2026</span>
+    <h1>Studio-Grade Video Post-Production Workflow</h1>
+    <p class="lead">The broadcast-level pipeline used by OTT platforms, studio facilities, and DI houses in 2026 &mdash; from pre-production through LTO archival. Ten stages, zero guesswork.</p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap">
+      <span style="background:rgba(255,255,255,.15);color:#fff;font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;text-transform:uppercase;letter-spacing:.5px">10 Stages</span>
+      <span style="background:rgba(255,255,255,.15);color:#fff;font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;text-transform:uppercase;letter-spacing:.5px">ACES 1.3 &middot; Dolby Vision &middot; HDR10+</span>
+      <span style="background:rgba(255,255,255,.15);color:#fff;font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;text-transform:uppercase;letter-spacing:.5px">LTO-9 &middot; AWS Glacier</span>
+    </div>
+  </div>
+</div>
+
+<main>
+<div class="w" style="max-width:1100px;padding:48px 0 80px">
+
+  <!-- Pipeline overview -->
+  <div class="pp-pipeline">
+    <h3>Complete Pipeline Flow</h3>
+    <div class="pipeline-flow">
+      <div class="pipeline-step">Pre-Production</div>
+      <div class="pipeline-arrow">&#8594;</div>
+      <div class="pipeline-step">Production</div>
+      <div class="pipeline-arrow">&#8594;</div>
+      <div class="pipeline-step">Ingest</div>
+      <div class="pipeline-arrow">&#8594;</div>
+      <div class="pipeline-step">Editorial</div>
+      <div class="pipeline-arrow">&#8594;</div>
+      <div class="pipeline-step">Conform</div>
+      <div class="pipeline-arrow">&#8594;</div>
+      <div class="pipeline-step">Colour Grading</div>
+      <div class="pipeline-arrow">&#8594;</div>
+      <div class="pipeline-step">VFX</div>
+      <div class="pipeline-arrow">&#8594;</div>
+      <div class="pipeline-step">Mastering</div>
+      <div class="pipeline-arrow">&#8594;</div>
+      <div class="pipeline-step">QC</div>
+      <div class="pipeline-arrow">&#8594;</div>
+      <div class="pipeline-step">Archival</div>
+    </div>
+  </div>
+
+  <!-- Two-column layout: stages + TOC -->
+  <div class="pp-layout">
+    <div class="pp-stages">
+
+      <!-- Stage 1: Pre-Production -->
+      <div class="pp-stage" id="stage-1">
+        <div class="pp-stage-header">
+          <div class="pp-stage-num s1">1</div>
+          <div class="pp-stage-title">
+            <h2>Pre-Production</h2>
+            <p>Plan the content, visuals, and technical requirements before a single frame is captured</p>
+          </div>
+        </div>
+        <div class="pp-stage-body">
+          <ul class="pp-tasks">
+            <li>Scriptwriting &amp; revisions</li>
+            <li>Storyboard creation</li>
+            <li>Shot list development</li>
+            <li>Location scouting &amp; planning</li>
+            <li>Equipment list &amp; hire</li>
+            <li>Production schedule</li>
+            <li>Metadata templates (scene, shot, take)</li>
+          </ul>
+          <p style="font-size:13px;color:var(--ink3);margin-top:18px">
+            <strong>Key output:</strong> Approved script, signed-off storyboard, complete metadata schema documented before production begins. Metadata templates defined here propagate through the entire pipeline &mdash; changes downstream cost exponentially more.
+          </p>
+        </div>
+      </div>
+
+      <!-- Stage 2: Production -->
+      <div class="pp-stage" id="stage-2">
+        <div class="pp-stage-header">
+          <div class="pp-stage-num s2">2</div>
+          <div class="pp-stage-title">
+            <h2>Production (Shooting)</h2>
+            <p>Capture high-quality footage with proper metadata and on-set data management</p>
+          </div>
+        </div>
+        <div class="pp-stage-body">
+          <p class="pp-sub-h">Camera &amp; Capture</p>
+          <ul class="pp-tasks">
+            <li>Camera setup: ARRI, RED, Sony, Blackmagic</li>
+            <li>Lighting setup &amp; gaffer coordination</li>
+            <li>Audio recording (SFX + dialogue)</li>
+            <li>Slate + metadata logging per take</li>
+            <li>On-set monitoring (DIT station)</li>
+          </ul>
+          <p class="pp-sub-h" style="margin-top:20px">Data Management On-Set</p>
+          <ul class="pp-tasks">
+            <li>Dual checksum copy (primary SSD + backup SSD)</li>
+            <li>LTO-9 near-set backup where applicable</li>
+            <li>Generate on-set LUTs + CDL per scene</li>
+          </ul>
+          <div style="background:#fff8f0;border-left:3px solid #FF9500;border-radius:0 8px 8px 0;padding:12px 16px;margin-top:18px;font-size:13px;color:var(--ink2)">
+            <strong style="color:#c8640a">Critical:</strong> Never rely on a single copy. Two physically separate media, verified checksums, before the camera crew wraps for the day. Data loss at this stage is unrecoverable.
+          </div>
+        </div>
+      </div>
+
+      <!-- Stage 3: Ingest -->
+      <div class="pp-stage" id="stage-3">
+        <div class="pp-stage-header">
+          <div class="pp-stage-num s3">3</div>
+          <div class="pp-stage-title">
+            <h2>Ingest &amp; Data Management</h2>
+            <p>Secure, organise, and prepare footage for editorial</p>
+          </div>
+        </div>
+        <div class="pp-stage-body">
+          <ul class="pp-tasks">
+            <li>Dual checksum copy to facility storage</li>
+            <li>Structured folder hierarchy creation</li>
+            <li>Proxy generation (DNxHD 36 or ProRes Proxy)</li>
+            <li>Metadata verification &amp; MAM ingest</li>
+            <li>Cloud backup to primary cloud tier</li>
+            <li>LTO archival of camera originals</li>
+          </ul>
+          <table class="pp-table" style="margin-top:20px">
+            <thead><tr><th>Media Tier</th><th>Storage Type</th><th>Purpose</th><th>Retention</th></tr></thead>
+            <tbody>
+              <tr><td>Hot</td><td>NVMe/NAS RAID</td><td>Active editorial &amp; VFX</td><td>Duration of project</td></tr>
+              <tr><td>Warm</td><td>Nearline disk or LTO</td><td>Camera originals</td><td>6 months post-delivery</td></tr>
+              <tr><td>Cold</td><td>LTO-9 dual + Cloud Glacier</td><td>Archive master</td><td>Indefinite</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Stage 4: Editorial -->
+      <div class="pp-stage" id="stage-4">
+        <div class="pp-stage-header">
+          <div class="pp-stage-num s4">4</div>
+          <div class="pp-stage-title">
+            <h2>Editorial (Offline Edit)</h2>
+            <p>Build the story using lightweight proxies &mdash; performance over resolution</p>
+          </div>
+        </div>
+        <div class="pp-stage-body">
+          <ul class="pp-tasks">
+            <li>Rough cut assembly</li>
+            <li>Fine cut refinements</li>
+            <li>Picture lock approval</li>
+            <li>Export AAF / EDL / XML for conform</li>
+            <li>Reference QuickTime for VFX pulls</li>
+          </ul>
+          <p style="font-size:13px;color:var(--ink3);margin-top:18px">
+            <strong>Tools in use:</strong> Avid Media Composer (AAF workflows), Adobe Premiere Pro (XML/EDL), DaVinci Resolve (integrated finish workflows). Proxy format must match the conform system&rsquo;s expectations &mdash; verify before picture lock.
+          </p>
+          <p style="font-size:13px;color:var(--ink3);margin-top:10px">
+            <strong>Picture lock discipline:</strong> Changes after picture lock propagate through colour, VFX, audio, and mastering simultaneously. Each downstream department must approve any post-lock change before it is executed.
+          </p>
+        </div>
+      </div>
+
+      <!-- Stage 5: Conform -->
+      <div class="pp-stage" id="stage-5">
+        <div class="pp-stage-header">
+          <div class="pp-stage-num s5">5</div>
+          <div class="pp-stage-title">
+            <h2>Conform (Online Edit)</h2>
+            <p>Rebuild the film at full-quality RAW, linked to camera originals</p>
+          </div>
+        </div>
+        <div class="pp-stage-body">
+          <ul class="pp-tasks">
+            <li>Relink to camera RAW via AAF/EDL/XML</li>
+            <li>Apply ACES 1.3 colour managed pipeline</li>
+            <li>Optical stabilisation where required</li>
+            <li>Reframing &amp; repositioning shots</li>
+            <li>Dead-pixel &amp; sensor artifact repair</li>
+            <li>VFX pulls (OpenEXR 16-bit with handles)</li>
+          </ul>
+          <div style="background:#f0f7ff;border-left:3px solid var(--blue);border-radius:0 8px 8px 0;padding:12px 16px;margin-top:18px;font-size:13px;color:var(--ink2)">
+            <strong>ACES 1.3 pipeline:</strong> All footage ingested via the appropriate IDT (Input Device Transform) for each camera. Grade occurs in ACEScct working space. Output via RRT + ODT for each deliverable colour space. Switching ACES versions mid-project invalidates all prior colour work.
+          </div>
+        </div>
+      </div>
+
+      <!-- Stage 6: Colour Grading -->
+      <div class="pp-stage" id="stage-6">
+        <div class="pp-stage-header">
+          <div class="pp-stage-num s6">6</div>
+          <div class="pp-stage-title">
+            <h2>Colour Grading</h2>
+            <p>Create the final look &mdash; HDR-first grading with managed SDR trims</p>
+          </div>
+        </div>
+        <div class="pp-stage-body">
+          <table class="pp-table">
+            <thead><tr><th>Grade Pass</th><th>Colour Space</th><th>Standard</th><th>Display Target</th></tr></thead>
+            <tbody>
+              <tr><td>HDR primary</td><td>ACEScct</td><td>Dolby Vision</td><td>4000 nit reference</td></tr>
+              <tr><td>HDR secondary</td><td>ACEScct</td><td>HDR10+</td><td>1000 nit consumer</td></tr>
+              <tr><td>SDR trim</td><td>Rec.709</td><td>ITU-R BT.709</td><td>100 nit Rec.709</td></tr>
+              <tr><td>Broadcast (UK/EU)</td><td>Rec.709</td><td>EBU R103</td><td>Monitor-matched</td></tr>
+            </tbody>
+          </table>
+          <p class="pp-sub-h" style="margin-top:4px">Additional Grading Tasks</p>
+          <ul class="pp-tasks">
+            <li>Texture management &amp; skin tone retention</li>
+            <li>Film emulation (grain emulation pass)</li>
+            <li>Shot-matching across cameras &amp; scenes</li>
+          </ul>
+          <p style="font-size:13px;color:var(--ink3);margin-top:16px">
+            <strong>Tools:</strong> DaVinci Resolve Studio (primary; Fusion integration for VFX review), Baselight (features-led productions), Colour front panels (Tangent, DaVinci Advanced Panel).
+          </p>
+        </div>
+      </div>
+
+      <!-- Stage 7: VFX Integration -->
+      <div class="pp-stage" id="stage-7">
+        <div class="pp-stage-header">
+          <div class="pp-stage-num s7">7</div>
+          <div class="pp-stage-title">
+            <h2>VFX Integration</h2>
+            <p>Insert CGI, compositing, and motion graphics into the colour-managed timeline</p>
+          </div>
+        </div>
+        <div class="pp-stage-body">
+          <ul class="pp-tasks">
+            <li>ACEScg working colour space for all CG</li>
+            <li>EXR plates delivered from conform with handles</li>
+            <li>Cryptomatte for object-level compositing control</li>
+            <li>8&ndash;16 frame handles on all VFX pulls</li>
+            <li>Final comps returned as EXR (32-bit float)</li>
+          </ul>
+          <table class="pp-table" style="margin-top:20px">
+            <thead><tr><th>Deliverable from VFX</th><th>Format</th><th>Bit Depth</th><th>Colour Space</th></tr></thead>
+            <tbody>
+              <tr><td>Final composites</td><td>OpenEXR sequence</td><td>32-bit float</td><td>ACEScg</td></tr>
+              <tr><td>Motion graphics</td><td>ProRes 4444</td><td>12-bit</td><td>Rec.709 or ACEScg</td></tr>
+              <tr><td>Matte paintings</td><td>OpenEXR</td><td>16-bit half-float</td><td>ACEScg</td></tr>
+            </tbody>
+          </table>
+          <p style="font-size:13px;color:var(--ink3);margin-top:16px">
+            <strong>Tools:</strong> Foundry Nuke (compositing), Adobe After Effects (motion graphics), Autodesk Flame (finishing and VFX), Blackmagic Fusion (DaVinci-integrated workflows).
+          </p>
+        </div>
+      </div>
+
+      <!-- Stage 8: Mastering & Delivery -->
+      <div class="pp-stage" id="stage-8">
+        <div class="pp-stage-header">
+          <div class="pp-stage-num s8">8</div>
+          <div class="pp-stage-title">
+            <h2>Mastering &amp; Delivery</h2>
+            <p>Create final deliverables optimised for every distribution platform</p>
+          </div>
+        </div>
+        <div class="pp-stage-body">
+          <table class="pp-table">
+            <thead><tr><th>Deliverable</th><th>Format</th><th>Use Case</th><th>Platform</th></tr></thead>
+            <tbody>
+              <tr><td>4K/8K EXR Archive</td><td>ACES EXR sequence</td><td>Long-term preservation master</td><td>Archive only</td></tr>
+              <tr><td>4K DCP</td><td>DCI-P3 / JPEG 2000</td><td>Theatrical release</td><td>Cinema servers</td></tr>
+              <tr><td>Dolby Vision IMF</td><td>JPEG 2000 + metadata</td><td>Premium streaming</td><td>Netflix, Apple TV+</td></tr>
+              <tr><td>HDR10+ IMF</td><td>JPEG 2000</td><td>Consumer HDR streaming</td><td>Amazon Prime, Samsung</td></tr>
+              <tr><td>ProRes 4444XQ</td><td>ProRes 4444XQ</td><td>Broadcast master</td><td>Linear TV / SVOD</td></tr>
+              <tr><td>XDCAM MXF</td><td>MXF OP1a</td><td>Broadcast contribution</td><td>PSBs, networks</td></tr>
+              <tr><td>H.265 Main10</td><td>HEVC MP4</td><td>OTT streaming delivery</td><td>All streaming platforms</td></tr>
+            </tbody>
+          </table>
+          <p style="font-size:13px;color:var(--ink3);margin-top:16px">
+            <strong>Tools:</strong> Telestream Vantage (transcoding automation), Harmonic VOS360 (cloud encoding), AWS Elemental MediaConvert (cloud-scale delivery), Fraunhofer IIS (MPEG-H audio packaging).
+          </p>
+        </div>
+      </div>
+
+      <!-- Stage 9: QC -->
+      <div class="pp-stage" id="stage-9">
+        <div class="pp-stage-header">
+          <div class="pp-stage-num s9">9</div>
+          <div class="pp-stage-title">
+            <h2>Quality Control</h2>
+            <p>Automated and manual QC to ensure every master is technically flawless</p>
+          </div>
+        </div>
+        <div class="pp-stage-body">
+          <div class="qc-grid">
+            <div class="qc-col">
+              <h4 style="color:#84CC16">&#9650; Automated QC</h4>
+              <ul>
+                <li>Frame drops &amp; duplication detection</li>
+                <li>HDR metadata validation (MaxCLL, MaxFALL)</li>
+                <li>Colour space mismatch flagging</li>
+                <li>Audio clipping &amp; loudness (EBU R128)</li>
+              </ul>
+            </div>
+            <div class="qc-col">
+              <h4 style="color:#6366F1">&#9632; Manual QC</h4>
+              <ul>
+                <li>Artifact &amp; compression review</li>
+                <li>Subtitle sync verification</li>
+                <li>Colour continuity across scenes</li>
+                <li>Final reference playback on calibrated display</li>
+              </ul>
+            </div>
+          </div>
+          <p style="font-size:13px;color:var(--ink3);margin-top:18px">
+            <strong>Tools:</strong> Venera Pulsar (automated QC), Tektronix Sentry (monitor), Interra ORION (OTT QC), Colorfront (HDR reference monitoring), Dolby Vision Analyser.
+          </p>
+          <p style="font-size:13px;color:var(--ink3);margin-top:10px">
+            <strong>Pass/fail criteria:</strong> Zero frame drops, HDR metadata within spec per platform requirements (Netflix QC checklist, Amazon IMF specification), audio LUFS within &plusmn;1dB of target, subtitles synced to &plusmn;1 frame.
+          </p>
+        </div>
+      </div>
+
+      <!-- Stage 10: Archival -->
+      <div class="pp-stage" id="stage-10">
+        <div class="pp-stage-header">
+          <div class="pp-stage-num s10">10</div>
+          <div class="pp-stage-title">
+            <h2>Archival</h2>
+            <p>Preserve the project for decades &mdash; minimum dual-copy, geographically separated</p>
+          </div>
+        </div>
+        <div class="pp-stage-body">
+          <ul class="pp-tasks">
+            <li>LTO-9 dual-copy backup (separate physical locations)</li>
+            <li>Cloud archival via AWS Glacier or Azure Archive</li>
+            <li>Metadata manifest &amp; asset inventory</li>
+            <li>Version logs &amp; decision records</li>
+          </ul>
+          <table class="pp-table" style="margin-top:20px">
+            <thead><tr><th>Archive Layer</th><th>Technology</th><th>Recovery Time</th><th>Cost / TB / month</th></tr></thead>
+            <tbody>
+              <tr><td>On-site (primary)</td><td>LTO-9 tape library</td><td>Hours</td><td>~$1.50</td></tr>
+              <tr><td>Off-site (secondary)</td><td>LTO-9 vault rotation</td><td>1&ndash;3 days</td><td>~$2.00 (inc. transport)</td></tr>
+              <tr><td>Cloud cold (tertiary)</td><td>AWS Glacier Deep Archive</td><td>12&ndash;48 hours</td><td>~$0.002</td></tr>
+            </tbody>
+          </table>
+          <p style="font-size:13px;color:var(--ink3);margin-top:16px">
+            <strong>Restore testing:</strong> Archive integrity must be verified annually via full restore test of a randomly selected project. Checksums recorded at archival must match on restore. Tape media has a finite read-cycle lifespan &mdash; migration to new LTO generation is required every 7&ndash;10 years.
+          </p>
+        </div>
+      </div>
+
+    </div><!-- /.pp-stages -->
+
+    <!-- Sticky TOC -->
+    <aside class="pp-toc">
+      <h4>Workflow Stages</h4>
+      <a href="#stage-1">1 &mdash; Pre-Production</a>
+      <a href="#stage-2">2 &mdash; Production</a>
+      <a href="#stage-3">3 &mdash; Ingest &amp; Data</a>
+      <a href="#stage-4">4 &mdash; Editorial (Offline)</a>
+      <a href="#stage-5">5 &mdash; Conform (Online)</a>
+      <a href="#stage-6">6 &mdash; Colour Grading</a>
+      <a href="#stage-7">7 &mdash; VFX Integration</a>
+      <a href="#stage-8">8 &mdash; Mastering &amp; Delivery</a>
+      <a href="#stage-9">9 &mdash; Quality Control</a>
+      <a href="#stage-10">10 &mdash; Archival</a>
+      <div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--line)">
+        <a href="articles/ai-video-post-production-editing-vfx-automation-2026.html" style="color:var(--blue);border:none">AI in Post-Production &rarr;</a>
+        <a href="articles/media-asset-management-ai-era-monetisation-2026.html" style="color:var(--blue);border:none;margin-top:8px">MAM in the AI Era &rarr;</a>
+        <a href="broadcast-systems-hub.html" style="color:var(--blue);border:none;margin-top:8px">Systems Hub &rarr;</a>
+      </div>
+    </aside>
+
+  </div><!-- /.pp-layout -->
+
+  <!-- Author bio -->
+  <div class="art-author-bio" style="margin-top:52px">
+    <div class="bio-avatar">PK</div>
+    <div class="bio-body">
+      <strong class="bio-name">Prerak K Mehta</strong>
+      <span class="bio-title">Broadcast Systems &amp; Post-Production Engineer &middot; Editor-in-Chief, The Streamic</span>
+      <p class="bio-text">Prerak has 25+ years of experience designing and operating broadcast and media technology infrastructure &mdash; including IP signal transport (ST&nbsp;2110, NDI, SRT), cloud-native production workflows, MAM/PAM systems, and OTT origin and delivery stacks. He founded The Streamic to provide broadcast engineers with analysis that goes beyond vendor press releases. Based in Dublin, Ireland.</p>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="pp-cta">
+    <h3>Go Deeper: Related Analysis</h3>
+    <p>Explore our long-form engineering guides on AI in post-production, MAM in the AI era, and the broadcast systems integration hub.</p>
+    <a href="ai-post-production.html">Browse AI &amp; Post-Production Coverage &rarr;</a>
+  </div>
+
+</div><!-- /.w -->
+</main>
+
+<footer class="footer">
+  <div class="footer-grid">
+    <div>
+      <div class="footer-brand">The Streamic</div>
+      <p class="footer-tag">Independent broadcast &amp; streaming technology journalism for engineers and media professionals.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Coverage</h4>
+      <a href="ai-post-production.html">AI in Broadcasting</a>
+      <a href="howto.html">How-To Guides</a>
+      <a href="broadcast-systems-hub.html">Systems Hub</a>
+      <a href="post-production-workflows.html">Post-Production Workflows</a>
+    </div>
+    <div class="footer-col">
+      <h4>Site</h4>
+      <a href="about.html">About</a>
+      <a href="contact.html">Contact</a>
+      <a href="editorial-policy.html">Editorial Policy</a>
+      <a href="privacy.html">Privacy Policy</a>
+      <a href="terms.html">Terms of Use</a>
+    </div>
+    <div class="footer-col">
+      <h4>Follow</h4>
+      <a href="https://twitter.com/thestreamic" target="_blank" rel="noopener noreferrer">&#x1D54F; @thestreamic</a>
+      <a href="https://www.linkedin.com/company/thestreamic" target="_blank" rel="noopener noreferrer">in TheStreamic</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>&copy; 2026 The Streamic &mdash; thestreamic.in. All rights reserved.</span>
+    <span>Independent broadcast technology journalism. All trademarks belong to their respective owners.</span>
+  </div>
+</footer>
+
+<div id="ts-cookie">
+  <div class="cookie-in">
+    <div class="cookie-txt">
+      <strong>We use cookies</strong> Analytics and advertising cookies improve your experience.
+      <a href="/privacy.html">Privacy Policy</a>
+    </div>
+    <div class="cookie-btns">
+      <button class="cookie-no" onclick="tsCC(false)">Reject optional</button>
+      <button class="cookie-ok" onclick="tsCC(true)">Accept all</button>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  var K='ts_cc',s=localStorage.getItem(K),b=document.getElementById('ts-cookie');
+  if(!s&&b)b.style.display='block';
+  window.tsCC=function(ok){
+    localStorage.setItem(K,ok?'granted':'denied');
+    if(b)b.style.display='none';
+    if(typeof gtag!='undefined')gtag('consent','update',{
+      analytics_storage:ok?'granted':'denied',ad_storage:ok?'granted':'denied',
+      ad_user_data:ok?'granted':'denied',ad_personalization:ok?'granted':'denied'});
+  };
+  if(s==='granted'&&typeof gtag!='undefined')gtag('consent','update',{
+    analytics_storage:'granted',ad_storage:'granted',
+    ad_user_data:'granted',ad_personalization:'granted'});
+})();
+</script>
+</body>
+</html>
