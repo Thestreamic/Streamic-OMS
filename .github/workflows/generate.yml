@@ -138,6 +138,7 @@ jobs:
         if: steps.mode.outputs.mode == 'vendor_hub'
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           # weekly = add WEEKLY_NEW new + refresh stale (safe on quota)
           # full   = process up to MAX_CALLS_PER_RUN (manual cold-cache run)
           VENDOR_HUB_MODE: ${{ github.event.inputs.run_mode == 'vendor_hub' && 'full' || 'weekly' }}
