@@ -442,37 +442,45 @@ def save_json_atomically(data, filepath: Path):
 
 
 def main():
-    print("🚀 Starting The Streamic RSS Aggregator\n")
-    DATA_DIR.mkdir(parents=True, exist_ok=True)
-
+    """Main execution loop for the RSS aggregator."""
+    print("🚀 Starting The Streamic RSS Aggregator")
     all_items = []
-# CORRECTED LINE
-for category, feed_urls in FEEDS_BY_CATEGORY.items():
+
+    # Iterate through categories and their respective feed lists
+    for category, feed_urls in FEEDS_BY_CATEGORY.items():
         print(f"\n📰 Processing {category.upper()} ({len(feed_urls)} feeds)")
+        
         for feed_url in feed_urls:
             try:
                 feed = fetch_feed_with_fallback(feed_url)
-                if not feed or not feed.entries:
-                    print(f" ⚠ No entries from {feed_url[:80]}")
+                if not feed or not hasattr(feed, 'entries') or not feed.entries:
+                    print(f" ⚠ No entries from {feed_url[:60]}...")
                     continue
 
+                # Take a slice of the most recent entries
                 entries = feed.entries[:MAX_ITEMS_PER_FEED]
                 source_name = get_source_name(feed_url)
                 items = process_entries(entries, category, source_name)
-                # Filter off-topic items at source
+                
+                # Filter for broadcast-only content
                 broadcast_items = [
-                    it for it in items
+                    it for it in items 
                     if is_broadcast_item(it.get("title",""), it.get("teaser",""))
                 ]
+                
                 skipped = len(items) - len(broadcast_items)
                 all_items.extend(broadcast_items)
+                
                 msg = f" ({skipped} off-topic skipped)" if skipped else ""
                 print(f" ✓ {source_name}: {len(broadcast_items)} items{msg}")
+
             except Exception as e:
-                print(f" ✗ Error with {feed_url[:80]}: {e}")
+                print(f" ✗ Error with {feed_url[:60]}: {e}")
                 continue
 
+    # --- CRITICAL: These lines must be indented exactly 4 spaces (aligned with 'for category...') ---
     print(f"\n📦 Total items collected: {len(all_items)}")
+    
     if not all_items:
         print("❌ No items collected. Exiting.")
         return
@@ -480,19 +488,16 @@ for category, feed_urls in FEEDS_BY_CATEGORY.items():
     balanced_items = balance_categories(all_items)
     print(f"⚖️ Balanced to: {len(balanced_items)} items")
 
-    _ok = validate_news_data(balanced_items)
+    # Validate and Save
+    if validate_news_data(balanced_items):
+        if Path(OUTPUT_FILE).exists():
+            if Path(ARCHIVE_FILE).exists():
+                Path(ARCHIVE_FILE).unlink()
+            Path(OUTPUT_FILE).rename(ARCHIVE_FILE)
+            print(f"💾 Backed up previous data to {ARCHIVE_FILE}")
 
-    # archive previous, then save
-    if OUTPUT_FILE.exists():
-        if ARCHIVE_FILE.exists():
-            ARCHIVE_FILE.unlink()
-        OUTPUT_FILE.rename(ARCHIVE_FILE)
-        print(f"\n💾 Backed up previous data to {ARCHIVE_FILE}")
-
-    save_json_atomically(balanced_items, OUTPUT_FILE)
-    print(f"✅ Saved {len(balanced_items)} items to {OUTPUT_FILE}")
-    print("\n🎉 Aggregation complete!")
-
+        save_json_atomically(balanced_items, Path(OUTPUT_FILE))
+        print(f"✅ Saved {len(balanced_items)} items to {OUTPUT_FILE}")
 
 if __name__ == "__main__":
     main()
