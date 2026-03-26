@@ -447,7 +447,7 @@ def main():
     all_items = []
 
     # Iterate through categories and their respective feed lists
-    for category, feed_urls in FEEDS_BY_CATEGORY.items():
+    for category, feed_urls in CATEGORY_FEEDS.items():
         print(f"\n📰 Processing {category.upper()} ({len(feed_urls)} feeds)")
         
         for feed_url in feed_urls:
@@ -478,7 +478,7 @@ def main():
                 print(f" ✗ Error with {feed_url[:60]}: {e}")
                 continue
 
-    # --- CRITICAL: These lines must be indented exactly 4 spaces (aligned with 'for category...') ---
+    # --- CRITICAL: These lines must be indented exactly 4 spaces ---
     print(f"\n📦 Total items collected: {len(all_items)}")
     
     if not all_items:
