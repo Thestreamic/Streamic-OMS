@@ -320,7 +320,7 @@ def _build_hub_page(vendor_blocks: list[dict]) -> str:
         cat_anchor = cat.lower().replace(" ", "-").replace("/", "-").replace("(", "").replace(")", "")
         toc_items += f'<li><strong>{cat}</strong><ul style="margin:4px 0 8px 16px">'
         for item in items:
-            slug = f"{item["vendor"]}-{item["product"]}".lower()
+            slug = f"{item['vendor']}-{item['product']}".lower()
             slug = re.sub(r"[^a-z0-9]+", "-", slug).strip("-")
             toc_items += f'<li><a href="#{slug}" style="color:var(--blue);text-decoration:none">{item["vendor"]} {item["product"]}</a></li>'
         toc_items += "</ul></li>"
