@@ -61,28 +61,28 @@
     </div>
     <figure>
       <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1200&amp;auto=format&amp;fit=crop&amp;q=80" alt="Digital Provenance vs. Generative Deception: How C2PA Standards Are Saving News Credibility" loading="eager">
-      <figcaption>Unsplash — free to use under the Unsplash License &#8212; <a href="https://unsplash.com/license" rel="nofollow noopener" target="_blank" style="color:var(--ink4)">Unsplash License</a></figcaption>
+      <figcaption>Unsplash &amp;#8212; free to use under the Unsplash License &#8212; <a href="https://unsplash.com/license" rel="nofollow noopener" target="_blank" style="color:var(--ink4)">Unsplash License</a></figcaption>
     </figure>
     
-    <div class="art-body"><p><strong>The broadcast news industry faces a challenge that would have seemed like science fiction a decade ago: footage that looks completely real, sounds completely real, and was never captured by a camera. Generative AI video synthesis has reached a point where the perceptual difference between authentic captured footage and high-quality synthetic content is no longer reliably detectable by human viewers. The response from the technology and media industry is cryptographic — and it is called C2PA.</strong></p>
+    <div class="art-body"><p><strong>The broadcast news industry faces a challenge that would have seemed like science fiction a decade ago: footage that looks completely real, sounds completely real, and was never captured by a camera. Generative AI video synthesis has reached a point where the perceptual difference between authentic captured footage and high-quality synthetic content is no longer reliably detectable by human viewers. The response from the technology and media industry is cryptographic &#8212; and it is called C2PA.</strong></p>
 
 <p>The Coalition for Content Provenance and Authenticity is a cross-industry initiative that has developed an open technical standard for attaching verifiable digital provenance information to media content. The standard allows a camera, editing system, or content management platform to cryptographically sign media content with information about its origin, the devices and software involved in its creation, and any modifications made after initial capture.</p>
 
 <h3>Why Traditional Verification Is No Longer Sufficient</h3>
 
-<p>News organisations have always had verification processes. Checking sources, confirming locations, reviewing metadata, running reverse image searches — these are established practices. They remain valuable, but they were developed for a world where fabricating high-quality moving image content required significant resources, specialised skills, and was therefore relatively rare.</p>
+<p>News organisations have always had verification processes. Checking sources, confirming locations, reviewing metadata, running reverse image searches &#8212; these are established practices. They remain valuable, but they were developed for a world where fabricating high-quality moving image content required significant resources, specialised skills, and was therefore relatively rare.</p>
 
 <p>The cost of creating convincing synthetic video content has dropped by orders of magnitude in the past three years. What previously required a production facility and expert visual effects artists can now be achieved with consumer hardware and widely available open-source tools. This means that the volume of synthetic content in circulation is growing rapidly, and it is being created by actors with widely varying levels of sophistication and intent.</p>
 
-<p>At the same time, the tell-tale artefacts that previously made AI-generated video detectable — unnatural blinking, inconsistent lighting on faces, audio-visual synchronisation issues — are rapidly disappearing from state-of-the-art models. Detection tools that worked reliably twelve months ago are already struggling with the current generation of synthetic content.</p>
+<p>At the same time, the tell-tale artefacts that previously made AI-generated video detectable &#8212; unnatural blinking, inconsistent lighting on faces, audio-visual synchronisation issues &#8212; are rapidly disappearing from state-of-the-art models. Detection tools that worked reliably twelve months ago are already struggling with the current generation of synthetic content.</p>
 
 <h3>How C2PA Works</h3>
 
 <p>C2PA addresses this challenge not by trying to detect synthetic content after the fact, but by establishing a chain of trust from the point of original capture. A C2PA-compliant camera embeds a cryptographically signed provenance manifest in every file it creates, containing information about the device, the capture time and location, and a hash of the content that will change if the file is subsequently modified.</p>
 
-<p>As the content moves through a C2PA-compliant production pipeline — through editing, compression, and packaging — each step can add its own signed assertions to the provenance chain while preserving the signatures from earlier steps. The result is a complete, verifiable record of the content's journey from capture to broadcast.</p>
+<p>As the content moves through a C2PA-compliant production pipeline &#8212; through editing, compression, and packaging &#8212; each step can add its own signed assertions to the provenance chain while preserving the signatures from earlier steps. The result is a complete, verifiable record of the content's journey from capture to broadcast.</p>
 
-<p>When the finished content is published or broadcast, a viewer or verification system can inspect the provenance chain and determine not just that the content appears authentic, but that it was captured by a specific device, processed through specific systems, and that each step in the chain can be cryptographically verified. Any modification that was not captured in the provenance chain — including AI manipulation of the original capture — will break the cryptographic verification.</p>
+<p>When the finished content is published or broadcast, a viewer or verification system can inspect the provenance chain and determine not just that the content appears authentic, but that it was captured by a specific device, processed through specific systems, and that each step in the chain can be cryptographically verified. Any modification that was not captured in the provenance chain &#8212; including AI manipulation of the original capture &#8212; will break the cryptographic verification.</p>
 
 <h3>Adoption in the Broadcast Ecosystem</h3>
 
@@ -94,13 +94,13 @@
 
 <p>C2PA is not a complete solution to the synthetic media problem, and the broadcast industry should not treat it as one. There are meaningful limitations that any implementation must account for.</p>
 
-<p>The most significant is the "analogue hole" — the possibility of pointing a C2PA-signing camera at a high-quality screen displaying synthetic content, thereby capturing genuine footage of synthetic material with valid provenance. This attack vector requires physical access and is detectable through metadata analysis in many cases, but it is real.</p>
+<p>The most significant is the "analogue hole" &#8212; the possibility of pointing a C2PA-signing camera at a high-quality screen displaying synthetic content, thereby capturing genuine footage of synthetic material with valid provenance. This attack vector requires physical access and is detectable through metadata analysis in many cases, but it is real.</p>
 
 <p>Provenance chains can also be interrupted by non-compliant systems in the production pipeline, creating gaps in the verification record that do not necessarily indicate manipulation but reduce the strength of the provenance claim. Comprehensive C2PA protection requires end-to-end implementation across the entire production chain, which is an ongoing deployment challenge.</p>
 
 <h3>What Newsrooms Should Be Doing Now</h3>
 
-<p>For broadcast news engineering and technology teams, the practical priorities are clear. First, inventory the current production chain to understand where C2PA support already exists and where the gaps are. Second, establish a policy for how provenance information should be used in editorial verification workflows — C2PA should complement, not replace, traditional verification processes. Third, begin planning for C2PA-compliant upgrades as equipment comes up for renewal.</p>
+<p>For broadcast news engineering and technology teams, the practical priorities are clear. First, inventory the current production chain to understand where C2PA support already exists and where the gaps are. Second, establish a policy for how provenance information should be used in editorial verification workflows &#8212; C2PA should complement, not replace, traditional verification processes. Third, begin planning for C2PA-compliant upgrades as equipment comes up for renewal.</p>
 
 <p>The organisational challenge is as significant as the technical one. Journalists and producers need to understand what C2PA provenance information means and does not mean. Technology teams need to integrate provenance checking into standard workflows without adding friction that slows breaking news operations.</p>
 
