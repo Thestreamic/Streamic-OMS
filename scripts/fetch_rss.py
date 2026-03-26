@@ -446,8 +446,8 @@ def main():
     DATA_DIR.mkdir(parents=True, exist_ok=True)
 
     all_items = []
-
-    for category, feed_urls in FEED_GROUPS.items():
+# CORRECTED LINE
+for category, feed_urls in FEEDS_BY_CATEGORY.items():
         print(f"\n📰 Processing {category.upper()} ({len(feed_urls)} feeds)")
         for feed_url in feed_urls:
             try:
