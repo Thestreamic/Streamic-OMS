@@ -326,11 +326,11 @@ def make_article_page(
     {body_html}
   </div>
   <div class="art-author-bio">
-    <div class="bio-avatar">PK</div>
+    <div class="bio-avatar">S</div>
     <div class="bio-body">
       <strong class="bio-name">Prerak K Mehta</strong>
-      <span class="bio-title">Broadcast Systems &amp; Post-Production Engineer &middot; Editor-in-Chief, The Streamic</span>
-      <p class="bio-text">Prerak has 25+ years of experience designing broadcast and media technology infrastructure. He founded The Streamic to provide broadcast engineers with analysis that goes beyond vendor press releases. Based in Dublin, Ireland.</p>
+      <span class="bio-title">Founder, The Streamic &middot; Dublin, Ireland</span>
+      <p class="bio-text">Broadcast technology professional with total 25+ years of IT and 20 years of Media/Post Production & Broadcast IT systems experience. He covers broadcast engineering, streaming, infrastructure, and media technology trends for The Streamic.</p>
     </div>
   </div>
   <div class="art-author" style="margin-top:24px;background:#f5f5f7;border-radius:12px;padding:16px 20px;font-size:13px;color:var(--ink3)">

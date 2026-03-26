@@ -320,7 +320,7 @@ def _build_hub_page(vendor_blocks: list[dict]) -> str:
         cat_anchor = cat.lower().replace(" ", "-").replace("/", "-").replace("(", "").replace(")", "")
         toc_items += f'<li><strong>{cat}</strong><ul style="margin:4px 0 8px 16px">'
         for item in items:
-            slug = f"{item['vendor']}-{item['product']}".lower()
+            slug = f"{item["vendor"]}-{item["product"]}".lower()
             slug = re.sub(r"[^a-z0-9]+", "-", slug).strip("-")
             toc_items += f'<li><a href="#{slug}" style="color:var(--blue);text-decoration:none">{item["vendor"]} {item["product"]}</a></li>'
         toc_items += "</ul></li>"
@@ -497,16 +497,11 @@ def _build_hub_page(vendor_blocks: list[dict]) -> str:
 
     <!-- Author bio -->
     <div class="art-author-bio" style="margin-top:52px">
-      <div class="bio-avatar">PK</div>
+      <div class="bio-avatar">S</div>
       <div class="bio-body">
         <strong class="bio-name">Prerak K Mehta</strong>
-        <span class="bio-title">Broadcast Systems &amp; Post-Production Engineer &middot; Editor-in-Chief, The Streamic</span>
-        <p class="bio-text">
-          Prerak has 25+ years of experience designing and operating broadcast and media technology infrastructure &mdash;
-          including IP signal transport (ST&nbsp;2110, NDI, SRT), cloud-native production workflows, MAM/PAM systems, and OTT
-          origin and delivery stacks. He founded The Streamic to provide broadcast engineers with analysis that goes beyond
-          vendor press releases. Based in Dublin, Ireland.
-        </p>
+        <span class="bio-title">Founder, The Streamic &middot; Dublin, Ireland</span>
+        <p class="bio-text">Broadcast technology professional with total 25+ years of IT and 20 years of Media/Post Production &amp; Broadcast IT systems experience. He covers broadcast engineering, streaming, infrastructure, and media technology trends for The Streamic.</p>
       </div>
     </div>
 

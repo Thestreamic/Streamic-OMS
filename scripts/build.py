@@ -1207,11 +1207,11 @@ def article_page(a):
 </div>"""
     else:
         author_box = f"""<div class="art-author-bio">
-  <div class="bio-avatar">PK</div>
+  <div class="bio-avatar">S</div>
   <div class="bio-body">
     <strong class="bio-name">Prerak K Mehta</strong>
-    <span class="bio-title">Broadcast Systems &amp; Post-Production Engineer &middot; Editor-in-Chief, The Streamic</span>
-    <p class="bio-text">Prerak has 25+ years of experience designing and operating broadcast and media technology infrastructure across enterprise environments &mdash; including IP signal transport (ST&nbsp;2110, NDI, SRT), cloud-native production workflows, MAM/PAM systems, and OTT origin and delivery stacks. He founded The Streamic to provide broadcast engineers with analysis that goes beyond vendor press releases. Based in Dublin, Ireland.</p>
+    <span class="bio-title">Founder, The Streamic &middot; Dublin, Ireland</span>
+    <p class="bio-text">Broadcast technology professional with total 25+ years of IT and 20 years of Media/Post Production &amp; Broadcast IT systems experience. He covers broadcast engineering, streaming, infrastructure, and media technology trends for The Streamic.</p>
   </div>
 </div>"""
 
@@ -1306,7 +1306,7 @@ def about_page():
   <div>
     <strong style="font-size:16px;color:var(--ink)">Prerak K Mehta</strong>
     <p style="font-size:13px;color:var(--ink4);margin:2px 0 8px">Founder &amp; Editor-in-Chief, The Streamic · Dublin, Ireland</p>
-    <p style="font-size:14px;color:var(--ink3);line-height:1.7;margin:0">Broadcast technology professional with 25+ years of IT and media systems experience. Runs the YouTube channel <em>Prerak&#39;s Tech World</em> and covers broadcast engineering, streaming infrastructure, and media technology trends for The Streamic.</p>
+    <p style="font-size:14px;color:var(--ink3);line-height:1.7;margin:0">Broadcast technology professional with total 25+ years of IT and 20 years of Media/Post Production &amp; Broadcast IT systems experience. He covers broadcast engineering, streaming, infrastructure, and media technology trends for The Streamic.</p>
     <div style="display:flex;gap:12px;margin-top:12px;flex-wrap:wrap">
       <a href="https://twitter.com/thestreamic" target="_blank" rel="noopener noreferrer"
         style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--blue);text-decoration:none;font-weight:500">&#x1D54F; @thestreamic</a>
