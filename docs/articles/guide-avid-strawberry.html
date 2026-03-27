@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script>
+    window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+    gtag('consent','default',{'analytics_storage':'denied','ad_storage':'denied','ad_user_data':'denied','ad_personalization':'denied','wait_for_update':500});
+  </script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-0VSHDN3ZR6"></script>
+  <script>gtag('js',new Date());gtag('config','G-0VSHDN3ZR6');</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Strawberry and Avid Media Composer: Setting Up a Collaborative Post-Production Workflow | The Streamic</title>
+  <meta name="description" content="A complete guide to integrating Production Flow's Strawberry PAM with Avid Media Composer, covering asset management, shared storage, and automated delivery.">
+  <meta name="robots" content="index,follow">
+  <meta name="author" content="The Streamic Editorial Team">
+  <link rel="canonical" href="https://www.thestreamic.in/articles/guide-avid-strawberry.html">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="The Streamic">
+  <meta property="og:title" content="Strawberry and Avid Media Composer: Setting Up a Collaborative Post-Production Workflow">
+  <meta property="og:description" content="A complete guide to integrating Production Flow's Strawberry PAM with Avid Media Composer, covering asset management, shared storage, and automated delivery.">
+  <meta property="og:url" content="https://www.thestreamic.in/articles/guide-avid-strawberry.html">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    .guide-wrap{max-width:780px;margin:0 auto;padding:48px 24px 80px}
+    .guide-wrap h1{font-family:var(--serif);font-size:clamp(24px,4vw,38px);letter-spacing:-0.5px;margin-bottom:16px;line-height:1.15}
+    .guide-wrap h2{font-family:var(--serif);font-size:22px;margin:36px 0 12px;letter-spacing:-0.3px}
+    .guide-wrap h3{font-family:var(--serif);font-size:18px;margin:24px 0 8px}
+    .guide-wrap p{font-size:16px;line-height:1.78;color:var(--ink2);margin-bottom:16px}
+    .guide-wrap ol,.guide-wrap ul{font-size:15px;line-height:1.7;color:var(--ink2);margin:0 0 16px 22px}
+    .guide-wrap li{margin-bottom:7px}
+    .guide-wrap code{font-family:var(--font-mono,'SF Mono',monospace);background:var(--bg);border:1px solid var(--line);border-radius:5px;padding:2px 7px;font-size:13px;color:var(--ink)}
+    .guide-wrap pre{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:18px 20px;overflow-x:auto;margin:16px 0}
+    .guide-wrap pre code{background:none;border:none;padding:0;font-size:13px;line-height:1.7}
+    .tip-box{background:#f0f6ff;border-left:3px solid var(--blue);border-radius:0 8px 8px 0;padding:14px 18px;margin:20px 0;font-size:14px;color:var(--ink)}
+    .warn-box{background:#fff8f0;border-left:3px solid #FF9500;border-radius:0 8px 8px 0;padding:14px 18px;margin:20px 0;font-size:14px;color:var(--ink)}
+    .step-num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:var(--blue);color:#fff;font-size:13px;font-weight:700;margin-right:8px;flex-shrink:0}
+    .breadcrumb{font-size:12px;color:var(--ink4);margin-bottom:14px;display:flex;gap:8px}
+    .breadcrumb a{color:var(--ink4)} .breadcrumb a:hover{color:var(--blue)}
+  </style>
+</head>
+<body>
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="../featured.html" class="nav-logo">
+      <img src="../assets/logo.png" alt="The Streamic"><span>The Streamic</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="../featured.html">Featured</a></li>
+      <li><a href="../infrastructure.html">Infrastructure</a></li>
+      <li><a href="../cloud.html">Cloud Production</a></li>
+      <li><a href="../streaming.html">Streaming</a></li>
+      <li><a href="../ai-post-production.html">AI &amp; Post</a></li>
+      <li><a href="../newsroom.html">Newsroom</a></li>
+      <li><a href="../howto.html" class="active">How-To</a></li>
+    </ul>
+    <div class="nav-right">
+      <button class="nav-toggle" onclick="document.querySelector('.nav-mob').classList.toggle('open')"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+  <div class="nav-mob">
+    <a href="../featured.html">Featured</a><a href="../infrastructure.html">Infrastructure</a>
+    <a href="../cloud.html">Cloud Production</a><a href="../streaming.html">Streaming</a>
+    <a href="../howto.html">How-To</a>
+  </div>
+</nav>
+<main>
+<div class="guide-wrap">
+  <div class="breadcrumb">
+    <a href="../featured.html">Home</a><span>›</span>
+    <a href="../howto.html">How-To Guides</a><span>›</span>
+    <span style="color:var(--ink)">Strawberry and Avid Media Composer: Setting Up a Collaborative Post-Production Workflow</span>
+  </div>
+  <span style="display:inline-flex;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.2px;padding:4px 12px;border-radius:999px;background:var(--blue);color:#fff;margin-bottom:18px">How-To Guide</span>
+  
+<h1>Strawberry and Avid Media Composer: Setting Up a Collaborative Post-Production Workflow</h1>
+<p style="font-size:18px;color:var(--ink2);font-weight:300;margin-bottom:20px">Strawberry from Production Flow is one of the most capable PAM (Production Asset Management) systems available for small and mid-size post facilities. Paired with Avid Media Composer, it provides a lightweight alternative to full MAM infrastructure at a fraction of the cost.</p>
+<p style="font-size:13px;color:var(--ink4);margin-bottom:32px">By The Streamic Editorial Team · March 2026 · 10 min read</p>
+
+<h2>What Is Strawberry?</h2>
+<p>Strawberry is a browser-based PAM designed for multi-editor post-production environments. It manages project assets, tracks versions, controls access to shared storage, and automates ingest and delivery. Unlike enterprise MAM systems, Strawberry runs on a standard Linux or macOS server and requires no specialised hardware.</p>
+<p>Key capabilities relevant to Avid workflows include: hot folder ingest with automatic proxy generation, project-level access control, Avid bin sharing via shared storage, and automated delivery packages.</p>
+
+<h2>Architecture Overview</h2>
+<p>A typical Strawberry + Avid deployment looks like this:</p>
+<ul>
+  <li><strong>Shared storage:</strong> NAS (Synology, QNAP, or any SMB/NFS share) — all Avid workstations and the Strawberry server point to the same volumes</li>
+  <li><strong>Strawberry server:</strong> Ubuntu 22.04 LTS or macOS, connected to shared storage</li>
+  <li><strong>Avid workstations:</strong> Map shared storage as Avid MediaFiles-compatible paths</li>
+  <li><strong>Proxy tier:</strong> Strawberry generates H.264 proxies; high-res media lives on the NAS</li>
+</ul>
+
+<h2>Step 1: Install and Configure Strawberry</h2>
+<ol>
+  <li>Download the Strawberry installer from the <a href="https://www.production-flow.com" rel="nofollow noopener" target="_blank">Production Flow website</a>. A 30-day trial licence covers a full installation.</li>
+  <li>Run the installer on your server. The setup wizard configures the Strawberry database (PostgreSQL) and web server automatically.</li>
+  <li>Access the Strawberry web interface at <code>http://server-ip:8080</code> and complete the initial setup:
+    <ul>
+      <li>Set the media root to your NAS mount point: e.g. <code>/mnt/nas/media</code></li>
+      <li>Set the proxy output path: <code>/mnt/nas/proxies</code></li>
+      <li>Configure your SMTP server for notification emails</li>
+    </ul>
+  </li>
+</ol>
+
+<h2>Step 2: Configure Shared Storage for Avid</h2>
+<p>Avid Media Composer requires media to be stored in a specific folder structure for it to appear in bins. Strawberry must be configured to write to an Avid-compatible path.</p>
+<ol>
+  <li>On your NAS, create the folder structure: <code>\\nas01\MediaFiles\MXF\1</code></li>
+  <li>In Strawberry's Admin panel, set the <strong>Avid MediaFiles path</strong> to match this location.</li>
+  <li>On each Avid workstation, map the NAS share and confirm Media Composer can see the <code>MediaFiles</code> folder via <strong>Media Tool</strong>.</li>
+  <li>Enable <strong>AMA (Avid Media Access)</strong> linking in Media Composer preferences so editors can link to files directly without copying.</li>
+</ol>
+
+<div class="tip-box"><strong>Performance note:</strong> For smooth multi-user Avid editing over a NAS, ensure your network is 10GbE minimum. 1GbE is insufficient for multiple simultaneous DNxHD streams. Avid's ISIS/NEXIS shared storage handles this natively, but a well-configured 10GbE NAS works well for small teams.</div>
+
+<h2>Step 3: Set Up the Ingest Hot Folder in Strawberry</h2>
+<ol>
+  <li>In Strawberry's web interface, go to <strong>Settings &rarr; Hot Folders</strong>.</li>
+  <li>Add a new hot folder pointing to: <code>/mnt/nas/ingest</code></li>
+  <li>Configure the ingest profile:
+    <ul>
+      <li><strong>Accepted formats:</strong> MXF, MOV, MP4, AVI — Strawberry will process any file dropped here</li>
+      <li><strong>Generate proxy:</strong> Yes — H.264 1280×720 for review</li>
+      <li><strong>Transcode to Avid:</strong> DNxHD 115 (or DNxHR for 4K) for editing-grade media</li>
+      <li><strong>Output to Avid MediaFiles path:</strong> Yes</li>
+    </ul>
+  </li>
+  <li>Save and activate the hot folder.</li>
+</ol>
+
+<h2>Step 4: Create a Project and Assign Editors</h2>
+<ol>
+  <li>In Strawberry, create a new <strong>Project</strong> (e.g. <em>News Programme S01</em>).</li>
+  <li>Add your Avid editors as users and assign them to the project with appropriate permissions (Editor, Viewer, Admin).</li>
+  <li>In the project, create <strong>Bins</strong> that mirror your Avid bin structure — this provides the organisational layer that Avid itself lacks for multi-user environments.</li>
+  <li>Assign ingested assets to the relevant project bin in Strawberry. Editors opening Media Composer will find the same assets in their Avid bins via the shared MediaFiles path.</li>
+</ol>
+
+<h2>Step 5: Version Control and Review</h2>
+<p>One of Strawberry's strongest features is version management — something Avid's native toolset handles poorly outside of full Interplay/MediaCentral deployments.</p>
+<ol>
+  <li>When an editor exports a cut from Avid, drop it into the Strawberry <strong>Review</strong> hot folder.</li>
+  <li>Strawberry generates a proxy and creates a new version entry in the project timeline.</li>
+  <li>Reviewers access the version via Strawberry's browser-based player — no Avid licence required for review-and-approval.</li>
+  <li>Approved versions are flagged in Strawberry and can trigger an automated delivery action.</li>
+</ol>
+
+<h2>Step 6: Automated Delivery from Strawberry</h2>
+<ol>
+  <li>In Strawberry, go to <strong>Settings &rarr; Delivery Profiles</strong>.</li>
+  <li>Create a delivery profile named <code>Broadcast_Master</code>:
+    <ul>
+      <li>Source: Approved project asset</li>
+      <li>Transcode: MXF OP1a, DNxHD 185, 48kHz PCM audio (standard broadcast delivery spec)</li>
+      <li>Destination: <code>\\nas01\delivery\broadcast</code></li>
+    </ul>
+  </li>
+  <li>Attach this profile to your project. When an asset is approved, Strawberry triggers the transcode and delivery automatically — no manual export required from Avid.</li>
+</ol>
+
+<div class="tip-box"><strong>AdSense tip:</strong> Strawberry's browser-based review workflow eliminates the need for editors and clients to have Avid licences for review and approval, significantly reducing per-seat costs for production companies that bill per project.</div>
+
+<h2>Common Issues and Fixes</h2>
+<ul>
+  <li><strong>Avid cannot see Strawberry-ingested media:</strong> Check the <code>msmFMID.pmr</code> file in the MediaFiles folder — Avid uses this for media indexing. If it is locked or corrupted, Media Composer cannot enumerate the media. Restart the Avid Interplay Engine or simply delete and allow Avid to regenerate it.</li>
+  <li><strong>Proxy generation fails:</strong> Ensure FFmpeg is installed on the Strawberry server and accessible in the system PATH. Strawberry uses FFmpeg for proxy generation.</li>
+  <li><strong>Permissions errors on NAS:</strong> Strawberry's service user and all Avid workstation user accounts must have read/write access to the same NAS shares. On Synology NAS, create a dedicated shared folder with a group that includes all relevant users.</li>
+</ul>
+
+</div>
+</main>
+<footer class="footer">
+  <div class="footer-grid">
+    <div><div class="footer-brand">The Streamic</div><p class="footer-tag">Independent broadcast &amp; streaming technology journalism.</p></div>
+    <div class="footer-col"><h4>How-To Guides</h4>
+      <a href="../howto.html">All Guides</a>
+      <a href="guide-vantage-nas-transcode.html">Vantage NAS Workflow</a>
+      <a href="guide-vantage-aws-transcode.html">Vantage AWS Output</a>
+      <a href="guide-avid-strawberry.html">Strawberry + Avid</a>
+      <a href="guide-premiere-to-avid.html">Premiere to Avid</a>
+    </div>
+    <div class="footer-col"><h4>Site</h4>
+      <a href="../about.html">About</a><a href="../privacy.html">Privacy</a><a href="../terms.html">Terms</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 The Streamic. All rights reserved.</span>
+  </div>
+</footer>
+<div id="ts-cookie">
+  <div class="cookie-in">
+    <div class="cookie-txt"><strong>We use cookies</strong> Analytics and advertising cookies improve your experience. <a href="/privacy.html">Privacy Policy</a></div>
+    <div class="cookie-btns">
+      <button class="cookie-no" onclick="tsCC(false)">Reject optional</button>
+      <button class="cookie-ok" onclick="tsCC(true)">Accept all</button>
+    </div>
+  </div>
+</div>
+<script>(function(){var K='ts_cc',s=localStorage.getItem(K),b=document.getElementById('ts-cookie');if(!s&&b)b.style.display='block';window.tsCC=function(ok){localStorage.setItem(K,ok?'granted':'denied');if(b)b.style.display='none';if(typeof gtag!='undefined')gtag('consent','update',{analytics_storage:ok?'granted':'denied',ad_storage:ok?'granted':'denied',ad_user_data:ok?'granted':'denied',ad_personalization:ok?'granted':'denied'});};if(s==='granted'&&typeof gtag!='undefined')gtag('consent','update',{analytics_storage:'granted',ad_storage:'granted',ad_user_data:'granted',ad_personalization:'granted'});})();</script>
+</body></html>
