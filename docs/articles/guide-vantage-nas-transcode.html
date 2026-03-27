@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script>
+    window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+    gtag('consent','default',{'analytics_storage':'denied','ad_storage':'denied','ad_user_data':'denied','ad_personalization':'denied','wait_for_update':500});
+  </script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-0VSHDN3ZR6"></script>
+  <script>gtag('js',new Date());gtag('config','G-0VSHDN3ZR6');</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Build a Vantage Transcode Workflow: Any File to MP4 on a Local NAS Share | The Streamic</title>
+  <meta name="description" content="Step-by-step guide to building a basic Telestream Vantage workflow that watches a hot folder, transcodes any input to H.264 MP4, and delivers to a local NAS share.">
+  <meta name="robots" content="index,follow">
+  <meta name="author" content="The Streamic Editorial Team">
+  <link rel="canonical" href="https://www.thestreamic.in/articles/guide-vantage-nas-transcode.html">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="The Streamic">
+  <meta property="og:title" content="How to Build a Vantage Transcode Workflow: Any File to MP4 on a Local NAS Share">
+  <meta property="og:description" content="Step-by-step guide to building a basic Telestream Vantage workflow that watches a hot folder, transcodes any input to H.264 MP4, and delivers to a local NAS share.">
+  <meta property="og:url" content="https://www.thestreamic.in/articles/guide-vantage-nas-transcode.html">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    .guide-wrap{max-width:780px;margin:0 auto;padding:48px 24px 80px}
+    .guide-wrap h1{font-family:var(--serif);font-size:clamp(24px,4vw,38px);letter-spacing:-0.5px;margin-bottom:16px;line-height:1.15}
+    .guide-wrap h2{font-family:var(--serif);font-size:22px;margin:36px 0 12px;letter-spacing:-0.3px}
+    .guide-wrap h3{font-family:var(--serif);font-size:18px;margin:24px 0 8px}
+    .guide-wrap p{font-size:16px;line-height:1.78;color:var(--ink2);margin-bottom:16px}
+    .guide-wrap ol,.guide-wrap ul{font-size:15px;line-height:1.7;color:var(--ink2);margin:0 0 16px 22px}
+    .guide-wrap li{margin-bottom:7px}
+    .guide-wrap code{font-family:var(--font-mono,'SF Mono',monospace);background:var(--bg);border:1px solid var(--line);border-radius:5px;padding:2px 7px;font-size:13px;color:var(--ink)}
+    .guide-wrap pre{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:18px 20px;overflow-x:auto;margin:16px 0}
+    .guide-wrap pre code{background:none;border:none;padding:0;font-size:13px;line-height:1.7}
+    .tip-box{background:#f0f6ff;border-left:3px solid var(--blue);border-radius:0 8px 8px 0;padding:14px 18px;margin:20px 0;font-size:14px;color:var(--ink)}
+    .warn-box{background:#fff8f0;border-left:3px solid #FF9500;border-radius:0 8px 8px 0;padding:14px 18px;margin:20px 0;font-size:14px;color:var(--ink)}
+    .step-num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:var(--blue);color:#fff;font-size:13px;font-weight:700;margin-right:8px;flex-shrink:0}
+    .breadcrumb{font-size:12px;color:var(--ink4);margin-bottom:14px;display:flex;gap:8px}
+    .breadcrumb a{color:var(--ink4)} .breadcrumb a:hover{color:var(--blue)}
+  </style>
+</head>
+<body>
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="../featured.html" class="nav-logo">
+      <img src="../assets/logo.png" alt="The Streamic"><span>The Streamic</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="../featured.html">Featured</a></li>
+      <li><a href="../infrastructure.html">Infrastructure</a></li>
+      <li><a href="../cloud.html">Cloud Production</a></li>
+      <li><a href="../streaming.html">Streaming</a></li>
+      <li><a href="../ai-post-production.html">AI &amp; Post</a></li>
+      <li><a href="../newsroom.html">Newsroom</a></li>
+      <li><a href="../howto.html" class="active">How-To</a></li>
+    </ul>
+    <div class="nav-right">
+      <button class="nav-toggle" onclick="document.querySelector('.nav-mob').classList.toggle('open')"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+  <div class="nav-mob">
+    <a href="../featured.html">Featured</a><a href="../infrastructure.html">Infrastructure</a>
+    <a href="../cloud.html">Cloud Production</a><a href="../streaming.html">Streaming</a>
+    <a href="../howto.html">How-To</a>
+  </div>
+</nav>
+<main>
+<div class="guide-wrap">
+  <div class="breadcrumb">
+    <a href="../featured.html">Home</a><span>›</span>
+    <a href="../howto.html">How-To Guides</a><span>›</span>
+    <span style="color:var(--ink)">How to Build a Vantage Transcode Workflow: Any File to MP4 on a Local NAS Share</span>
+  </div>
+  <span style="display:inline-flex;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.2px;padding:4px 12px;border-radius:999px;background:var(--blue);color:#fff;margin-bottom:18px">How-To Guide</span>
+  
+<h1>How to Build a Vantage Transcode Workflow: Any File to MP4 on a Local NAS Share</h1>
+<p style="font-size:18px;color:var(--ink2);font-weight:300;margin-bottom:20px">Telestream Vantage is the industry standard for automated media processing. This guide builds a production-ready hot folder workflow that ingests any file format and delivers H.264 MP4 to a local NAS.</p>
+<p style="font-size:13px;color:var(--ink4);margin-bottom:32px">By The Streamic Editorial Team · March 2026 · 10 min read</p>
+
+<h2>What You'll Need</h2>
+<ul>
+  <li>Vantage 8.x or later with Transcode and Workflow Designer licences</li>
+  <li>Vantage Management Console access</li>
+  <li>A NAS share mounted and accessible as a UNC path (e.g. <code>\\nas01\media\ingest</code>)</li>
+  <li>Vantage service account with read/write access to both source and destination shares</li>
+</ul>
+
+<h2>Step 1: Create the Source Hot Folder</h2>
+<ol>
+  <li>Open <strong>Vantage Management Console &rarr; Storage</strong>.</li>
+  <li>Click <strong>Add</strong> to create a new storage location.</li>
+  <li>Name it <code>NAS_Ingest</code> and set the UNC path: <code>\\nas01\media\ingest</code></li>
+  <li>Set the Vantage service account as the access credential. Test the connection.</li>
+  <li>Repeat to create a second storage location named <code>NAS_MP4_Output</code> pointing to <code>\\nas01\media\output\mp4</code></li>
+</ol>
+
+<div class="tip-box"><strong>Best practice:</strong> Never use mapped drive letters (Z:\) in Vantage. Always use UNC paths. Vantage services run as background processes and may not have access to user-mapped drives.</div>
+
+<h2>Step 2: Build the Workflow in Workflow Designer</h2>
+<p>Open <strong>Vantage Workflow Designer</strong> and create a new workflow.</p>
+
+<h3>2a. Add a Watch action</h3>
+<ol>
+  <li>Drag a <strong>Watch</strong> action from the palette onto the canvas.</li>
+  <li>Double-click to configure. Set <strong>Hot folder</strong> to <code>NAS_Ingest</code>.</li>
+  <li>Set <strong>File filter</strong> to <code>*.*</code> to accept any input format.</li>
+  <li>Enable <strong>Trigger on stable file</strong> and set stability to <strong>5 seconds</strong>. This prevents Vantage processing files still being written to the share.</li>
+  <li>Set <strong>Polling interval</strong> to 30 seconds for production workloads.</li>
+</ol>
+
+<h3>2b. Add a Transcode action</h3>
+<ol>
+  <li>Drag a <strong>Transcode</strong> action and connect it to the Watch action output.</li>
+  <li>Double-click to open the encoder configuration.</li>
+  <li>Click <strong>New Configuration</strong> and name it <code>MP4_H264_Broadcast</code>.</li>
+  <li>Set the following parameters:
+    <ul>
+      <li><strong>Container:</strong> MP4</li>
+      <li><strong>Video codec:</strong> H.264 (x264 or MainConcept H.264)</li>
+      <li><strong>Profile:</strong> High, Level 4.1</li>
+      <li><strong>Bitrate:</strong> CBR 8 Mbps (adjust for your delivery spec)</li>
+      <li><strong>Resolution:</strong> Same as source (use <em>Auto</em>)</li>
+      <li><strong>Frame rate:</strong> Same as source</li>
+      <li><strong>Audio codec:</strong> AAC-LC, 320 kbps, 48 kHz, stereo</li>
+    </ul>
+  </li>
+  <li>Under <strong>Output</strong>, set the destination to <code>NAS_MP4_Output</code>.</li>
+  <li>Set the filename pattern: <code>{OriginalFilename}_MP4.mp4</code> — this preserves the source filename.</li>
+</ol>
+
+<h3>2c. Add a Notify action (optional but recommended)</h3>
+<ol>
+  <li>Add an <strong>Email</strong> or <strong>Message</strong> action at the end of the chain.</li>
+  <li>Configure it to send a completion notification to your operations team, including the output file path and job duration.</li>
+</ol>
+
+<h2>Step 3: Configure Error Handling</h2>
+<p>In the Transcode action properties, click the <strong>Errors</strong> tab:</p>
+<ul>
+  <li>Set <strong>On failure:</strong> Retry 3 times with 60-second delay</li>
+  <li>After all retries fail: Move source file to <code>\\nas01\media\failed</code> and send alert email</li>
+  <li>Enable <strong>Save detailed job log</strong> for troubleshooting</li>
+</ul>
+
+<div class="warn-box"><strong>Important:</strong> Always configure a failure path. Without it, failed jobs silently pile up in the queue and can stall subsequent jobs when Vantage hits its concurrent job limit.</div>
+
+<h2>Step 4: Activate and Test the Workflow</h2>
+<ol>
+  <li>Right-click your workflow in the Workflow Designer and select <strong>Activate</strong>.</li>
+  <li>Drop a test file (any format — MXF, MOV, MP4, AVI) into the <code>NAS_Ingest</code> hot folder.</li>
+  <li>In <strong>Vantage Job Status</strong>, confirm the job appears and transitions: Waiting &rarr; Processing &rarr; Complete.</li>
+  <li>Check the output folder for the <code>_MP4.mp4</code> file.</li>
+  <li>Validate the output using MediaInfo or VLC to confirm codec, bitrate, and audio layout.</li>
+</ol>
+
+<h2>Step 5: Performance Tuning</h2>
+<ul>
+  <li><strong>Parallel jobs:</strong> In Vantage Management Console &rarr; Services, set the Transcode service to allow 2–4 concurrent jobs depending on your server CPU.</li>
+  <li><strong>Priority routing:</strong> If you have multiple Vantage nodes, configure the workflow to use the node with the highest available resource headroom.</li>
+  <li><strong>MediaInfo validation:</strong> Add a <strong>Metadata</strong> action after the Transcode to extract QC metadata and log it to your MAM or a CSV report.</li>
+</ul>
+
+<div class="tip-box"><strong>Broadcast tip:</strong> For news and live event workflows, lower the hot folder polling interval to 5 seconds and enable <em>Immediate trigger on file arrival</em> instead of stability checking. Accept the small risk of partial-file processing in exchange for faster turnaround.</div>
+
+</div>
+</main>
+<footer class="footer">
+  <div class="footer-grid">
+    <div><div class="footer-brand">The Streamic</div><p class="footer-tag">Independent broadcast &amp; streaming technology journalism.</p></div>
+    <div class="footer-col"><h4>How-To Guides</h4>
+      <a href="../howto.html">All Guides</a>
+      <a href="guide-vantage-nas-transcode.html">Vantage NAS Workflow</a>
+      <a href="guide-vantage-aws-transcode.html">Vantage AWS Output</a>
+      <a href="guide-avid-strawberry.html">Strawberry + Avid</a>
+      <a href="guide-premiere-to-avid.html">Premiere to Avid</a>
+    </div>
+    <div class="footer-col"><h4>Site</h4>
+      <a href="../about.html">About</a><a href="../privacy.html">Privacy</a><a href="../terms.html">Terms</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 The Streamic. All rights reserved.</span>
+  </div>
+</footer>
+<div id="ts-cookie">
+  <div class="cookie-in">
+    <div class="cookie-txt"><strong>We use cookies</strong> Analytics and advertising cookies improve your experience. <a href="/privacy.html">Privacy Policy</a></div>
+    <div class="cookie-btns">
+      <button class="cookie-no" onclick="tsCC(false)">Reject optional</button>
+      <button class="cookie-ok" onclick="tsCC(true)">Accept all</button>
+    </div>
+  </div>
+</div>
+<script>(function(){var K='ts_cc',s=localStorage.getItem(K),b=document.getElementById('ts-cookie');if(!s&&b)b.style.display='block';window.tsCC=function(ok){localStorage.setItem(K,ok?'granted':'denied');if(b)b.style.display='none';if(typeof gtag!='undefined')gtag('consent','update',{analytics_storage:ok?'granted':'denied',ad_storage:ok?'granted':'denied',ad_user_data:ok?'granted':'denied',ad_personalization:ok?'granted':'denied'});};if(s==='granted'&&typeof gtag!='undefined')gtag('consent','update',{analytics_storage:'granted',ad_storage:'granted',ad_user_data:'granted',ad_personalization:'granted'});})();</script>
+</body></html>
