@@ -1,0 +1,66 @@
+name: The Streamic — Reliable RSS Pipeline
+
+on:
+  schedule:
+    - cron: "15 4 * * *"
+    - cron: "15 12 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  SITE_BASE_URL: "https://www.thestreamic.in"
+
+jobs:
+  generate-and-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install feedparser beautifulsoup4 python-slugify requests
+
+      - name: Fetch RSS feeds
+        run: python3 scripts/fetch_rss.py
+
+      - name: Build RSS analysis articles
+        run: python3 scripts/rewrite_feed.py
+
+      - name: Generate editorial articles
+        run: python3 scripts/generate_editorial.py
+
+      - name: Build static site
+        run: python3 scripts/build.py
+
+      - name: Verify build output
+        run: |
+          test -f docs/index.html
+          test -f docs/featured.html
+          test -f docs/posts.html
+          test -f docs/sitemap.xml
+
+      - name: Commit generated content
+        run: |
+          git config user.name  "Streamic Bot"
+          git config user.email "technodate3@gmail.com"
+          git add -A docs/ data/
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "build: reliable rss refresh [skip ci]"
+            git push origin HEAD:main
+          fi
