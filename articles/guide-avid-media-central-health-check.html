@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script>
+    window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+    gtag('consent','default',{'analytics_storage':'denied','ad_storage':'denied',
+    'ad_user_data':'denied','ad_personalization':'denied','wait_for_update':500});
+  </script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-0VSHDN3ZR6"></script>
+  <script>gtag('js',new Date());gtag('config','G-0VSHDN3ZR6');</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Run a Health Check on Avid MediaCentral Platform Services — The Streamic How-To Guides</title>
+  <meta name="description" content="A practical guide to running a full health check on Avid MediaCentral Platform Services — verifying services, checking logs, testing connectivity, and confirming integration status for broadcast environments.">
+  <meta name="robots" content="index,follow">
+  <meta name="author" content="Prerak K Mehta, The Streamic">
+  <link rel="canonical" href="https://www.thestreamic.in/articles/guide-avid-media-central-health-check.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="How to Run a Health Check on Avid MediaCentral Platform Services — The Streamic">
+  <meta property="og:description" content="A practical guide to running a full health check on Avid MediaCentral Platform Services — verifying services, checking logs, testing connectivity, and confirming integration status for broadcast environments.">
+  <meta property="og:url" content="https://www.thestreamic.in/articles/guide-avid-media-central-health-check.html">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"HowTo","name":"How to Run a Health Check on Avid MediaCentral Platform Services","description":"A practical guide to running a full health check on Avid MediaCentral Platform Services — verifying services, checking logs, testing connectivity, and confirming integration status for broadcast environments.",
+   "author":{"@type":"Organization","name":"The Streamic"},"datePublished":"2026-03-22",
+   "publisher":{"@type":"Organization","name":"The Streamic","url":"https://www.thestreamic.in"}}
+  </script>
+</head>
+<body>
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="../featured.html" class="nav-logo">
+      <img src="../assets/logo.png" alt="The Streamic"><span>The Streamic</span>
+    </a>
+    <ul class="nav-links"><li><a href="../featured.html">Featured</a></li><li><a href="../infrastructure.html">Infrastructure</a></li><li><a href="../posts.html">All Articles</a></li><li><a href="../howto.html">How-To</a></li></ul>
+    <div class="nav-right"><a href="../vlog.html" class="nav-desk">Editor&#39;s Desk</a>
+      <button class="nav-toggle" aria-label="Menu" onclick="document.querySelector('.nav-mob').classList.toggle('open')"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+  <div class="nav-mob"><a href="../featured.html">Featured</a><a href="../infrastructure.html">Infrastructure</a><a href="../posts.html">All Articles</a><a href="../howto.html">How-To</a></div>
+</nav>
+<main>
+<div class="guide-wrap">
+  <div class="breadcrumb">
+    <a href="../featured.html">Home</a><span>›</span>
+    <a href="../howto.html">How-To Guides</a><span>›</span>
+    <span style="color:var(--ink)">How to Run a Health Check on Avid MediaCentral Platform Services</span>
+  </div>
+  <span style="display:inline-flex;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.2px;padding:4px 12px;border-radius:999px;background:var(--blue);color:#fff;margin-bottom:18px">How-To Guide</span>
+  <h1>How to Run a Health Check on Avid MediaCentral Platform Services</h1>
+  <p style="font-size:18px;color:var(--ink2);font-weight:300;margin-bottom:20px">A MediaCentral health check should be part of every broadcast facility's daily pre-air routine. This guide covers every layer — from service status to integration endpoint verification — so issues are caught before they affect production.</p>
+  <p style="font-size:13px;color:var(--ink4);margin-bottom:32px">By The Streamic Editorial Team · <time datetime="2026-03-22">March 2026</time> · 12 min read</p>
+  
+
+<h2>Health Check Overview: What to Verify</h2>
+<p>A complete MediaCentral health check covers six areas:</p>
+<ol>
+  <li>MediaCentral Platform Services (MCPS) — core service status</li>
+  <li>Interplay | Production connection</li>
+  <li>iNEWS connection</li>
+  <li>Asset browsing and proxy playback</li>
+  <li>User authentication and licensing</li>
+  <li>Integration endpoints (social, delivery, MAM)</li>
+</ol>
+
+<h2>Step 1: Verify Core Services via Admin Panel</h2>
+<p>All MediaCentral services are monitored through the MCPS administrator panel:</p>
+<ol>
+  <li>Navigate to <code>https://[server-IP]/api/als/v0</code> — if this returns a JSON status response, Avid License Services is running</li>
+  <li>Open the <strong>MediaCentral Platform Services Administrator</strong>: <code>https://[server]:443/mcpsadmin</code></li>
+  <li>Go to <strong>System &rarr; Services</strong>. All core services should show <strong>Running</strong>:
+    <ul>
+      <li>MediaCentral Platform Services (MCPS Core)</li>
+      <li>Interplay Web Services</li>
+      <li>MediaCentral Bus</li>
+      <li>Avid License Service</li>
+      <li>Search Service</li>
+    </ul>
+  </li>
+  <li>Any service showing <strong>Stopped</strong> or <strong>Error</strong> should be restarted from the panel — click the service &rarr; <strong>Restart</strong></li>
+</ol>
+
+<h3>Command-Line Alternative (Linux Server)</h3>
+<pre style="background:var(--bg);padding:12px 16px;border-radius:8px;font-size:13px;overflow-x:auto"><code>sudo systemctl status avid-mcs
+sudo systemctl status avid-license-service
+sudo systemctl status avid-interplay-ws</code></pre>
+
+<h2>Step 2: Verify Interplay | Production Connection</h2>
+<ol>
+  <li>In the MCPS Admin panel, go to <strong>Connections &rarr; Interplay | Production</strong></li>
+  <li>Verify the connection shows <strong>Connected</strong> with the correct Interplay Engine hostname or IP</li>
+  <li>Click <strong>Test Connection</strong> — response time should be under 500ms on a LAN</li>
+  <li>If the test fails: check that the Interplay Engine service is running on the Interplay server, and that port <strong>TCP 8321</strong> is open between MCPS and Interplay Engine</li>
+</ol>
+
+<h2>Step 3: Verify iNEWS Connection</h2>
+<ol>
+  <li>In MCPS Admin, go to <strong>Connections &rarr; iNEWS</strong></li>
+  <li>Confirm the connection shows the correct iNEWS server address and <strong>Connected</strong> status</li>
+  <li>Open MediaCentral Cloud UX and browse to any active rundown — stories should load within 3 seconds</li>
+  <li>If stories appear blank or "Loading..." indefinitely, the iNEWS NRCS connection has dropped. Restart the <strong>iNEWS System Service</strong> on the iNEWS server, then restart the iNEWS connection in MCPS Admin</li>
+</ol>
+
+<h2>Step 4: Test Asset Browsing and Proxy Playback</h2>
+<p>Asset browsing validates the full chain from MediaCentral UI through Interplay Web Services to the Avid ISIS shared storage:</p>
+<ol>
+  <li>Log in to MediaCentral Cloud UX as a standard user (not admin)</li>
+  <li>Browse to a known asset in the Interplay | Production section</li>
+  <li>Verify: thumbnail displays within 5 seconds</li>
+  <li>Click play — proxy video should begin playback within 3 seconds</li>
+  <li>Scrub to mid-sequence and verify audio sync</li>
+</ol>
+<p>If thumbnails fail: the proxy cache service may be overloaded. Check disk space on the MediaCentral server — proxy storage requires a minimum 20% free space to generate new proxies.</p>
+
+<h2>Step 5: Verify Licensing</h2>
+<ol>
+  <li>In MCPS Admin, go to <strong>System &rarr; Licenses</strong></li>
+  <li>Confirm licence count shows available seats. If all seats are consumed, new users cannot log in</li>
+  <li>Check licence expiry dates — expired licences drop silently and cause intermittent login failures</li>
+  <li>If you see "No licence available": go to <strong>System &rarr; Active Sessions</strong> and clear any stale sessions from users who have disconnected without logging out</li>
+</ol>
+
+<h2>Step 6: Check System Logs for Errors</h2>
+<p>The most useful logs for broadcast facilities are:</p>
+<ul>
+  <li><strong>MCPS Core log:</strong> <code>/var/log/avid/mcps/mcps.log</code> — look for <code>ERROR</code> or <code>FATAL</code> entries within the last 24 hours</li>
+  <li><strong>Interplay Web Services log:</strong> <code>/var/log/avid/interplay-ws/</code> — connection failures to Interplay Engine appear here</li>
+  <li><strong>Transfer Engine log:</strong> <code>C:\ProgramData\Avid\Avid Interplay Transfer Engine\Logs\</code> (Windows) — proxy generation failures are logged here</li>
+</ul>
+
+<pre style="background:var(--bg);padding:12px 16px;border-radius:8px;font-size:13px;overflow-x:auto"><code># Quick error check — last 100 MCPS log lines
+sudo tail -100 /var/log/avid/mcps/mcps.log | grep -E "ERROR|FATAL|WARN"</code></pre>
+
+<h2>Pre-Air Health Check Checklist</h2>
+<ul>
+  <li>All MCPS services: Running ✓</li>
+  <li>Interplay connection: Connected, response &lt;500ms ✓</li>
+  <li>iNEWS connection: Connected, stories loading ✓</li>
+  <li>Asset browser: Thumbnails and proxies loading ✓</li>
+  <li>Licence seats: &gt;10% available ✓</li>
+  <li>Disk space on MCPS server: &gt;20% free ✓</li>
+  <li>No ERROR entries in MCPS log in last 2 hours ✓</li>
+</ul>
+  
+  <div style="margin-top:40px;padding-top:24px;border-top:1px solid var(--line)">
+    <p style="font-size:13px;color:var(--ink4)">← <a href="../howto.html" style="color:var(--blue)">Back to all How-To Guides</a></p>
+  </div>
+</div>
+</main>
+<footer class="footer">
+  <div class="footer-grid">
+    <div><div class="footer-brand">The Streamic</div>
+    <p class="footer-tag">Independent broadcast &amp; streaming technology journalism.</p></div>
+    <div class="footer-col"><h4>Guides</h4>
+      <a href="guide-premiere-to-avid.html">Premiere to Avid</a>
+      <a href="guide-vantage-nas-transcode.html">Vantage NAS Transcode</a>
+      <a href="guide-avid-strawberry.html">Avid + Strawberry</a>
+      <a href="guide-audio-conform-avid-protools.html">Avid to Pro Tools</a>
+      <a href="guide-media-central-cache.html">Media Central Cache</a>
+    </div>
+    <div class="footer-col"><h4>Site</h4>
+      <a href="../about.html">About</a>
+      <a href="../contact.html">Contact</a>
+      <a href="../privacy.html">Privacy</a>
+      <a href="../terms.html">Terms</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>&copy; 2026 The Streamic. All rights reserved.</span>
+  </div>
+</footer>
+</body>
+</html>
