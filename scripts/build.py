@@ -699,68 +699,47 @@ def _score_art(a):
 
 def enforce_sections(body_html: str) -> bool:
     """
-    AdSense quality scoring: checks for preferred editorial sections.
-    Uses a SOFT score so articles are never completely excluded.
+    AdSense quality gate: article must contain the required editorial sections.
+    Returns True if the article meets minimum structure requirements.
 
-    Score >= 1 (out of 2) returns True. This means ONE section is enough.
-    Articles with zero sections are still allowed on category pages
-    (so pages are never blank) but receive lower _score_art() ranking.
+    Required sections (case-insensitive):
+      - "Why This Matters" — explains strategic/industry significance
+      - "Expert Insight"   — provides deep technical analysis
 
-    Scoring:
-      +1 for "Why This Matters"
-      +1 for "Expert Insight"
-    Returns True if score >= 1 — applied OPTIONALLY, not as a hard gate.
+    Editorial articles (is_editorial=True) bypass this check —
+    they use a different, pre-validated structure.
     """
     if not body_html:
         return False
     body_lower = body_html.lower()
-    score = 0
-    if "why this matters" in body_lower:
-        score += 1
-    if "expert insight" in body_lower:
-        score += 1
-    return score >= 1
+    required = ["why this matters", "expert insight"]
+    return all(r in body_lower for r in required)
 
 
 def is_high_value(article: dict) -> bool:
     """
-    AdSense quality scoring for RSS articles.
+    AdSense eligibility filter for non-editorial RSS articles.
+    Returns True only if the article meets all quality thresholds:
 
-    SAFE FILTERING DESIGN — never returns fewer than needed:
-    - Editorial articles always pass (pre-validated long-form content)
-    - RSS articles score points on multiple axes; any score > 0 passes
-    - This means the function always returns True for articles with ANY
-      substantive content, so category pages are never blank
+    1. Contains both required AdSense sections (enforce_sections)
+    2. Body content is 800+ characters of actual text (not just HTML tags)
+    3. Has at least one <h2> structural heading
 
-    The noindex/index decision in main() uses this for ranking,
-    but visible_list is always padded to ensure pages have content.
+    Editorial articles always pass — they have pre-validated long-form content.
     """
-    # Editorial always pass — hand-written or Gemini deep-dives
+    # Editorial articles (hand-written or Gemini deep-dives) always pass
     if article.get("is_editorial") or article.get("editorial"):
         return True
 
     body = article.get("body_html", "") or ""
-    content = article.get("content") or article.get("description", "") or ""
+    content_text = re.sub(r"<[^>]+>", " ", body)
+    content_text = re.sub(r"\s+", " ", content_text).strip()
 
-    # Text content from body_html (strip tags)
-    body_text = re.sub(r"<[^>]+>", " ", body)
-    body_text  = re.sub(r"\s+", " ", body_text).strip()
-
-    score = 0
-    # Section quality — soft score
-    if enforce_sections(body):
-        score += 2          # Has at least one required section
-    # Structural quality
-    if "<h2>" in body:
-        score += 1          # Has section headings
-    # Length quality — any substantive content passes
-    if len(body_text) > 800:
-        score += 1
-    elif len(body_text) > 200 or len(content) > 200:
-        score += 0          # Still allowed — just lower ranked
-
-    # Any article with a title passes (never blank)
-    return bool(article.get("title", "").strip())
+    return (
+        enforce_sections(body) and
+        len(content_text) > 800 and
+        "<h2>" in body
+    )
 
 
 
@@ -1713,55 +1692,23 @@ def main():
     arts = deduped
     print(f"  After dedup: {len(arts)} unique articles")
 
-    # ── Ensure all articles have a slug ──────────────────────────────────
-    def _slugify(title):
-        return re.sub(r"[^a-z0-9]+", "-", (title or "article").lower()).strip("-")
-    for a in arts:
-        if not a.get("slug"):
-            a["slug"] = _slugify(a.get("title", "untitled"))
-
-    # ── Ensure all articles have body content field ───────────────────────
-    for a in arts:
-        if not a.get("body_html"):
-            # Fall back to card_summary or description so pages aren't empty
-            fallback = a.get("card_summary") or a.get("description") or ""
-            if fallback:
-                a["body_html"] = f"<p>{fallback}</p>"
-
-    print(f"  Total articles loaded: {len(arts)}")
-
     # ── Select top MAX_ARTICLES by quality — editorial always first ───────
-    # SAFE DESIGN: AdSense quality affects index/noindex status, NOT visibility.
-    # Category pages always show articles. Only the robots meta tag differs.
-    # This means cloud.html, streaming.html etc always have content.
-
+    # is_high_value() enforces AdSense section requirements on non-editorial articles:
+    # RSS articles must contain "Why This Matters" + "Expert Insight" + 800+ chars.
+    # Editorial and Gemini deep-dives bypass this gate (pre-validated structure).
     ed_arts  = [a for a in arts if a.get("is_editorial") or a.get("editorial")]
     rss_pool = [a for a in arts if not a.get("is_editorial") and not a.get("editorial")]
 
-    # Score all RSS articles — high scorers get indexed, others get noindex
-    # but are still rendered on category pages (never blank)
-    rss_pool.sort(key=lambda a: -_score_art(a))
+    # Apply AdSense quality gate to RSS-derived articles
+    rss_qualified = [a for a in rss_pool if is_high_value(a)]
+    rss_gated_out = len(rss_pool) - len(rss_qualified)
+    rss_qualified.sort(key=lambda a: -_score_art(a))
 
-    # Top RSS by score — these get index,follow
-    # Use a per-category quota to ensure diversity: 3 per cat max
-    cat_quota = {}
-    rss_indexed = []
-    for a in rss_pool:
-        cat = a.get("category", "featured")
-        if cat_quota.get(cat, 0) < 3:
-            rss_indexed.append(a)
-            cat_quota[cat] = cat_quota.get(cat, 0) + 1
-        if len(rss_indexed) >= 22:   # max 22 RSS indexed slots
-            break
-
-    visible_list  = (ed_arts + rss_indexed)[:MAX_ARTICLES]
+    visible_list  = (ed_arts + rss_qualified)[:MAX_ARTICLES]
     visible_slugs = {a["slug"] for a in visible_list}
-
-    # Diagnostic
-    rss_indexed_count = len(rss_indexed)
-    rss_noindex_count = len(rss_pool) - rss_indexed_count
     print(f"  Visible (indexed): {len(visible_slugs)} | Hidden (noindex): {len(arts)-len(visible_slugs)}")
-    print(f"  RSS: {rss_indexed_count} indexed + {rss_noindex_count} noindex (appear on pages, not in search)")
+    if rss_gated_out:
+        print(f"  AdSense gate: {rss_gated_out} RSS articles filtered (missing required sections or too short)")
 
     os.makedirs(ARTS_D, exist_ok=True)
 
@@ -1784,23 +1731,17 @@ def main():
     print(f"  &#10003; {written} article files ({len(visible_slugs)} indexed, {written-len(visible_slugs)} noindex)")
 
     # ── Category pages ────────────────────────────────────────────────────
-    # ALL category pages now show REAL articles (never blank "coming soon").
-    # Only the robots meta tag differs: VISIBLE_CAT is indexed, others are noindex.
-    # This means cloud.html, streaming.html etc always have content for visitors
-    # and for AdSense crawlers — they just don't appear in Google search results
-    # until we're ready to index them.
+    # VISIBLE_CAT: full indexed page, page 1 only
+    # All others: noindex placeholder (file preserved for broken-link safety)
     by_cat = {}
-    for a in arts:
-        by_cat.setdefault(a["category"], []).append(a)
+    for a in arts: by_cat.setdefault(a["category"],[]).append(a)
 
-    cat_page_counts = {}
     for cat, ca in by_cat.items():
-        # All articles for this category, sorted by date
-        ca_sorted = sorted(ca, key=lambda a: a.get("published", ""), reverse=True)
-
         if cat == VISIBLE_CAT:
-            # ai-post-production: indexed, pin relevant deep-dives
-            cat_vis = ca_sorted[:]
+            # Base: articles for this category that are in visible_slugs
+            cat_vis = [a for a in ca if a["slug"] in visible_slugs]
+            # Also pin 3 relevant deep-dive articles to this page
+            # even if they sit in a different category (infrastructure/cloud)
             PINNED_TO_AI_POST = {
                 "ai-video-post-production-editing-vfx-automation-2026",
                 "media-asset-management-ai-era-monetisation-2026",
@@ -1810,8 +1751,8 @@ def main():
             for a in arts:
                 if a["slug"] in PINNED_TO_AI_POST and a["slug"] not in pinned_slugs:
                     cat_vis.append(a)
-            cat_vis.sort(key=lambda a: a.get("published", ""), reverse=True)
-            pages = category_page(cat, cat_vis)
+            cat_vis.sort(key=lambda a: a.get("published",""), reverse=True)
+            pages   = category_page(cat, cat_vis)
             for pg, html in pages:
                 if pg > 0:
                     html = html.replace(
@@ -1820,31 +1761,23 @@ def main():
                     )
                 fname = f"{cat}.html" if pg == 0 else f"{cat}-p{pg+1}.html"
                 w(os.path.join(DOCS, fname), html)
-            cat_page_counts[cat] = len(cat_vis)
-
         else:
-            # All other categories: noindex BUT show real articles (not placeholder)
-            # Fallback: if somehow empty, use top articles from any category
-            cat_articles = ca_sorted if ca_sorted else arts[:10]
-            if not cat_articles:
-                cat_articles = arts[:10]
+            ci    = CAT.get(cat, CAT["featured"])
+            _ph   = head(
+                ci.get("label","") + " — The Streamic",
+                ci.get("desc",""),
+                f"{BASE_URL}/{cat}.html",
+                robots="noindex,follow"
+            )
+            placeholder = f"""{_ph}
+<body>{nav()}<main><div class="w" style="padding:80px 0 120px;text-align:center">
+<h1 style="font-family:var(--serif);font-size:28px;margin-bottom:16px">{ci.get("label","")}</h1>
+<p style="color:var(--ink3)">This section is coming soon.
+<a href="featured.html" style="color:var(--blue)">Return to homepage &rarr;</a></p>
+</div></main>{footer()}</body></html>"""
+            w(os.path.join(DOCS, f"{cat}.html"), placeholder)
 
-            pages = category_page(cat, cat_articles)
-            for pg, html in pages:
-                # Force noindex on all pages for non-VISIBLE_CAT categories
-                html = html.replace(
-                    '<meta name="robots" content="index,follow">',
-                    '<meta name="robots" content="noindex,follow">'
-                )
-                fname = f"{cat}.html" if pg == 0 else f"{cat}-p{pg+1}.html"
-                w(os.path.join(DOCS, fname), html)
-            cat_page_counts[cat] = len(cat_articles)
-
-    indexed_cats  = [c for c in cat_page_counts if c == VISIBLE_CAT]
-    noindex_cats  = [c for c in cat_page_counts if c != VISIBLE_CAT]
-    print(f"  &#10003; {VISIBLE_CAT} indexed | {len(noindex_cats)} other categories noindex (with real articles)")
-    for cat, n in sorted(cat_page_counts.items()):
-        print(f"      {cat}: {n} articles")
+    print(f"  &#10003; {VISIBLE_CAT} indexed | {len(by_cat)-1} other categories noindex placeholder")
 
     # ── Homepage ──────────────────────────────────────────────────────────
     feat_arts = sorted(arts, key=lambda a: a["published"], reverse=True)
