@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script>
+    window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+    gtag('consent','default',{'analytics_storage':'denied','ad_storage':'denied','ad_user_data':'denied','ad_personalization':'denied','wait_for_update':500});
+  </script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-0VSHDN3ZR6"></script>
+  <script>gtag('js',new Date());gtag('config','G-0VSHDN3ZR6');</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Vantage Workflow: Transcoding and Delivering to AWS S3 for Cloud Distribution | The Streamic</title>
+  <meta name="description" content="How to extend a Telestream Vantage transcode workflow to deliver MP4 output directly to an Amazon S3 bucket for cloud-based distribution and archive.">
+  <meta name="robots" content="index,follow">
+  <meta name="author" content="The Streamic Editorial Team">
+  <link rel="canonical" href="https://www.thestreamic.in/articles/guide-vantage-aws-transcode.html">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="The Streamic">
+  <meta property="og:title" content="Vantage Workflow: Transcoding and Delivering to AWS S3 for Cloud Distribution">
+  <meta property="og:description" content="How to extend a Telestream Vantage transcode workflow to deliver MP4 output directly to an Amazon S3 bucket for cloud-based distribution and archive.">
+  <meta property="og:url" content="https://www.thestreamic.in/articles/guide-vantage-aws-transcode.html">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    .guide-wrap{max-width:780px;margin:0 auto;padding:48px 24px 80px}
+    .guide-wrap h1{font-family:var(--serif);font-size:clamp(24px,4vw,38px);letter-spacing:-0.5px;margin-bottom:16px;line-height:1.15}
+    .guide-wrap h2{font-family:var(--serif);font-size:22px;margin:36px 0 12px;letter-spacing:-0.3px}
+    .guide-wrap h3{font-family:var(--serif);font-size:18px;margin:24px 0 8px}
+    .guide-wrap p{font-size:16px;line-height:1.78;color:var(--ink2);margin-bottom:16px}
+    .guide-wrap ol,.guide-wrap ul{font-size:15px;line-height:1.7;color:var(--ink2);margin:0 0 16px 22px}
+    .guide-wrap li{margin-bottom:7px}
+    .guide-wrap code{font-family:var(--font-mono,'SF Mono',monospace);background:var(--bg);border:1px solid var(--line);border-radius:5px;padding:2px 7px;font-size:13px;color:var(--ink)}
+    .guide-wrap pre{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:18px 20px;overflow-x:auto;margin:16px 0}
+    .guide-wrap pre code{background:none;border:none;padding:0;font-size:13px;line-height:1.7}
+    .tip-box{background:#f0f6ff;border-left:3px solid var(--blue);border-radius:0 8px 8px 0;padding:14px 18px;margin:20px 0;font-size:14px;color:var(--ink)}
+    .warn-box{background:#fff8f0;border-left:3px solid #FF9500;border-radius:0 8px 8px 0;padding:14px 18px;margin:20px 0;font-size:14px;color:var(--ink)}
+    .step-num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:var(--blue);color:#fff;font-size:13px;font-weight:700;margin-right:8px;flex-shrink:0}
+    .breadcrumb{font-size:12px;color:var(--ink4);margin-bottom:14px;display:flex;gap:8px}
+    .breadcrumb a{color:var(--ink4)} .breadcrumb a:hover{color:var(--blue)}
+  </style>
+</head>
+<body>
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="../featured.html" class="nav-logo">
+      <img src="../assets/logo.png" alt="The Streamic"><span>The Streamic</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="../featured.html">Featured</a></li>
+      <li><a href="../infrastructure.html">Infrastructure</a></li>
+      <li><a href="../cloud.html">Cloud Production</a></li>
+      <li><a href="../streaming.html">Streaming</a></li>
+      <li><a href="../ai-post-production.html">AI &amp; Post</a></li>
+      <li><a href="../newsroom.html">Newsroom</a></li>
+      <li><a href="../howto.html" class="active">How-To</a></li>
+    </ul>
+    <div class="nav-right">
+      <button class="nav-toggle" onclick="document.querySelector('.nav-mob').classList.toggle('open')"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+  <div class="nav-mob">
+    <a href="../featured.html">Featured</a><a href="../infrastructure.html">Infrastructure</a>
+    <a href="../cloud.html">Cloud Production</a><a href="../streaming.html">Streaming</a>
+    <a href="../howto.html">How-To</a>
+  </div>
+</nav>
+<main>
+<div class="guide-wrap">
+  <div class="breadcrumb">
+    <a href="../featured.html">Home</a><span>›</span>
+    <a href="../howto.html">How-To Guides</a><span>›</span>
+    <span style="color:var(--ink)">Vantage Workflow: Transcoding and Delivering to AWS S3 for Cloud Distribution</span>
+  </div>
+  <span style="display:inline-flex;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.2px;padding:4px 12px;border-radius:999px;background:var(--blue);color:#fff;margin-bottom:18px">How-To Guide</span>
+  
+<h1>Vantage Workflow: Transcoding and Delivering to AWS S3 for Cloud Distribution</h1>
+<p style="font-size:18px;color:var(--ink2);font-weight:300;margin-bottom:20px">Once your Vantage NAS workflow is running, adding an S3 delivery path takes under 30 minutes. This guide covers S3 bucket configuration, IAM credentials, and the Vantage Copy action that makes it work.</p>
+<p style="font-size:13px;color:var(--ink4);margin-bottom:32px">By The Streamic Editorial Team · March 2026 · 9 min read</p>
+
+<h2>Prerequisites</h2>
+<ul>
+  <li>Working Vantage 8.x installation with the <strong>Cloud</strong> or <strong>Copy</strong> action licence</li>
+  <li>Vantage Transcode workflow already built (see <a href="guide-vantage-nas-transcode.html" style="color:var(--blue)">Part 1: NAS Transcode Workflow</a>)</li>
+  <li>AWS account with an S3 bucket created in your target region</li>
+  <li>AWS IAM user with <code>s3:PutObject</code> and <code>s3:GetBucketLocation</code> permissions</li>
+</ul>
+
+<h2>Step 1: Create an IAM User and Access Key</h2>
+<ol>
+  <li>In the AWS Console, navigate to <strong>IAM &rarr; Users &rarr; Add users</strong>.</li>
+  <li>Name the user <code>vantage-s3-delivery</code> and select <strong>Programmatic access</strong> only.</li>
+  <li>Attach the policy <strong>AmazonS3FullAccess</strong> (or a custom policy scoped to your specific bucket — preferred for production).</li>
+  <li>On completion, download the <code>.csv</code> containing the <strong>Access Key ID</strong> and <strong>Secret Access Key</strong>. Store these securely — AWS will not show the secret key again.</li>
+</ol>
+
+<h3>Scoped bucket policy (recommended for production):</h3>
+<pre><code>{{
+  "Version": "2012-10-17",
+  "Statement": [{{
+    "Effect": "Allow",
+    "Action": ["s3:PutObject", "s3:GetObject", "s3:DeleteObject",
+               "s3:GetBucketLocation", "s3:ListBucket"],
+    "Resource": [
+      "arn:aws:s3:::your-bucket-name",
+      "arn:aws:s3:::your-bucket-name/*"
+    ]
+  }}]
+}}</code></pre>
+
+<div class="warn-box"><strong>Security:</strong> Never use your AWS root account credentials in Vantage. Always create a dedicated IAM user with the minimum required permissions. Rotate the access key every 90 days.</div>
+
+<h2>Step 2: Register S3 as a Vantage Storage Location</h2>
+<ol>
+  <li>Open <strong>Vantage Management Console &rarr; Storage</strong>.</li>
+  <li>Click <strong>Add</strong> and select storage type <strong>Amazon S3</strong>.</li>
+  <li>Enter:
+    <ul>
+      <li><strong>Name:</strong> <code>AWS_S3_Delivery</code></li>
+      <li><strong>Bucket name:</strong> <code>your-bucket-name</code></li>
+      <li><strong>Region:</strong> e.g. <code>eu-west-1</code> for Ireland</li>
+      <li><strong>Access Key ID:</strong> paste from your IAM CSV</li>
+      <li><strong>Secret Access Key:</strong> paste from your IAM CSV</li>
+      <li><strong>Path prefix:</strong> <code>media/output/</code> (optional — organises files within the bucket)</li>
+    </ul>
+  </li>
+  <li>Click <strong>Test Connection</strong>. Vantage will attempt a list operation on the bucket. A green tick confirms connectivity.</li>
+</ol>
+
+<h2>Step 3: Add S3 Output to Your Existing Workflow</h2>
+<p>Open your existing NAS transcode workflow in Workflow Designer.</p>
+<ol>
+  <li>After the Transcode action, add a <strong>Copy</strong> action.</li>
+  <li>In the Copy action configuration:
+    <ul>
+      <li><strong>Source:</strong> The output media variable from the Transcode action (e.g. <code>{MediaNickname}</code>)</li>
+      <li><strong>Destination storage:</strong> <code>AWS_S3_Delivery</code></li>
+      <li><strong>Filename:</strong> <code>{OriginalFilename}_{DateTime}_MP4.mp4</code> — the timestamp prevents overwriting on re-delivery</li>
+      <li><strong>Storage class:</strong> <code>STANDARD</code> for active delivery; <code>STANDARD_IA</code> for archive</li>
+    </ul>
+  </li>
+  <li>Optionally add a second Copy action in parallel (not in series) to deliver simultaneously to both NAS and S3.</li>
+</ol>
+
+<h2>Step 4: Parallel NAS + S3 Delivery</h2>
+<p>For production workflows, deliver to both destinations simultaneously rather than sequentially. This prevents S3 upload latency from delaying local NAS availability.</p>
+<ol>
+  <li>In Workflow Designer, connect the Transcode action output to <strong>two separate Copy actions</strong>.</li>
+  <li>Copy Action A &rarr; NAS output (as built in Part 1)</li>
+  <li>Copy Action B &rarr; S3 output (as built above)</li>
+  <li>Both run in parallel. A <strong>Synchronise</strong> action after both can trigger a final notification once both deliveries confirm.</li>
+</ol>
+
+<div class="tip-box"><strong>Cost tip:</strong> S3 egress charges apply when data is read out of AWS. If you're uploading for distribution via CloudFront or MediaPackage, ensure your S3 bucket and CloudFront distribution are in the same AWS region to minimise inter-region transfer costs.</div>
+
+<h2>Step 5: Test and Validate</h2>
+<ol>
+  <li>Drop a test file into your NAS ingest hot folder.</li>
+  <li>Monitor the job in Vantage Job Status — both Copy actions should appear as sub-tasks.</li>
+  <li>In the AWS S3 Console, navigate to your bucket and confirm the file has arrived in the <code>media/output/</code> prefix.</li>
+  <li>Download a copy from S3 and validate using MediaInfo — confirm codec (H.264), bitrate, and audio layout match your Transcode configuration.</li>
+</ol>
+
+<h2>Monitoring and Alerting</h2>
+<ul>
+  <li>Enable <strong>AWS S3 Event Notifications</strong> on your bucket to trigger downstream processing (e.g. Lambda for MediaConvert, SNS for alerts) when Vantage delivers a new file.</li>
+  <li>In Vantage, configure the workflow's notification action to include the S3 object URL in the delivery confirmation email.</li>
+  <li>Set up <strong>AWS CloudWatch</strong> metrics on your S3 bucket to monitor upload volumes and detect delivery failures.</li>
+</ul>
+
+</div>
+</main>
+<footer class="footer">
+  <div class="footer-grid">
+    <div><div class="footer-brand">The Streamic</div><p class="footer-tag">Independent broadcast &amp; streaming technology journalism.</p></div>
+    <div class="footer-col"><h4>How-To Guides</h4>
+      <a href="../howto.html">All Guides</a>
+      <a href="guide-vantage-nas-transcode.html">Vantage NAS Workflow</a>
+      <a href="guide-vantage-aws-transcode.html">Vantage AWS Output</a>
+      <a href="guide-avid-strawberry.html">Strawberry + Avid</a>
+      <a href="guide-premiere-to-avid.html">Premiere to Avid</a>
+    </div>
+    <div class="footer-col"><h4>Site</h4>
+      <a href="../about.html">About</a><a href="../privacy.html">Privacy</a><a href="../terms.html">Terms</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 The Streamic. All rights reserved.</span>
+  </div>
+</footer>
+<div id="ts-cookie">
+  <div class="cookie-in">
+    <div class="cookie-txt"><strong>We use cookies</strong> Analytics and advertising cookies improve your experience. <a href="/privacy.html">Privacy Policy</a></div>
+    <div class="cookie-btns">
+      <button class="cookie-no" onclick="tsCC(false)">Reject optional</button>
+      <button class="cookie-ok" onclick="tsCC(true)">Accept all</button>
+    </div>
+  </div>
+</div>
+<script>(function(){var K='ts_cc',s=localStorage.getItem(K),b=document.getElementById('ts-cookie');if(!s&&b)b.style.display='block';window.tsCC=function(ok){localStorage.setItem(K,ok?'granted':'denied');if(b)b.style.display='none';if(typeof gtag!='undefined')gtag('consent','update',{analytics_storage:ok?'granted':'denied',ad_storage:ok?'granted':'denied',ad_user_data:ok?'granted':'denied',ad_personalization:ok?'granted':'denied'});};if(s==='granted'&&typeof gtag!='undefined')gtag('consent','update',{analytics_storage:'granted',ad_storage:'granted',ad_user_data:'granted',ad_personalization:'granted'});})();</script>
+</body></html>
