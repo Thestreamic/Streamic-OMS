@@ -632,75 +632,39 @@
   display: none;
 }
 
-/* ── Homepage refinements from build.py generated layout ───────────────── */
-.hp-section-intro {
-  font-size: 14px;
-  line-height: 1.65;
-  color: var(--ink3);
-  max-width: 760px;
-  margin: -4px 0 18px;
-}
 
-/* Guide sits earlier and feels more substantial */
-.hp-guide-grid {
-  grid-template-columns: repeat(2, 1fr);
-}
-.hp-guide-card {
-  height: 180px;
-}
-.hp-guide-card img {
-  opacity: .58;
-}
-.hp-guide-card-label {
-  font-size: 15px;
-}
-.hp-guide-card-sub {
-  font-size: 11.5px;
-}
-
-/* Latest Insights — premium editorial cards */
+/* ── Premium Latest Insights cards ───────────────────────────── */
 .hp-insights-grid {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 18px;
 }
-.hp-insight-card {
+.hp-insight-card--premium {
   padding: 0;
   overflow: hidden;
-  border-radius: 14px;
-  border: 1px solid var(--line);
-  background: var(--white);
-  box-shadow: var(--shadow-sm);
+  min-height: 100%;
+  gap: 0;
 }
 .hp-insight-media {
+  display: block;
   aspect-ratio: 16 / 9;
-  background: var(--bg);
   overflow: hidden;
+  background: var(--bg);
 }
 .hp-insight-media img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
-  transition: transform .35s ease;
-}
-.hp-insight-card:hover .hp-insight-media img {
-  transform: scale(1.03);
 }
 .hp-insight-body {
-  padding: 18px 18px 16px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  min-height: 188px;
-}
-.hp-insight-hl {
-  font-size: 19px;
-  line-height: 1.22;
-  -webkit-line-clamp: 3;
+  gap: 10px;
+  padding: 16px 16px 18px;
 }
 .hp-insight-dek {
-  font-size: 13px;
-  line-height: 1.6;
+  font-size: 12.5px;
+  line-height: 1.55;
   color: var(--ink3);
   display: -webkit-box;
   -webkit-line-clamp: 3;
@@ -711,41 +675,47 @@
   font-size: 11px;
   color: var(--ink4);
 }
-
-/* Homepage news remains auto-generated and compact */
-.hp-news-list {
-  border-top: 1px solid var(--line);
-}
-.hp-news-item:first-child {
-  border-top: none;
+.hp-insight-card--premium .hp-insight-hl {
+  flex: 0 0 auto;
+  font-size: 16px;
+  -webkit-line-clamp: 3;
 }
 
-/* Empty ad safety */
-.ad-wrap:empty,
-.hp-sb-ad:empty {
-  display: none !important;
+/* ── Sidebar How-To Guides as premium mini-cards ─────────────── */
+.hp-sb-guides .hp-sb-guide-item {
+  display: block;
+  padding: 14px 14px 12px;
+  margin-bottom: 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--white);
+  box-shadow: var(--shadow-sm);
+}
+.hp-sb-guides .hp-sb-guide-item:last-child {
+  margin-bottom: 0;
+  border-bottom: 1px solid var(--line);
+}
+.hp-sb-guides .hp-sb-guide-cat {
+  display: block;
+  margin-bottom: 6px;
+}
+.hp-sb-guides .hp-sb-guide-title {
+  display: block;
+  font-family: var(--serif);
+  font-size: 14px;
+  line-height: 1.35;
+  margin-bottom: 8px;
+}
+.hp-sb-guides .hp-sb-guide-time {
+  display: inline-block;
+  font-size: 11px;
 }
 
 @media (max-width: 900px) {
-  .hp-insights-grid {
-    grid-template-columns: 1fr;
-  }
-  .hp-guide-card {
-    height: 170px;
-  }
+  .hp-insight-card--premium .hp-insight-hl { font-size: 15px; }
 }
-
-@media (max-width: 520px) {
-  .hp-guide-grid {
-    grid-template-columns: 1fr;
-  }
-  .hp-guide-card {
-    height: 160px;
-  }
-  .hp-insight-body {
-    min-height: unset;
-  }
-  .hp-insight-hl {
-    font-size: 17px;
+@media (max-width: 768px) {
+  .hp-sb-guides .hp-sb-guide-item {
+    margin-bottom: 8px;
   }
 }
