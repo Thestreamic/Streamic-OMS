@@ -121,6 +121,8 @@ jobs:
       - name: "Stage 3: Rewrite RSS to article cards"
         if: steps.mode.outputs.mode != 'build_only' && steps.mode.outputs.mode != 'gemini_only'
         run: |
+          python3 scripts/rewrite_feed.py
+          echo "✓ RSS rewrite complete"
 
       # ── STAGE 4: Editorial deep-dives (always) ────────────────────────────
       - name: "Stage 4: Generate editorial articles"

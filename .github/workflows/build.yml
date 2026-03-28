@@ -46,6 +46,7 @@ jobs:
 
       - name: Generate RSS article cards
         if: github.event.inputs.summaries_only != 'true'
+        run: python scripts/rewrite_feed.py
 
       - name: Generate editorial deep-dives
         if: github.event.inputs.summaries_only != 'true'
