@@ -152,6 +152,10 @@ jobs:
         if: steps.mode.outputs.mode == 'full' || steps.mode.outputs.mode == 'gemini_only'
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          ENABLE_GEMINI_PREMIUM: ${{ github.event.inputs.run_mode == 'gemini_only' && 'true' || 'false' }}
+          GEMINI_MAX_PER_RUN: "2"
         run: python3 scripts/generate_gemini.py || echo "Gemini step skipped"
 
       # ── STAGE 5b: Groq card summaries (SECONDARY) — full + groq_only ──────
@@ -160,6 +164,10 @@ jobs:
         if: steps.mode.outputs.mode == 'full' || steps.mode.outputs.mode == 'groq_only'
         env:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          GROQ_PREMIUM_ONLY: "true"
+          GROQ_MAX_PER_RUN: "4"
         run: python3 ./scripts/generate_summaries.py || echo "Groq step skipped"
 
       # ── STAGE 6: Build static site (always) ───────────────────────────────
