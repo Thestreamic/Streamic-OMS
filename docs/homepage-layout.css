@@ -681,3 +681,37 @@
 .hp-sb-ad .ad-wrap:empty {
   display: none;
 }
+
+/* --- 2026-03 homepage dynamic fixes --- */
+.hp-sb-guides-grid {
+  display: grid;
+  gap: 12px;
+}
+.hp-sb-guide-item {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 14px;
+  box-shadow: var(--shadow-sm);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  gap: 4px 10px;
+}
+.hp-sb-guide-item:hover {
+  border-color: #c0c0c5;
+  transform: translateY(-1px);
+}
+.hp-sb-guide-title {
+  font-family: var(--serif);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.25;
+}
+.hp-sb-guide-cat {
+  font-size: 10px;
+  letter-spacing: .8px;
+}
+.hp-sb-guide-time {
+  align-self: end;
+}
