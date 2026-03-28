@@ -198,6 +198,56 @@
 }
 
 
+
+.hp-insight-card {
+  padding: 0;
+  overflow: hidden;
+}
+.hp-insight-media {
+  display: block;
+  aspect-ratio: 16 / 9;
+  background: var(--bg);
+}
+.hp-insight-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.hp-insight-card .hp-insight-tag,
+.hp-insight-card .hp-insight-hl,
+.hp-insight-card .hp-insight-dek,
+.hp-insight-card .hp-insight-read {
+  margin-left: 16px;
+  margin-right: 16px;
+}
+.hp-insight-card .hp-insight-tag { margin-top: 14px; }
+.hp-insight-dek {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--ink3);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+.hp-insight-card .hp-insight-read { margin-bottom: 16px; }
+.hp-sb-guides-grid {
+  display: grid;
+  gap: 10px;
+}
+.hp-sb-guide-item {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px 12px;
+}
+.hp-sb-guide-item:hover {
+  border-color: #c0c0c5;
+  box-shadow: var(--shadow-sm);
+}
+
 /* ── Professional Media Systems Guide ──────────────────────────── */
 .hp-guide {
   margin-bottom: 32px;
@@ -630,92 +680,4 @@
 }
 .hp-sb-ad .ad-wrap:empty {
   display: none;
-}
-
-
-/* ── Premium Latest Insights cards ───────────────────────────── */
-.hp-insights-grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 18px;
-}
-.hp-insight-card--premium {
-  padding: 0;
-  overflow: hidden;
-  min-height: 100%;
-  gap: 0;
-}
-.hp-insight-media {
-  display: block;
-  aspect-ratio: 16 / 9;
-  overflow: hidden;
-  background: var(--bg);
-}
-.hp-insight-media img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-.hp-insight-body {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 16px 16px 18px;
-}
-.hp-insight-dek {
-  font-size: 12.5px;
-  line-height: 1.55;
-  color: var(--ink3);
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-.hp-insight-meta {
-  font-size: 11px;
-  color: var(--ink4);
-}
-.hp-insight-card--premium .hp-insight-hl {
-  flex: 0 0 auto;
-  font-size: 16px;
-  -webkit-line-clamp: 3;
-}
-
-/* ── Sidebar How-To Guides as premium mini-cards ─────────────── */
-.hp-sb-guides .hp-sb-guide-item {
-  display: block;
-  padding: 14px 14px 12px;
-  margin-bottom: 10px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  background: var(--white);
-  box-shadow: var(--shadow-sm);
-}
-.hp-sb-guides .hp-sb-guide-item:last-child {
-  margin-bottom: 0;
-  border-bottom: 1px solid var(--line);
-}
-.hp-sb-guides .hp-sb-guide-cat {
-  display: block;
-  margin-bottom: 6px;
-}
-.hp-sb-guides .hp-sb-guide-title {
-  display: block;
-  font-family: var(--serif);
-  font-size: 14px;
-  line-height: 1.35;
-  margin-bottom: 8px;
-}
-.hp-sb-guides .hp-sb-guide-time {
-  display: inline-block;
-  font-size: 11px;
-}
-
-@media (max-width: 900px) {
-  .hp-insight-card--premium .hp-insight-hl { font-size: 15px; }
-}
-@media (max-width: 768px) {
-  .hp-sb-guides .hp-sb-guide-item {
-    margin-bottom: 8px;
-  }
 }
