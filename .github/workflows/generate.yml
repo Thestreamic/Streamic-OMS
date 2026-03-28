@@ -158,6 +158,7 @@ jobs:
         if: steps.mode.outputs.mode == 'full' || steps.mode.outputs.mode == 'groq_only'
         env:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+        run: python3 ./scripts/generate_summaries.py || echo "Groq step skipped"
 
       # ── STAGE 6: Build static site (always) ───────────────────────────────
       - name: "Stage 6: Build static site"

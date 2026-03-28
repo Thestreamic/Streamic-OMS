@@ -54,6 +54,7 @@ jobs:
       - name: Groq AI summaries (if key available)
         env:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+        run: python ./scripts/generate_summaries.py || echo "Groq step skipped"
 
       - name: Build site
         run: python scripts/build.py
