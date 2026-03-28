@@ -47,9 +47,10 @@ os.makedirs(SUMMARIES_DIR, exist_ok=True)
 
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
 GROQ_URL     = "https://api.groq.com/openai/v1/chat/completions"
-GROQ_MODEL   = "llama-3.3-70b-versatile"   # fast + free tier
-MAX_PER_RUN  = 15  # Groq secondary — 15 × 8s = 120s max, safely within GitHub Actions step budget
-SLEEP_SECS   = 8.0                 # 8s between calls — Groq free tier: ~6 RPM to stay under 30 RPM limit
+GROQ_MODEL   = os.environ.get("GROQ_MODEL", "llama-3.1-8b-instant")
+MAX_PER_RUN  = int(os.environ.get("GROQ_MAX_PER_RUN", "4"))
+SLEEP_SECS   = float(os.environ.get("GROQ_SLEEP_SECS", "10"))
+PREMIUM_ONLY = os.environ.get("GROQ_PREMIUM_ONLY", "true").lower() == "true"
 
 # ── Slug builder (mirrors rewrite_feed.py) ────────────────────────────────────
 def make_slug(title, pub_date, cat=""):
@@ -539,13 +540,32 @@ def load_summary(slug: str) -> dict:
     except Exception:
         return {}
 
+# ── Premium scoring ─────────────────────────────────────────────────────────────
+def premium_story_score(title: str, teaser: str, category: str, source: str = "") -> int:
+    text = f"{title} {teaser}".lower()
+    score = 0
+    if category in {"newsroom", "streaming", "cloud", "infrastructure", "featured"}:
+        score += 20
+    for kw in ["nab", "ibc", "st 2110", "cloud", "streaming", "ai", "sports", "latency", "cdn", "jpeg xs", "ssai"]:
+        if kw in text:
+            score += 8
+    if source in {"AWS", "TV Technology", "BroadcastBeat", "Microsoft Security", "Haivision", "Telestream"}:
+        score += 6
+    return score
+
+
+def should_consider_for_premium(item: dict) -> bool:
+    if not PREMIUM_ONLY:
+        return True
+    return premium_story_score(item.get("title", ""), item.get("teaser", ""), item.get("category", "featured"), item.get("source", "")) >= 20
+
 # ── Main ──────────────────────────────────────────────────────────────────────
 def main():
     print("=== generate_summaries.py ===")
 
     if not GROQ_API_KEY:
-        print("ERROR: GROQ_API_KEY not set. Export it before running.")
-        sys.exit(1)
+        print("GROQ_API_KEY not set — skipping premium rewrite step.")
+        return
 
     # Collect all items to summarise from news.json
     with open(NEWS_F, "r", encoding="utf-8") as f:
@@ -579,11 +599,12 @@ def main():
         if not title: continue
         slug = make_slug(title, pub, cat)
         if slug in seen_slugs or summary_exists(slug): continue
+        candidate = {"slug": slug, "title": title, "teaser": teaser, "category": cat, "source": source}
+        if not should_consider_for_premium(candidate):
+            continue
         seen_slugs.add(slug)
-        items_to_process.append({
-            "slug": slug, "title": title, "teaser": teaser,
-            "category": cat, "source": source,
-        })
+        candidate["premium_score"] = premium_story_score(title, teaser, cat, source)
+        items_to_process.append(candidate)
 
     # From generated_articles.json (items with generic summaries)
     generic_markers = [
@@ -603,15 +624,21 @@ def main():
         needs_regen    = not summary_exists(slug) or not has_structure or has_generic
         if not needs_regen: continue
         if any(m in (body + cs) for m in generic_markers):
-            seen_slugs.add(slug)
-            items_to_process.append({
+            candidate = {
                 "slug": slug,
                 "title": a.get("title", ""),
                 "teaser": a.get("dek") or a.get("meta_description", ""),
                 "category": a.get("category", "featured"),
-            })
+                "source": a.get("source_domain", ""),
+            }
+            if not should_consider_for_premium(candidate):
+                continue
+            seen_slugs.add(slug)
+            candidate["premium_score"] = premium_story_score(candidate["title"], candidate["teaser"], candidate["category"], candidate.get("source", ""))
+            items_to_process.append(candidate)
 
-    print(f"Items to summarise: {len(items_to_process)} (max this run: {MAX_PER_RUN})")
+    items_to_process.sort(key=lambda x: x.get("premium_score", 0), reverse=True)
+    print(f"Items to summarise: {len(items_to_process)} (premium only={PREMIUM_ONLY}, max this run: {MAX_PER_RUN})")
     items_to_process = items_to_process[:MAX_PER_RUN]
 
     processed     = 0

@@ -47,6 +47,7 @@ os.makedirs(SUMMARIES_DIR, exist_ok=True)
 
 # ── Config ────────────────────────────────────────────────────────────────────
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
+ENABLE_GEMINI_PREMIUM = os.environ.get("ENABLE_GEMINI_PREMIUM", "false").lower() == "true"
 
 # ── DUAL MODEL STRATEGY ───────────────────────────────────────────────────────
 # Flash-Lite: 15 RPM / 1,000 RPD -- use for ALL regular summaries (220 articles)
@@ -87,12 +88,11 @@ GEMINI_URL              = GEMINI_PRO_URL
 PRO_CATEGORIES = set()   # not used; every article uses Pro
 PRO_BUDGET_PER_RUN = 22  # safety ceiling = max visible RSS articles
 
-MAX_PER_RUN  = 22    # Never process more than the visible set in one run
-SLEEP_SECS   = 7.0   # 7s between calls -> ~8.5 RPM, safely under 10 RPM Pro limit
-SLEEP_PRO    = 7.0   # same
+MAX_PER_RUN  = int(os.environ.get("GEMINI_MAX_PER_RUN", "2"))
+SLEEP_SECS   = float(os.environ.get("GEMINI_SLEEP_SECS", "8"))
+SLEEP_PRO    = SLEEP_SECS
 
-# Hard cap per run -- matches visible article count; raises quality, protects quota
-MAX_ITEMS_PER_RUN  = 22
+MAX_ITEMS_PER_RUN  = MAX_PER_RUN
 USE_GROQ_FALLBACK  = False   # Groq is for card summaries only -- not full articles
 
 # Skip articles already processed at 800+ words by Gemini Pro -- saves quota
@@ -619,9 +619,13 @@ def fallback_card(title: str, teaser: str) -> str:
 def main():
     print("=== generate_gemini.py ===")
 
+    if not ENABLE_GEMINI_PREMIUM:
+        print("Gemini premium step disabled by default (set ENABLE_GEMINI_PREMIUM=true to enable).")
+        return
+
     if not GEMINI_API_KEY:
-        print("ERROR: GEMINI_API_KEY not set. Export it before running.")
-        sys.exit(1)
+        print("GEMINI_API_KEY not set — skipping premium Gemini step.")
+        return
 
     # Load news.json -- handles flat list and dict-of-categories formats
     with open(NEWS_F, "r", encoding="utf-8") as f:
@@ -697,9 +701,12 @@ def main():
             skipped_high_quality += 1
             continue
 
+        if cat not in {"featured", "newsroom", "streaming", "cloud", "infrastructure"}:
+            continue
         items_to_process.append({
             "slug": slug, "title": title, "teaser": teaser,
             "category": cat, "source": source, "reason": reason,
+            "premium_score": 1 if "nab" in f"{title} {teaser}".lower() else 0,
         })
 
     # From generated_articles.json -- catch visible articles Groq flagged or never touched
@@ -719,15 +726,20 @@ def main():
             skipped_high_quality += 1
             continue
 
+        cat = a.get("category", "featured")
+        if cat not in {"featured", "newsroom", "streaming", "cloud", "infrastructure"}:
+            continue
         items_to_process.append({
             "slug":     slug,
             "title":    a.get("title", ""),
             "teaser":   a.get("dek") or a.get("meta_description") or a.get("teaser") or "",
-            "category": a.get("category", "featured"),
+            "category": cat,
             "source":   a.get("source_domain") or a.get("source") or "",
             "reason":   reason,
+            "premium_score": 1 if "nab" in f"{a.get("title", "")} {a.get("dek", "")}".lower() else 0,
         })
 
+    items_to_process.sort(key=lambda x: (x.get("premium_score",0), x.get("category") == "featured"), reverse=True)
     total = len(items_to_process)
     batch = items_to_process[:MAX_ITEMS_PER_RUN]
     print(f"Items to process: {total} (this run: {len(batch)}) | "
