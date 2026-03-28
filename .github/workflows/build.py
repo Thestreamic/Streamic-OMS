@@ -2,13 +2,12 @@
 scripts/build.py &#8212; The Streamic site builder
 Apple Newsroom-style static site generator
 """
-import json, os, re, shutil
+import json, os, re, shutil, hashlib
 from datetime import datetime, timezone
+from bs4 import BeautifulSoup
 
 ROOT      = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 ARTS_F    = os.path.join(ROOT, "data", "generated_articles.json")
-NEWS_F    = os.path.join(ROOT, "data", "news.json")
-IMGPOOL_F = os.path.join(ROOT, "data", "image_pools.json")
 DOCS      = os.path.join(ROOT, "docs")
 ARTS_D    = os.path.join(DOCS, "articles")
 BASE_URL  = os.environ.get("SITE_BASE_URL", "https://www.thestreamic.in").rstrip("/")
@@ -58,66 +57,6 @@ def w(path, txt):
     with open(path,"w",encoding="utf-8") as f: f.write(txt)
 def rm(wc): return f"{max(1,round(wc/200))} min read"
 
-
-
-
-def _load_image_pools():
-    try:
-        with open(IMGPOOL_F, "r", encoding="utf-8") as f:
-            data = json.load(f)
-        return data.get("cat_pools", {}) if isinstance(data, dict) else {}
-    except Exception:
-        return {}
-
-IMAGE_POOLS = _load_image_pools()
-
-CATEGORY_FALLBACKS = {
-    "featured": "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1200&auto=format&fit=crop&q=80",
-    "newsroom": "https://images.unsplash.com/photo-1495020689067-958852a7765e?w=1200&auto=format&fit=crop&q=80",
-    "ai-post-production": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1200&auto=format&fit=crop&q=80",
-    "graphics": "https://images.unsplash.com/photo-1492619375914-88005aa9e8fb?w=1200&auto=format&fit=crop&q=80",
-    "infrastructure": "https://images.unsplash.com/photo-1516321497487-e288fb19713f?w=1200&auto=format&fit=crop&q=80",
-    "cloud": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1200&auto=format&fit=crop&q=80",
-    "streaming": "https://images.unsplash.com/photo-1478737270239-2f02b77fc618?w=1200&auto=format&fit=crop&q=80",
-    "playout": "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1200&auto=format&fit=crop&q=80",
-}
-
-def category_visual(cat: str) -> str:
-    cat = (cat or "featured").strip().lower()
-    pool = IMAGE_POOLS.get(cat) or []
-    if pool:
-        photo_id = pool[0]
-        return f"https://images.unsplash.com/{photo_id}?w=1200&auto=format&fit=crop&q=80"
-    return CATEGORY_FALLBACKS.get(cat, CATEGORY_FALLBACKS["featured"])
-
-def article_visual(a: dict, prefer_fallback: bool = False) -> str:
-    title = (a.get("title") or "").lower()
-    img = (a.get("image_url") or a.get("image") or "").strip()
-    weak_title = any(k in title for k in ["credit-based model", "project hail mary"])
-    if prefer_fallback and (not img or weak_title):
-        return category_visual(a.get("category"))
-    return img or category_visual(a.get("category"))
-
-def load_homepage_news():
-    if os.path.exists(NEWS_F):
-        try:
-            with open(NEWS_F, "r", encoding="utf-8") as f:
-                raw = json.load(f)
-            if isinstance(raw, list) and raw:
-                items = []
-                for it in raw:
-                    obj = dict(it)
-                    obj.setdefault("published", it.get("pubDate", ""))
-                    obj.setdefault("source_domain", it.get("source", ""))
-                    obj.setdefault("source_url", it.get("link", ""))
-                    obj.setdefault("url", it.get("link", ""))
-                    obj.setdefault("image_url", article_visual(obj, prefer_fallback=True))
-                    items.append(obj)
-                items.sort(key=lambda x: x.get("published", ""), reverse=True)
-                return items
-        except Exception:
-            pass
-    return []
 
 def smart_dek(a):
     title=(a.get("title") or "").strip()
@@ -238,7 +177,7 @@ def head(title, desc, canon, css="style.css", og_img="", robots="index,follow"):
 def nav(active="", base=""):
     # AdSense mode: only Home, AI Post category, and How-To visible
     cats = [
-        ("index.html", "Home"),
+        ("featured.html", "Home"),
         ("ai-post-production.html", "AI in Broadcasting"),
         ("howto.html", "How-To Guides"),
         ("post-production-workflows.html", "Post Production Workflows"),
@@ -251,7 +190,7 @@ def nav(active="", base=""):
         f'<a href="{base}{h}">{lbl}</a>' for h, lbl in cats)
     return f"""<nav class="nav">
   <div class="nav-inner">
-    <a href="{base}index.html" class="nav-logo">
+    <a href="{base}featured.html" class="nav-logo">
       <img src="{base}assets/logo.png" alt="" onerror="this.style.display='none'" aria-hidden="true">
       <span>The Streamic</span>
     </a>
@@ -306,7 +245,7 @@ def footer(base=""):
 
 # ── NEWS GRID (SSR from generated_articles.json)
 def _nc_img(a, base=""):
-    img = eu(article_visual(a))
+    img = eu(a.get("image_url",""))
     fb  = f"{base}assets/fallback.jpg"
     title = e(a.get("title",""))
     if img:
@@ -1018,7 +957,7 @@ def featured_page(arts):
             cat_color = {"streaming":"#0066cc","cloud":"#5856d6","graphics":"#FF9500",
                          "playout":"#34C759","infrastructure":"#636366",
                          "ai-post-production":"#FF2D55","newsroom":"#b8860b"}.get(cat,"#1d1d1f")
-            img = eu(article_visual(a))
+            img = eu(a.get("image_url",""))
             card_title = e(a.get("title",""))
             dt = d(a.get("published",""))
             dek_raw = smart_dek(a)
@@ -1926,12 +1865,15 @@ def main():
         print(f"      {cat}: {n} articles")
 
     # ── Homepage ──────────────────────────────────────────────────────────
+    refresh_homepage_static(os.path.join(DOCS, "index.html"))
+    refresh_homepage_static(os.path.join(DOCS, "featured.html"))
+    if os.path.exists(os.path.join(DOCS, "index.html")):
+        shutil.copy2(os.path.join(DOCS, "index.html"), os.path.join(ROOT, "index.html"))
+    if os.path.exists(os.path.join(DOCS, "featured.html")):
+        shutil.copy2(os.path.join(DOCS, "featured.html"), os.path.join(ROOT, "featured.html"))
+    print("  &#10003; homepage templates refreshed from latest feed")
+
     feat_arts = sorted(arts, key=lambda a: a["published"], reverse=True)
-    fp = featured_page(feat_arts)
-    w(os.path.join(DOCS,"featured.html"), fp)
-    w(os.path.join(DOCS,"index.html"),    fp)
-    w(os.path.join(ROOT,"index.html"),    fp)   # Also at root — fixes 404 when Pages serves from branch root
-    print("  &#10003; featured.html + index.html")
 
     # ── posts.html — noindex (preserve links, hide from Google) ──────────
     ap = all_articles_page(feat_arts)
