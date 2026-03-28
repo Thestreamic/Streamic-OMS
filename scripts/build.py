@@ -176,7 +176,7 @@ def head(title, desc, canon, css="style.css", og_img="", robots="index,follow"):
 def nav(active="", base=""):
     # AdSense mode: only Home, AI Post category, and How-To visible
     cats = [
-        ("featured.html", "Home"),
+        ("index.html", "Home"),
         ("ai-post-production.html", "AI in Broadcasting"),
         ("howto.html", "How-To Guides"),
         ("post-production-workflows.html", "Post Production Workflows"),
@@ -189,7 +189,7 @@ def nav(active="", base=""):
         f'<a href="{base}{h}">{lbl}</a>' for h, lbl in cats)
     return f"""<nav class="nav">
   <div class="nav-inner">
-    <a href="{base}featured.html" class="nav-logo">
+    <a href="{base}index.html" class="nav-logo">
       <img src="{base}assets/logo.png" alt="" onerror="this.style.display='none'" aria-hidden="true">
       <span>The Streamic</span>
     </a>
@@ -783,216 +783,209 @@ def is_high_value(article: dict) -> bool:
 
 
 
-def featured_page(arts):
-    """
-    Editorial homepage.
-    Structure: Hero(1) + Editor Picks(4) + Why Exists + Deep Dives(7) + Guides(6) + Industry News(5)
-    Deep Dives explicitly shows the 7 new long-form articles.
-    Hero + Editor Picks uses the 5 original editorial analyses.
-    """
-    import re as _re
-
-    # ── Split editorial into two pools ────────────────────────────────────
-    # DEEP_DIVE_SLUGS: the 7 new topic articles — always go to the Deep Dives section
-    DEEP_DIVE_SLUGS = {
-        "future-of-ai-in-broadcast-deployment-2026",
-        "cloud-broadcast-workflows-remote-production-2026",
-        "ai-video-post-production-editing-vfx-automation-2026",
-        "ip-broadcasting-smpte-st2110-engineering-guide-2026",
-        "media-asset-management-ai-era-monetisation-2026",
-        "live-production-ai-automation-real-time-broadcasting-2026",
-        "broadcast-automation-systems-guide-2026",
+def _hp_img(a, base=""):
+    img = eu(a.get("image_url", "") or a.get("image", ""))
+    if img:
+        return img
+    cat = (a.get("category") or "featured").lower()
+    fallbacks = {
+        "featured": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&auto=format&fit=crop&q=80",
+        "newsroom": "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1200&auto=format&fit=crop&q=80",
+        "cloud": "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=1200&auto=format&fit=crop&q=80",
+        "infrastructure": "https://images.unsplash.com/photo-1545987796-200677ee1011?w=1200&auto=format&fit=crop&q=80",
+        "graphics": "https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=1200&auto=format&fit=crop&q=80",
+        "streaming": "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=1200&auto=format&fit=crop&q=80",
+        "ai-post-production": "https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=1200&auto=format&fit=crop&q=80",
+        "playout": "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1200&auto=format&fit=crop&q=80",
     }
+    return fallbacks.get(cat, fallbacks["featured"])
 
-    editorial_all  = [a for a in arts if a.get("is_editorial") or a.get("editorial")]
-    # Original analyses: long-form signed editorial — used in Hero + Editor Picks
-    editorial_orig = [a for a in editorial_all if a["slug"] not in DEEP_DIVE_SLUGS]
-    # Deep dive articles: always shown in the Deep Dives section
-    editorial_deep = [a for a in editorial_all if a["slug"] in DEEP_DIVE_SLUGS]
+def _hp_tag(a):
+    cinfo = CAT.get(a.get("category", "featured"), CAT["featured"])
+    return f"{cinfo['icon']} {cinfo['label']}"
 
-    regular   = [a for a in arts if not a.get("is_editorial") and not a.get("editorial")]
-    regular_scored = sorted(regular, key=lambda a: -_score_art(a))
+def _hp_insight_card(a):
+    href = f"articles/{a['slug']}.html"
+    title = e(a.get("title", ""))
+    dek = e((a.get("dek") or a.get("meta_description") or a.get("card_summary") or "")[:150])
+    dt = d(a.get("published", ""))
+    return f'''<a href="{href}" class="hp-insight-card">
+  <div class="hp-insight-media"><img src="{_hp_img(a)}" alt="{title}" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
+  <div class="hp-insight-body">
+    <span class="hp-insight-tag">{e(_hp_tag(a))}</span>
+    <span class="hp-insight-hl">{title}</span>
+    <span class="hp-insight-dek">{dek}</span>
+    <span class="hp-insight-meta">{dt}</span>
+    <span class="hp-insight-read">Read analysis &#8594;</span>
+  </div>
+</a>'''
 
-    # ── Slot allocation ───────────────────────────────────────────────────
-    # Hero: newest original editorial (the main feature article)
-    hero_art     = editorial_orig[0] if editorial_orig else (regular_scored[0] if regular_scored else None)
-    # Editor Picks: next 4 original editorial articles
-    editor_picks = editorial_orig[1:4] if len(editorial_orig) > 1 else regular_scored[:3]
-    # Deep Dives: all 7 new topic articles
-    deep_dives   = editorial_deep  # show all 7
+def _hp_guide_card(a, sub):
+    href = f"articles/{a['slug']}.html"
+    title = e(a.get("title", ""))
+    return f'''<a href="{href}" class="hp-guide-card">
+  <img src="{_hp_img(a)}" alt="{title}" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+  <div class="hp-guide-card-overlay">
+    <span class="hp-guide-card-label">{title}</span>
+    <span class="hp-guide-card-sub">{e(sub)}</span>
+  </div>
+</a>'''
 
-    used_slugs   = {hero_art["slug"]} if hero_art else set()
-    used_slugs  |= {a["slug"] for a in editor_picks}
-    used_slugs  |= {a["slug"] for a in deep_dives}
-    # Industry news: 5 most recent RSS articles not already shown
-    industry_news = [a for a in regular_scored if a["slug"] not in used_slugs][:5]
+def _hp_news_item(a):
+    href = f"articles/{a['slug']}.html"
+    title = e(a.get("title", ""))
+    src = e(a.get("source_domain", a.get("source", "")).replace("https://", "").replace("www.", "").split("/")[0])
+    dt = d(a.get("published", ""))
+    return f'''<a href="{href}" class="hp-news-item">
+  <div class="hp-news-thumb"><img src="{_hp_img(a)}" alt="{title}" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
+  <div class="hp-news-body">
+    <span class="hp-news-src">{src}</span>
+    <span class="hp-news-title">{title}</span>
+    <div class="hp-news-foot"><time class="hp-news-date">{dt}</time><span class="hp-news-read">Read more &#8594;</span></div>
+  </div>
+</a>'''
 
-    title  = "The Streamic — AI in Broadcasting & Streaming Technology"
-    desc   = "Expert analysis on AI automation, cloud workflows, and operational intelligence for broadcast and streaming professionals."
-    canon  = f"{BASE_URL}/index.html"
+def _hp_sidebar_pick(a):
+    href = f"articles/{a['slug']}.html"
+    title = e(a.get("title", ""))
+    return f'''<a href="{href}" class="hp-sb-img-card">
+  <img src="{_hp_img(a)}" alt="{title}" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+  <div class="hp-sb-img-overlay"><span class="hp-sb-img-title">{title}</span></div>
+</a>'''
+
+def _hp_sidebar_news(a):
+    href = f"articles/{a['slug']}.html"
+    title = e(a.get("title", ""))
+    src = e(a.get("source_domain", a.get("source", "")).replace("https://", "").replace("www.", "").split("/")[0])
+    dt = d(a.get("published", ""))
+    return f'''<a href="{href}" class="hp-sb-news-item">
+  <div class="hp-sb-news-thumb"><img src="{_hp_img(a)}" alt="{title}" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
+  <div class="hp-sb-news-body">
+    <span class="hp-sb-news-src">{src}</span>
+    <span class="hp-sb-news-title">{title}</span>
+    <time class="hp-sb-news-date">{dt}</time>
+  </div>
+</a>'''
+
+def featured_page(arts):
+    """Homepage built from generated_articles.json with premium magazine layout."""
+    editorial_all = sorted([a for a in arts if a.get("is_editorial") or a.get("editorial")], key=lambda a: a.get("published", ""), reverse=True)
+    regular_all = sorted([a for a in arts if not a.get("is_editorial") and not a.get("editorial")], key=lambda a: a.get("published", ""), reverse=True)
+
+    preferred_hero = "ai-reducing-broadcast-operational-costs-2026"
+    hero_art = next((a for a in editorial_all if a.get("slug") == preferred_hero), editorial_all[0] if editorial_all else (regular_all[0] if regular_all else None))
+
+    guide_slug_order = [
+        "broadcast-automation-systems-guide-2026",
+        "ip-broadcasting-smpte-st2110-engineering-guide-2026",
+        "cloud-broadcast-workflows-remote-production-2026",
+        "media-asset-management-ai-era-monetisation-2026",
+    ]
+    guide_map = {a.get("slug"): a for a in editorial_all}
+    guide_arts = [guide_map[s] for s in guide_slug_order if s in guide_map]
+
+    insight_slug_order = [
+        "beyond-the-chatbot-operational-ai-newsroom-2026",
+        "st-2110-small-market-hybrid-ip-broadcasters-2026",
+        "paris-2024-cloud-production-legacy-global-events-2026",
+        "c2pa-deepfake-news-credibility-digital-provenance-2026",
+    ]
+    art_map = {a.get("slug"): a for a in arts}
+    insight_arts = [art_map[s] for s in insight_slug_order if s in art_map]
+    if len(insight_arts) < 4:
+        used = {a.get("slug") for a in insight_arts} | {a.get("slug") for a in guide_arts} | ({hero_art.get("slug")} if hero_art else set())
+        insight_arts += [a for a in editorial_all + regular_all if a.get("slug") not in used][:4-len(insight_arts)]
+
+    sidebar_picks = [a for a in editorial_all if a.get("slug") != (hero_art or {}).get("slug")][:3]
+    breaking_news = diversify_arts(regular_all)[:6]
+
+    used_news_slugs = {a.get("slug") for a in guide_arts + insight_arts + sidebar_picks}
+    if hero_art:
+        used_news_slugs.add(hero_art.get("slug"))
+    homepage_news = diversify_arts([a for a in regular_all if a.get("slug") not in used_news_slugs])[:10]
+
+    title = "The Streamic — AI in Broadcasting & Streaming Technology"
+    desc = "Expert analysis on AI automation, cloud workflows, and operational intelligence for broadcast and streaming professionals."
+    canon = f"{BASE_URL}/index.html"
     schema = json.dumps({
-        "@context":"https://schema.org","@type":"WebPage",
-        "name":"The Streamic","description":desc,"url":f"{BASE_URL}/index.html",
-        "publisher":{"@type":"Organization","name":"The Streamic","url":BASE_URL}
+        "@context": "https://schema.org", "@type": "WebPage",
+        "name": "The Streamic", "description": desc, "url": f"{BASE_URL}/index.html",
+        "publisher": {"@type": "Organization", "name": "The Streamic", "url": BASE_URL}
     })
 
-    # ── Hero section ──────────────────────────────────────────────────────
-    hero_html = hero_block(hero_art) if hero_art else ""
+    hero_img = _hp_img(hero_art) if hero_art else ""
+    homepage_head = head(title, desc, canon, og_img=hero_img).replace('</head>', '  <link rel="stylesheet" href="homepage-layout.css">\n</head>')
 
-    # ── Editor's Picks (4 cards, horizontal ed_card style) ───────────────
-    picks_html = ""
-    if editor_picks:
-        picks_cards = "\n".join(ed_card(a) for a in editor_picks)
-        picks_html = f"""<section class="editorial" style="padding:52px 0;border-bottom:1px solid var(--line)">
-  <div class="sec-hdr" style="margin-bottom:28px">
-    <h2>Editor&#8217;s Picks</h2>
-    <span style="font-size:13px;color:var(--ink4);font-weight:400">Original analysis — independent of vendor influence</span>
+    cinfo = CAT.get((hero_art or {}).get("category", "featured"), CAT["featured"])
+    hero_html = ""
+    if hero_art:
+        hero_html = f'''<section class="hp-hero" aria-label="Featured story">
+  <a href="articles/{hero_art['slug']}.html" class="hp-hero-img-link" tabindex="-1" aria-hidden="true">
+    <img class="hp-hero-img" src="{_hp_img(hero_art)}" alt="{e(hero_art.get("title", ""))}" loading="eager" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+  </a>
+  <div class="hp-hero-overlay" aria-hidden="true"></div>
+  <div class="hp-hero-body">
+    <span class="hp-hero-tag">{e(cinfo['icon'])} {e(cinfo['label'])}</span>
+    <h1 class="hp-hero-hl"><a href="articles/{hero_art['slug']}.html">{e(hero_art.get("title", ""))}</a></h1>
+    <div class="hp-hero-meta"><span>By {AUTHOR}</span><span>&#124;</span><span>{d(hero_art.get("published", ""))}</span><span>&#124;</span><span>{rm(hero_art.get("word_count", 1000))}</span></div>
+    <a href="articles/{hero_art['slug']}.html" class="hp-hero-cta">Read full analysis</a>
   </div>
-  <div class="ed-list">{picks_cards}</div>
-</section>"""
+</section>'''
 
-    # ── Why Streamic Exists ───────────────────────────────────────────────
-    why_html = """<section style="background:#f5f5f7;border-radius:16px;padding:44px 48px;margin:52px 0">
-  <h2 style="font-family:var(--serif);font-size:clamp(22px,2.5vw,28px);letter-spacing:-.03em;color:var(--ink);margin:0 0 18px">Why Streamic Exists</h2>
-  <p style="font-size:15px;line-height:1.75;color:var(--ink2);margin-bottom:16px">Streamic exists to help broadcasters, media teams, and streaming professionals make sense of a rapidly evolving technology landscape. The industry is being reshaped by cloud workflows, AI-driven automation, and changing audience expectations &#8212; but much of the available information is either too generic, overly technical, or fragmented across sources.</p>
-  <p style="font-size:15px;line-height:1.75;color:var(--ink2);margin-bottom:24px">Streamic bridges that gap by delivering clear, practical, and relevant insights focused specifically on real-world broadcast and streaming operations.</p>
-  <ul style="list-style:none;padding:0;margin:0 0 24px;display:flex;flex-direction:column;gap:12px">
-    <li style="display:flex;align-items:flex-start;gap:12px">
-      <span style="flex-shrink:0;width:28px;height:28px;background:var(--blue);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700;margin-top:1px">1</span>
-      <div><strong style="font-size:14px;color:var(--ink)">Practical AI in Broadcasting</strong> <span style="font-size:14px;color:var(--ink3)">&#8212; how AI is actually used in production, playout, quality control, and content workflows</span></div>
-    </li>
-    <li style="display:flex;align-items:flex-start;gap:12px">
-      <span style="flex-shrink:0;width:28px;height:28px;background:var(--blue);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700;margin-top:1px">2</span>
-      <div><strong style="font-size:14px;color:var(--ink)">Cost Optimisation Without Compromise</strong> <span style="font-size:14px;color:var(--ink3)">&#8212; strategies to improve efficiency and reduce operational costs without replacing critical human expertise</span></div>
-    </li>
-    <li style="display:flex;align-items:flex-start;gap:12px">
-      <span style="flex-shrink:0;width:28px;height:28px;background:var(--blue);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700;margin-top:1px">3</span>
-      <div><strong style="font-size:14px;color:var(--ink)">Actionable Guides &amp; Troubleshooting</strong> <span style="font-size:14px;color:var(--ink3)">&#8212; step-by-step how-tos, setup guides, and real solutions for tools and systems used in daily broadcast environments</span></div>
-    </li>
-  </ul>
-  <p style="font-size:14px;line-height:1.7;color:var(--ink3);border-top:1px solid var(--line);padding-top:18px;margin:0">Our goal is not just to report what&#39;s happening, but to explain why it matters and how it can be applied. Streamic is built for professionals who need clarity, not noise.</p>
-</section>"""
+    guide_subs = ["2026 Engineering Edition", "Complete Technical Reference", "Distributed Production Playbook", "Metadata, Search & Monetisation"]
+    guides_html = ''.join(_hp_guide_card(a, guide_subs[i] if i < len(guide_subs) else "Technical Guide") for i, a in enumerate(guide_arts))
+    insights_html = ''.join(_hp_insight_card(a) for a in insight_arts)
+    news_html = ''.join(_hp_news_item(a) for a in homepage_news)
+    picks_html = ''.join(_hp_sidebar_pick(a) for a in sidebar_picks)
+    sb_news_html = ''.join(_hp_sidebar_news(a) for a in breaking_news)
+    howto_html = '''
+          <a href="articles/guide-premiere-to-avid.html" class="hp-sb-guide-item"><span class="hp-sb-guide-cat">Post-Production</span><span class="hp-sb-guide-title">Premiere Pro to Avid Media Composer</span><span class="hp-sb-guide-time">&#128337; 8 min</span></a>
+          <a href="articles/guide-vantage-nas-transcode.html" class="hp-sb-guide-item"><span class="hp-sb-guide-cat">Encoding</span><span class="hp-sb-guide-title">Vantage: Transcode to MP4 on NAS</span><span class="hp-sb-guide-time">&#128337; 6 min</span></a>
+          <a href="articles/guide-vantage-aws-transcode.html" class="hp-sb-guide-item"><span class="hp-sb-guide-cat">Cloud</span><span class="hp-sb-guide-title">Vantage: Output to AWS S3</span><span class="hp-sb-guide-time">&#128337; 6 min</span></a>
+          <a href="articles/guide-avid-media-central-health-check.html" class="hp-sb-guide-item"><span class="hp-sb-guide-cat">Avid</span><span class="hp-sb-guide-title">MediaCentral Health Check</span><span class="hp-sb-guide-time">&#128337; 7 min</span></a>
+          <a href="articles/guide-audio-conform-avid-protools.html" class="hp-sb-guide-item"><span class="hp-sb-guide-cat">Audio</span><span class="hp-sb-guide-title">Audio Conform: Avid to Pro Tools</span><span class="hp-sb-guide-time">&#128337; 9 min</span></a>
+          <a href="articles/guide-avid-strawberry.html" class="hp-sb-guide-item"><span class="hp-sb-guide-cat">MAM</span><span class="hp-sb-guide-title">Strawberry PAM + Avid Workflow</span><span class="hp-sb-guide-time">&#128337; 10 min</span></a>'''
 
-    # ── Deep Dives (4 articles, editorial card style) ─────────────────────
-    dives_html = ""
-    if deep_dives:
-        dives_cards = "\n".join(ed_card(a) for a in deep_dives)
-        dives_html = f"""<section style="padding:52px 0;border-top:1px solid var(--line)">
-  <div class="sec-hdr" style="margin-bottom:28px">
-    <h2>Deep Dives &amp; Analysis</h2>
-    <span style="font-size:13px;color:var(--ink4);font-weight:400">Long-form technical analysis for broadcast engineers</span>
-  </div>
-  <div class="ed-list">{dives_cards}</div>
-</section>"""
-
-    # ── How-To Guides teaser (6 items, compact list) ─────────────────────
-    guides_teaser = """<section style="padding:52px 0;border-top:1px solid var(--line)">
-  <div class="sec-hdr" style="margin-bottom:24px">
-    <h2>How-To Guides</h2>
-    <a href="howto.html" style="font-size:13px;font-weight:600;color:var(--blue)">View all guides &rarr;</a>
-  </div>
-  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px">
-    <a href="articles/guide-premiere-to-avid.html" style="display:block;padding:18px 20px;background:var(--bg);border-radius:10px;text-decoration:none;border:1px solid var(--line)">
-      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--blue)">Post-Production</span>
-      <p style="font-size:14px;font-weight:600;color:var(--ink);margin:6px 0 4px;line-height:1.35">Premiere Pro to Avid Media Composer</p>
-      <span style="font-size:12px;color:var(--ink4)">&#128337; 8 min read</span>
-    </a>
-    <a href="articles/guide-vantage-nas-transcode.html" style="display:block;padding:18px 20px;background:var(--bg);border-radius:10px;text-decoration:none;border:1px solid var(--line)">
-      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--blue)">Encoding</span>
-      <p style="font-size:14px;font-weight:600;color:var(--ink);margin:6px 0 4px;line-height:1.35">Vantage: Transcode to MP4 on NAS</p>
-      <span style="font-size:12px;color:var(--ink4)">&#128337; 6 min read</span>
-    </a>
-    <a href="articles/guide-vantage-aws-transcode.html" style="display:block;padding:18px 20px;background:var(--bg);border-radius:10px;text-decoration:none;border:1px solid var(--line)">
-      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--blue)">Cloud</span>
-      <p style="font-size:14px;font-weight:600;color:var(--ink);margin:6px 0 4px;line-height:1.35">Vantage: Output to AWS S3</p>
-      <span style="font-size:12px;color:var(--ink4)">&#128337; 6 min read</span>
-    </a>
-    <a href="articles/guide-avid-media-central-health-check.html" style="display:block;padding:18px 20px;background:var(--bg);border-radius:10px;text-decoration:none;border:1px solid var(--line)">
-      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--blue)">Avid</span>
-      <p style="font-size:14px;font-weight:600;color:var(--ink);margin:6px 0 4px;line-height:1.35">MediaCentral Health Check</p>
-      <span style="font-size:12px;color:var(--ink4)">&#128337; 7 min read</span>
-    </a>
-    <a href="articles/guide-audio-conform-avid-protools.html" style="display:block;padding:18px 20px;background:var(--bg);border-radius:10px;text-decoration:none;border:1px solid var(--line)">
-      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--blue)">Audio</span>
-      <p style="font-size:14px;font-weight:600;color:var(--ink);margin:6px 0 4px;line-height:1.35">Audio Conform: Avid to Pro Tools</p>
-      <span style="font-size:12px;color:var(--ink4)">&#128337; 9 min read</span>
-    </a>
-    <a href="articles/guide-avid-strawberry.html" style="display:block;padding:18px 20px;background:var(--bg);border-radius:10px;text-decoration:none;border:1px solid var(--line)">
-      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--blue)">MAM</span>
-      <p style="font-size:14px;font-weight:600;color:var(--ink);margin:6px 0 4px;line-height:1.35">Strawberry PAM + Avid Workflow</p>
-      <span style="font-size:12px;color:var(--ink4)">&#128337; 10 min read</span>
-    </a>
-  </div>
-</section>"""
-
-    # ── Industry News — 20-card round-robin from broadcast categories ─────
-    # Interleave sources so no vendor dominates: Avid,Grass Valley,EVS,Harmonic,
-    # Pebble,Ross,Vizrt,Maxon,MAM,IP,streaming,playout,newsroom etc.
-    news_items_html = ""
-    if arts:
-        # Round-robin by source_domain — guarantees variety across vendors
-        from collections import defaultdict
-        _buckets = defaultdict(list)
-        for a in arts:
-            if a["slug"] in used_slugs: continue
-            src = a.get("source_domain","").replace("https://","").replace("www.","").split("/")[0].lower()
-            _buckets[src].append(a)
-        # Sort buckets newest-first per source
-        _bucket_list = sorted(_buckets.values(), key=lambda b: b[0].get("published",""), reverse=True)
-        rss_cards = []
-        while len(rss_cards) < 20 and _bucket_list:
-            for bucket in list(_bucket_list):
-                if bucket:
-                    rss_cards.append(bucket.pop(0))
-                    if len(rss_cards) >= 20: break
-            _bucket_list = [b for b in _bucket_list if b]
-
-        cards_html = ""
-        for a in rss_cards:
-            src = e(a.get("source_domain","").replace("https://","").replace("www.","").split("/")[0].upper())
-            src_url = a.get("source_url") or a.get("url") or f"articles/{a['slug']}.html"
-            art_url = f"articles/{a['slug']}.html"
-            cat = a.get("category","featured")
-            cat_color = {"streaming":"#0066cc","cloud":"#5856d6","graphics":"#FF9500",
-                         "playout":"#34C759","infrastructure":"#636366",
-                         "ai-post-production":"#FF2D55","newsroom":"#b8860b"}.get(cat,"#1d1d1f")
-            img = eu(a.get("image_url",""))
-            card_title = e(a.get("title",""))
-            dt = d(a.get("published",""))
-            dek_raw = smart_dek(a)
-            dek = e(dek_raw)
-            cards_html += f"""<a href="{e(art_url)}" class="rss-card" style="text-decoration:none">
-  <div class="rss-card-img">
-    <img src="{img}" alt="{card_title}" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
-  </div>
-  <div class="rss-card-body">
-    <span class="rss-card-src" style="color:{cat_color}">{src}</span>
-    <h3 class="rss-card-hl">{card_title}</h3>
-    <p class="rss-card-dek">{dek}</p>
-    <div class="rss-card-foot">
-      <time>{dt}</time>
-      <span class="rss-card-src-link"><a href="{e(src_url)}" target="_blank" rel="noopener noreferrer nofollow" onclick="event.stopPropagation()">Original source ↗</a></span>
-    </div>
-  </div>
-</a>"""
-
-        news_items_html = f"""<section class="rss-section">
-  <div class="sec-hdr" style="margin-bottom:24px">
-    <h2>Latest Broadcast &amp; Media Technology News</h2>
-  </div>
-  <div class="rss-grid">{cards_html}</div>
-</section>"""
-
-    return f"""{head(title, desc, canon, og_img=(hero_art or {}).get('image_url',''))}
+    return f'''{homepage_head}
 <body data-category="featured">
-{nav("featured.html")}
+{nav("index.html")}
 <main>
   <div class="w">
-    {hero_html}
-    {picks_html}
-    {news_items_html}
-    {dives_html}
-    {guides_teaser}
+    <div class="hp-outer">
+      <div class="hp-main">
+        {hero_html}
+        <section class="hp-guide">
+          <div class="hp-guide-banner"><span>Professional Media Systems Guide</span></div>
+          <div class="hp-guide-grid">{guides_html}</div>
+        </section>
+        <section class="hp-insights hp-insights-premium">
+          <div class="hp-sec-hdr">
+            <h2>Latest Insights</h2>
+            <a href="ai-post-production.html">View all &#8594;</a>
+          </div>
+          <p class="hp-section-intro">Original Streamic analysis on broadcast automation, IP infrastructure, cloud production, and editorial operations — selected for depth, not noise.</p>
+          <div class="hp-insights-grid">{insights_html}</div>
+        </section>
+        <section class="hp-news">
+          <div class="hp-sec-hdr"><h2>Latest Broadcast &amp; Media Technology News</h2></div>
+          <div class="hp-news-list">{news_html}</div>
+        </section>
+      </div>
+      <aside class="hp-sidebar" aria-label="Sidebar">
+        <div class="hp-sb-section hp-sb-featured">
+          <div class="hp-sb-hdr">Editor&#8217;s Picks <a href="vlog.html" class="hp-sb-hdr-link">View page &#8594;</a></div>
+          {picks_html}
+        </div>
+        <div class="hp-sb-section">
+          <div class="hp-sb-hdr">Breaking Media Tech News</div>
+          {sb_news_html}
+        </div>
+        <div class="hp-sb-section">
+          <div class="hp-sb-hdr">How-To Guides <a href="howto.html" class="hp-sb-hdr-link">View all &#8594;</a></div>
+          {howto_html}
+        </div>
+      </aside>
+    </div>
   </div>
 </main>
 <script type="application/ld+json">{schema}</script>
@@ -1000,7 +993,7 @@ def featured_page(arts):
 {_cookie_banner()}
 <script src="main.js" defer></script>
 </body>
-</html>"""
+</html>'''
 
 # ── CATEGORY PAGE
 def category_page(cat, arts):

@@ -148,36 +148,19 @@
 }
 .hp-insights-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
 }
 .hp-insight-card {
-  padding: 0;
+  padding: 18px 16px 16px;
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
   background: var(--white);
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: 10px;
   text-decoration: none;
   color: inherit;
-  overflow: hidden;
-}
-.hp-insight-media {
-  display: block;
-  aspect-ratio: 16 / 9;
-  background: var(--bg);
-  overflow: hidden;
-}
-.hp-insight-media img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  transition: transform .3s ease;
-}
-.hp-insight-card:hover .hp-insight-media img {
-  transform: scale(1.03);
 }
 .hp-insight-card:hover {
   border-color: #c0c0c5;
@@ -185,7 +168,6 @@
 }
 .hp-insight-tag {
   font-size: 9.5px;
-  padding: 16px 16px 0;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: .8px;
@@ -193,21 +175,10 @@
 }
 .hp-insight-hl {
   font-family: var(--serif);
-  font-size: 16px;
-  line-height: 1.32;
+  font-size: 14.5px;
+  line-height: 1.3;
   color: var(--ink);
   flex: 1;
-  padding: 8px 16px 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-.hp-insight-dek {
-  font-size: 12.5px;
-  line-height: 1.55;
-  color: var(--ink3);
-  padding: 8px 16px 0;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
@@ -224,7 +195,6 @@
   align-items: center;
   gap: 3px;
   margin-top: auto;
-  padding: 12px 16px 16px;
 }
 
 
@@ -248,7 +218,7 @@
 }
 .hp-guide-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: 1fr 1fr;
   gap: 2px;
   border-radius: 0 0 var(--radius-sm) var(--radius-sm);
   overflow: hidden;
@@ -256,7 +226,7 @@
 }
 .hp-guide-card {
   position: relative;
-  height: 155px;
+  height: 130px;
   overflow: hidden;
   display: block;
   background: var(--ink2);
@@ -280,7 +250,7 @@
   padding: 14px 16px;
 }
 .hp-guide-card-label {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   color: #fff;
   line-height: 1.3;
@@ -617,7 +587,7 @@
   .hp-hero-hl { font-size: 18px; }
   .hp-insights-grid { grid-template-columns: 1fr; gap: 10px; }
   .hp-guide-grid { grid-template-columns: 1fr; }
-  .hp-guide-card { height: 130px; }
+  .hp-guide-card { height: 110px; }
   /* Sidebar image cards go 2-col on mobile for compactness */
   .hp-sb-featured {
     display: grid;
@@ -660,4 +630,122 @@
 }
 .hp-sb-ad .ad-wrap:empty {
   display: none;
+}
+
+/* ── Homepage refinements from build.py generated layout ───────────────── */
+.hp-section-intro {
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--ink3);
+  max-width: 760px;
+  margin: -4px 0 18px;
+}
+
+/* Guide sits earlier and feels more substantial */
+.hp-guide-grid {
+  grid-template-columns: repeat(2, 1fr);
+}
+.hp-guide-card {
+  height: 180px;
+}
+.hp-guide-card img {
+  opacity: .58;
+}
+.hp-guide-card-label {
+  font-size: 15px;
+}
+.hp-guide-card-sub {
+  font-size: 11.5px;
+}
+
+/* Latest Insights — premium editorial cards */
+.hp-insights-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+.hp-insight-card {
+  padding: 0;
+  overflow: hidden;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: var(--white);
+  box-shadow: var(--shadow-sm);
+}
+.hp-insight-media {
+  aspect-ratio: 16 / 9;
+  background: var(--bg);
+  overflow: hidden;
+}
+.hp-insight-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform .35s ease;
+}
+.hp-insight-card:hover .hp-insight-media img {
+  transform: scale(1.03);
+}
+.hp-insight-body {
+  padding: 18px 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 188px;
+}
+.hp-insight-hl {
+  font-size: 19px;
+  line-height: 1.22;
+  -webkit-line-clamp: 3;
+}
+.hp-insight-dek {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--ink3);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.hp-insight-meta {
+  font-size: 11px;
+  color: var(--ink4);
+}
+
+/* Homepage news remains auto-generated and compact */
+.hp-news-list {
+  border-top: 1px solid var(--line);
+}
+.hp-news-item:first-child {
+  border-top: none;
+}
+
+/* Empty ad safety */
+.ad-wrap:empty,
+.hp-sb-ad:empty {
+  display: none !important;
+}
+
+@media (max-width: 900px) {
+  .hp-insights-grid {
+    grid-template-columns: 1fr;
+  }
+  .hp-guide-card {
+    height: 170px;
+  }
+}
+
+@media (max-width: 520px) {
+  .hp-guide-grid {
+    grid-template-columns: 1fr;
+  }
+  .hp-guide-card {
+    height: 160px;
+  }
+  .hp-insight-body {
+    min-height: unset;
+  }
+  .hp-insight-hl {
+    font-size: 17px;
+  }
 }
