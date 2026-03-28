@@ -736,7 +736,7 @@ def main():
             "category": cat,
             "source":   a.get("source_domain") or a.get("source") or "",
             "reason":   reason,
-            "premium_score": 1 if "nab" in f"{a.get("title", "")} {a.get("dek", "")}".lower() else 0,
+            "premium_score": 1 if "nab" in f"{a.get('title', '')} {a.get('dek', '')}".lower() else 0,
         })
 
     items_to_process.sort(key=lambda x: (x.get("premium_score",0), x.get("category") == "featured"), reverse=True)
