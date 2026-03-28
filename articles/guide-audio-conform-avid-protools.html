@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script>
+    window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+    gtag('consent','default',{'analytics_storage':'denied','ad_storage':'denied',
+    'ad_user_data':'denied','ad_personalization':'denied','wait_for_update':500});
+  </script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-0VSHDN3ZR6"></script>
+  <script>gtag('js',new Date());gtag('config','G-0VSHDN3ZR6');</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8033069131874524" crossorigin="anonymous"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Audio Conform: Sending Sequences from Avid Media Composer to Pro Tools and Back — The Streamic How-To Guides</title>
+  <meta name="description" content="Step-by-step guide to conforming audio between Avid Media Composer and Pro Tools using AAF export, relinking, and round-trip workflows for broadcast post-production.">
+  <meta name="robots" content="index,follow">
+  <meta name="author" content="Prerak K Mehta, The Streamic">
+  <link rel="canonical" href="https://www.thestreamic.in/articles/guide-audio-conform-avid-protools.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Audio Conform: Sending Sequences from Avid Media Composer to Pro Tools and Back — The Streamic">
+  <meta property="og:description" content="Step-by-step guide to conforming audio between Avid Media Composer and Pro Tools using AAF export, relinking, and round-trip workflows for broadcast post-production.">
+  <meta property="og:url" content="https://www.thestreamic.in/articles/guide-audio-conform-avid-protools.html">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"HowTo","name":"Audio Conform: Sending Sequences from Avid Media Composer to Pro Tools and Back","description":"Step-by-step guide to conforming audio between Avid Media Composer and Pro Tools using AAF export, relinking, and round-trip workflows for broadcast post-production.",
+   "author":{"@type":"Organization","name":"The Streamic"},"datePublished":"2026-03-22",
+   "publisher":{"@type":"Organization","name":"The Streamic","url":"https://www.thestreamic.in"}}
+  </script>
+</head>
+<body>
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="../featured.html" class="nav-logo">
+      <img src="../assets/logo.png" alt="The Streamic"><span>The Streamic</span>
+    </a>
+    <ul class="nav-links"><li><a href="../featured.html">Featured</a></li><li><a href="../infrastructure.html">Infrastructure</a></li><li><a href="../posts.html">All Articles</a></li><li><a href="../howto.html">How-To</a></li></ul>
+    <div class="nav-right"><a href="../vlog.html" class="nav-desk">Editor&#39;s Desk</a>
+      <button class="nav-toggle" aria-label="Menu" onclick="document.querySelector('.nav-mob').classList.toggle('open')"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+  <div class="nav-mob"><a href="../featured.html">Featured</a><a href="../infrastructure.html">Infrastructure</a><a href="../posts.html">All Articles</a><a href="../howto.html">How-To</a></div>
+</nav>
+<main>
+<div class="guide-wrap">
+  <div class="breadcrumb">
+    <a href="../featured.html">Home</a><span>›</span>
+    <a href="../howto.html">How-To Guides</a><span>›</span>
+    <span style="color:var(--ink)">Audio Conform: Sending Sequences from Avid Media Composer to Pro Tools and Back</span>
+  </div>
+  <span style="display:inline-flex;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.2px;padding:4px 12px;border-radius:999px;background:var(--blue);color:#fff;margin-bottom:18px">How-To Guide</span>
+  <h1>Audio Conform: Sending Sequences from Avid Media Composer to Pro Tools and Back</h1>
+  <p style="font-size:18px;color:var(--ink2);font-weight:300;margin-bottom:20px">Sending a cut from Avid Media Composer to Pro Tools for audio finishing — then getting it back in sync — is one of the most frequently broken workflows in post-production. This guide walks through every step reliably.</p>
+  <p style="font-size:13px;color:var(--ink4);margin-bottom:32px">By The Streamic Editorial Team · <time datetime="2026-03-22">March 2026</time> · 10 min read</p>
+  
+
+<h2>Why This Workflow Breaks</h2>
+<p>The Avid-to-Pro Tools interchange relies on AAF (Advanced Authoring Format), but both applications implement the spec differently. The most common failure points are: media not relinking, handles too short, audio sample rate mismatches, and timecode offset errors on return. Understanding each failure point prevents hours of manual re-sync work.</p>
+
+<h2>Step 1: Prepare Your Avid Sequence</h2>
+<p>Before exporting, set your sequence correctly:</p>
+<ol>
+  <li>Lock your picture cut. Do not send an unlocked cut — any trimming after export invalidates the Pro Tools session.</li>
+  <li>Check your project sample rate: <strong>File &rarr; Settings &rarr; Audio Project</strong>. Set to <strong>48kHz, 24-bit</strong> for broadcast delivery. This must match your Pro Tools session.</li>
+  <li>Flatten any audio mixdown tracks. Exported AAF must contain only the discrete audio tracks you want mixed — automation submixes will not translate.</li>
+  <li>Add 2 frames of handle to each clip if your edit allows it. In the Export dialog, set <strong>Handle Length: 10 frames</strong> minimum.</li>
+</ol>
+
+<h2>Step 2: Export AAF from Avid Media Composer</h2>
+<ol>
+  <li>Select your sequence in the bin. Right-click &rarr; <strong>Export</strong>.</li>
+  <li>In the Export Settings dialog, choose <strong>AAF Edit Protocol</strong>.</li>
+  <li>Set <strong>Audio Details</strong>:
+    <ul>
+      <li><strong>Export Method: Consolidate/Copy audio clips</strong> — this embeds media inside the AAF. Do NOT use "Link to Media" if Pro Tools is on a different machine.</li>
+      <li><strong>Sample Rate:</strong> Match your project (48kHz)</li>
+      <li><strong>Bit Depth:</strong> 24-bit</li>
+      <li><strong>Audio Format:</strong> AIFF or BWF (Broadcast Wave). BWF is preferred for timecode embedding.</li>
+    </ul>
+  </li>
+  <li>Set <strong>Include All Video Tracks as Reference</strong> if you want a picture reference track in Pro Tools.</li>
+  <li>Click <strong>Save</strong> and choose an export destination accessible to your Pro Tools workstation.</li>
+</ol>
+
+<h3>Common Error: "Media Not Found on Export"</h3>
+<p>This happens when your Avid project links to media on an offline or unmounted volume. Before exporting, go to <strong>Clip &rarr; Check Sequence &rarr; All Media</strong> to verify all clips are online. Reconsolidate any offline media to a local or shared drive first.</p>
+
+<h2>Step 3: Open in Pro Tools</h2>
+<ol>
+  <li>In Pro Tools, go to <strong>File &rarr; Open Session</strong> and select your AAF file.</li>
+  <li>Pro Tools will present the <strong>AAF/OMF Import dialog</strong>:
+    <ul>
+      <li><strong>Audio Media Options: Copy from Source Media</strong> — always copy, never link, for stable sessions</li>
+      <li><strong>Sample Rate Conversion:</strong> Only enable if your source does not match your Pro Tools session rate</li>
+      <li><strong>Handles:</strong> Set to <strong>1 second</strong> to give your mixer flexibility</li>
+    </ul>
+  </li>
+  <li>Verify timecode offset. Go to <strong>Setup &rarr; Session &rarr; Timecode Settings</strong> and confirm the start TC matches your Avid sequence start timecode.</li>
+</ol>
+
+<h2>Step 4: Mix and Return to Avid</h2>
+<p>After audio finishing in Pro Tools, returning to Avid requires an AAF export of the finished session:</p>
+<ol>
+  <li>In Pro Tools, create a new stereo audio track with your final mix. Bounce to it via <strong>Audiotrack &rarr; Bounce</strong>.</li>
+  <li>Export the finished mix as a BWF file at 48kHz/24-bit, starting from the same timecode origin as your Avid sequence.</li>
+  <li>In Avid, import the returned mix BWF: <strong>File &rarr; Import</strong>. Link it to your sequence at the correct timecode.</li>
+  <li>Alternatively, export a full AAF from Pro Tools and open it in Avid as a new sequence for comparison.</li>
+</ol>
+
+<h2>Verifying Sync After Return</h2>
+<p>Always verify sync at three points: the first frame, a mid-sequence marker, and the last frame. Use a visible clapper or sync beep at the head of your sequence if available. Any drift beyond 1 frame indicates a sample rate conversion error — recheck your Pro Tools session rate against the BWF file metadata.</p>
+
+<h3>Pro Tools EUCON / S6 Note</h3>
+<p>If your facility uses an Avid S6 control surface with EUCON, ensure your Pro Tools session is set to the same work order as your Avid project. The EUCON protocol syncs transport controls but does not resolve timecode discrepancies automatically.</p>
+
+<h2>Broadcast Delivery Checklist</h2>
+<ul>
+  <li>Final mix exported at 48kHz / 24-bit BWF with embedded timecode</li>
+  <li>Loudness normalised to EBU R128 (-23 LUFS integrated) for European broadcast</li>
+  <li>Peak level not exceeding -1 dBTP (true peak) for streaming delivery</li>
+  <li>Mono-compatible stereo mix: check for phase cancellation using a vectorscope</li>
+  <li>Separate stems delivered: dialogue, music, effects (DME) for international versioning</li>
+</ul>
+  
+  <div style="margin-top:40px;padding-top:24px;border-top:1px solid var(--line)">
+    <p style="font-size:13px;color:var(--ink4)">← <a href="../howto.html" style="color:var(--blue)">Back to all How-To Guides</a></p>
+  </div>
+</div>
+</main>
+<footer class="footer">
+  <div class="footer-grid">
+    <div><div class="footer-brand">The Streamic</div>
+    <p class="footer-tag">Independent broadcast &amp; streaming technology journalism.</p></div>
+    <div class="footer-col"><h4>Guides</h4>
+      <a href="guide-premiere-to-avid.html">Premiere to Avid</a>
+      <a href="guide-vantage-nas-transcode.html">Vantage NAS Transcode</a>
+      <a href="guide-avid-strawberry.html">Avid + Strawberry</a>
+      <a href="guide-audio-conform-avid-protools.html">Avid to Pro Tools</a>
+      <a href="guide-media-central-cache.html">Media Central Cache</a>
+    </div>
+    <div class="footer-col"><h4>Site</h4>
+      <a href="../about.html">About</a>
+      <a href="../contact.html">Contact</a>
+      <a href="../privacy.html">Privacy</a>
+      <a href="../terms.html">Terms</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>&copy; 2026 The Streamic. All rights reserved.</span>
+  </div>
+</footer>
+</body>
+</html>
