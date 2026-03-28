@@ -589,12 +589,12 @@
   .hp-guide-grid { grid-template-columns: 1fr; }
   .hp-guide-card { height: 110px; }
   /* Sidebar image cards go 2-col on mobile for compactness */
-  .hp-sb-section:nth-child(2) {
+  .hp-sb-featured {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
   }
-  .hp-sb-section:nth-child(2) .hp-sb-hdr {
+  .hp-sb-featured .hp-sb-hdr {
     grid-column: 1 / -1;
   }
   .hp-sb-img-card {
@@ -617,8 +617,17 @@
     width: 68px;
     height: 52px;
   }
-  .hp-sb-section:nth-child(2) {
+  .hp-sb-featured {
     grid-template-columns: 1fr;
   }
   .hp-sb-img-card { height: 140px; }
+}
+
+
+/* Homepage ad-slot cleanup */
+.hp-sb-ad:empty {
+  display: none;
+}
+.hp-sb-ad .ad-wrap:empty {
+  display: none;
 }
