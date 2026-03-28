@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 
 ROOT      = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 ARTS_F    = os.path.join(ROOT, "data", "generated_articles.json")
+NEWS_F    = os.path.join(ROOT, "data", "news.json")
 DOCS      = os.path.join(ROOT, "docs")
 ARTS_D    = os.path.join(DOCS, "articles")
 BASE_URL  = os.environ.get("SITE_BASE_URL", "https://www.thestreamic.in").rstrip("/")
@@ -831,12 +832,85 @@ def _hp_guide_card(a, sub):
   </div>
 </a>'''
 
+
+def _source_name(val):
+    return (val or '').replace('https://','').replace('http://','').replace('www.','').split('/')[0]
+
+def load_homepage_feed(arts, limit=14):
+    """Use fresh data/news.json for homepage and map to internal articles when possible."""
+    by_url, by_title = {}, {}
+    for a in arts:
+        for key in (a.get('source_url'), a.get('url'), a.get('link')):
+            if key:
+                by_url[key] = a
+        title = (a.get('title') or '').strip().lower()
+        if title:
+            by_title[title] = a
+
+    feed_items = []
+    if os.path.exists(NEWS_F):
+        with open(NEWS_F, 'r', encoding='utf-8') as f:
+            raw = json.load(f)
+        if isinstance(raw, dict) and 'items' in raw:
+            feed_items = (raw.get('featured_priority') or []) + (raw.get('items') or [])
+        elif isinstance(raw, list):
+            feed_items = raw
+        else:
+            flat = []
+            for cat, lst in (raw or {}).items():
+                for it in (lst or []):
+                    if isinstance(it, dict):
+                        item = dict(it)
+                        item.setdefault('category', cat)
+                        flat.append(item)
+            feed_items = sorted(flat, key=lambda x: x.get('pubDate',''), reverse=True)
+
+    mapped = []
+    seen = set()
+    for item in feed_items:
+        url = item.get('link') or item.get('url') or item.get('guid')
+        title_key = (item.get('title') or '').strip().lower()
+        art = by_url.get(url) or by_title.get(title_key)
+        merged = dict(art or {})
+        merged.update({
+            'title': item.get('title') or merged.get('title',''),
+            'category': item.get('category') or merged.get('category','featured'),
+            'source_domain': item.get('source') or item.get('source_domain') or _source_name(url) or merged.get('source_domain',''),
+            'published': item.get('pubDate') or item.get('published') or merged.get('published',''),
+            'source_url': url or merged.get('source_url',''),
+            'url': url or merged.get('url',''),
+            'image_url': item.get('image') or merged.get('image_url') or '',
+            'slug': merged.get('slug',''),
+        })
+        key = merged.get('slug') or merged.get('source_url') or merged.get('title')
+        if key and key not in seen:
+            seen.add(key)
+            mapped.append(merged)
+        if len(mapped) >= limit:
+            break
+    if not mapped:
+        mapped = sorted([a for a in arts if not a.get('is_editorial') and not a.get('editorial')], key=lambda a: a.get('published',''), reverse=True)[:limit]
+    return mapped
+
+def _item_href(a):
+    slug = a.get('slug')
+    if slug:
+        return f"articles/{slug}.html"
+    return a.get('source_url') or a.get('url') or '#'
+
+def _item_target(a):
+    href = _item_href(a)
+    if href.startswith('http://') or href.startswith('https://'):
+        return ' target="_blank" rel="noopener noreferrer nofollow"'
+    return ''
+
 def _hp_news_item(a):
-    href = f"articles/{a['slug']}.html"
+    href = _item_href(a)
+    target = _item_target(a)
     title = e(a.get("title", ""))
-    src = e(a.get("source_domain", a.get("source", "")).replace("https://", "").replace("www.", "").split("/")[0])
+    src = e(_source_name(a.get("source_domain", a.get("source", ""))))
     dt = d(a.get("published", ""))
-    return f'''<a href="{href}" class="hp-news-item">
+    return f'''<a href="{href}"{target} class="hp-news-item">
   <div class="hp-news-thumb"><img src="{_hp_img(a)}" alt="{title}" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-news-body">
     <span class="hp-news-src">{src}</span>
@@ -844,7 +918,6 @@ def _hp_news_item(a):
     <div class="hp-news-foot"><time class="hp-news-date">{dt}</time><span class="hp-news-read">Read more &#8594;</span></div>
   </div>
 </a>'''
-
 def _hp_sidebar_pick(a):
     href = f"articles/{a['slug']}.html"
     title = e(a.get("title", ""))
@@ -854,11 +927,12 @@ def _hp_sidebar_pick(a):
 </a>'''
 
 def _hp_sidebar_news(a):
-    href = f"articles/{a['slug']}.html"
+    href = _item_href(a)
+    target = _item_target(a)
     title = e(a.get("title", ""))
-    src = e(a.get("source_domain", a.get("source", "")).replace("https://", "").replace("www.", "").split("/")[0])
+    src = e(_source_name(a.get("source_domain", a.get("source", ""))))
     dt = d(a.get("published", ""))
-    return f'''<a href="{href}" class="hp-sb-news-item">
+    return f'''<a href="{href}"{target} class="hp-sb-news-item">
   <div class="hp-sb-news-thumb"><img src="{_hp_img(a)}" alt="{title}" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-sb-news-body">
     <span class="hp-sb-news-src">{src}</span>
@@ -866,7 +940,6 @@ def _hp_sidebar_news(a):
     <time class="hp-sb-news-date">{dt}</time>
   </div>
 </a>'''
-
 def featured_page(arts):
     """Homepage built from generated_articles.json with premium magazine layout."""
     editorial_all = sorted([a for a in arts if a.get("is_editorial") or a.get("editorial")], key=lambda a: a.get("published", ""), reverse=True)
@@ -897,12 +970,11 @@ def featured_page(arts):
         insight_arts += [a for a in editorial_all + regular_all if a.get("slug") not in used][:4-len(insight_arts)]
 
     sidebar_picks = [a for a in editorial_all if a.get("slug") != (hero_art or {}).get("slug")][:3]
-    breaking_news = diversify_arts(regular_all)[:6]
-
-    used_news_slugs = {a.get("slug") for a in guide_arts + insight_arts + sidebar_picks}
-    if hero_art:
-        used_news_slugs.add(hero_art.get("slug"))
-    homepage_news = diversify_arts([a for a in regular_all if a.get("slug") not in used_news_slugs])[:10]
+    fresh_feed = load_homepage_feed(arts, limit=16)
+    breaking_news = fresh_feed[:4]
+    homepage_news = fresh_feed[4:12]
+    if not homepage_news:
+        homepage_news = fresh_feed[:8]
 
     title = "The Streamic — AI in Broadcasting & Streaming Technology"
     desc = "Expert analysis on AI automation, cloud workflows, and operational intelligence for broadcast and streaming professionals."
@@ -913,7 +985,8 @@ def featured_page(arts):
         "publisher": {"@type": "Organization", "name": "The Streamic", "url": BASE_URL}
     })
 
-    hero_img = _hp_img(hero_art) if hero_art else ""
+    custom_hero_path = os.path.join(DOCS, 'assets', 'hero-broadcast-male.png')
+    hero_img = f"{BASE_URL}/assets/hero-broadcast-male.png" if os.path.exists(custom_hero_path) else (_hp_img(hero_art) if hero_art else '')
     homepage_head = head(title, desc, canon, og_img=hero_img).replace('</head>', '  <link rel="stylesheet" href="homepage-layout.css">\n</head>')
 
     cinfo = CAT.get((hero_art or {}).get("category", "featured"), CAT["featured"])
@@ -921,7 +994,7 @@ def featured_page(arts):
     if hero_art:
         hero_html = f'''<section class="hp-hero" aria-label="Featured story">
   <a href="articles/{hero_art['slug']}.html" class="hp-hero-img-link" tabindex="-1" aria-hidden="true">
-    <img class="hp-hero-img" src="{_hp_img(hero_art)}" alt="{e(hero_art.get("title", ""))}" loading="eager" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+    <img class="hp-hero-img" src="{'assets/hero-broadcast-male.png' if os.path.exists(custom_hero_path) else _hp_img(hero_art)}" alt="{e(hero_art.get("title", ""))}" loading="eager" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
   </a>
   <div class="hp-hero-overlay" aria-hidden="true"></div>
   <div class="hp-hero-body">
@@ -938,13 +1011,14 @@ def featured_page(arts):
     news_html = ''.join(_hp_news_item(a) for a in homepage_news)
     picks_html = ''.join(_hp_sidebar_pick(a) for a in sidebar_picks)
     sb_news_html = ''.join(_hp_sidebar_news(a) for a in breaking_news)
-    howto_html = '''
+    howto_html = '''<div class="hp-sb-guides-grid">
           <a href="articles/guide-premiere-to-avid.html" class="hp-sb-guide-item"><span class="hp-sb-guide-cat">Post-Production</span><span class="hp-sb-guide-title">Premiere Pro to Avid Media Composer</span><span class="hp-sb-guide-time">&#128337; 8 min</span></a>
           <a href="articles/guide-vantage-nas-transcode.html" class="hp-sb-guide-item"><span class="hp-sb-guide-cat">Encoding</span><span class="hp-sb-guide-title">Vantage: Transcode to MP4 on NAS</span><span class="hp-sb-guide-time">&#128337; 6 min</span></a>
           <a href="articles/guide-vantage-aws-transcode.html" class="hp-sb-guide-item"><span class="hp-sb-guide-cat">Cloud</span><span class="hp-sb-guide-title">Vantage: Output to AWS S3</span><span class="hp-sb-guide-time">&#128337; 6 min</span></a>
           <a href="articles/guide-avid-media-central-health-check.html" class="hp-sb-guide-item"><span class="hp-sb-guide-cat">Avid</span><span class="hp-sb-guide-title">MediaCentral Health Check</span><span class="hp-sb-guide-time">&#128337; 7 min</span></a>
           <a href="articles/guide-audio-conform-avid-protools.html" class="hp-sb-guide-item"><span class="hp-sb-guide-cat">Audio</span><span class="hp-sb-guide-title">Audio Conform: Avid to Pro Tools</span><span class="hp-sb-guide-time">&#128337; 9 min</span></a>
-          <a href="articles/guide-avid-strawberry.html" class="hp-sb-guide-item"><span class="hp-sb-guide-cat">MAM</span><span class="hp-sb-guide-title">Strawberry PAM + Avid Workflow</span><span class="hp-sb-guide-time">&#128337; 10 min</span></a>'''
+          <a href="articles/guide-avid-strawberry.html" class="hp-sb-guide-item"><span class="hp-sb-guide-cat">MAM</span><span class="hp-sb-guide-title">Strawberry PAM + Avid Workflow</span><span class="hp-sb-guide-time">&#128337; 10 min</span></a>
+        </div>'''
 
     return f'''{homepage_head}
 <body data-category="featured">
@@ -977,12 +1051,12 @@ def featured_page(arts):
           {picks_html}
         </div>
         <div class="hp-sb-section">
-          <div class="hp-sb-hdr">Breaking Media Tech News</div>
-          {sb_news_html}
-        </div>
-        <div class="hp-sb-section">
           <div class="hp-sb-hdr">How-To Guides <a href="howto.html" class="hp-sb-hdr-link">View all &#8594;</a></div>
           {howto_html}
+        </div>
+        <div class="hp-sb-section">
+          <div class="hp-sb-hdr">Breaking Media Tech News</div>
+          {sb_news_html}
         </div>
       </aside>
     </div>
