@@ -992,16 +992,22 @@ def featured_page(arts):
     homepage_head = head(title, desc, canon, og_img=hero_img).replace('</head>', '  <link rel="stylesheet" href="homepage-layout.css">\n</head>')
 
     cinfo = CAT.get((hero_art or {}).get("category", "featured"), CAT["featured"])
+    # Hero title overrides — edit here to control displayed title without touching JSON
+    HERO_TITLE_OVERRIDES = {
+        "ai-reducing-broadcast-operational-costs-2026": "Beyond Automation: How Can AI Optimize Broadcast Costs and Scales Human Potential in 2026",
+    }
+
     hero_html = ""
     if hero_art:
+        _hero_title = HERO_TITLE_OVERRIDES.get(hero_art.get("slug", ""), hero_art.get("title", ""))
         hero_html = f'''<section class="hp-hero" aria-label="Featured story">
   <a href="articles/{hero_art['slug']}.html" class="hp-hero-img-link" tabindex="-1" aria-hidden="true">
-    <img class="hp-hero-img" src="{'assets/hero-broadcast-male.png' if os.path.exists(custom_hero_path) else _hp_img(hero_art)}" alt="{e(hero_art.get("title", ""))}" loading="eager" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+    <img class="hp-hero-img" src="{'assets/hero-broadcast-male.png' if os.path.exists(custom_hero_path) else _hp_img(hero_art)}" alt="{e(_hero_title)}" loading="eager" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
   </a>
   <div class="hp-hero-overlay" aria-hidden="true"></div>
   <div class="hp-hero-body">
     <span class="hp-hero-tag">{e(cinfo['icon'])} {e(cinfo['label'])}</span>
-    <h1 class="hp-hero-hl"><a href="articles/{hero_art['slug']}.html">{e(hero_art.get("title", ""))}</a></h1>
+    <h1 class="hp-hero-hl"><a href="articles/{hero_art['slug']}.html">{e(_hero_title)}</a></h1>
     <div class="hp-hero-meta"><span>By {AUTHOR}</span><span>&#124;</span><span>{d(hero_art.get("published", ""))}</span><span>&#124;</span><span>{rm(hero_art.get("word_count", 1000))}</span></div>
     <a href="articles/{hero_art['slug']}.html" class="hp-hero-cta">View Analysis <span class="hp-hero-cta__arrow">→</span></a>
   </div>
