@@ -962,7 +962,7 @@ def featured_page(arts):
     insight_slug_order = [
         "beyond-the-chatbot-operational-ai-newsroom-2026",
         "st-2110-small-market-hybrid-ip-broadcasters-2026",
-        "paris-2024-cloud-production-legacy-global-events-2026",
+        "2026-03-27-ai-post-prod-current-obsession-this-how-to-animate-wat",
         "c2pa-deepfake-news-credibility-digital-provenance-2026",
     ]
     art_map = {a.get("slug"): a for a in arts}
@@ -1891,24 +1891,21 @@ def main():
 
     os.makedirs(ARTS_D, exist_ok=True)
 
-    # ── Slugs with hand-authored HTML — build.py must NOT overwrite these ──
-    PROTECTED_SLUGS = {
-        "ai-reducing-broadcast-operational-costs-2026",
-        "2026-03-27-ai-post-prod-current-obsession-this-how-to-animate-wat",
-    }
-
     # ── Article pages — visible indexed, rest noindex ─────────────────────
+    # Any article file containing <!-- HAND_AUTHORED --> is never overwritten.
+    # Add that comment to any article you edit manually to protect it permanently.
     written = 0
     for a in arts:
         slug_ = a.get("slug","")
         leg   = a.get("legacy_slug")
+        dest  = os.path.join(ARTS_D, f"{slug_}.html")
 
-        # Skip hand-authored files — they have their own custom HTML
-        if slug_ in PROTECTED_SLUGS:
-            written += 1  # count it but don't overwrite
-            continue
-        if leg and leg in PROTECTED_SLUGS:
-            pass  # still write the primary slug version below
+        # Skip if file exists and is hand-authored
+        if os.path.exists(dest):
+            with open(dest, encoding="utf-8") as _fh:
+                if "<!-- HAND_AUTHORED -->" in _fh.read():
+                    written += 1
+                    continue
 
         html  = article_page(a)
         if a["slug"] not in visible_slugs:
@@ -1916,11 +1913,13 @@ def main():
                 '<meta name="robots" content="index,follow">',
                 '<meta name="robots" content="noindex,nofollow">'
             )
-        w(os.path.join(ARTS_D, f"{slug_}.html"), html)
+        w(dest, html)
         written += 1
-        if leg and leg != slug_ and leg not in PROTECTED_SLUGS:
-            w(os.path.join(ARTS_D, f"{leg}.html"), html)
-            written += 1
+        if leg and leg != slug_:
+            leg_dest = os.path.join(ARTS_D, f"{leg}.html")
+            if not (os.path.exists(leg_dest) and "<!-- HAND_AUTHORED -->" in open(leg_dest, encoding="utf-8").read()):
+                w(leg_dest, html)
+                written += 1
     print(f"  &#10003; {written} article files ({len(visible_slugs)} indexed, {written-len(visible_slugs)} noindex)")
 
     # ── Category pages ────────────────────────────────────────────────────
