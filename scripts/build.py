@@ -825,10 +825,12 @@ def _hp_guide_card(a, sub):
     href = f"articles/{a['slug']}.html"
     title = e(a.get("title", ""))
     return f'''<a href="{href}" class="hp-guide-card">
-  <img src="{_hp_img(a)}" alt="{title}" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+  <div class="hp-guide-card-img-wrap">
+    <img src="{_hp_img(a)}" alt="{title}" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+    <span class="hp-guide-card-sub">{e(sub)}</span>
+  </div>
   <div class="hp-guide-card-overlay">
     <span class="hp-guide-card-label">{title}</span>
-    <span class="hp-guide-card-sub">{e(sub)}</span>
   </div>
 </a>'''
 
@@ -1001,7 +1003,7 @@ def featured_page(arts):
     <span class="hp-hero-tag">{e(cinfo['icon'])} {e(cinfo['label'])}</span>
     <h1 class="hp-hero-hl"><a href="articles/{hero_art['slug']}.html">{e(hero_art.get("title", ""))}</a></h1>
     <div class="hp-hero-meta"><span>By {AUTHOR}</span><span>&#124;</span><span>{d(hero_art.get("published", ""))}</span><span>&#124;</span><span>{rm(hero_art.get("word_count", 1000))}</span></div>
-    <a href="articles/{hero_art['slug']}.html" class="hp-hero-cta">Read full analysis</a>
+    <a href="articles/{hero_art['slug']}.html" class="hp-hero-cta">View Analysis <span class="hp-hero-cta__arrow">→</span></a>
   </div>
 </section>'''
 
@@ -1025,20 +1027,54 @@ def featured_page(arts):
 {nav("index.html")}
 <main>
   <div class="w">
-    <div class="hp-outer">
-      <div class="hp-main">
-        {hero_html}
-        <section class="hp-guide">
-          <div class="hp-guide-banner"><span>Professional Media Systems Guide</span></div>
-          <div class="hp-guide-grid">{guides_html}</div>
-        </section>
-        <section class="hp-insights hp-insights-premium">
+    {hero_html}
+    <section class="hp-flagship-section">
+      <div class="w">
+        <div class="hp-flagship-section__hdr">
           <div class="hp-sec-hdr">
             <h2>Latest Insights</h2>
             <a href="ai-post-production.html">View all &#8594;</a>
           </div>
           <p class="hp-section-intro">Original Streamic analysis on broadcast automation, IP infrastructure, cloud production, and editorial operations — selected for depth, not noise.</p>
+        </div>
+        <a href="articles/quic-http3-video-delivery-streaming-2026.html" class="hp-flagship" aria-label="Read full insight: Beyond TCP">
+  <div class="hp-flagship__body">
+    <div class="hp-flagship__eyebrow">
+      <span class="hp-flagship__label">Latest Insight</span>
+    </div>
+    <span class="hp-flagship__tag">📡 Infrastructure &amp; Streaming</span>
+    <h2 class="hp-flagship__hl">Beyond TCP: Why QUIC Is Redefining Video Delivery</h2>
+    <p class="hp-flagship__summary">Faster video start, fewer buffering issues, and smoother playback — even on weak networks. HTTP/3 and QUIC are quietly improving streaming performance across OTT platforms and live broadcasting.</p>
+    <p class="hp-flagship__body-text">For years, streaming relied on TCP — the same technology behind web browsing. It works, but it struggles with modern mobile and high-demand video traffic. QUIC improves this by enabling faster connections, better handling of network issues, and smoother playback — even when users switch between Wi-Fi and mobile networks.</p>
+    <div class="hp-flagship__usecases">
+      <div class="hp-flagship__usecase"><span class="hp-flagship__usecase-icon">🏟️</span><span><strong>Live Sports</strong> — smoother playback during peak traffic moments</span></div>
+      <div class="hp-flagship__usecase"><span class="hp-flagship__usecase-icon">📺</span><span><strong>OTT Platforms</strong> — faster video start reduces viewer drop-off</span></div>
+      <div class="hp-flagship__usecase"><span class="hp-flagship__usecase-icon">📱</span><span><strong>Mobile Viewing</strong> — stable playback when switching networks</span></div>
+      <div class="hp-flagship__usecase"><span class="hp-flagship__usecase-icon">⚡</span><span><strong>Live Events</strong> — lower latency for near real-time streaming</span></div>
+    </div>
+    <div class="hp-flagship__footer">
+      <div class="hp-flagship__meta">
+        <span class="hp-flagship__author">Prerak K Mehta</span>
+        <span class="hp-flagship__role">Broadcast Technology and Media IT Analyst</span>
+        <span class="hp-flagship__readtime">⏱ 5 min read</span>
+      </div>
+      <span class="hp-flagship__cta">Read Full Insight <span class="hp-flagship__cta-arrow">→</span></span>
+    </div>
+  </div>
+  <div class="hp-flagship__image-wrap">
+    <img class="hp-flagship__img" src="assets/insight-quic-infographic.jpg" alt="QUIC vs TCP: streaming performance comparison infographic" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+  </div>
+</a>
+      </div>
+    </section>
+    <div class="hp-outer">
+      <div class="hp-main">
+        <section class="hp-insights hp-insights-premium">
           <div class="hp-insights-grid">{insights_html}</div>
+        </section>
+        <section class="hp-guide">
+          <div class="hp-guide-banner"><span>Professional Media Systems Guide</span></div>
+          <div class="hp-guide-grid">{guides_html}</div>
         </section>
         <section class="hp-news">
           <div class="hp-sec-hdr"><h2>Latest Broadcast &amp; Media Technology News</h2></div>
