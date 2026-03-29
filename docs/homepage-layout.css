@@ -425,6 +425,8 @@
   position: relative;
   overflow: hidden;
   min-height: 360px;
+  /* Stretch to fill full grid row height */
+  align-self: stretch;
 }
 .hp-flagship__image-wrap::before {
   content: "";
@@ -432,16 +434,21 @@
   inset: 0;
   background: linear-gradient(
     to right,
-    rgba(248, 245, 237, 0.20) 0%,
+    rgba(248, 245, 237, 0.22) 0%,
     rgba(248, 245, 237, 0.00) 30%
   );
   z-index: 1;
   pointer-events: none;
 }
+/* Absolutely position img so it fills the wrapper regardless of
+   whether parent has explicit height vs min-height */
 .hp-flagship__img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center;
   display: block;
   transition: transform 0.50s ease;
 }
