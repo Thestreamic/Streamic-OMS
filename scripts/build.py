@@ -1891,20 +1891,34 @@ def main():
 
     os.makedirs(ARTS_D, exist_ok=True)
 
+    # ── Slugs with hand-authored HTML — build.py must NOT overwrite these ──
+    PROTECTED_SLUGS = {
+        "ai-reducing-broadcast-operational-costs-2026",
+        "2026-03-27-ai-post-prod-current-obsession-this-how-to-animate-wat",
+    }
+
     # ── Article pages — visible indexed, rest noindex ─────────────────────
     written = 0
     for a in arts:
+        slug_ = a.get("slug","")
+        leg   = a.get("legacy_slug")
+
+        # Skip hand-authored files — they have their own custom HTML
+        if slug_ in PROTECTED_SLUGS:
+            written += 1  # count it but don't overwrite
+            continue
+        if leg and leg in PROTECTED_SLUGS:
+            pass  # still write the primary slug version below
+
         html  = article_page(a)
         if a["slug"] not in visible_slugs:
             html = html.replace(
                 '<meta name="robots" content="index,follow">',
                 '<meta name="robots" content="noindex,nofollow">'
             )
-        slug_ = a.get("slug","")
         w(os.path.join(ARTS_D, f"{slug_}.html"), html)
         written += 1
-        leg = a.get("legacy_slug")
-        if leg and leg != slug_:
+        if leg and leg != slug_ and leg not in PROTECTED_SLUGS:
             w(os.path.join(ARTS_D, f"{leg}.html"), html)
             written += 1
     print(f"  &#10003; {written} article files ({len(visible_slugs)} indexed, {written-len(visible_slugs)} noindex)")
