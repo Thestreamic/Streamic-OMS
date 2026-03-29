@@ -25,90 +25,161 @@
 .hp-hero {
   position: relative;
   display: block;
-  border-radius: var(--radius);
+  border-radius: 18px;
   overflow: hidden;
-  margin: 32px 0 0;
-  background: var(--ink);
+  margin: 28px 0 0;
+  background: #0e1014;
+  box-shadow: 0 4px 0 rgba(0,0,0,0.06), 0 20px 60px rgba(0,0,0,0.18);
 }
 .hp-hero-img-link {
   display: block;
+  overflow: hidden;
 }
 .hp-hero-img {
   width: 100%;
-  height: 400px;
+  height: 500px;
   object-fit: cover;
+  object-position: center 15%;
   display: block;
+  transform: scale(1.0);
+  transform-origin: center center;
+  transition: transform 7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: transform;
 }
+.hp-hero:hover .hp-hero-img {
+  transform: scale(1.03);
+}
+
+/* Multi-layer gradient: cinematic vignette + strong bottom text-bed */
 .hp-hero-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    to top,
-    rgba(0, 0, 0, .90) 0%,
-    rgba(0, 0, 0, .50) 45%,
-    rgba(0, 0, 0, .10) 100%
-  );
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.08) 0%,
+      rgba(0, 0, 0, 0.00) 30%,
+      rgba(0, 0, 0, 0.55) 62%,
+      rgba(0, 0, 0, 0.92) 100%
+    ),
+    linear-gradient(
+      105deg,
+      rgba(0, 0, 0, 0.28) 0%,
+      rgba(0, 0, 0, 0.00) 55%
+    );
   pointer-events: none;
 }
+
+/* Subtle gold-tinted top edge accent */
+.hp-hero::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(181,138,60,0.70) 20%,
+    rgba(201,156,70,0.90) 50%,
+    rgba(181,138,60,0.70) 80%,
+    transparent 100%
+  );
+  z-index: 3;
+  border-radius: 18px 18px 0 0;
+}
+
 .hp-hero-body {
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
-  padding: 28px 28px 26px;
+  padding: 40px 40px 36px;
+  max-width: 820px;
 }
+
 .hp-hero-tag {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  font-size: 10px;
-  font-weight: 800;
+  gap: 5px;
+  font-size: 9.5px;
+  font-weight: 900;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  padding: 3px 10px;
-  border-radius: 5px;
-  color: #fff;
-  background: rgba(255, 255, 255, .18);
-  margin-bottom: 10px;
+  letter-spacing: 1.4px;
+  padding: 5px 12px;
+  border-radius: 100px;
+  color: rgba(255,255,255,0.92);
+  background: rgba(255,255,255,0.13);
+  border: 1px solid rgba(255,255,255,0.20);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  margin-bottom: 14px;
 }
+
 .hp-hero-hl {
   font-family: var(--serif);
-  font-size: clamp(18px, 2vw, 26px);
-  line-height: 1.2;
-  letter-spacing: -.03em;
+  font-size: clamp(24px, 3.2vw, 42px);
+  line-height: 1.12;
+  letter-spacing: -0.035em;
   color: #fff;
-  margin: 0 0 10px;
+  margin: 0 0 14px;
+  text-shadow: 0 2px 20px rgba(0,0,0,0.35);
+  max-width: 720px;
 }
 .hp-hero-hl a {
   color: inherit;
   text-decoration: none;
+  transition: opacity 0.2s ease;
 }
+.hp-hero-hl a:hover {
+  opacity: 0.88;
+}
+
 .hp-hero-meta {
   font-size: 12px;
-  color: rgba(255, 255, 255, .65);
+  color: rgba(255,255,255,0.60);
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
   align-items: center;
-  margin-bottom: 14px;
+  margin-bottom: 20px;
+  letter-spacing: 0.01em;
 }
+
+/* Premium glass pill CTA */
 .hp-hero-cta {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: 12.5px;
+  gap: 8px;
+  font-size: 13px;
   font-weight: 700;
   color: #fff;
-  background: rgba(255, 255, 255, .14);
-  border: 1px solid rgba(255, 255, 255, .35);
-  padding: 7px 16px;
-  border-radius: 999px;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.32);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 10px 22px;
+  border-radius: 100px;
   text-decoration: none;
-  letter-spacing: -.01em;
+  letter-spacing: 0.01em;
+  transition: background 0.22s ease, border-color 0.22s ease,
+              transform 0.22s ease, box-shadow 0.22s ease;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.22);
 }
-.hp-hero-cta::after {
-  content: "→";
+.hp-hero-cta:hover {
+  background: rgba(255,255,255,0.20);
+  border-color: rgba(255,255,255,0.52);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.30);
+}
+.hp-hero-cta__arrow {
+  display: inline-block;
+  transition: transform 0.22s ease;
   font-weight: 400;
+  font-size: 14px;
+}
+.hp-hero-cta:hover .hp-hero-cta__arrow {
+  transform: translateX(4px);
 }
 
 
@@ -960,7 +1031,7 @@
     grid-template-columns: 1fr 260px;
     gap: 28px;
   }
-  .hp-hero-img { height: 360px; }
+  .hp-hero-img { height: 440px; }
   .hp-sb-img-card { height: 130px; }
 }
 
@@ -970,7 +1041,7 @@
     grid-template-columns: 1fr 240px;
     gap: 22px;
   }
-  .hp-hero-img { height: 310px; }
+  .hp-hero-img { height: 380px; }
   .hp-insights-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -987,9 +1058,9 @@
     position: static;
     margin-top: 32px;
   }
-  .hp-hero-img { height: 280px; }
-  .hp-hero-body { padding: 18px 18px 16px; }
-  .hp-hero-hl { font-size: 18px; }
+  .hp-hero-img { height: 320px; }
+  .hp-hero-body { padding: 24px 22px 22px; max-width: 100%; }
+  .hp-hero-hl { font-size: 20px; }
   .hp-insights-grid { grid-template-columns: 1fr; gap: 10px; }
   .hp-guide-grid { grid-template-columns: 1fr; gap: 12px; }
   .hp-guide-card { height: auto; }
@@ -1012,9 +1083,9 @@
 
 /* Small mobile */
 @media (max-width: 480px) {
-  .hp-hero-img { height: 230px; }
-  .hp-hero-body { padding: 14px 14px 12px; }
-  .hp-hero-hl  { font-size: 16px; }
+  .hp-hero-img { height: 270px; }
+  .hp-hero-body { padding: 16px 16px 16px; }
+  .hp-hero-hl  { font-size: 18px; }
   .hp-hero-meta { font-size: 11px; }
   .hp-news-item {
     grid-template-columns: 68px 1fr;
