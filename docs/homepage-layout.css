@@ -13,22 +13,21 @@
   display: grid;
   grid-template-columns: 1fr 300px;
   gap: 36px;
-  padding: 32px 0 64px;
+  padding: 28px 0 64px;
   align-items: start;
 }
-
 
 /* ══════════════════════════════════════════════════════════════════
    MAIN COLUMN
 ══════════════════════════════════════════════════════════════════ */
 
-/* ── HERO ─────────────────────────────────────────────────────── */
+/* ── HERO — full width above the two-column grid ────────────────── */
 .hp-hero {
   position: relative;
   display: block;
   border-radius: var(--radius);
   overflow: hidden;
-  margin-bottom: 32px;
+  margin: 32px 0 0;
   background: var(--ink);
 }
 .hp-hero-img-link {
@@ -241,6 +240,29 @@
   line-height: 1.6;
   margin-bottom: 22px;
   margin-top: -8px;
+}
+
+/* ── Flagship section — full width above two-column grid ─────────── */
+.hp-flagship-section {
+  background: linear-gradient(160deg, #faf8f2 0%, #f2ead6 100%);
+  border-top: 1px solid rgba(181,138,60,0.12);
+  border-bottom: 1px solid rgba(181,138,60,0.12);
+  padding: 32px 0 36px;
+  margin: 24px 0 0;
+}
+.hp-flagship-section .w {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+.hp-flagship-section__hdr {
+  margin-bottom: 20px;
+}
+/* Override flagship border-radius and shadow since it now sits in its own full-width band */
+.hp-flagship-section .hp-flagship {
+  background: #fffdf8;
+  border-radius: 18px;
+  box-shadow: 0 4px 0 rgba(181,138,60,0.07), 0 14px 42px rgba(28,22,8,0.08);
 }
 
 /* ══════════════════════════════════════════════════════════════════
@@ -458,6 +480,13 @@
 
 /* ── Responsive ──────────────────────────────────────────────────── */
 @media (max-width: 900px) {
+  .hp-flagship-section {
+    padding: 24px 0 28px;
+    margin: 16px 0 0;
+  }
+  .hp-flagship-section .w {
+    padding: 0 16px;
+  }
   .hp-flagship {
     grid-template-columns: 1fr;
     border-radius: 16px;
