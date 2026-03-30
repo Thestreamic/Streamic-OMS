@@ -1019,8 +1019,21 @@ def featured_page(arts):
     insight_arts += autofill_pool[:slots_remaining]
 
     sidebar_picks = [a for a in editorial_all if a.get("slug") != (hero_art or {}).get("slug")][:3]
-    fresh_feed = load_homepage_feed(arts, limit=16)
-    breaking_news = fresh_feed[:4]
+    fresh_feed = load_homepage_feed(arts, limit=24)
+    # Filter sidebar news to broadcast-IT relevant sources and topics
+    _SIDEBAR_SIGNALS = [
+        "broadcast","streaming","playout","encoder","codec","avid","harmonic",
+        "telestream","haivision","aws media","ott","cdn","smpte","mam","pam",
+        "nab","ibc","st 2110","media workflow","live production","media supply",
+        "newsroom","ingest","video management","cloud production","media server",
+    ]
+    def _sidebar_relevant(a):
+        text = (a.get('title','') + ' ' + a.get('source_domain','')).lower()
+        return any(s in text for s in _SIDEBAR_SIGNALS)
+
+    filtered_feed = [a for a in fresh_feed if _sidebar_relevant(a)]
+    # Fall back to full feed if not enough filtered items
+    breaking_news = (filtered_feed if len(filtered_feed) >= 7 else fresh_feed)[:7]
     homepage_news = fresh_feed[4:12]
     if not homepage_news:
         homepage_news = fresh_feed[:8]
@@ -1144,7 +1157,7 @@ def featured_page(arts):
           {howto_html}
         </div>
         <div class="hp-sb-section">
-          <div class="hp-sb-hdr">Breaking Media Tech News</div>
+          <div class="hp-sb-hdr">Top Broadcast & Media Technology Stories</div>
           {sb_news_html}
         </div>
       </aside>
