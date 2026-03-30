@@ -197,7 +197,7 @@ def nav(active="", base=""):
     <ul class="nav-links">{lis}</ul>
     <div class="nav-right">
       <a href="{base}about.html" class="nav-desk">About</a>
-      <button class="nav-toggle" aria-label="Menu" onclick="document.querySelector('.nav-mob').classList.toggle('open')">
+      <button class="nav-toggle" aria-label="Menu">
         <span></span><span></span><span></span>
       </button>
     </div>
@@ -1009,7 +1009,11 @@ def featured_page(arts):
     pinned_set = {a.get("slug") for a in insight_arts}
     guide_set  = {a.get("slug") for a in guide_arts}
     hero_set   = {hero_art.get("slug")} if hero_art else set()
-    excluded   = pinned_set | guide_set | hero_set
+    # Explicitly exclude articles removed from pinned list
+    AUTOFILL_EXCLUDED = {
+        "paris-2024-cloud-production-legacy-global-events-2026",  # replaced by Milano Cortina
+    }
+    excluded   = pinned_set | guide_set | hero_set | AUTOFILL_EXCLUDED
 
     autofill_pool = [
         a for a in sorted(editorial_all, key=lambda x: x.get("published", ""), reverse=True)

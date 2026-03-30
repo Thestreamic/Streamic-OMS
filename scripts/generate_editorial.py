@@ -153,69 +153,6 @@ EDITORIAL_ARTICLES = [
 </div>"""
     },
     {
-        "slug": "paris-2024-cloud-production-legacy-global-events-2026",
-        "category": "cloud",
-        "cat_label": "Cloud Production",
-        "cat_icon": "☁️",
-        "cat_color": "#5856d6",
-        "published": "2026-03-18",
-        "image_url": "https://images.unsplash.com/photo-1540747913346-19212a4a3bdf?w=1200&auto=format&fit=crop&q=80",
-        "title": "Two Years Later: How the Paris Games Redefined Remote Cloud Production for Global Events",
-        "dek": "The temporary cloud production infrastructure deployed for Paris 2024 has become the permanent template for global event production in 2026. Here is why that matters for the industry.",
-        "word_count": 1250,
-        "body_html": """<p><strong>When the Paris 2024 Olympics concluded, the broadcast infrastructure built to support them was supposed to be temporary. The cloud production facilities, IP contribution networks, and remote editing capabilities deployed for the Games were designed to be stood up, used intensively for several weeks, and then decommissioned. Instead, most of it is still running &#8212; and it has become the template for how major global events are produced in 2026.</strong></p>
-
-<p>This was not an accident. The scale and success of cloud production at Paris 2024 demonstrated capabilities that the broadcast industry had been theorising about for years. When theory became proven practice at the most technically demanding production environment in sport, the business case for making it permanent became difficult to ignore.</p>
-
-<h3>What Was Different About Paris</h3>
-
-<p>Previous major events had incorporated cloud production elements, but Paris 2024 represented a step change in the degree to which cloud infrastructure was central rather than supplementary to the production. A significant proportion of the editing, packaging, and distribution workflows for multiple rights holders ran through cloud-based production environments rather than traditional outside broadcast or centralised facility infrastructure.</p>
-
-<p>The practical implication was that journalists and producers working for broadcasters in multiple countries could access and work with the same pool of content simultaneously, without the delays, costs, and logistical complexity of physically transporting hard drives, managing fibre circuits, or shipping production staff and equipment to Paris in the numbers that previous events required.</p>
-
-<p>Rights holders that adopted cloud production most fully reported significant reductions in the cost and complexity of their Paris coverage compared to equivalent events in previous cycles. The quality and timeliness of the output was maintained &#8212; in several cases improved &#8212; because production teams had access to better tooling and faster review-and-approval workflows than their traditional on-premises infrastructure provided.</p>
-
-<h3>The Permanence Argument</h3>
-
-<p>Cloud production infrastructure that was deployed for Paris is being retained because the economics of keeping it running are dramatically better than the economics of rebuilding it for the next event. This seems obvious once stated, but it represents a genuine shift in how broadcast organisations think about infrastructure investment for episodic production.</p>
-
-<p>Traditionally, outside broadcast and event production infrastructure was either owned and operated by specialist OB companies or assembled from rented equipment and facilities for each event. The capital investment was justified by the revenue from the specific event. Decommissioning was routine.</p>
-
-<p>Cloud infrastructure changes this equation. The marginal cost of maintaining a cloud production environment between events is low relative to the cost of rebuilding it each time. The capability, the configurations, the integration work, and the institutional knowledge embedded in the system all survive from one event to the next. Each subsequent deployment becomes faster, cheaper, and lower risk.</p>
-
-<h3>The Workflow Legacy</h3>
-
-<p>Beyond the infrastructure, the deeper legacy of Paris 2024 is in the workflows and working practices it normalised. Producers and editors who used cloud-native production tools during the Games did not want to go back to less capable on-premises alternatives when the event ended. Technical leaders who saw what was achievable in Paris began asking difficult questions about whether their permanent infrastructure justified its cost.</p>
-
-<p>The workflow patterns established for Paris &#8212; remote review and approval, cloud-based media logistics, simultaneous multi-site collaboration on shared media &#8212; have become standard practice for a generation of production professionals who now bring those expectations to every production context.</p>
-
-<p>This normalisation effect is arguably more significant than the direct infrastructure investment. Production culture changes slowly, but the Paris experience accelerated the transition to cloud-native working practices by several years for the organisations that participated most fully.</p>
-
-<h3>The Contribution Network Evolution</h3>
-
-<p>The IP contribution networks built to support Paris 2024 have also proved more durable than expected. The managed IP infrastructure connecting venues, broadcast centres, and cloud production environments required significant investment to establish, but the per-unit cost of using it during the Games was dramatically lower than traditional satellite or dedicated fibre alternatives.</p>
-
-<p>In 2026, several of the managed IP contribution services that expanded their infrastructure for Paris are operating at higher capacity than during the Games themselves, as other event producers and broadcasters take advantage of the improved connectivity infrastructure that Paris justified. The Games effectively subsidised an upgrade to the available IP contribution infrastructure that the broader industry is now benefiting from.</p>
-
-<h3>What Global Events Look Like Now</h3>
-
-<p>The template for major global event production in 2026 is a hybrid model: a small physical presence at the event venue handling acquisition, commentary, and real-time broadcast requirements, combined with cloud-based production infrastructure handling packaging, editing, and distribution for multiple platforms and rights holders simultaneously.</p>
-
-<p>The physical footprint at the venue is dramatically smaller than it would have been five years ago. The breadth and flexibility of the output is greater. The cost per hour of finished content is lower. The ability to scale production capacity up or down rapidly in response to the specific demands of different moments in the event is genuinely transformative compared to the fixed-capacity model that traditional OB production imposed.</p>
-
-<p>The remaining barriers are real: connectivity reliability, latency management for real-time production, the skills gap in cloud production among some sections of the broadcast workforce, and the ongoing evolution of rights and data compliance requirements as content moves through cloud infrastructure in multiple jurisdictions.</p>
-
-<h3>The 2028 Question</h3>
-
-<p>The industry conversation has already turned to the next major cycle of global events and what the Paris model means for how they will be produced. The directional answer is clear: more cloud, less physical infrastructure, deeper integration of remote production across the full workflow. The operational question is how fast the remaining barriers can be addressed.</p>
-
-<p>For broadcast engineers and production technology leaders, the Paris legacy is both a validation and a challenge. Validation that the investments made in cloud production capability were right. A challenge to accelerate the capability building and infrastructure investment needed to deploy the next generation of cloud production workflows at scale, reliably, across the full range of global event contexts.</p>
-
-<div class="editorial-author-box">
-  <strong>About this analysis:</strong> The Streamic covers broadcast and streaming technology with a focus on operational implications for engineering and production teams. This article reflects independent editorial analysis.
-</div>"""
-    },
-    {
         "slug": "c2pa-deepfake-news-credibility-digital-provenance-2026",
         "category": "newsroom",
         "cat_label": "Newsroom",
