@@ -958,17 +958,65 @@ def featured_page(arts):
     guide_map = {a.get("slug"): a for a in editorial_all}
     guide_arts = [guide_map[s] for s in guide_slug_order if s in guide_map]
 
-    insight_slug_order = [
-        "beyond-the-chatbot-operational-ai-newsroom-2026",
-        "st-2110-small-market-hybrid-ip-broadcasters-2026",
-        "2026-03-27-ai-post-prod-current-obsession-this-how-to-animate-wat",
-        "c2pa-deepfake-news-credibility-digital-provenance-2026",
+    # ── Latest Insights: 12 articles (4 rows × 3 col) ───────────────────────────
+    #
+    # PINNED (slots 1-6): Manually curated, high-quality broadcast IT analysis.
+    # These always appear first. Edit this list to change pinned articles.
+    #
+    # AUTO-FILL (slots 7-12): Automatically drawn from editorial articles with
+    # 1000+ word bodies that pass the broadcast-IT relevance check.
+    # New qualifying articles appear automatically — no manual edit needed.
+    # ─────────────────────────────────────────────────────────────────────────
+    INSIGHT_PINNED = [
+        "2026-03-27-ai-post-prod-current-obsession-this-how-to-animate-wat",  # Milano Cortina 2026 Olympics broadcast
+        "beyond-the-chatbot-operational-ai-newsroom-2026",                    # AI in newsroom operations
+        "ip-transition-2026-practical-guide-broadcast-engineers",             # IP transition practical guide
+        "cloud-playout-economics-2026-build-vs-buy",                          # Cloud playout build vs buy
+        "media-asset-management-ai-era-monetisation-2026",                    # MAM & AI monetisation
+        "st-2110-small-market-hybrid-ip-broadcasters-2026",                   # ST 2110 small market analysis
     ]
+    INSIGHT_TARGET = 12   # 4 rows × 3 columns — increase to add more rows
+
+    # Broadcast-IT quality signals for auto-fill eligibility
+    _INSIGHT_SIGNALS = [
+        "broadcast", "streaming", "codec", "encoder", "decoder", "nab", "ibc",
+        "ott", "cdn", "latency", "playout", "mam", "pam", "nmos", "st 2110",
+        "sdi", "ip workflow", "cloud production", "media", "television", "tv",
+        "post-production", "editing", "vfx", "signal", "ingest", "archive",
+        "asset management", "live event", "jpeg xs", "ip media", "media server",
+        "workflow", "software-defined", "media asset", "encoding", "encode",
+        "avid", "harmonic", "telestream", "pebble", "vizrt", "ross video",
+        "aws media", "azure media", "smpte", "production",
+    ]
+
+    def _is_insight_eligible(a):
+        """True if article qualifies for auto-fill: editorial, 1000+ words, broadcast-IT topic."""
+        if not (a.get("is_editorial") or a.get("editorial")):
+            return False
+        body = a.get("body_html", "") or ""
+        word_count = len(re.sub(r"<[^>]+>", " ", body).split())
+        if word_count < 1000:
+            return False
+        text = (a.get("title", "") + " " + a.get("dek", "")).lower()
+        return any(sig in text for sig in _INSIGHT_SIGNALS)
+
     art_map = {a.get("slug"): a for a in arts}
-    insight_arts = [art_map[s] for s in insight_slug_order if s in art_map]
-    if len(insight_arts) < 4:
-        used = {a.get("slug") for a in insight_arts} | {a.get("slug") for a in guide_arts} | ({hero_art.get("slug")} if hero_art else set())
-        insight_arts += [a for a in editorial_all + regular_all if a.get("slug") not in used][:4-len(insight_arts)]
+
+    # Slots 1-6: pinned curated articles (in order)
+    insight_arts = [art_map[s] for s in INSIGHT_PINNED if s in art_map]
+
+    # Slots 7-12: auto-fill from qualifying editorial articles not already shown
+    pinned_set = {a.get("slug") for a in insight_arts}
+    guide_set  = {a.get("slug") for a in guide_arts}
+    hero_set   = {hero_art.get("slug")} if hero_art else set()
+    excluded   = pinned_set | guide_set | hero_set
+
+    autofill_pool = [
+        a for a in sorted(editorial_all, key=lambda x: x.get("published", ""), reverse=True)
+        if a.get("slug") not in excluded and _is_insight_eligible(a)
+    ]
+    slots_remaining = INSIGHT_TARGET - len(insight_arts)
+    insight_arts += autofill_pool[:slots_remaining]
 
     sidebar_picks = [a for a in editorial_all if a.get("slug") != (hero_art or {}).get("slug")][:3]
     fresh_feed = load_homepage_feed(arts, limit=16)
