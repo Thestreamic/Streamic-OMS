@@ -968,12 +968,12 @@ def featured_page(arts):
     # New qualifying articles appear automatically — no manual edit needed.
     # ─────────────────────────────────────────────────────────────────────────
     INSIGHT_PINNED = [
+        "telestream-adobe-vantage-premiere-workflow-integration-2026",        # Telestream + Adobe Vantage workflow
         "2026-03-27-ai-post-prod-current-obsession-this-how-to-animate-wat",  # Milano Cortina 2026 Olympics broadcast
         "beyond-the-chatbot-operational-ai-newsroom-2026",                    # AI in newsroom operations
         "ip-transition-2026-practical-guide-broadcast-engineers",             # IP transition practical guide
         "cloud-playout-economics-2026-build-vs-buy",                          # Cloud playout build vs buy
         "media-asset-management-ai-era-monetisation-2026",                    # MAM & AI monetisation
-        "st-2110-small-market-hybrid-ip-broadcasters-2026",                   # ST 2110 small market analysis
     ]
     INSIGHT_TARGET = 12   # 4 rows × 3 columns — increase to add more rows
 
