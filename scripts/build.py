@@ -337,7 +337,7 @@ def ed_card(a, base=""):
     <h3 class="ed-hl"><a href="{href}">{title}</a></h3>
     <p class="ed-dek">{dek}</p>
     <div class="ed-foot">
-      <span class="ed-meta">{dt} &middot; {rm(wc)}</span>
+      <span class="ed-meta">{dt}</span>
       <a href="{href}" class="ed-read">Read full analysis &rarr;</a>
     </div>
   </div>
@@ -369,7 +369,6 @@ def hero_block(a, base=""):
       <div class="hero-meta">
         <span>By {AUTHOR}</span>
         <span>{dt}</span>
-        <span>{rm(wc)}</span>
       </div>
       <a href="{href}" class="hero-cta">Read full story</a>
     </div>
@@ -1008,7 +1007,7 @@ def featured_page(arts):
   <div class="hp-hero-body">
     <span class="hp-hero-tag">{e(cinfo['icon'])} {e(cinfo['label'])}</span>
     <h1 class="hp-hero-hl"><a href="articles/{hero_art['slug']}.html">{e(_hero_title)}</a></h1>
-    <div class="hp-hero-meta"><span>By {AUTHOR}</span><span>&#124;</span><span>{d(hero_art.get("published", ""))}</span><span>&#124;</span><span>{rm(hero_art.get("word_count", 1000))}</span></div>
+    <div class="hp-hero-meta"><span>By {AUTHOR}</span><span>&#124;</span><span>{d(hero_art.get("published", ""))}</span></div>
     <a href="articles/{hero_art['slug']}.html" class="hp-hero-cta">View Analysis <span class="hp-hero-cta__arrow">→</span></a>
   </div>
 </section>'''
@@ -1062,7 +1061,7 @@ def featured_page(arts):
       <div class="hp-flagship__meta">
         <span class="hp-flagship__author">Prerak K Mehta</span>
         <span class="hp-flagship__role">Broadcast Technology and Media IT Analyst</span>
-        <span class="hp-flagship__readtime">⏱ 5 min read</span>
+
       </div>
       <span class="hp-flagship__cta">Read Full Insight <span class="hp-flagship__cta-arrow">→</span></span>
     </div>
@@ -1459,7 +1458,6 @@ def article_page(a):
     <div class="art-byline">
       <strong>{AUTHOR}</strong>
       <time datetime="{a.get("published","")}" style="color:var(--ink4);font-size:13px">{dt}</time>
-      <span>{wc:,} words · {rm(wc)}</span>
       {analysis_badge}
     </div>
     <figure>
@@ -1892,21 +1890,11 @@ def main():
     os.makedirs(ARTS_D, exist_ok=True)
 
     # ── Article pages — visible indexed, rest noindex ─────────────────────
-    # Any article file containing <!-- HAND_AUTHORED --> is never overwritten.
-    # Add that comment to any article you edit manually to protect it permanently.
     written = 0
     for a in arts:
         slug_ = a.get("slug","")
         leg   = a.get("legacy_slug")
         dest  = os.path.join(ARTS_D, f"{slug_}.html")
-
-        # Skip if file exists and is hand-authored
-        if os.path.exists(dest):
-            with open(dest, encoding="utf-8") as _fh:
-                if "<!-- HAND_AUTHORED -->" in _fh.read():
-                    written += 1
-                    continue
-
         html  = article_page(a)
         if a["slug"] not in visible_slugs:
             html = html.replace(
@@ -1916,10 +1904,8 @@ def main():
         w(dest, html)
         written += 1
         if leg and leg != slug_:
-            leg_dest = os.path.join(ARTS_D, f"{leg}.html")
-            if not (os.path.exists(leg_dest) and "<!-- HAND_AUTHORED -->" in open(leg_dest, encoding="utf-8").read()):
-                w(leg_dest, html)
-                written += 1
+            w(os.path.join(ARTS_D, f"{leg}.html"), html)
+            written += 1
     print(f"  &#10003; {written} article files ({len(visible_slugs)} indexed, {written-len(visible_slugs)} noindex)")
 
     # ── Category pages ────────────────────────────────────────────────────
