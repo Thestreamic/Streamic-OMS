@@ -75,4 +75,10 @@ jobs:
           git config user.name  "Streamic Bot"
           git config user.email "technodate3@gmail.com"
           git add -A
-          git diff --cached --quiet || (git commit -m "build: auto-refresh [skip ci]" && git fetch origin main && (git merge origin/main --no-edit -s recursive -X ours 2>/dev/null || git merge origin/main --no-edit || true) && git push origin main)
+          git diff --cached --quiet || (
+            git commit -m "build: auto-refresh [skip ci]" &&
+            git fetch origin main &&
+            git rebase origin/main --strategy-option=ours 2>/dev/null ||
+            git rebase --abort 2>/dev/null || true &&
+            git push origin main --force-with-lease
+          )
