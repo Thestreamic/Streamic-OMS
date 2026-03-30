@@ -630,13 +630,8 @@ def main():
         print(f"  ✓ {a['slug']}.html ({a['word_count']:,} words)")
         written.append(a)
 
-    # Also write root/articles/ copies
-    root_arts = os.path.join(ROOT, "articles")
-    os.makedirs(root_arts, exist_ok=True)
-    for a in written:
-        import shutil
-        shutil.copy2(os.path.join(ARTS_DIR, f"{a['slug']}.html"),
-                     os.path.join(root_arts, f"{a['slug']}.html"))
+    # NOTE: Root /articles/ copies removed — only docs/articles/ is the live path.
+    # Root-level article copies caused git merge conflicts during CI builds.
 
     # Add to generated_articles.json so they appear in the Featured page grid
     with open(DATA_F, 'r', encoding='utf-8') as f:
