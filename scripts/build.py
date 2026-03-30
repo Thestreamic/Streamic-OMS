@@ -1149,7 +1149,7 @@ def featured_page(arts):
       </div>
       <aside class="hp-sidebar" aria-label="Sidebar">
         <div class="hp-sb-section hp-sb-featured">
-          <div class="hp-sb-hdr">Editor&#8217;s Picks <a href="vlog.html" class="hp-sb-hdr-link">View page &#8594;</a></div>
+          <div class="hp-sb-hdr">Editor&#8217;s Picks</div>
           {picks_html}
         </div>
         <div class="hp-sb-section">
