@@ -29,6 +29,83 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../style.css">
+
+  <style>
+    /* ── Click-to-zoom infographic ── */
+    .zoomable {
+      cursor: zoom-in;
+      transition: opacity 0.15s ease, box-shadow 0.15s ease;
+    }
+    .zoomable:hover {
+      opacity: 0.92;
+      box-shadow: 0 16px 40px rgba(16,24,40,.14) !important;
+    }
+
+    .zoom-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(10,10,10,0.88);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      animation: zoomFadeIn 0.18s ease;
+      cursor: zoom-out;
+    }
+    @keyframes zoomFadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    .zoom-overlay img {
+      max-width: 94vw;
+      max-height: 92vh;
+      border-radius: 14px;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.6);
+      cursor: zoom-out;
+      animation: zoomImgIn 0.2s cubic-bezier(.22,.68,0,1.2);
+    }
+    @keyframes zoomImgIn {
+      from { transform: scale(0.88); opacity: 0; }
+      to   { transform: scale(1);    opacity: 1; }
+    }
+
+    .zoom-close {
+      position: absolute;
+      top: 16px;
+      right: 20px;
+      background: rgba(255,255,255,0.12);
+      border: none;
+      color: #fff;
+      font-size: 22px;
+      line-height: 1;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s;
+    }
+    .zoom-close:hover { background: rgba(255,255,255,0.25); }
+
+    .infographic-caption {
+      font-size: 13px;
+      color: #667085;
+      text-align: center;
+      margin-top: 10px;
+      margin-bottom: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+    .infographic-caption svg {
+      flex-shrink: 0;
+      opacity: 0.65;
+    }
+  </style>
 </head>
 <body>
 
@@ -85,14 +162,20 @@
       </div>
     </div>
 
-    <div style="margin:26px 0 34px">
+    <!-- Infographic with click-to-zoom -->
+    <div style="margin:26px 0 8px">
       <img src="../assets/articles/quic-http3-infographic.jpg"
            alt="QUIC vs TCP for video streaming infographic"
+           class="zoomable"
            style="width:100%;display:block;border-radius:18px;border:1px solid var(--line);box-shadow:0 12px 28px rgba(16,24,40,.08);background:#fff"
            onerror="this.style.display='none'">
     </div>
+    <p class="infographic-caption">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+      Click infographic to expand and read in full detail
+    </p>
 
-    <div style="font-size:16px;color:var(--ink3);line-height:1.85">
+    <div style="font-size:16px;color:var(--ink3);line-height:1.85;margin-top:30px">
       <p style="margin:0 0 22px">
         The way video is delivered over the internet is undergoing a fundamental shift.
       </p>
@@ -267,7 +350,7 @@
 
       <div style="border-top:1px solid var(--line);padding-top:22px;margin-top:34px">
         <p style="font-size:14px;color:var(--ink4);line-height:1.8;margin:0">
-          This article is part of The Streamic’s Latest Insight coverage, focused on the technologies, workflows, and infrastructure shaping modern broadcast and streaming.
+          This article is part of The Streamic's Latest Insight coverage, focused on the technologies, workflows, and infrastructure shaping modern broadcast and streaming.
         </p>
       </div>
     </div>
@@ -322,6 +405,7 @@
 </div>
 
 <script>
+/* ── Cookie consent ── */
 (function(){
   var K='ts_cc',s=localStorage.getItem(K),b=document.getElementById('ts-cookie');
   if(!s&&b)b.style.display='block';
@@ -336,6 +420,36 @@
     analytics_storage:'granted',ad_storage:'denied',
     ad_user_data:'denied',ad_personalization:'denied'});
 })();
+
+/* ── Click-to-zoom modal ── */
+document.querySelectorAll('.zoomable').forEach(function(img) {
+  img.addEventListener('click', function() {
+    var overlay = document.createElement('div');
+    overlay.className = 'zoom-overlay';
+
+    var closeBtn = document.createElement('button');
+    closeBtn.className = 'zoom-close';
+    closeBtn.setAttribute('aria-label', 'Close zoomed image');
+    closeBtn.innerHTML = '&times;';
+
+    var zoomedImg = document.createElement('img');
+    zoomedImg.src = img.src;
+    zoomedImg.alt = img.alt;
+
+    overlay.appendChild(closeBtn);
+    overlay.appendChild(zoomedImg);
+    document.body.appendChild(overlay);
+
+    function closeOverlay() { overlay.remove(); }
+    overlay.addEventListener('click', closeOverlay);
+    closeBtn.addEventListener('click', function(e) { e.stopPropagation(); closeOverlay(); });
+
+    // Close on Escape key
+    document.addEventListener('keydown', function onKey(e) {
+      if (e.key === 'Escape') { closeOverlay(); document.removeEventListener('keydown', onKey); }
+    });
+  });
+});
 </script>
 
 </body>
