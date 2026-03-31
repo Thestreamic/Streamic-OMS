@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 ROOT      = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 ARTS_F    = os.path.join(ROOT, "data", "generated_articles.json")
 NEWS_F    = os.path.join(ROOT, "data", "news.json")
-HF_ARTS_F = os.path.join(DATA, 'hf_articles.json')  # generate.js output
+HF_ARTS_F = os.path.join(ROOT, "data", "hf_articles.json")  # generate.js output
 DOCS      = os.path.join(ROOT, "docs")
 ARTS_D    = os.path.join(DOCS, "articles")
 BASE_URL  = os.environ.get("SITE_BASE_URL", "https://www.thestreamic.in").rstrip("/")
@@ -840,16 +840,16 @@ def _source_name(val):
 
 
 def load_hf_news(limit: int = 8) -> list:
-    """Load HF/Groq 1200-word articles from generate.js for the homepage news section."""
+    """Return HF/Groq 1200-word articles from generate.js for the homepage news section."""
     if not os.path.exists(HF_ARTS_F):
         return []
     try:
         with open(HF_ARTS_F, 'r', encoding='utf-8') as f:
             hf = json.load(f)
-        mapped = []
+        out = []
         for a in (hf or [])[:limit]:
             slug = a.get('slug', '')
-            mapped.append({
+            out.append({
                 'title':        a.get('title', ''),
                 'slug':         slug,
                 'source_domain':a.get('sourceName', ''),
@@ -861,7 +861,7 @@ def load_hf_news(limit: int = 8) -> list:
                 'word_count':   a.get('wordCount', 0),
                 'dek':          a.get('dek', ''),
             })
-        return mapped
+        return out
     except Exception:
         return []
 
@@ -1066,11 +1066,9 @@ def featured_page(arts):
     filtered_feed = [a for a in fresh_feed if _sidebar_relevant(a)]
     # Fall back to full feed if not enough filtered items
     breaking_news = (filtered_feed if len(filtered_feed) >= 7 else fresh_feed)[:7]
-    # Deduplicate main news vs sidebar
+    # Deduplicate: exclude slugs already shown in sidebar
     _breaking_slugs = {a.get('slug') for a in breaking_news}
-    # ── Latest Broadcast & Media Technology News ──────────────────────────
-    # Primary: HF/Groq 1200-word articles from generate.js (data/hf_articles.json)
-    # Fallback: generated_articles.json feed (if generate.js hasn't run yet)
+    # Latest Broadcast & Media Technology News — use HF 1200-word articles first
     homepage_news = load_hf_news(limit=8)
     if not homepage_news:
         homepage_news = [a for a in fresh_feed if a.get('slug') not in _breaking_slugs][:8]
