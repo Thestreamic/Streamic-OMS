@@ -1,49 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('consent','default',{
-      'analytics_storage':'denied','ad_storage':'denied',
-      'ad_user_data':'denied','ad_personalization':'denied','wait_for_update':500
-    });
-  </script>
-
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-0VSHDN3ZR6"></script>
-  <script>
-    gtag('js', new Date());
-    gtag('config','G-0VSHDN3ZR6');
-  </script>
-
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Contact — The Streamic</title>
-  <meta name="description" content="Get in touch with The Streamic editorial team in Dublin, Ireland.">
-  <meta name="robots" content="index,follow">
-  <meta name="author" content="The Streamic Editorial Team">
-  <link rel="canonical" href="https://www.thestreamic.in/contact.html">
-
-  <meta property="og:type" content="article">
-  <meta property="og:site_name" content="The Streamic">
-  <meta property="og:title" content="Contact — The Streamic">
-  <meta property="og:description" content="Get in touch with The Streamic editorial team in Dublin, Ireland.">
-  <meta property="og:url" content="https://www.thestreamic.in/contact.html">
-
-  <meta name="twitter:card" content="summary_large_image">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
   <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
+
+<!-- ✅ TOP NAV -->
 <nav class="nav">
   <div class="nav-inner">
     <a href="index.html" class="nav-logo">
-      <img src="assets/logo.png" alt="" onerror="this.style.display='none'" aria-hidden="true">
+      <img src="assets/logo.png" alt="" onerror="this.style.display='none'">
       <span>The Streamic</span>
     </a>
 
@@ -68,132 +42,92 @@
     <a href="howto.html">How-To Guides</a>
     <a href="post-production-workflows.html">Post Production Workflows</a>
     <a href="about.html">About</a>
-    <a href="contact.html">Contact</a>
+    <a href="contact.html" class="active">Contact</a>
   </div>
 </nav>
 
+<!-- ✅ MAIN CONTACT CONTENT -->
 <main>
   <div class="w" style="padding:52px 0 80px;max-width:680px">
-    <h1 style="font-family:var(--serif);font-size:clamp(28px,4vw,40px);margin-bottom:8px">Contact</h1>
 
+    <h1 style="font-family:var(--serif);font-size:clamp(28px,4vw,40px);margin-bottom:8px">Contact</h1>
     <p style="font-size:15px;color:var(--ink3);line-height:1.7;margin-bottom:32px">
       We welcome editorial feedback, tips, corrections, and partnership enquiries.
     </p>
 
     <div style="background:var(--bg);border-radius:14px;padding:24px 28px;margin-bottom:32px">
-      <p style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--ink4);margin-bottom:12px">Our Address</p>
-
+      <p style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--ink4)">Our Address</p>
       <address style="font-style:normal;font-size:14px;color:var(--ink2);line-height:1.8">
         <strong>The Streamic</strong><br>
         Adamstown, Lucan<br>
         Dublin, Ireland
       </address>
-
-      <p style="font-size:14px;color:var(--ink3);margin-top:14px;margin-bottom:4px">
-        <strong style="color:var(--ink)">Email:</strong>
-        <a href="mailto:technodate3@gmail.com" style="color:var(--blue)">technodate3@gmail.com</a>
-      </p>
-
-      <p style="font-size:14px;color:var(--ink3);margin-bottom:4px">
-        <strong style="color:var(--ink)">Editorial:</strong> Story tips, corrections, press releases
-      </p>
-
-      <p style="font-size:14px;color:var(--ink3)">
-        <strong style="color:var(--ink)">Advertising:</strong> Include "Advertising" in your subject line
+      <p style="font-size:14px;color:var(--ink3);margin-top:14px">
+        <strong>Email:</strong> technodate3@gmail.com
       </p>
     </div>
 
     <h2 style="font-family:var(--serif);font-size:22px;margin-bottom:20px">Send us a message</h2>
 
-    <form id="contactForm" style="display:flex;flex-direction:column;gap:16px">
+    <!-- ✅ ✅ FORM SUBMIT VERSION — NO SCRIPT REQUIRED -->
+    <form action="https://formsubmit.co/technodate3@gmail.com" method="POST" style="display:flex;flex-direction:column;gap:16px">
+
+      <!-- ✅ Redirect to thank-you.html -->
+      <input type="hidden" name="_next" value="https://www.thestreamic.in/thank-you.html">
+
+      <!-- ✅ Email subject -->
+      <input type="hidden" name="_subject" value="New Contact Form Message — The Streamic">
+
+      <!-- ✅ Turn off spam bot submissions -->
+      <input type="text" name="_honey" style="display:none">
+
+      <!-- ✅ Disable FormSubmit branding -->
+      <input type="hidden" name="_template" value="box">
+
+      <!-- ✅ Sender Name -->
       <div>
-        <label for="cf-name" style="display:block;font-size:13px;font-weight:600;color:var(--ink);margin-bottom:6px">Your Name</label>
+        <label for="cf-name" style="display:block;font-size:13px;font-weight:600;color:var(--ink)">Your Name</label>
         <input id="cf-name" type="text" name="name" required placeholder="Jane Smith"
-        style="width:100%;padding:10px 14px;border:1px solid var(--line);border-radius:8px;font-size:14px;color:var(--ink);background:#fff;box-sizing:border-box">
+        style="width:100%;padding:10px 14px;border:1px solid var(--line);border-radius:8px;font-size:14px;">
       </div>
 
+      <!-- ✅ Email -->
       <div>
-        <label for="cf-email" style="display:block;font-size:13px;font-weight:600;color:var(--ink);margin-bottom:6px">Email Address</label>
+        <label for="cf-email" style="display:block;font-size:13px;font-weight:600;color:var(--ink)">Email Address</label>
         <input id="cf-email" type="email" name="email" required placeholder="you@company.com"
-        style="width:100%;padding:10px 14px;border:1px solid var(--line);border-radius:8px;font-size:14px;color:var(--ink);background:#fff;box-sizing:border-box">
+        style="width:100%;padding:10px 14px;border:1px solid var(--line);border-radius:8px;font-size:14px;">
       </div>
 
+      <!-- ✅ Subject -->
       <div>
-        <label for="cf-subject" style="display:block;font-size:13px;font-weight:600;color:var(--ink);margin-bottom:6px">Subject</label>
-        <input id="cf-subject" type="text" name="subject" placeholder="Editorial feedback / Story tip / Advertising"
-        style="width:100%;padding:10px 14px;border:1px solid var(--line);border-radius:8px;font-size:14px;color:var(--ink);background:#fff;box-sizing:border-box">
+        <label for="cf-subject" style="display:block;font-size:13px;font-weight:600;color:var(--ink)">Subject</label>
+        <input id="cf-subject" type="text" name="subject" placeholder="Editorial, Advertising, Feedback…"
+        style="width:100%;padding:10px 14px;border:1px solid var(--line);border-radius:8px;font-size:14px;">
       </div>
 
+      <!-- ✅ Message -->
       <div>
-        <label for="cf-message" style="display:block;font-size:13px;font-weight:600;color:var(--ink);margin-bottom:6px">Message</label>
+        <label for="cf-message" style="display:block;font-size:13px;font-weight:600;color:var(--ink)">Message</label>
         <textarea id="cf-message" name="message" required rows="5" placeholder="Your message..."
-        style="width:100%;padding:10px 14px;border:1px solid var(--line);border-radius:8px;font-size:14px;color:var(--ink);background:#fff;box-sizing:border-box;resize:vertical"></textarea>
+        style="width:100%;padding:10px 14px;border:1px solid var(--line);border-radius:8px;font-size:14px;"></textarea>
       </div>
 
-      <button type="submit" id="cf-submit"
-      style="align-self:flex-start;padding:11px 28px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:background .15s ease">
+      <!-- ✅ Submit -->
+      <button type="submit"
+      style="align-self:flex-start;padding:11px 28px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">
         Send Message
       </button>
     </form>
 
-    <div id="cf-status" style="margin-top:16px;font-size:14px;display:none"></div>
-
   </div>
 </main>
 
-
-<!-- ✅ GOOGLE SHEETS CONTACT FORM SCRIPT -->
-<script>
-document.getElementById("contactForm").addEventListener("submit", function(e) {
-  e.preventDefault();
-
-  const scriptURL = "https://script.google.com/macros/s/AKfycbyNgCw0UGqlNmcZz8P8EyLxpGSFaTiBxWf2VdRHd4YHylHNKihCjRrP92dQU-2Keiic/exec";
-
-  const formData = {
-    name: document.getElementById("cf-name").value,
-    email: document.getElementById("cf-email").value,
-    subject: document.getElementById("cf-subject").value,
-    message: document.getElementById("cf-message").value
-  };
-
-  const status = document.getElementById("cf-status");
-  const btn = document.getElementById("cf-submit");
-
-  btn.disabled = true;
-  btn.textContent = "Sending...";
-
-  fetch(scriptURL, {
-    method: "POST",
-    body: JSON.stringify(formData)
-  })
-  .then(res => res.json())
-  .then(result => {
-    status.style.display = "block";
-    status.style.color = "#34C759";
-    status.textContent = "✅ Message sent successfully!";
-    btn.disabled = false;
-    btn.textContent = "Send Message";
-    document.getElementById("contactForm").reset();
-  })
-  .catch(error => {
-    status.style.display = "block";
-    status.style.color = "red";
-    status.textContent = "❌ Error sending message.";
-    btn.disabled = false;
-    btn.textContent = "Send Message";
-  });
-});
-</script>
-
-
+<!-- ✅ FOOTER -->
 <footer class="footer">
   <div class="footer-grid">
     <div>
       <div class="footer-brand">The Streamic</div>
-      <p class="footer-tag">
-        Independent broadcast & streaming technology journalism for engineers and media professionals.
-        Original analysis, industry coverage, and technical commentary.
-      </p>
+      <p class="footer-tag">Independent broadcast & streaming technology journalism.</p>
     </div>
 
     <div class="footer-col">
@@ -214,16 +148,16 @@ document.getElementById("contactForm").addEventListener("submit", function(e) {
 
     <div class="footer-col">
       <h4>Follow</h4>
-      <a href="https://twitter.com/thestreamic" target="_blank" rel="noopener noreferrer">𝕏 @thestreamic</a>
-      <a href="https://www.linkedin.com/company/thestreamic" target="_blank" rel="noopener noreferrer">in TheStreamic</a>
+      <a href="https://twitter.com/thestreamic">𝕏 @thestreamic</a>
+      <a href="https://www.linkedin.com/company/thestreamic">LinkedIn</a>
     </div>
   </div>
 
   <div class="footer-bottom">
-    <span>© 2026 The Streamic — thestreamic.in. All rights reserved.</span>
-    <span>Independent broadcast technology journalism. All trademarks belong to their respective owners.</span>
+    © 2026 The Streamic — All rights reserved.
   </div>
 </footer>
 
 </body>
 </html>
+``
