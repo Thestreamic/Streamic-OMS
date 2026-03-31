@@ -151,7 +151,7 @@ jobs:
       - name: "Stage 5: Gemini AI articles (PRIMARY — 08:10 UTC run)"
         if: steps.mode.outputs.mode == 'full' || steps.mode.outputs.mode == 'gemini_only'
         env:
-          ENABLE_GEMINI_PREMIUM: ${{ github.event.inputs.run_mode == 'gemini_only' && 'true' || 'false' }}
+          ENABLE_GEMINI_PREMIUM: "true"   # enabled for all Stage 5 runs (full + gemini_only)
           GEMINI_MAX_PER_RUN: "2"
         run: python3 scripts/generate_gemini.py || echo "Gemini step skipped"
 
