@@ -92,7 +92,6 @@ DIRECT_FEEDS = [
 
     # Post-production and editing (professional level)
     'https://jonnyelwyn.co.uk/feed/',
-    'https://beforesandafters.com/feed/',
 
     # Cloud / streaming vendors
     'https://aws.amazon.com/blogs/media/feed/',
@@ -131,7 +130,6 @@ CATEGORY_FEEDS = {
     'graphics': [
         'https://www.tvtechnology.com/graphics/rss.xml',
         'https://www.vizrt.com/news/rss',
-        'https://motionographer.com/feed/',
     ],
 
     'cloud': [
@@ -150,8 +148,7 @@ CATEGORY_FEEDS = {
     # Professional broadcast post-production and AI workflow
     'ai-post-production': [
         'https://jonnyelwyn.co.uk/feed/',
-        'https://beforesandafters.com/feed/',
-        'https://blog.pond5.com/feed/',
+            'https://blog.pond5.com/feed/',
         'https://aws.amazon.com/blogs/media/feed/',
     ],
 
