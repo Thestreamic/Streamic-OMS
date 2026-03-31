@@ -603,7 +603,7 @@ def main():
         })
         new_count += 1
 
-    arts.sort(key=lambda x: x['published'], reverse=True)
+    arts.sort(key=lambda x: x.get('published') or x.get('date') or '', reverse=True)
     with open(DATA_F, 'w', encoding='utf-8') as f:
         json.dump(arts, f, indent=2, ensure_ascii=False)
 
