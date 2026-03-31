@@ -8,7 +8,6 @@ from datetime import datetime, timezone
 ROOT      = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 ARTS_F    = os.path.join(ROOT, "data", "generated_articles.json")
 NEWS_F    = os.path.join(ROOT, "data", "news.json")
-HF_ARTS_F = os.path.join(ROOT, "data", "hf_articles.json")  # generate.js output
 DOCS      = os.path.join(ROOT, "docs")
 ARTS_D    = os.path.join(DOCS, "articles")
 BASE_URL  = os.environ.get("SITE_BASE_URL", "https://www.thestreamic.in").rstrip("/")
@@ -838,33 +837,6 @@ def _hp_guide_card(a, sub):
 def _source_name(val):
     return (val or '').replace('https://','').replace('http://','').replace('www.','').split('/')[0]
 
-
-def load_hf_news(limit: int = 8) -> list:
-    """Return HF/Groq 1200-word articles from generate.js for the homepage news section."""
-    if not os.path.exists(HF_ARTS_F):
-        return []
-    try:
-        with open(HF_ARTS_F, 'r', encoding='utf-8') as f:
-            hf = json.load(f)
-        out = []
-        for a in (hf or [])[:limit]:
-            slug = a.get('slug', '')
-            out.append({
-                'title':        a.get('title', ''),
-                'slug':         slug,
-                'source_domain':a.get('sourceName', ''),
-                'source_url':   a.get('sourceUrl', ''),
-                'url':          a.get('sourceUrl', ''),
-                'published':    a.get('published', ''),
-                'image_url':    a.get('image', ''),
-                'category':     a.get('category', 'featured'),
-                'word_count':   a.get('wordCount', 0),
-                'dek':          a.get('dek', ''),
-            })
-        return out
-    except Exception:
-        return []
-
 def load_homepage_feed(arts, limit=14):
     """Use fresh data/news.json for homepage and map to internal articles when possible."""
     by_url, by_title = {}, {}
@@ -1066,12 +1038,7 @@ def featured_page(arts):
     filtered_feed = [a for a in fresh_feed if _sidebar_relevant(a)]
     # Fall back to full feed if not enough filtered items
     breaking_news = (filtered_feed if len(filtered_feed) >= 7 else fresh_feed)[:7]
-    # Deduplicate: exclude slugs already shown in sidebar
-    _breaking_slugs = {a.get('slug') for a in breaking_news}
-    # Latest Broadcast & Media Technology News — use HF 1200-word articles first
-    homepage_news = load_hf_news(limit=8)
-    if not homepage_news:
-        homepage_news = [a for a in fresh_feed if a.get('slug') not in _breaking_slugs][:8]
+    homepage_news = fresh_feed[4:12]
     if not homepage_news:
         homepage_news = fresh_feed[:8]
 
@@ -2070,7 +2037,7 @@ def main():
         print(f"      {cat}: {n} articles")
 
     # ── Homepage ──────────────────────────────────────────────────────────
-    feat_arts = sorted(arts, key=lambda a: a["published"], reverse=True)
+    feat_arts = sorted(arts, key=lambda a: a.get("published") or a.get("date") or "", reverse=True)
     fp = featured_page(feat_arts)
     w(os.path.join(DOCS,"featured.html"), fp)
     w(os.path.join(DOCS,"index.html"),    fp)
