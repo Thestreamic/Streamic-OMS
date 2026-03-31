@@ -683,9 +683,9 @@ def _parse_groq_wait(msg: str) -> float:
     if m: return float(m.group(1))*60 + 2
     m = re.search(r"try again in ([\d\.]+)s", msg)
     if m: return float(m.group(1)) + 2
-    return 65.0
+    return 20.0  # reduced from 65s to prevent 12-min hangs
 
-def _groq_editorial_call(topic_title: str, topic_desc: str, max_retries: int = 5) -> str:
+def _groq_editorial_call(topic_title: str, topic_desc: str, max_retries: int = 2) -> str:
     if not GROQ_API_KEY:
         raise RuntimeError("GROQ_API_KEY not set")
 
@@ -764,8 +764,30 @@ def run_groq_editorials():
     new_arts = []
     for topic in GROQ_EDITORIAL_TOPICS:
         slug = topic["slug"]
+        # Check both JSON store AND HTML file on disk — avoids re-generating
+        # when rewrite_feed.py trims the JSON but the article HTML already exists
+        html_path = os.path.join(ARTS_DIR, f"{slug}.html")
         if slug in existing_slugs:
-            print(f"  ↩ Exists: {slug[:50]}")
+            print(f"  ↩ Exists (JSON): {slug[:50]}")
+            continue
+        if os.path.exists(html_path):
+            print(f"  ↩ Exists (HTML): {slug[:50]}")
+            # Re-add to JSON so it won't be lost next time
+            try:
+                arts.append({
+                    "slug": slug, "title": topic["title"],
+                    "published": topic["published"], "date": topic["published"],
+                    "category": topic["category"], "is_editorial": True,
+                    "editorial": True, "word_count": 1200,
+                    "body_html": "", "dek": topic.get("topic","")[:200],
+                    "card_summary": topic.get("topic","")[:200],
+                    "meta_description": topic.get("topic","")[:160],
+                    "image_url": topic.get("image_url",""),
+                    "source_url": "", "source_domain": "",
+                })
+                existing_slugs.add(slug)
+            except Exception:
+                pass
             continue
 
         print(f"  🖊 Generating: {topic['title'][:55]}...")
@@ -810,8 +832,11 @@ def run_groq_editorials():
 
     if new_arts:
         arts.extend(new_arts)
-        with open(DATA_F, "w", encoding="utf-8") as f:
-            json.dump(arts, f, indent=2, ensure_ascii=False)
+
+    # Always save — even if no new articles, we may have re-added stubs above
+    with open(DATA_F, "w", encoding="utf-8") as f:
+        json.dump(arts, f, indent=2, ensure_ascii=False)
+    if new_arts:
         print(f"  ✓ {len(new_arts)} new Groq editorial articles added")
 
 if __name__ == "__main__":
