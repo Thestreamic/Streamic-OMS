@@ -622,6 +622,10 @@ def main():
 
 import urllib.request, urllib.error, time as _time
 
+ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
+ANTHROPIC_MODEL   = "claude-opus-4-6"
+ANTHROPIC_URL     = "https://api.anthropic.com/v1/messages"
+
 GROQ_API_KEY   = os.environ.get("GROQ_API_KEY", "")
 GROQ_URL       = "https://api.groq.com/openai/v1/chat/completions"
 GROQ_EDI_MODEL = "llama-3.3-70b-versatile"
@@ -676,6 +680,55 @@ STRICT RULES:
 - DO NOT add a "Conclusion" heading
 - Output clean HTML only: <p>, <h2>, <h3>, <blockquote>, <ul>, <li>, <strong>, <em>"""
 
+
+def _claude_opus_call(topic_title: str, topic_desc: str) -> str:
+    """Call Claude Opus via Anthropic API for highest-quality editorial generation."""
+    if not ANTHROPIC_API_KEY:
+        raise RuntimeError("ANTHROPIC_API_KEY not set")
+
+    import json as _json
+    prompt = (
+        f"Write a 1,200-word technical deep-dive analysis about:\n\n"
+        f"Topic: {topic_title}\n\nContext: {topic_desc}\n\n"
+        f"Write the complete long-form HTML article now:"
+    )
+    payload = _json.dumps({
+        "model":      ANTHROPIC_MODEL,
+        "max_tokens": 3000,
+        "system":     _EDI_SYSTEM,
+        "messages":   [{"role": "user", "content": prompt}],
+    }).encode("utf-8")
+    headers = {
+        "x-api-key":         ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
+        "content-type":      "application/json",
+    }
+    try:
+        import requests as _req
+        resp = _req.post(ANTHROPIC_URL, data=payload, headers=headers, timeout=120)
+        if resp.status_code == 200:
+            data = resp.json()
+            return data["content"][0]["text"].strip()
+        raise RuntimeError(f"Anthropic HTTP {resp.status_code}: {resp.text[:200]}")
+    except ImportError:
+        req = urllib.request.Request(ANTHROPIC_URL, data=payload,
+                                     headers={k: v for k, v in headers.items()}, method="POST")
+        with urllib.request.urlopen(req, timeout=120) as r:
+            data = _json.loads(r.read().decode("utf-8"))
+        return data["content"][0]["text"].strip()
+
+
+def _best_editorial_call(topic_title: str, topic_desc: str) -> str:
+    """Try Claude Opus first; fall back to Groq if unavailable."""
+    if ANTHROPIC_API_KEY:
+        try:
+            result = _claude_opus_call(topic_title, topic_desc)
+            print("      [API] Claude Opus ✓")
+            return result
+        except Exception as ex:
+            print(f"      [WARN] Claude Opus failed: {ex} — falling back to Groq")
+    return _groq_editorial_call(topic_title, topic_desc)
+
 def _parse_groq_wait(msg: str) -> float:
     m = re.search(r"try again in ([\.\d]+)m([\d\.]+)s", msg)
     if m: return float(m.group(1))*60 + float(m.group(2)) + 2
@@ -683,7 +736,7 @@ def _parse_groq_wait(msg: str) -> float:
     if m: return float(m.group(1))*60 + 2
     m = re.search(r"try again in ([\d\.]+)s", msg)
     if m: return float(m.group(1)) + 2
-    return 20.0  # reduced from 65s to prevent 12-min hangs
+    return 20.0
 
 def _groq_editorial_call(topic_title: str, topic_desc: str, max_retries: int = 2) -> str:
     if not GROQ_API_KEY:
@@ -752,10 +805,13 @@ def _groq_editorial_call(topic_title: str, topic_desc: str, max_retries: int = 2
 
 
 def run_groq_editorials():
-    """Generate Groq-powered editorial deep-dives for topics in GROQ_EDITORIAL_TOPICS."""
-    if not GROQ_API_KEY:
-        print("  ⚠ GROQ_API_KEY not set &#8212; skipping Groq editorial generation")
+    """Generate AI-powered editorial deep-dives. Uses Claude Opus if key set, else Groq."""
+    if not ANTHROPIC_API_KEY and not GROQ_API_KEY:
+        print("  ⚠ No API key set (ANTHROPIC_API_KEY or GROQ_API_KEY) — skipping")
         return
+
+    api_label = "Claude Opus" if ANTHROPIC_API_KEY else "Groq llama-3.3-70b"
+    print(f"  [API] Using: {api_label}")
 
     with open(DATA_F, "r", encoding="utf-8") as f:
         arts = json.load(f)
@@ -764,35 +820,33 @@ def run_groq_editorials():
     new_arts = []
     for topic in GROQ_EDITORIAL_TOPICS:
         slug = topic["slug"]
-        # Check both JSON store AND HTML file on disk — avoids re-generating
-        # when rewrite_feed.py trims the JSON but the article HTML already exists
-        html_path = os.path.join(ARTS_DIR, f"{slug}.html")
+
+        # Check JSON store first
         if slug in existing_slugs:
             print(f"  ↩ Exists (JSON): {slug[:50]}")
             continue
+
+        # Check HTML file on disk — skip if already written even if JSON was trimmed
+        html_path = os.path.join(ARTS_DIR, f"{slug}.html")
         if os.path.exists(html_path):
-            print(f"  ↩ Exists (HTML): {slug[:50]}")
-            # Re-add to JSON so it won't be lost next time
-            try:
-                arts.append({
-                    "slug": slug, "title": topic["title"],
-                    "published": topic["published"], "date": topic["published"],
-                    "category": topic["category"], "is_editorial": True,
-                    "editorial": True, "word_count": 1200,
-                    "body_html": "", "dek": topic.get("topic","")[:200],
-                    "card_summary": topic.get("topic","")[:200],
-                    "meta_description": topic.get("topic","")[:160],
-                    "image_url": topic.get("image_url",""),
-                    "source_url": "", "source_domain": "",
-                })
-                existing_slugs.add(slug)
-            except Exception:
-                pass
+            print(f"  ↩ Exists (HTML file): {slug[:50]} — re-adding to JSON")
+            arts.append({
+                "slug": slug, "title": topic["title"],
+                "published": topic["published"], "date": topic["published"],
+                "category": topic["category"], "is_editorial": True,
+                "editorial": True, "word_count": 1200,
+                "body_html": "", "dek": topic.get("topic", "")[:200],
+                "card_summary": topic.get("topic", "")[:200],
+                "meta_description": topic.get("topic", "")[:160],
+                "image_url": topic.get("image_url", ""),
+                "source_url": "", "source_domain": "",
+            })
+            existing_slugs.add(slug)
             continue
 
-        print(f"  🖊 Generating: {topic['title'][:55]}...")
+        print(f"  Generating: {topic['title'][:55]}...")
         try:
-            body_html = _groq_editorial_call(topic["title"], topic["topic"])
+            body_html = _best_editorial_call(topic["title"], topic["topic"])
             body_html = re.sub(r"```html?\n?|```\n?", "", body_html).strip()
 
             wc = len(re.sub(r"<[^>]+>", " ", body_html).split())
@@ -833,11 +887,11 @@ def run_groq_editorials():
     if new_arts:
         arts.extend(new_arts)
 
-    # Always save — even if no new articles, we may have re-added stubs above
+    # Always save — preserves any re-added stubs from the HTML-check block above
     with open(DATA_F, "w", encoding="utf-8") as f:
         json.dump(arts, f, indent=2, ensure_ascii=False)
     if new_arts:
-        print(f"  ✓ {len(new_arts)} new Groq editorial articles added")
+        print(f"  ✓ {len(new_arts)} new editorial articles added via {api_label}")
 
 if __name__ == "__main__":
     main()
