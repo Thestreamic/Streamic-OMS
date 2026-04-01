@@ -1,5 +1,27 @@
 [
   {
+    "slug": "2026-04-01-professional-wireless-systems-pws-takes-on-intercom-and-rf-coordinatio",
+    "title": "Professional Wireless Systems (PWS) Takes on Intercom and RF Coordination for the Biggest Rock Band on Earth",
+    "dek": "NEW ORLEANS, MARCH 31, 2026 &#8211; Professional Wireless Systems (PWS), a leading provider of wireless audio solutions and RF management, was on site at the Caesars Superdome in New Orleans, where Ro…",
+    "category": "featured",
+    "sourceName": "BroadcastBeat",
+    "sourceUrl": "https://www.broadcastbeat.com/professional-wireless-systems-pws-takes-on-intercom-and-rf-coordination-for-the-biggest-rock-band-on-earth/",
+    "image": "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=1200&auto=format&fit=crop&q=80",
+    "published": "2026-04-01",
+    "wordCount": 1733
+  },
+  {
+    "slug": "2026-04-01-live-streaming-localization-and-accessibility-using-aws-media-services",
+    "title": "Live streaming localization and accessibility using AWS Media Services",
+    "dek": "This blog post provides a comprehensive overview of current streaming technology for localization and accessibility. It helps you evaluate live streaming localization technology and choose cost-effect…",
+    "category": "cloud",
+    "sourceName": "AWS Media Blog",
+    "sourceUrl": "https://aws.amazon.com/blogs/media/live-streaming-localization-and-accessibility-using-aws-media-services/",
+    "image": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1200&auto=format&fit=crop&q=80",
+    "published": "2026-04-01",
+    "wordCount": 300
+  },
+  {
     "slug": "2026-04-01-ltn-and-ateme-partner-to-deliver-integrated-video-processing-with-glob",
     "title": "LTN and Ateme partner to deliver integrated video processing with global IP transport",
     "dek": "Ateme’s TITAN Live and TITAN Edge integrate with the LTN Network to enable broadcast-scale IP contribution LTN, a leader in fully managed IP video transport, and Ateme, a global leader in video compre…",
