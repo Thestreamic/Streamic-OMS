@@ -30,8 +30,8 @@ PAGE_SIZE = 24
 
 # ── AdSense approval mode ─────────────────────────────────────────────────────
 # Show curated high-quality content. Full dataset remains hidden.
-MAX_ARTICLES   = 35          # raised to accommodate all 13 editorial + top RSS
-VISIBLE_CAT    = "ai-post-production"  # only this category page is indexed
+MAX_ARTICLES   = 200         # all articles are quality-gated by adsense_cleanup.py
+VISIBLE_CAT    = None                   # all categories indexed after cleanup
 MIN_BODY_SCORE = 50          # minimum editorial score to appear on homepage
 
 CAT = {
@@ -884,7 +884,8 @@ def load_homepage_feed(arts, limit=14):
             'slug': merged.get('slug',''),
         })
         key = merged.get('slug') or merged.get('source_url') or merged.get('title')
-        if key and key not in seen:
+        # AdSense: only show items that have internal article pages (slug exists)
+        if key and key not in seen and merged.get('slug'):
             seen.add(key)
             mapped.append(merged)
         if len(mapped) >= limit:
@@ -897,12 +898,11 @@ def _item_href(a):
     slug = a.get('slug')
     if slug:
         return f"articles/{slug}.html"
-    return a.get('source_url') or a.get('url') or '#'
+    # No slug = no internal article page — return empty (will be filtered)
+    return ''
 
 def _item_target(a):
-    href = _item_href(a)
-    if href.startswith('http://') or href.startswith('https://'):
-        return ' target="_blank" rel="noopener noreferrer nofollow"'
+    # Internal links only — never open in new tab
     return ''
 
 def _hp_news_item(a):
@@ -1147,7 +1147,7 @@ def featured_page(arts):
           <div class="hp-guide-grid">{guides_html}</div>
         </section>
         <section class="hp-news">
-          <div class="hp-sec-hdr"><h2>The Streamic Intelligence</h2><p class="hp-sec-sub">In-depth coverage of playout, MAM/PAM, archive, cloud production, Adobe workflows, SMPTE standards, and AI-driven media operations.</p></div>
+          <div class="hp-sec-hdr"><h2>Latest Broadcast &amp; Media Technology News</h2></div>
           <div class="hp-news-list">{news_html}</div>
         </section>
       </div>
@@ -1161,7 +1161,7 @@ def featured_page(arts):
           {howto_html}
         </div>
         <div class="hp-sb-section">
-          <div class="hp-sb-hdr">More Broadcast & Media Technology Intelligence</div>
+          <div class="hp-sb-hdr">Top Broadcast & Media Technology Stories</div>
           {sb_news_html}
         </div>
       </aside>
@@ -1373,44 +1373,24 @@ def _clean_body(a):
 
 
 def article_page(a):
-    # ── Thin content check: redirect to source for stub articles ──────────────
     body_raw = a.get("body_html","") or ""
-    body_wc  = len(re.sub(r"<[^>]+>", " ", body_raw).split())
-    has_struct = "<h2>" in body_raw or "<h3>" in body_raw
-    src_url_direct = a.get("source_url") or a.get("url") or a.get("link","")
-    
-    if body_wc < 200 and not has_struct and src_url_direct:
-        # Render a clean source-redirect article page (no thin content)
-        cat2   = a.get("category","featured")
-        ci2    = CAT.get(cat2, CAT["featured"])
-        title2 = e(a.get("title","Untitled"))
-        dt2    = d(a.get("published",""))
-        return f"""{head(title2+" | The Streamic", a.get("meta_description",title2), f"{BASE_URL}/articles/{a['slug']}.html", css="../style.css")}
-<body>
-{nav(ci2.get("page","featured.html"), base="../")}
-<main><div class="art-wrap" style="max-width:680px;padding:60px 24px 80px">
-  <a href="../{ci2.get('page','featured.html')}" style="font-size:13px;color:var(--blue);text-decoration:none">← {ci2.get('label','Featured')}</a>
-  <h1 style="font-family:var(--serif);font-size:clamp(22px,3.5vw,36px);line-height:1.25;letter-spacing:-.03em;margin:20px 0 12px">{title2}</h1>
-  <p style="font-size:13px;color:var(--ink4);margin-bottom:32px">By The Streamic Editorial Team · {dt2}</p>
-  <div style="background:var(--bg);border-radius:14px;padding:28px 32px;border-left:4px solid var(--blue)">
-    <p style="font-size:15px;color:var(--ink2);line-height:1.7;margin:0 0 20px">This is an industry news item tracked by The Streamic. Our editorial team has flagged it for upcoming analysis. For the complete story, read the original article from {e(a.get('source_domain','the source').replace('https://','').replace('www.','').split('/')[0])}.</p>
-    <a href="{e(src_url_direct)}" target="_blank" rel="noopener noreferrer nofollow"
-      style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;background:var(--blue);color:#fff;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none">
-      Read Original Article →
-    </a>
-  </div>
-  <p style="font-size:12px;color:var(--ink4);margin-top:24px">The Streamic publishes original broadcast technology analysis on our <a href="../featured.html" style="color:var(--blue)">Featured</a> and <a href="../posts.html" style="color:var(--blue)">All Articles</a> pages.</p>
-</div></main>
-{footer()}
-{_cookie_banner()}
-</body></html>"""
-
     cat   = a.get("category","featured")
     cinfo = CAT.get(cat, CAT["featured"])
     slug  = a["slug"]
     url   = f"{BASE_URL}/articles/{slug}.html"
     title = a.get("title","")
     dek   = a.get("dek") or a.get("meta_description","")
+    # AdSense: meta description must differ from title
+    if not dek or dek.strip().lower() == title.strip().lower():
+        # Extract first ~150 chars from body as description
+        body_text = re.sub(r"<[^>]+>", " ", a.get("body_html","") or "")
+        body_text = re.sub(r"\s+", " ", body_text).strip()
+        if len(body_text) > 155:
+            dek = body_text[:152].rsplit(" ", 1)[0] + "..."
+        elif body_text:
+            dek = body_text
+        else:
+            dek = f"Expert analysis on {title} by The Streamic."
     img   = a.get("image_url","")
     dt    = d(a.get("published",""))
     src_url  = a.get("source_url","")
@@ -1608,11 +1588,11 @@ def contact_page():
   <p style="font-size:14px;color:var(--ink3)"><strong style="color:var(--ink)">Advertising:</strong> Include &#34;Advertising&#34; in your subject line</p>
 </div>
 <h2 style="font-family:var(--serif);font-size:22px;margin-bottom:20px">Send us a message</h2>
-<form action="https://formsubmit.co/technodate3@gmail.com" method="POST" style="display:flex;flex-direction:column;gap:16px">
-  <input type="hidden" name="_subject" value="New contact form enquiry from The Streamic">
-  <input type="hidden" name="_template" value="table">
-  <input type="hidden" name="_next" value="https://www.thestreamic.in/thank-you.html">
-  <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
+
+<div id="formSuccess" style="display:none;margin-bottom:16px;padding:12px 14px;border-radius:10px;background:rgba(52,199,89,.10);border:1px solid rgba(52,199,89,.22);color:#1f6f3d;font-size:14px;line-height:1.5"></div>
+<div id="formError" style="display:none;margin-bottom:16px;padding:12px 14px;border-radius:10px;background:rgba(255,59,48,.08);border:1px solid rgba(255,59,48,.18);color:#9f2d27;font-size:14px;line-height:1.5"></div>
+
+<form id="contactForm" style="display:flex;flex-direction:column;gap:16px">
   <div>
     <label for="cf-name" style="display:block;font-size:13px;font-weight:600;color:var(--ink);margin-bottom:6px">Your Name</label>
     <input id="cf-name" type="text" name="name" required placeholder="Jane Smith"
@@ -1633,15 +1613,81 @@ def contact_page():
     <textarea id="cf-message" name="message" required rows="5" placeholder="Your message..."
       style="width:100%;padding:10px 14px;border:1px solid var(--line);border-radius:8px;font-size:14px;color:var(--ink);background:#fff;box-sizing:border-box;resize:vertical"></textarea>
   </div>
-  <button type="submit"
+
+  <input type="text" id="cf-company" name="company" tabindex="-1" autocomplete="off" style="display:none">
+
+  <button id="cf-submit" type="submit"
     style="align-self:flex-start;padding:11px 28px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:background .15s ease">
     Send Message
   </button>
 </form>
-<p style="font-size:12px;color:var(--ink4);margin-top:14px;line-height:1.6">On first use, FormSubmit sends a one-time activation email to <strong>technodate3@gmail.com</strong>. After you confirm it once, future submissions go directly to your inbox.</p>
+
+<p style="font-size:12px;color:var(--ink4);margin-top:14px;line-height:1.6">Messages are sent securely through our contact form provider and delivered to our inbox.</p>
 </div></main>
 {footer()}
 {_cookie_banner()}
+<script src="main.js" defer></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {{
+  var form = document.getElementById("contactForm");
+  var submitBtn = document.getElementById("cf-submit");
+  var successBox = document.getElementById("formSuccess");
+  var errorBox = document.getElementById("formError");
+
+  if (!form) return;
+
+  form.addEventListener("submit", async function (e) {{
+    e.preventDefault();
+
+    successBox.style.display = "none";
+    errorBox.style.display = "none";
+    successBox.textContent = "";
+    errorBox.textContent = "";
+
+    var honey = document.getElementById("cf-company");
+    if (honey && honey.value.trim() !== "") {{
+      errorBox.textContent = "Submission blocked.";
+      errorBox.style.display = "block";
+      return;
+    }}
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Sending...";
+
+    var formData = new FormData(form);
+    formData.append("_subject", "New contact form enquiry from The Streamic");
+    formData.append("_source", "https://www.thestreamic.in/contact.html");
+
+    try {{
+      var response = await fetch("https://formspree.io/f/xdapdday", {{
+        method: "POST",
+        body: formData,
+        headers: {{ "Accept": "application/json" }}
+      }});
+
+      if (response.ok) {{
+        form.reset();
+        successBox.textContent = "Thanks — your message has been sent successfully.";
+        successBox.style.display = "block";
+      }} else {{
+        var data = await response.json().catch(function(){{ return {{}}; }});
+        if (data && data.errors && data.errors.length) {{
+          errorBox.textContent = data.errors.map(function(err){{ return err.message; }}).join(" ");
+        }} else {{
+          errorBox.textContent = "Sorry, your message could not be sent right now. Please try again.";
+        }}
+        errorBox.style.display = "block";
+      }}
+    }} catch (err) {{
+      errorBox.textContent = "Network error. Please try again in a moment.";
+      errorBox.style.display = "block";
+    }} finally {{
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Send Message";
+    }}
+  }});
+}});
+</script>
 </body></html>"""
 
 def privacy_page():
@@ -1788,20 +1834,6 @@ def howto_page():
             "tag": "Vizrt · iNEWS · MOS",
             "time": "14 min",
         },
-        {
-            "title": "Upgrade to Windows 11",
-            "desc": "Step-by-step upgrade guide for broadcast workstations and edit suites. Compatibility checks, driver verification, and rollback procedure.",
-            "href": "articles/guide-windows11-upgrade.html",
-            "tag": "IT · Windows",
-            "time": "5 min",
-        },
-        {
-            "title": "Upgrade to macOS Sequoia",
-            "desc": "How to safely upgrade a post-production Mac. Pre-upgrade checklist, NLE compatibility matrix, and what to do if your plugins break.",
-            "href": "articles/guide-macos-upgrade.html",
-            "tag": "IT · macOS",
-            "time": "5 min",
-        },
     ]
 
     cards = "".join(f''' <div class="howto-card">
@@ -1910,112 +1942,101 @@ def main():
     ed_arts  = [a for a in arts if a.get("is_editorial") or a.get("editorial")]
     rss_pool = [a for a in arts if not a.get("is_editorial") and not a.get("editorial")]
 
-    # Score all RSS articles — high scorers get indexed, others get noindex
-    # but are still rendered on category pages (never blank)
+    # AdSense-safe: ALL remaining articles are 500+ words (thin content
+    # was removed by adsense_cleanup.py). Index everything.
     rss_pool.sort(key=lambda a: -_score_art(a))
 
-    # Top RSS by score — these get index,follow
-    # Use a per-category quota to ensure diversity: 3 per cat max
-    cat_quota = {}
-    rss_indexed = []
-    for a in rss_pool:
-        cat = a.get("category", "featured")
-        if cat_quota.get(cat, 0) < 3:
-            rss_indexed.append(a)
-            cat_quota[cat] = cat_quota.get(cat, 0) + 1
-        if len(rss_indexed) >= 22:   # max 22 industry briefing indexed slots
-            break
-
-    visible_list  = (ed_arts + rss_indexed)[:MAX_ARTICLES]
+    visible_list  = (ed_arts + rss_pool)[:MAX_ARTICLES]
     visible_slugs = {a["slug"] for a in visible_list}
 
     # Diagnostic
-    rss_indexed_count = len(rss_indexed)
-    rss_noindex_count = len(rss_pool) - rss_indexed_count
-    print(f"  Visible (indexed): {len(visible_slugs)} | Hidden (noindex): {len(arts)-len(visible_slugs)}")
-    print(f"  RSS: {rss_indexed_count} indexed + {rss_noindex_count} noindex (appear on pages, not in search)")
+    print(f"  All {len(visible_slugs)} articles indexed (index,follow)")
 
     os.makedirs(ARTS_D, exist_ok=True)
 
-    # ── Article pages — visible indexed, rest noindex ─────────────────────
+    # ── Clean stale article files (prevents junk from previous builds) ────
+    # Preserve guide files and known quality orphan editorials
+    PROTECTED_PREFIXES = ("guide-",)
+    PROTECTED_NAMES = {
+        "beyond-chatbot-invisible-ai-newsroom-2026.html",
+        "c2pa-digital-provenance-deepfake-news-credibility.html",
+        "green-broadcast-cloud-carbon-footprint-analysis.html",
+        "paris-2024-cloud-production-legacy-global-events-2026.html",
+        "paris-2024-legacy-cloud-production-2026.html",
+        "st2110-small-market-hybrid-ip-transition.html",
+        "studio-di-pipeline-workflow-2026.html",
+        "quic-http3-video-delivery-streaming-2026.html",
+    }
+    valid_filenames = {f"{a['slug']}.html" for a in arts}
+    stale_count = 0
+    for fname in os.listdir(ARTS_D):
+        if not fname.endswith(".html"):
+            continue
+        if fname in valid_filenames or fname in PROTECTED_NAMES:
+            continue
+        if any(fname.startswith(p) for p in PROTECTED_PREFIXES):
+            continue
+        os.remove(os.path.join(ARTS_D, fname))
+        stale_count += 1
+    if stale_count:
+        print(f"  Cleaned {stale_count} stale article files")
+
+    # Also clean stale pagination pages from docs/
+    for fname in os.listdir(DOCS):
+        if re.match(r'.+-p\d+\.html$', fname):
+            os.remove(os.path.join(DOCS, fname))
+
+    # ── Article pages — all indexed (quality-gated by cleanup) ──────────
     written = 0
     for a in arts:
         slug_ = a.get("slug","")
         leg   = a.get("legacy_slug")
         dest  = os.path.join(ARTS_D, f"{slug_}.html")
         html  = article_page(a)
-        if a["slug"] not in visible_slugs:
-            html = html.replace(
-                '<meta name="robots" content="index,follow">',
-                '<meta name="robots" content="noindex,nofollow">'
-            )
         w(dest, html)
         written += 1
         if leg and leg != slug_:
             w(os.path.join(ARTS_D, f"{leg}.html"), html)
             written += 1
-    print(f"  &#10003; {written} article files ({len(visible_slugs)} indexed, {written-len(visible_slugs)} noindex)")
+    print(f"  &#10003; {written} article files (all indexed)")
 
     # ── Category pages ────────────────────────────────────────────────────
-    # ALL category pages now show REAL articles (never blank "coming soon").
-    # Only the robots meta tag differs: VISIBLE_CAT is indexed, others are noindex.
-    # This means cloud.html, streaming.html etc always have content for visitors
-    # and for AdSense crawlers — they just don't appear in Google search results
-    # until we're ready to index them.
+    # All category pages are indexed — quality is ensured by adsense_cleanup.py
     by_cat = {}
     for a in arts:
         by_cat.setdefault(a["category"], []).append(a)
 
     cat_page_counts = {}
     for cat, ca in by_cat.items():
-        # All articles for this category, sorted by date
         ca_sorted = sorted(ca, key=lambda a: a.get("published", ""), reverse=True)
 
-        if cat == VISIBLE_CAT:
-            # ai-post-production: indexed, pin relevant deep-dives
-            cat_vis = ca_sorted[:]
+        # Pin relevant deep-dives to ai-post-production if applicable
+        if cat == "ai-post-production":
             PINNED_TO_AI_POST = {
                 "ai-video-post-production-editing-vfx-automation-2026",
                 "media-asset-management-ai-era-monetisation-2026",
                 "future-of-ai-in-broadcast-deployment-2026",
             }
-            pinned_slugs = {a["slug"] for a in cat_vis}
+            pinned_slugs = {a["slug"] for a in ca_sorted}
             for a in arts:
                 if a["slug"] in PINNED_TO_AI_POST and a["slug"] not in pinned_slugs:
-                    cat_vis.append(a)
-            cat_vis.sort(key=lambda a: a.get("published", ""), reverse=True)
-            pages = category_page(cat, cat_vis)
-            for pg, html in pages:
-                if pg > 0:
-                    html = html.replace(
-                        '<meta name="robots" content="index,follow">',
-                        '<meta name="robots" content="noindex,follow">'
-                    )
-                fname = f"{cat}.html" if pg == 0 else f"{cat}-p{pg+1}.html"
-                w(os.path.join(DOCS, fname), html)
-            cat_page_counts[cat] = len(cat_vis)
+                    ca_sorted.append(a)
+            ca_sorted.sort(key=lambda a: a.get("published", ""), reverse=True)
 
-        else:
-            # All other categories: noindex BUT show real articles (not placeholder)
-            # Fallback: if somehow empty, use top articles from any category
-            cat_articles = ca_sorted if ca_sorted else arts[:10]
-            if not cat_articles:
-                cat_articles = arts[:10]
-
-            pages = category_page(cat, cat_articles)
-            for pg, html in pages:
-                # Force noindex on all pages for non-VISIBLE_CAT categories
+        cat_articles = ca_sorted if ca_sorted else arts[:10]
+        pages = category_page(cat, cat_articles)
+        for pg, html in pages:
+            # Only noindex page 2+ (pagination) — page 1 is always indexed
+            if pg > 0:
                 html = html.replace(
                     '<meta name="robots" content="index,follow">',
                     '<meta name="robots" content="noindex,follow">'
                 )
-                fname = f"{cat}.html" if pg == 0 else f"{cat}-p{pg+1}.html"
-                w(os.path.join(DOCS, fname), html)
-            cat_page_counts[cat] = len(cat_articles)
+            fname = f"{cat}.html" if pg == 0 else f"{cat}-p{pg+1}.html"
+            w(os.path.join(DOCS, fname), html)
+        cat_page_counts[cat] = len(cat_articles)
 
-    indexed_cats  = [c for c in cat_page_counts if c == VISIBLE_CAT]
-    noindex_cats  = [c for c in cat_page_counts if c != VISIBLE_CAT]
-    print(f"  &#10003; {VISIBLE_CAT} indexed | {len(noindex_cats)} other categories noindex (with real articles)")
+    print(f"  &#10003; {len(cat_page_counts)} category pages indexed")
     for cat, n in sorted(cat_page_counts.items()):
         print(f"      {cat}: {n} articles")
 
@@ -2027,15 +2048,11 @@ def main():
     w(os.path.join(ROOT,"index.html"),    fp)   # Also at root — fixes 404 when Pages serves from branch root
     print("  &#10003; featured.html + index.html")
 
-    # ── posts.html — noindex (preserve links, hide from Google) ──────────
+    # ── posts.html — indexed (all articles are quality after cleanup) ────
     ap = all_articles_page(feat_arts)
-    ap = ap.replace(
-        '<meta name="robots" content="index,follow">',
-        '<meta name="robots" content="noindex,follow">'
-    )
     w(os.path.join(DOCS,"posts.html"), ap)
     w(os.path.join(ROOT,"posts.html"), ap)
-    print("  &#10003; posts.html (noindex)")
+    print("  &#10003; posts.html (indexed)")
 
     # ── Static pages ──────────────────────────────────────────────────────
     w(os.path.join(DOCS,"about.html"),            about_page())
