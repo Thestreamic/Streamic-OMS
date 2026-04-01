@@ -1885,22 +1885,65 @@ def vlog_page():
 # ── SITEMAP
 def sitemap(arts):
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    # ── Core pages (no duplicates — featured.html = index.html, skip it)
     statics = [
-        ("index.html","daily","1.0"),("featured.html","daily","0.98"),
-        ("ai-post-production.html","daily","0.9"),
-        ("howto.html","weekly","0.85"),("post-production-workflows.html","weekly","0.90"),
-        ("about.html","monthly","0.6"),("contact.html","monthly","0.5"),
-        ("editorial-policy.html","monthly","0.6"),
-        ("privacy.html","yearly","0.3"),("terms.html","yearly","0.3"),
+        ("index.html",                   "daily",   "1.0"),
+        ("posts.html",                   "daily",   "0.85"),
+        ("ai-post-production.html",      "daily",   "0.9"),
+        ("howto.html",                   "weekly",  "0.85"),
+        ("post-production-workflows.html","weekly",  "0.80"),
+        ("about.html",                   "monthly", "0.6"),
+        ("contact.html",                 "monthly", "0.5"),
+        ("editorial-policy.html",        "monthly", "0.6"),
+        ("privacy.html",                 "yearly",  "0.3"),
+        ("terms.html",                   "yearly",  "0.3"),
     ]
+    # ── How-to guides (not in generated_articles.json but high-value)
+    guide_slugs = [
+        "guide-premiere-to-avid",
+        "guide-vantage-nas-transcode",
+        "guide-vantage-aws-transcode",
+        "guide-avid-media-central-health-check",
+        "guide-audio-conform-avid-protools",
+        "guide-avid-strawberry",
+        "guide-media-central-cache",
+        "guide-vizrt-avid-integration",
+    ]
+    # ── Orphan editorial pages (not in JSON, but quality content)
+    orphan_editorials = [
+        "beyond-chatbot-invisible-ai-newsroom-2026",
+        "c2pa-digital-provenance-deepfake-news-credibility",
+        "green-broadcast-cloud-carbon-footprint-analysis",
+        "paris-2024-cloud-production-legacy-global-events-2026",
+        "st2110-small-market-hybrid-ip-transition",
+        "studio-di-pipeline-workflow-2026",
+        "quic-http3-video-delivery-streaming-2026",
+    ]
+
     lines = ['<?xml version="1.0" encoding="UTF-8"?>',
              '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
-    for pg,fr,pr in statics:
+    # Static pages
+    for pg, fr, pr in statics:
         lines.append(f'  <url><loc>{BASE_URL}/{pg}</loc><lastmod>{today}</lastmod><changefreq>{fr}</changefreq><priority>{pr}</priority></url>')
+    # How-to guides — high value, stable content
+    for slug in guide_slugs:
+        if os.path.exists(os.path.join(ARTS_D, f"{slug}.html")):
+            lines.append(f'  <url><loc>{BASE_URL}/articles/{slug}.html</loc><lastmod>{today}</lastmod><changefreq>monthly</changefreq><priority>0.80</priority></url>')
+    # Orphan editorial pages
+    for slug in orphan_editorials:
+        if os.path.exists(os.path.join(ARTS_D, f"{slug}.html")):
+            lines.append(f'  <url><loc>{BASE_URL}/articles/{slug}.html</loc><lastmod>{today}</lastmod><changefreq>monthly</changefreq><priority>0.80</priority></url>')
+    # JSON articles — editorial gets higher priority
+    seen = set(guide_slugs + orphan_editorials)
     for a in arts:
         slug_ = a.get('slug', '')
-        pub_ = a.get('published', '')
-        lines.append(f'  <url><loc>{BASE_URL}/articles/{slug_}.html</loc><lastmod>{pub_}</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>')
+        if not slug_ or slug_ in seen:
+            continue
+        seen.add(slug_)
+        pub_ = (a.get('published', '') or today)[:10]
+        is_ed = a.get("is_editorial") or a.get("editorial")
+        pri = "0.85" if is_ed else "0.75"
+        lines.append(f'  <url><loc>{BASE_URL}/articles/{slug_}.html</loc><lastmod>{pub_}</lastmod><changefreq>monthly</changefreq><priority>{pri}</priority></url>')
     lines.append('</urlset>')
     return "\n".join(lines)
 
@@ -1934,6 +1977,26 @@ def main():
                 a["body_html"] = f"<p>{fallback}</p>"
 
     print(f"  Total articles loaded: {len(arts)}")
+
+    # ── AdSense quality gate: remove thin non-editorial articles ──────────
+    # Editorial articles always kept (curated, homepage-referenced).
+    # RSS articles must have 500+ words to be published.
+    MIN_ARTICLE_WORDS = 500
+    before = len(arts)
+    quality_arts = []
+    for a in arts:
+        is_ed = a.get("is_editorial") or a.get("editorial")
+        if is_ed:
+            quality_arts.append(a)
+            continue
+        body = a.get("body_html", "") or ""
+        wc = len(re.sub(r"<[^>]+>", " ", body).split())
+        if wc >= MIN_ARTICLE_WORDS:
+            quality_arts.append(a)
+    removed = before - len(quality_arts)
+    if removed:
+        print(f"  Removed {removed} thin articles (<{MIN_ARTICLE_WORDS}w)")
+    arts = quality_arts
 
     # ── Select top MAX_ARTICLES by quality — editorial always first ───────
     # SAFE DESIGN: AdSense quality affects index/noindex status, NOT visibility.
@@ -2069,7 +2132,7 @@ def main():
     # ── Sitemap — only visible articles + core pages ──────────────────────
     w(os.path.join(DOCS,"sitemap.xml"), sitemap([a for a in arts if a["slug"] in visible_slugs]))
     w(os.path.join(DOCS,"robots.txt"),
-      f"User-agent: *\nAllow: /\nDisallow: /posts.html\n\nSitemap: {BASE_URL}/sitemap.xml\n")
+      f"User-agent: *\nAllow: /\nDisallow: /featured.html\n\nSitemap: {BASE_URL}/sitemap.xml\n")
 
     # ── Assets ────────────────────────────────────────────────────────────
     for f_name in ("style.css","main.js"):
