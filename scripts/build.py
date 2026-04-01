@@ -141,7 +141,8 @@ def _cookie_banner():
     analytics_storage:'granted',ad_storage:'denied',
     ad_user_data:'denied',ad_personalization:'denied'});
 })();
-</script>"""
+</script>
+<script src="main.js" defer></script>"""
 
 def _ad():
     # Ad slots removed - using Google Auto-Ads after AdSense approval
@@ -907,18 +908,22 @@ def _item_target(a):
 
 def _hp_news_item(a):
     href = _item_href(a)
-    target = _item_target(a)
     title = e(a.get("title", ""))
     src = e(_source_name(a.get("source_domain", a.get("source", ""))))
     dt = d(a.get("published", ""))
-    return f'''<a href="{href}"{target} class="hp-news-item">
+    src_url = a.get("source_url") or a.get("url") or ""
+    # Source attribution link (AdSense: clear content origin)
+    src_link = ""
+    if src_url and src:
+        src_link = f' <a href="{e(src_url)}" target="_blank" rel="noopener noreferrer nofollow" style="font-size:11px;color:var(--blue);text-decoration:none;font-weight:600;white-space:nowrap" onclick="event.stopPropagation()">Source: {src} &#8599;</a>'
+    return f'''<div class="hp-news-item" style="cursor:pointer" onclick="window.location.href='{href}'">
   <div class="hp-news-thumb"><img src="{_hp_img(a)}" alt="{title}" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-news-body">
     <span class="hp-news-src">{src}</span>
-    <span class="hp-news-title">{title}</span>
-    <div class="hp-news-foot"><time class="hp-news-date">{dt}</time><span class="hp-news-read">Read more &#8594;</span></div>
+    <a href="{href}" class="hp-news-title" style="color:inherit;text-decoration:none">{title}</a>
+    <div class="hp-news-foot"><time class="hp-news-date">{dt}</time>{src_link}<a href="{href}" class="hp-news-read" style="color:var(--blue);text-decoration:none">Read more &#8594;</a></div>
   </div>
-</a>'''
+</div>'''
 def _hp_sidebar_pick(a):
     href = f"articles/{a['slug']}.html"
     title = e(a.get("title", ""))
@@ -1159,10 +1164,6 @@ def featured_page(arts):
         <div class="hp-sb-section">
           <div class="hp-sb-hdr">How-To Guides <a href="howto.html" class="hp-sb-hdr-link">View all &#8594;</a></div>
           {howto_html}
-        </div>
-        <div class="hp-sb-section">
-          <div class="hp-sb-hdr">Top Broadcast & Media Technology Stories</div>
-          {sb_news_html}
         </div>
       </aside>
     </div>
