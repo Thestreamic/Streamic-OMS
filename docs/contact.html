@@ -2,467 +2,227 @@
 <html lang="en">
 <head>
   <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('consent', 'default', {
-      analytics_storage: 'denied',
-      ad_storage: 'denied',
-      ad_user_data: 'denied',
-      ad_personalization: 'denied',
-      wait_for_update: 500
-    });
+    window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+    gtag('consent','default',{'analytics_storage':'denied','ad_storage':'denied',
+    'ad_user_data':'denied','ad_personalization':'denied','wait_for_update':500});
   </script>
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-0VSHDN3ZR6"></script>
-  <script>
-    gtag('js', new Date());
-    gtag('config', 'G-0VSHDN3ZR6');
-  </script>
-
+  <script>gtag('js',new Date());gtag('config','G-0VSHDN3ZR6');</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Contact — The Streamic</title>
-  <meta name="description" content="Contact The Streamic for editorial feedback, corrections, partnership enquiries, story ideas, and broadcast technology questions.">
+  <meta name="description" content="Get in touch with The Streamic editorial team in Dublin, Ireland.">
   <meta name="robots" content="index,follow">
   <meta name="author" content="The Streamic Editorial Team">
   <link rel="canonical" href="https://www.thestreamic.in/contact.html">
-  <meta property="og:type" content="website">
+  <meta property="og:type" content="article">
   <meta property="og:site_name" content="The Streamic">
   <meta property="og:title" content="Contact — The Streamic">
-  <meta property="og:description" content="Get in touch with The Streamic.">
+  <meta property="og:description" content="Get in touch with The Streamic editorial team in Dublin, Ireland.">
   <meta property="og:url" content="https://www.thestreamic.in/contact.html">
   <meta name="twitter:card" content="summary_large_image">
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-  <style>
-    :root{
-      --bg:#f5f5f7;
-      --card:#ffffff;
-      --ink:#1d1d1f;
-      --muted:#6e6e73;
-      --line:#e5e5ea;
-      --brand:#111111;
-      --brand2:#2f6fed;
-      --ok:#0a7d33;
-      --err:#b42318;
-      --shadow:0 20px 50px rgba(0,0,0,.08);
-      --radius:22px;
-      --max:1180px;
-    }
-
-    *{box-sizing:border-box}
-    html{scroll-behavior:smooth}
-    body{
-      margin:0;
-      background:var(--bg);
-      color:var(--ink);
-      font-family:"DM Sans",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-      line-height:1.6;
-    }
-
-    a{color:inherit;text-decoration:none}
-    img{max-width:100%;display:block}
-
-    .nav{
-      position:sticky;
-      top:0;
-      z-index:1000;
-      background:rgba(255,255,255,.88);
-      backdrop-filter:blur(16px);
-      border-bottom:1px solid rgba(0,0,0,.06);
-    }
-    .nav-inner{
-      max-width:var(--max);
-      margin:0 auto;
-      padding:0 18px;
-      min-height:68px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:18px;
-    }
-    .nav-logo{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      font-weight:700;
-      letter-spacing:.01em;
-    }
-    .nav-logo img{
-      width:34px;
-      height:34px;
-      border-radius:8px;
-      object-fit:cover;
-    }
-    .nav-links{
-      display:flex;
-      gap:22px;
-      list-style:none;
-      margin:0;
-      padding:0;
-      align-items:center;
-    }
-    .nav-links a{
-      color:#333;
-      font-size:.96rem;
-      font-weight:500;
-    }
-    .nav-right{
-      display:flex;
-      align-items:center;
-      gap:16px;
-    }
-    .nav-desk{
-      color:#333;
-      font-size:.95rem;
-      font-weight:500;
-    }
-    .nav-toggle{
-      display:none;
-      appearance:none;
-      border:0;
-      background:transparent;
-      padding:8px;
-      cursor:pointer;
-    }
-    .nav-toggle span{
-      display:block;
-      width:24px;
-      height:2px;
-      background:#111;
-      margin:5px 0;
-      border-radius:2px;
-    }
-    .nav-mob{
-      display:none;
-      border-top:1px solid rgba(0,0,0,.06);
-      background:#fff;
-      padding:10px 18px 16px;
-    }
-    .nav-mob.open{display:block}
-    .nav-mob a{
-      display:block;
-      padding:11px 0;
-      color:#222;
-      border-bottom:1px solid rgba(0,0,0,.05);
-    }
-
-    .page{
-      max-width:860px;
-      margin:0 auto;
-      padding:34px 18px 70px;
-    }
-
-    .form-card{
-      background:var(--card);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      border:1px solid rgba(0,0,0,.04);
-      padding:30px;
-    }
-
-    .section-title{
-      margin:0 0 8px;
-      font-size:1.7rem;
-      font-weight:800;
-      letter-spacing:-.02em;
-    }
-    .section-sub{
-      margin:0 0 24px;
-      color:var(--muted);
-      font-size:.98rem;
-    }
-
-    .form-grid{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:14px;
-    }
-
-    .field{
-      margin-bottom:14px;
-    }
-    .field.full{
-      grid-column:1 / -1;
-    }
-
-    label{
-      display:block;
-      margin-bottom:8px;
-      font-size:.92rem;
-      font-weight:600;
-      color:#232326;
-    }
-
-    input, textarea{
-      width:100%;
-      border:1px solid #d9d9df;
-      border-radius:16px;
-      background:#fff;
-      color:#111;
-      padding:14px 15px;
-      font:inherit;
-      outline:none;
-      transition:border-color .2s ease, box-shadow .2s ease;
-    }
-
-    input:focus, textarea:focus{
-      border-color:var(--brand2);
-      box-shadow:0 0 0 4px rgba(47,111,237,.10);
-    }
-
-    textarea{
-      resize:vertical;
-      min-height:170px;
-    }
-
-    .help{
-      margin-top:8px;
-      font-size:.85rem;
-      color:var(--muted);
-    }
-
-    .hp{
-      position:absolute !important;
-      left:-9999px !important;
-      width:1px !important;
-      height:1px !important;
-      overflow:hidden !important;
-    }
-
-    .actions{
-      display:flex;
-      align-items:center;
-      gap:12px;
-      flex-wrap:wrap;
-      margin-top:10px;
-    }
-
-    .btn{
-      appearance:none;
-      border:0;
-      border-radius:999px;
-      padding:14px 22px;
-      background:#111;
-      color:#fff;
-      font-weight:700;
-      letter-spacing:.01em;
-      cursor:pointer;
-      transition:opacity .2s ease;
-    }
-    .btn:hover{opacity:.95}
-    .btn[disabled]{
-      opacity:.6;
-      cursor:not-allowed;
-    }
-
-    .status{
-      display:none;
-      margin-bottom:16px;
-      padding:14px 16px;
-      border-radius:14px;
-      font-size:.95rem;
-      font-weight:500;
-    }
-    .status.ok{
-      background:rgba(10,125,51,.08);
-      color:var(--ok);
-      border:1px solid rgba(10,125,51,.18);
-    }
-    .status.err{
-      background:rgba(180,35,24,.08);
-      color:var(--err);
-      border:1px solid rgba(180,35,24,.18);
-    }
-
-    .footer{
-      margin-top:40px;
-      border-top:1px solid rgba(0,0,0,.08);
-      padding:22px 0 0;
-      color:var(--muted);
-      font-size:.9rem;
-    }
-
-    @media (max-width: 760px){
-      .nav-links,
-      .nav-desk{
-        display:none;
-      }
-      .nav-toggle{
-        display:block;
-      }
-      .form-card{
-        border-radius:18px;
-        padding:22px;
-      }
-      .form-grid{
-        grid-template-columns:1fr;
-      }
-      .page{
-        padding-top:22px;
-      }
-    }
-  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-  <nav class="nav">
-    <div class="nav-inner">
-      <a href="index.html" class="nav-logo">
-        <img src="assets/logo.png" alt="" onerror="this.style.display='none'" aria-hidden="true">
-        <span>The Streamic</span>
-      </a>
-
-      <ul class="nav-links">
-        <li><a href="index.html">Home</a></li>
-        <li><a href="ai-post-production.html">AI in Broadcasting</a></li>
-        <li><a href="howto.html">How-To Guides</a></li>
-        <li><a href="post-production-workflows.html">Post Production Workflows</a></li>
-      </ul>
-
-      <div class="nav-right">
-        <a href="about.html" class="nav-desk">About</a>
-        <button class="nav-toggle" aria-label="Menu" type="button">
-          <span></span><span></span><span></span>
-        </button>
-      </div>
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <img src="assets/logo.png" alt="" onerror="this.style.display='none'" aria-hidden="true">
+      <span>The Streamic</span>
+    </a>
+    <ul class="nav-links"><li><a href="index.html">Home</a></li><li><a href="ai-post-production.html">AI in Broadcasting</a></li><li><a href="howto.html">How-To Guides</a></li><li><a href="post-production-workflows.html">Post Production Workflows</a></li></ul>
+    <div class="nav-right">
+      <a href="about.html" class="nav-desk">About</a>
+      <button class="nav-toggle" aria-label="Menu" type="button">
+        <span></span><span></span><span></span>
+      </button>
     </div>
+  </div>
+  <div class="nav-mob"><a href="index.html">Home</a><a href="ai-post-production.html">AI in Broadcasting</a><a href="howto.html">How-To Guides</a><a href="post-production-workflows.html">Post Production Workflows</a><a href="about.html">About</a><a href="contact.html">Contact</a></div>
+</nav>
 
-    <div class="nav-mob">
-      <a href="index.html">Home</a>
+<main><div class="w" style="padding:52px 0 80px;max-width:680px">
+<h1 style="font-family:var(--serif);font-size:clamp(28px,4vw,40px);margin-bottom:8px">Contact</h1>
+<p style="font-size:15px;color:var(--ink3);line-height:1.7;margin-bottom:32px">We welcome editorial feedback, tips, corrections, and partnership enquiries.</p>
+
+<div style="background:var(--bg);border-radius:14px;padding:24px 28px;margin-bottom:32px">
+  <p style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--ink4);margin-bottom:12px">Our Address</p>
+  <address style="font-style:normal;font-size:14px;color:var(--ink2);line-height:1.8">
+    <strong>The Streamic</strong><br>
+    Adamstown, Lucan<br>
+    Dublin, Ireland
+  </address>
+  <p style="font-size:14px;color:var(--ink3);margin-top:14px;margin-bottom:4px"><strong style="color:var(--ink)">Email:</strong> <a href="mailto:technodate3@gmail.com" style="color:var(--blue)">technodate3@gmail.com</a></p>
+  <p style="font-size:14px;color:var(--ink3);margin-bottom:4px"><strong style="color:var(--ink)">Editorial:</strong> Story tips, corrections, press releases</p>
+  <p style="font-size:14px;color:var(--ink3)"><strong style="color:var(--ink)">Advertising:</strong> Include &#34;Advertising&#34; in your subject line</p>
+</div>
+
+<h2 style="font-family:var(--serif);font-size:22px;margin-bottom:20px">Send us a message</h2>
+
+<div id="formSuccess" style="display:none;margin-bottom:16px;padding:12px 14px;border-radius:10px;background:rgba(52,199,89,.10);border:1px solid rgba(52,199,89,.22);color:#1f6f3d;font-size:14px;line-height:1.5"></div>
+<div id="formError" style="display:none;margin-bottom:16px;padding:12px 14px;border-radius:10px;background:rgba(255,59,48,.08);border:1px solid rgba(255,59,48,.18);color:#9f2d27;font-size:14px;line-height:1.5"></div>
+
+<form id="contactForm" style="display:flex;flex-direction:column;gap:16px">
+  <div>
+    <label for="cf-name" style="display:block;font-size:13px;font-weight:600;color:var(--ink);margin-bottom:6px">Your Name</label>
+    <input id="cf-name" type="text" name="name" required placeholder="Jane Smith"
+      style="width:100%;padding:10px 14px;border:1px solid var(--line);border-radius:8px;font-size:14px;color:var(--ink);background:#fff;box-sizing:border-box">
+  </div>
+
+  <div>
+    <label for="cf-email" style="display:block;font-size:13px;font-weight:600;color:var(--ink);margin-bottom:6px">Email Address</label>
+    <input id="cf-email" type="email" name="email" required placeholder="you@company.com"
+      style="width:100%;padding:10px 14px;border:1px solid var(--line);border-radius:8px;font-size:14px;color:var(--ink);background:#fff;box-sizing:border-box">
+  </div>
+
+  <div>
+    <label for="cf-subject" style="display:block;font-size:13px;font-weight:600;color:var(--ink);margin-bottom:6px">Subject</label>
+    <input id="cf-subject" type="text" name="topic" placeholder="Editorial feedback / Story tip / Advertising"
+      style="width:100%;padding:10px 14px;border:1px solid var(--line);border-radius:8px;font-size:14px;color:var(--ink);background:#fff;box-sizing:border-box">
+  </div>
+
+  <div>
+    <label for="cf-message" style="display:block;font-size:13px;font-weight:600;color:var(--ink);margin-bottom:6px">Message</label>
+    <textarea id="cf-message" name="message" required rows="5" placeholder="Your message..."
+      style="width:100%;padding:10px 14px;border:1px solid var(--line);border-radius:8px;font-size:14px;color:var(--ink);background:#fff;box-sizing:border-box;resize:vertical"></textarea>
+  </div>
+
+  <input type="text" id="cf-company" name="company" tabindex="-1" autocomplete="off" style="display:none">
+
+  <button id="cf-submit" type="submit"
+    style="align-self:flex-start;padding:11px 28px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:background .15s ease">
+    Send Message
+  </button>
+</form>
+
+<p style="font-size:12px;color:var(--ink4);margin-top:14px;line-height:1.6">Messages are sent securely through our contact form provider and delivered to our inbox.</p>
+</div></main>
+
+<footer class="footer">
+  <div class="footer-grid">
+    <div>
+      <div class="footer-brand">The Streamic</div>
+      <p class="footer-tag">Independent broadcast &amp; streaming technology journalism for engineers and media professionals. Original analysis, industry coverage, and technical commentary.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Coverage</h4>
       <a href="ai-post-production.html">AI in Broadcasting</a>
       <a href="howto.html">How-To Guides</a>
       <a href="post-production-workflows.html">Post Production Workflows</a>
+    </div>
+    <div class="footer-col">
+      <h4>Site</h4>
       <a href="about.html">About</a>
       <a href="contact.html">Contact</a>
+      <a href="editorial-policy.html">Editorial Policy</a>
+      <a href="privacy.html">Privacy Policy</a>
+      <a href="terms.html">Terms of Use</a>
     </div>
-  </nav>
+    <div class="footer-col">
+      <h4>Follow</h4>
+      <a href="https://twitter.com/thestreamic" target="_blank" rel="noopener noreferrer">&#x1D54F; @thestreamic</a>
+      <a href="https://www.linkedin.com/company/thestreamic" target="_blank" rel="noopener noreferrer">in TheStreamic</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 The Streamic &#8212; thestreamic.in. All rights reserved.</span>
+    <span>Independent broadcast technology journalism. All trademarks belong to their respective owners.</span>
+  </div>
+</footer>
 
-  <main class="page">
-    <section class="form-card">
-      <h1 class="section-title">Send a message</h1>
-      <p class="section-sub">Contact The Streamic for editorial feedback, corrections, story ideas, partnerships, or general questions.</p>
+<div id="ts-cookie">
+  <div class="cookie-in">
+    <div class="cookie-txt">
+      <strong>We use cookies</strong>
+      Analytics cookies help us understand site performance. Optional advertising cookies are disabled until future activation.
+      <a href="/privacy.html">Privacy Policy</a>
+    </div>
+    <div class="cookie-btns">
+      <button class="cookie-no" onclick="tsCC(false)">Reject optional</button>
+      <button class="cookie-ok" onclick="tsCC(true)">Accept all</button>
+    </div>
+  </div>
+</div>
 
-      <div id="formSuccess" class="status ok"></div>
-      <div id="formError" class="status err"></div>
+<script>
+(function(){
+  var K='ts_cc',s=localStorage.getItem(K),b=document.getElementById('ts-cookie');
+  if(!s&&b)b.style.display='block';
+  window.tsCC=function(ok){
+    localStorage.setItem(K,ok?'granted':'denied');
+    if(b)b.style.display='none';
+    if(typeof gtag!='undefined')gtag('consent','update',{
+      analytics_storage:ok?'granted':'denied',ad_storage:'denied',
+      ad_user_data:'denied',ad_personalization:'denied'});
+  };
+  if(s==='granted'&&typeof gtag!='undefined')gtag('consent','update',{
+    analytics_storage:'granted',ad_storage:'denied',
+    ad_user_data:'denied',ad_personalization:'denied'});
+})();
+</script>
 
-      <form id="contactForm">
-        <div class="form-grid">
-          <div class="field">
-            <label for="name">Name</label>
-            <input id="name" name="name" type="text" placeholder="Your name" required>
-          </div>
+<script src="main.js" defer></script>
 
-          <div class="field">
-            <label for="email">Email</label>
-            <input id="email" name="email" type="email" placeholder="you@example.com" required>
-          </div>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  var form = document.getElementById("contactForm");
+  var submitBtn = document.getElementById("cf-submit");
+  var successBox = document.getElementById("formSuccess");
+  var errorBox = document.getElementById("formError");
 
-          <div class="field full">
-            <label for="subject">Subject</label>
-            <input id="subject" name="subject" type="text" placeholder="What is this about?" required>
-          </div>
+  if (!form) return;
 
-          <div class="field full">
-            <label for="message">Message</label>
-            <textarea id="message" name="message" placeholder="Write your message here..." required></textarea>
-            <div class="help">Please avoid sharing sensitive personal or financial information.</div>
-          </div>
-        </div>
+  form.addEventListener("submit", async function (e) {
+    e.preventDefault();
 
-        <label class="hp" for="company">Company</label>
-        <input class="hp" id="company" type="text" name="company" tabindex="-1" autocomplete="off">
+    successBox.style.display = "none";
+    errorBox.style.display = "none";
+    successBox.textContent = "";
+    errorBox.textContent = "";
 
-        <div class="actions">
-          <button id="submitBtn" class="btn" type="submit">Send Message</button>
-        </div>
-      </form>
+    var honey = document.getElementById("cf-company");
+    if (honey && honey.value.trim() !== "") {
+      errorBox.textContent = "Submission blocked.";
+      errorBox.style.display = "block";
+      return;
+    }
 
-      <footer class="footer">
-        © 2026 The Streamic — Independent broadcast &amp; media technology journalism.
-      </footer>
-    </section>
-  </main>
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Sending...";
 
-  <script>
-    (function () {
-      const toggle = document.querySelector(".nav-toggle");
-      const mobileMenu = document.querySelector(".nav-mob");
+    var formData = new FormData(form);
+    formData.append("_subject", "New contact form enquiry from The Streamic");
+    formData.append("_source", "https://www.thestreamic.in/contact.html");
 
-      if (toggle && mobileMenu) {
-        toggle.addEventListener("click", function () {
-          mobileMenu.classList.toggle("open");
-        });
-
-        mobileMenu.querySelectorAll("a").forEach(function(link) {
-          link.addEventListener("click", function() {
-            mobileMenu.classList.remove("open");
-          });
-        });
-      }
-
-      const form = document.getElementById("contactForm");
-      const submitBtn = document.getElementById("submitBtn");
-      const successBox = document.getElementById("formSuccess");
-      const errorBox = document.getElementById("formError");
-
-      if (!form) return;
-
-      form.addEventListener("submit", async function (e) {
-        e.preventDefault();
-
-        successBox.style.display = "none";
-        errorBox.style.display = "none";
-        successBox.textContent = "";
-        errorBox.textContent = "";
-
-        const honey = document.getElementById("company");
-        if (honey && honey.value.trim() !== "") {
-          errorBox.textContent = "Submission blocked.";
-          errorBox.style.display = "block";
-          return;
-        }
-
-        submitBtn.disabled = true;
-        submitBtn.textContent = "Sending...";
-
-        const formData = new FormData(form);
-        formData.append("_subject", "New message from The Streamic contact form");
-        formData.append("_source", "https://www.thestreamic.in/contact.html");
-
-        try {
-          const response = await fetch("https://formspree.io/f/xdapdday", {
-            method: "POST",
-            body: formData,
-            headers: {
-              "Accept": "application/json"
-            }
-          });
-
-          if (response.ok) {
-            form.reset();
-            successBox.textContent = "Thanks — your message has been sent successfully.";
-            successBox.style.display = "block";
-          } else {
-            const data = await response.json().catch(() => ({}));
-            if (data && data.errors && data.errors.length) {
-              errorBox.textContent = data.errors.map(err => err.message).join(" ");
-            } else {
-              errorBox.textContent = "Sorry, your message could not be sent right now. Please try again.";
-            }
-            errorBox.style.display = "block";
-          }
-        } catch (err) {
-          errorBox.textContent = "Network error. Please try again in a moment.";
-          errorBox.style.display = "block";
-        } finally {
-          submitBtn.disabled = false;
-          submitBtn.textContent = "Send Message";
-        }
+    try {
+      var response = await fetch("https://formspree.io/f/xdapdday", {
+        method: "POST",
+        body: formData,
+        headers: { "Accept": "application/json" }
       });
-    })();
-  </script>
-</body>
-</html>
+
+      if (response.ok) {
+        form.reset();
+        successBox.textContent = "Thanks — your message has been sent successfully.";
+        successBox.style.display = "block";
+      } else {
+        var data = await response.json().catch(function(){ return {}; });
+        if (data && data.errors && data.errors.length) {
+          errorBox.textContent = data.errors.map(function(err){ return err.message; }).join(" ");
+        } else {
+          errorBox.textContent = "Sorry, your message could not be sent right now. Please try again.";
+        }
+        errorBox.style.display = "block";
+      }
+    } catch (err) {
+      errorBox.textContent = "Network error. Please try again in a moment.";
+      errorBox.style.display = "block";
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Send Message";
+    }
+  });
+});
+</script>
+</body></html>
