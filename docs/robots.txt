@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /featured.html
 
 Sitemap: https://www.thestreamic.in/sitemap.xml
