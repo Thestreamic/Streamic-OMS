@@ -56,17 +56,22 @@ img{max-width:100%;display:block}
 .nav-logo{
   display:flex;align-items:center;gap:14px;
   text-decoration:none;flex-shrink:0;margin-right:20px;
+  min-width:0;
 }
 .nav-logo img{height:32px;width:auto;flex-shrink:0}
-.nav-logo-text{display:flex;flex-direction:column}
+.nav-logo-text{
+  display:flex;flex-direction:column;
+  min-width:0;
+}
 .nav-logo-name{
   font-family:var(--serif);font-size:22px;font-weight:400;
   color:#1a1a1a;letter-spacing:-0.01em;line-height:1;
+  white-space:nowrap;
 }
 .nav-logo-tagline{
   font-family:var(--font);font-size:8.5px;font-weight:600;
   color:var(--gold);letter-spacing:0.2em;text-transform:uppercase;
-  margin-top:2px;
+  margin-top:2px;white-space:nowrap;
 }
 .nav-divider{
   width:1px;height:28px;background:#e0e0e0;margin:0 16px 0 8px;flex-shrink:0;
@@ -86,11 +91,12 @@ img{max-width:100%;display:block}
 .nav-desk:hover{color:var(--blue)}
 .nav-toggle{
   display:none;background:none;border:none;cursor:pointer;
-  flex-direction:column;gap:5px;padding:8px;position:relative;
+  flex-direction:column;justify-content:center;align-items:center;
+  gap:5px;padding:0;width:44px;height:44px;flex-shrink:0;
 }
 .nav-toggle span{
   display:block;height:1.5px;width:22px;background:var(--ink);border-radius:2px;
-  transition:transform .25s ease, opacity .2s ease, background-color .2s ease;
+  transition:transform .25s ease,opacity .2s ease,background .2s ease;
   transform-origin:center;
 }
 .nav-toggle.open span:nth-child(1),
@@ -108,31 +114,106 @@ img{max-width:100%;display:block}
 .nav-toggle[aria-expanded="true"] span:nth-child(3){
   transform:translateY(-6.5px) rotate(-45deg);
 }
-/* ── Mobile menu — full-screen overlay ── */
+/* ── Mobile menu — full-screen overlay (FIXED READABILITY) ── */
 .nav-mob{
   display:none;
   position:fixed;top:0;left:0;right:0;bottom:0;
-  background:rgba(255,255,255,.97);
-  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  background:#ffffff;
+  backdrop-filter:none;
+  -webkit-backdrop-filter:none;
   z-index:199;
   padding:80px 24px 40px;
+  box-shadow:0 12px 40px rgba(0,0,0,0.12);
 }
 .nav-mob.open{display:block}
 .nav-mob a{
-  display:block;padding:18px 0;font-size:18px;font-weight:600;
-  color:var(--ink);border-bottom:1px solid #f0f0f0;
-  letter-spacing:0;text-transform:none;
+  display:block;
+  padding:18px 0;
+  font-size:18px;
+  font-weight:600;
+  color:#111;
+  border-bottom:1px solid #f0f0f0;
+  letter-spacing:0;
+  text-transform:none;
 }
 .nav-mob a:hover{color:var(--blue)}
 @media(max-width:960px){
   .nav-links{display:none}
   .nav-divider{display:none}
-  .nav-toggle{display:flex}
   .nav-right .nav-desk{display:none}
-  .nav-logo-name{font-size:19px}
-  .nav-inner{height:50px;padding:0 16px}
-  .nav-right{margin-left:auto}
-  .nav-logo{margin-right:auto}
+
+  .nav-inner{
+    height:58px;
+    padding:0 14px;
+    gap:10px;
+  }
+
+  .nav-logo{
+    margin-right:0;
+    flex:1 1 auto;
+    min-width:0;
+    overflow:hidden;
+    gap:10px;
+  }
+
+  .nav-logo img{
+    height:26px;
+  }
+
+  .nav-logo-text{
+    min-width:0;
+    overflow:hidden;
+  }
+
+  .nav-logo-name{
+    font-size:19px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+
+  .nav-logo-tagline{
+    font-size:8px;
+    letter-spacing:0.18em;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+
+  .nav-right{
+    margin-left:auto;
+    gap:0;
+    flex-shrink:0;
+  }
+
+  .nav-toggle{
+    display:flex;
+    width:44px;
+    height:44px;
+  }
+}
+@media(max-width:640px){
+  .nav-inner{
+    height:56px;
+    padding:0 12px;
+  }
+
+  .nav-logo img{
+    height:24px;
+  }
+
+  .nav-logo{
+    gap:8px;
+  }
+
+  .nav-logo-name{
+    font-size:17px;
+  }
+
+  .nav-logo-tagline{
+    font-size:7px;
+    letter-spacing:0.14em;
+  }
 }
 
 /* ─── CATEGORY PILL BAR ───────────────────────────────────── */
