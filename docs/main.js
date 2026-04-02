@@ -274,15 +274,23 @@
     tog.dataset.tsInit = '1';
     tog.setAttribute('aria-expanded', 'false');
 
+    // CRITICAL FIX: Move .nav-mob to <body> so it escapes the
+    // position:sticky stacking context on <nav>. Without this,
+    // position:fixed on .nav-mob is trapped inside the nav stacking
+    // context and renders behind page content on all pages.
+    document.body.appendChild(mob);
+
     const closeMenu = () => {
       mob.classList.remove('open');
       tog.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
     };
     const toggleMenu = e => {
       e.preventDefault();
       e.stopPropagation();
       const open = mob.classList.toggle('open');
       tog.setAttribute('aria-expanded', open ? 'true' : 'false');
+      document.body.style.overflow = open ? 'hidden' : '';
     };
 
     tog.addEventListener('click', toggleMenu, { passive: false });
