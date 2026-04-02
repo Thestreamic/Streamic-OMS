@@ -968,4 +968,31 @@ img{max-width:100%;display:block}
 .howto-card {
   transition: background 0.15s ease, transform 0.2s ease,
               box-shadow 0.2s ease;
+   /* 🔥 FINAL FIX — remove horizontal scroll issue */
+html, body{
+  overflow-x:hidden;
+}
+
+/* ensure nav never exceeds screen */
+.nav, .nav-inner{
+  max-width:100%;
+  overflow:hidden;
+}
+
+/* force logo block to shrink properly */
+.nav-logo{
+  min-width:0;
+  flex:1 1 auto;
+}
+
+/* prevent long text pushing layout */
+.nav-logo-text{
+  min-width:0;
+  overflow:hidden;
+}
+
+/* keep hamburger always visible */
+.nav-toggle{
+  flex-shrink:0;
+}
 }
