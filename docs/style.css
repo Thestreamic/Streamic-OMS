@@ -44,88 +44,50 @@ img{max-width:100%;display:block}
   -webkit-backdrop-filter:saturate(180%)blur(20px);
   border-bottom:1px solid rgba(0,0,0,.07);
 }
-.nav-gold{
-  height:1.5px;
-  background:linear-gradient(90deg,transparent 10%,#c9a84c 40%,#b8860b 50%,#c9a84c 60%,transparent 90%);
-}
 .nav-inner{
   max-width:var(--max);margin:0 auto;padding:0 24px;
-  height:56px;display:flex;align-items:center;gap:0;
+  height:54px;display:flex;align-items:center;gap:0;
 }
 .nav-logo{
-  display:flex;align-items:center;gap:14px;
-  text-decoration:none;flex-shrink:0;margin-right:20px;
+  display:flex;align-items:center;gap:10px;
+  font-family:var(--font);font-size:13px;font-weight:700;
+  color:var(--ink);letter-spacing:2.5px;text-transform:uppercase;
+  text-decoration:none;flex-shrink:0;margin-right:40px;
 }
-.nav-logo img{height:32px;width:auto;flex-shrink:0}
-.nav-logo-text{display:flex;flex-direction:column}
-.nav-logo-name{
-  font-family:var(--serif,serif);font-size:22px;font-weight:400;
-  color:#1a1a1a;letter-spacing:-0.01em;line-height:1;
-}
-.nav-logo-tagline{
-  font-family:var(--font);font-size:8.5px;font-weight:600;
-  color:var(--gold,#b8860b);letter-spacing:0.2em;text-transform:uppercase;
-  margin-top:2px;
-}
-.nav-divider{
-  width:1px;height:28px;background:#e0e0e0;margin:0 16px 0 8px;flex-shrink:0;
-}
+.nav-logo img{height:28px;width:auto}
 .nav-links{
   display:flex;gap:0;list-style:none;align-items:center;flex:1;
 }
 .nav-links a{
-  display:block;padding:0 12px;height:56px;line-height:56px;
-  font-size:12.5px;font-weight:500;
+  display:block;padding:0 14px;height:54px;line-height:54px;
+  font-size:12px;font-weight:500;letter-spacing:.4px;text-transform:uppercase;
   color:var(--ink3);transition:color .15s;white-space:nowrap;
 }
 .nav-links a:hover{color:var(--ink)}
-.nav-links a.active{color:var(--ink);font-weight:700}
+.nav-links a.active{color:var(--blue);font-weight:700;border-bottom:2px solid var(--blue)}
 .nav-right{margin-left:auto;display:flex;align-items:center;gap:16px;flex-shrink:0}
-.nav-desk{font-size:12.5px;font-weight:500;color:var(--ink3);transition:color .15s}
+.nav-desk{font-size:12px;font-weight:600;color:var(--ink3);transition:color .15s}
 .nav-desk:hover{color:var(--blue)}
 .nav-toggle{
   display:none;background:none;border:none;cursor:pointer;
-  flex-direction:column;gap:5px;padding:8px;
+  flex-direction:column;gap:5px;padding:6px;
 }
-.nav-toggle span{display:block;height:1.5px;width:22px;background:var(--ink);border-radius:2px;transition:all .25s}
-/* ── Mobile menu — full-screen overlay ── */
+.nav-toggle span{display:block;height:1.5px;width:22px;background:var(--ink);border-radius:2px;transition:all .2s}
 .nav-mob{
-  display:none;
-  position:fixed;
-  top:56px;
-  left:0;
-  right:0;
-  bottom:0;
-  background:#ffffff;
-  z-index:9999;
-  overflow-y:auto;
-  padding:18px 24px 32px;
-  box-shadow:0 12px 40px rgba(0,0,0,0.12);
+  display:none;background:rgba(245,245,247,.97);
+  backdrop-filter:blur(20px);border-top:1px solid var(--line);
 }
 .nav-mob.open{display:block}
 .nav-mob a{
-  display:block;
-  padding:18px 0;
-  font-size:18px;
-  font-weight:600;
-  color:#111;
-  line-height:1.4;
-  border-bottom:1px solid #f0f0f0;
-  letter-spacing:0;
-  text-transform:none;
-  background:#fff;
+  display:block;padding:13px 24px;font-size:13px;font-weight:500;
+  color:var(--ink);border-bottom:1px solid rgba(0,0,0,.04);
+  text-transform:uppercase;letter-spacing:.4px;
 }
-.nav-mob a:last-child{border-bottom:none}
-.nav-mob a:hover{color:var(--blue)}
+.nav-mob a:hover{color:var(--blue);background:rgba(0,102,204,.04)}
 @media(max-width:960px){
   .nav-links{display:none}
-  .nav-divider{display:none}
   .nav-toggle{display:flex}
   .nav-right .nav-desk{display:none}
-  .nav-logo-name{font-size:19px}
-  .nav-inner{height:50px;padding:0 16px}
-  .nav-right{margin-left:auto}
-  .nav-logo{margin-right:auto}
 }
 
 /* ─── CATEGORY PILL BAR ───────────────────────────────────── */
@@ -191,7 +153,7 @@ img{max-width:100%;display:block}
 }
 
 /* ── Logo fix — hide broken img, show text cleanly ── */
-.nav-logo img{height:32px;width:auto;display:inline-block;flex-shrink:0}
+.nav-logo img{height:28px;width:auto;display:inline-block}
 .nav-logo img[src=""]{display:none}
 .nav-logo img:not([src]){display:none}
 
