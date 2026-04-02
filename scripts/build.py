@@ -181,6 +181,8 @@ def nav(active="", base=""):
         ("ai-post-production.html", "AI in Broadcasting"),
         ("howto.html", "How-To Guides"),
         ("post-production-workflows.html", "Post Production Workflows"),
+        # UNHIDE: uncomment next line to add Insights to nav
+        # ("insights.html", "Insights"),
     ]
     def _nav_li(h, lbl, base=base, active=active):
         cls = ' class="active"' if h == active else ''
@@ -239,6 +241,8 @@ def footer(base=""):
       <a href="{base}ai-post-production.html">AI in Broadcasting</a>
       <a href="{base}howto.html">How-To Guides</a>
       <a href="{base}post-production-workflows.html">Post Production Workflows</a>
+      <!-- UNHIDE: uncomment next line to add Insights to footer -->
+      <!-- <a href="{base}insights.html">Insights</a> -->
     </div>
     <div class="footer-col">
       <h4>Site</h4>
@@ -1898,6 +1902,66 @@ def vlog_page():
 {_cookie_banner()}
 </body></html>"""
 
+def insights_page():
+    # UNHIDE: change robots="noindex,nofollow" to robots="index,follow" when ready to go live
+    return f"""{head("The Streamic Insights: Conversations with Media Veterans",
+                      "In-depth Q&amp;A interviews with broadcast and post-production pioneers. Expert perspectives on AI, DI workflows, and the future of media technology.",
+                      f"{BASE_URL}/insights.html",
+                      og_img="https://www.thestreamic.in/assets/neil-sadwelkar.jpg",
+                      robots="noindex,nofollow")}
+<body>
+{nav("insights.html")}
+<main>
+  <div class="w" style="max-width:860px;padding-bottom:80px">
+
+    <div style="padding:52px 0 40px;border-bottom:1px solid var(--line);margin-bottom:44px">
+      <div style="display:inline-flex;align-items:center;gap:6px;background:#fff8ee;border:1px solid #e8d09a;color:var(--gold);font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:5px 14px;border-radius:999px;margin-bottom:20px">&#10022; The Veteran&#8217;s Lens</div>
+      <h1 style="font-family:var(--serif);font-size:clamp(26px,3.5vw,42px);letter-spacing:-.04em;line-height:1.1;margin:0 0 12px">The Streamic Insights</h1>
+      <p style="font-size:16px;color:var(--ink3);line-height:1.7;max-width:600px;margin:0">Conversations with media veterans. In-depth Q&amp;A with the broadcast engineers, colourists, and post-production pioneers shaping the future of our industry.</p>
+    </div>
+
+    <a style="display:grid;grid-template-columns:1fr 300px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--white);margin-bottom:24px;transition:box-shadow .2s;text-decoration:none;color:inherit" href="articles/Expertinsight1.html"
+       onmouseover="this.style.boxShadow='0 4px 24px rgba(0,0,0,.09)'"
+       onmouseout="this.style.boxShadow='none'">
+      <div style="padding:32px 36px;display:flex;flex-direction:column;justify-content:center">
+        <span style="display:inline-block;background:var(--gold);color:#fff;font-size:11px;font-weight:800;padding:3px 11px;border-radius:4px;letter-spacing:.3px;margin-bottom:16px;width:fit-content">Expert Q&amp;A</span>
+        <div style="font-size:clamp(16px,1.8vw,20px);font-weight:700;color:var(--ink);line-height:1.3;margin:0 0 8px;letter-spacing:-.01em">Neil Sadwelkar on AI and the Future of Digital Imaging</div>
+        <p style="font-size:14px;color:var(--ink3);line-height:1.6;margin:0 0 16px">From negative cutting to AI-assisted colour grading &mdash; a candid conversation with one of India&#8217;s foremost DI pioneers.</p>
+        <div style="font-size:12px;color:var(--ink4);margin-bottom:16px">By The Streamic Editorial Team &middot; April 2, 2026 &middot; 9 min read</div>
+        <span style="display:inline-flex;align-items:center;gap:4px;font-size:14px;font-weight:500;color:var(--ink);border:1.5px solid var(--line);border-radius:6px;padding:8px 16px;width:fit-content">Read Interview &rsaquo;</span>
+      </div>
+      <div style="overflow:hidden">
+        <img src="assets/neil-sadwelkar.jpg" alt="Neil B. Sadwelkar" loading="lazy"
+             style="width:100%;height:100%;object-fit:cover;display:block"
+             onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+      </div>
+    </a>
+
+  </div>
+</main>
+{footer()}
+{_cookie_banner()}
+</body></html>"""
+
+def vlog_page():
+    return f"""{head("Editor's Desk — The Streamic","Notes, commentary and perspective from the Streamic editorial team.",f"{BASE_URL}/vlog.html")}
+<body>
+{nav("vlog.html")}
+<main><div class="w" style="padding:52px 0 80px;max-width:760px">
+<div class="cat-hdr">
+  <h1>Editor's Desk</h1>
+  <p>Commentary, perspective, and notes from the editorial team at The Streamic.</p>
+</div>
+<p style="font-size:15px;color:var(--ink3);line-height:1.7;margin-bottom:24px">The Streamic covers broadcast and streaming technology with a focus on what matters operationally to engineers and technology leaders. This is where we share perspective beyond the news cycle.</p>
+<div style="background:var(--bg);border-radius:14px;padding:28px;font-size:14px;color:var(--ink3);line-height:1.7">
+  <strong style="color:var(--ink);display:block;margin-bottom:8px">What we're watching in 2026</strong>
+  The ST 2110 adoption curve in small-market broadcasters. The economics of cloud production post-Paris 2024. How C2PA is changing newsroom verification workflows. The quiet revolution of operational AI inside MAM systems.
+</div>
+</div></main>
+{footer()}
+{_cookie_banner()}
+</body></html>"""
+
 # ── SITEMAP
 def sitemap(arts):
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
@@ -1908,6 +1972,8 @@ def sitemap(arts):
         ("ai-post-production.html",      "daily",   "0.9"),
         ("howto.html",                   "weekly",  "0.85"),
         ("post-production-workflows.html","weekly",  "0.80"),
+        # UNHIDE: uncomment next line to add Insights to sitemap
+        # ("insights.html",                "weekly",  "0.85"),
         ("about.html",                   "monthly", "0.6"),
         ("contact.html",                 "monthly", "0.5"),
         ("editorial-policy.html",        "monthly", "0.6"),
@@ -2036,7 +2102,7 @@ def main():
 
     # ── Clean stale article files (prevents junk from previous builds) ────
     # Preserve guide files and known quality orphan editorials
-    PROTECTED_PREFIXES = ("guide-",)
+    PROTECTED_PREFIXES = ("guide-", "Expertinsight",)
     PROTECTED_NAMES = {
         "beyond-chatbot-invisible-ai-newsroom-2026.html",
         "c2pa-digital-provenance-deepfake-news-credibility.html",
@@ -2046,6 +2112,7 @@ def main():
         "st2110-small-market-hybrid-ip-transition.html",
         "studio-di-pipeline-workflow-2026.html",
         "quic-http3-video-delivery-streaming-2026.html",
+        "Expertinsight1.html",
     }
     valid_filenames = {f"{a['slug']}.html" for a in arts}
     stale_count = 0
@@ -2143,6 +2210,7 @@ def main():
     w(os.path.join(DOCS,"howto.html"),            howto_page())
     w(os.path.join(DOCS,"how-to.html"),           howto_page())
     w(os.path.join(DOCS,"vlog.html"),             vlog_page())
+    w(os.path.join(DOCS,"insights.html"),         insights_page())
     print("  &#10003; static pages")
 
     # ── Sitemap — only visible articles + core pages ──────────────────────
