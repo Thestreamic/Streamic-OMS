@@ -39,13 +39,10 @@ img{max-width:100%;display:block}
 /* ─── NAV ─────────────────────────────────────────────────── */
 .nav{
   position:sticky;top:0;
-  /* z-index must be ABOVE the mobile overlay so the nav bar + hamburger
-     stay visible; the overlay itself is a sibling of .nav inside <nav>,
-     so it inherits this stacking context — we escape that by making
-     .nav-mob a child of <body> via JS, OR we simply raise the z-index
-     high and use isolation:auto so fixed children stack correctly */
-  z-index:10000;
-  isolation:auto;
+  /* NOTE: Do NOT set will-change, transform, filter, or opacity here —
+     any of those would create a stacking context that traps fixed children.
+     z-index alone on position:sticky is safe. */
+  z-index:1000;
   background:#ffffff;
   border-bottom:1px solid rgba(0,0,0,.10);
 }
@@ -91,45 +88,55 @@ img{max-width:100%;display:block}
 .nav-toggle{
   display:none;background:none;border:none;cursor:pointer;
   flex-direction:column;gap:5px;padding:8px;
-  /* Always above the mobile overlay */
-  position:relative;z-index:10001;
+  position:relative;z-index:1001;
 }
 .nav-toggle span{display:block;height:2px;width:22px;background:#1a1a1a;border-radius:2px;transition:all .25s}
-/* ── Mobile menu — drops below the sticky nav bar ── */
+
+/* ── Mobile overlay menu ─────────────────────────────────────
+   JS moves .nav-mob to <body> at runtime so it is NOT trapped
+   inside the nav's stacking context. These rules assume it is
+   a direct child of <body> with position:fixed.
+   ─────────────────────────────────────────────────────────── */
 .nav-mob{
   display:none;
   position:fixed;
-  top:0;           /* Will be offset by padding-top = nav height */
+  top:0;
   left:0;
   right:0;
   bottom:0;
   background:#ffffff;
-  z-index:9999;    /* below .nav (10000) so nav bar stays on top */
+  z-index:999;
   overflow-y:auto;
-  padding-top:56px; /* push content below the nav bar */
-  box-shadow:none;
+  -webkit-overflow-scrolling:touch;
 }
-.nav-mob.open{display:block}
+.nav-mob.open{display:flex;flex-direction:column}
+/* Top spacer — pushes links below the sticky nav bar */
+.nav-mob::before{
+  content:'';
+  display:block;
+  height:56px; /* matches .nav-inner desktop height */
+  flex-shrink:0;
+  background:#ffffff;
+  border-bottom:1px solid #eeeeee;
+}
 .nav-mob a{
   display:block;
-  padding:20px 24px;
-  font-size:19px;
+  padding:20px 28px;
+  font-size:20px;
   font-weight:600;
   color:#111111;
-  line-height:1.4;
+  line-height:1.3;
   border-bottom:1px solid #eeeeee;
   letter-spacing:0;
   text-transform:none;
   background:#ffffff;
   text-decoration:none;
+  -webkit-tap-highlight-color:rgba(0,102,204,.08);
 }
-.nav-mob a:first-child{border-top:1px solid #eeeeee}
 .nav-mob a:last-child{border-bottom:none}
-.nav-mob a:hover,.nav-mob a:active{color:var(--blue,#0066cc);background:#f7f9ff}
+.nav-mob a:hover,.nav-mob a:active{color:var(--blue,#0066cc);background:#f4f8ff}
+
 @media(max-width:960px){
-  .nav{background:#ffffff} /* solid white — no transparency on mobile */
-  /* Kill the backdrop-filter blur which was making header look faded */
-  .nav{backdrop-filter:none;-webkit-backdrop-filter:none}
   .nav-links{display:none}
   .nav-divider{display:none}
   .nav-toggle{display:flex}
@@ -139,8 +146,8 @@ img{max-width:100%;display:block}
   .nav-inner{height:50px;padding:0 16px}
   .nav-right{margin-left:auto}
   .nav-logo{margin-right:auto}
-  /* Adjust menu top padding to match mobile nav height (50px) */
-  .nav-mob{padding-top:50px}
+  /* Shrink the top spacer to match mobile nav height */
+  .nav-mob::before{height:50px}
 }
 
 /* ─── CATEGORY PILL BAR ───────────────────────────────────── */
