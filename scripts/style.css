@@ -954,3 +954,18 @@ img{max-width:100%;display:block}
   transition: background 0.15s ease, transform 0.2s ease,
               box-shadow 0.2s ease;
 }
+.hp-news-links {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.hp-news-source {
+  font-size: 11.5px;
+  color: #666;
+  text-decoration: none;
+}
+
+.hp-news-source:hover {
+  color: var(--blue);
+}
