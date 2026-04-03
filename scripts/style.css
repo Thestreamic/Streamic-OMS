@@ -3,7 +3,7 @@
    thestreamic.in  ·  Broadcast & Streaming Technology
    Fonts: SF Pro system stack + DM Serif Display for headlines
 ═══════════════════════════════════════════════════════════════ */
-@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
 
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -25,6 +25,7 @@
   --max:1160px;
   --font:'DM Sans',-apple-system,BlinkMacSystemFont,'SF Pro Display','Helvetica Neue',sans-serif;
   --serif:'DM Serif Display',Georgia,serif;
+  --body-serif:'Lora','Charter',Georgia,serif;
 }
 html{font-size:16px;scroll-behavior:smooth}
 body{font-family:var(--font);color:var(--ink);background:var(--white);
@@ -36,15 +37,14 @@ img{max-width:100%;display:block}
 .w{max-width:var(--max);margin:0 auto;padding:0 24px}
 @media(max-width:768px){.w{padding:0 16px}}
 
-/* ─── NAV — Header B ───────────────────────────────────────── */
-/* NOTE: do NOT add backdrop-filter/transform/will-change to .nav —
-   any of those create a stacking context that traps .nav-mob (fixed) */
+/* ─── NAV — Header B: Minimal Modern ─────────────────────── */
 .nav{
-  position:sticky;top:0;z-index:1000;
-  background:#ffffff;
-  border-bottom:1px solid rgba(0,0,0,.08);
+  position:sticky;top:0;z-index:200;
+  background:rgba(255,255,255,.92);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  border-bottom:1px solid #eee;
 }
-/* Gold accent line below nav bar */
 .nav-gold{
   height:1.5px;
   background:linear-gradient(90deg,transparent 10%,#c9a84c 40%,#b8860b 50%,#c9a84c 60%,transparent 90%);
@@ -53,36 +53,24 @@ img{max-width:100%;display:block}
   max-width:var(--max);margin:0 auto;padding:0 24px;
   height:56px;display:flex;align-items:center;gap:0;
 }
-
-/* ── Logo block (Header B: serif name + gold tagline) */
 .nav-logo{
-  display:flex;align-items:center;gap:12px;
+  display:flex;align-items:center;gap:14px;
   text-decoration:none;flex-shrink:0;margin-right:20px;
 }
-.nav-logo img{height:30px;width:auto;flex-shrink:0}
-.nav-logo-text{display:flex;flex-direction:column;line-height:1}
+.nav-logo img{height:32px;width:auto;flex-shrink:0}
+.nav-logo-text{display:flex;flex-direction:column}
 .nav-logo-name{
-  font-family:var(--serif);font-size:21px;font-weight:400;
+  font-family:var(--serif);font-size:22px;font-weight:400;
   color:#1a1a1a;letter-spacing:-0.01em;line-height:1;
 }
 .nav-logo-tagline{
-  font-family:var(--font);font-size:8px;font-weight:700;
-  color:var(--gold);letter-spacing:0.18em;text-transform:uppercase;
-  margin-top:3px;white-space:nowrap;
+  font-family:var(--font);font-size:8.5px;font-weight:600;
+  color:var(--gold);letter-spacing:0.2em;text-transform:uppercase;
+  margin-top:2px;
 }
-/* Fallback: pages generated before build.py update have plain <span> */
-.nav-logo>span{
-  font-family:var(--serif);font-size:21px;font-weight:400;
-  color:#1a1a1a;letter-spacing:-0.01em;
-}
-
-/* Vertical rule between logo and nav links */
 .nav-divider{
-  width:1px;height:26px;background:#e0e0e0;
-  margin:0 20px 0 0;flex-shrink:0;
+  width:1px;height:28px;background:#e0e0e0;margin:0 16px 0 8px;flex-shrink:0;
 }
-
-/* ── Nav links */
 .nav-links{
   display:flex;gap:0;list-style:none;align-items:center;flex:1;
 }
@@ -93,72 +81,39 @@ img{max-width:100%;display:block}
 }
 .nav-links a:hover{color:var(--ink)}
 .nav-links a.active{color:var(--ink);font-weight:700}
-
-/* ── Right side: About + hamburger */
-.nav-right{margin-left:auto;display:flex;align-items:center;gap:12px;flex-shrink:0}
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:16px;flex-shrink:0}
 .nav-desk{font-size:12.5px;font-weight:500;color:var(--ink3);transition:color .15s}
 .nav-desk:hover{color:var(--blue)}
-
-/* ── Hamburger button — always above overlay (z-index relative) */
 .nav-toggle{
   display:none;background:none;border:none;cursor:pointer;
   flex-direction:column;gap:5px;padding:8px;
-  position:relative;z-index:1001;
 }
-.nav-toggle span{
-  display:block;height:2px;width:22px;background:#1a1a1a;
-  border-radius:2px;transition:transform .25s,opacity .25s;
-}
-/* Animate to X when menu open */
-.nav-toggle[aria-expanded="true"] span:nth-child(1){transform:rotate(45deg) translateY(7px)}
-.nav-toggle[aria-expanded="true"] span:nth-child(2){opacity:0}
-.nav-toggle[aria-expanded="true"] span:nth-child(3){transform:rotate(-45deg) translateY(-7px)}
-
-/* ── Mobile overlay menu
-   JS moves .nav-mob to <body> at runtime — escaping the sticky
-   stacking context so position:fixed works correctly */
+.nav-toggle span{display:block;height:1.5px;width:22px;background:var(--ink);border-radius:2px;transition:all .25s}
+/* ── Mobile menu — full-screen overlay ── */
 .nav-mob{
   display:none;
-  position:fixed;
-  top:0;left:0;right:0;bottom:0;
-  background:#ffffff;
-  z-index:999;          /* below .nav (1000) so nav bar stays on top */
-  overflow-y:auto;
-  -webkit-overflow-scrolling:touch;
+  position:fixed;top:0;left:0;right:0;bottom:0;
+  background:rgba(255,255,255,.97);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  z-index:199;
+  padding:80px 24px 40px;
 }
-.nav-mob.open{display:flex;flex-direction:column}
-/* Spacer pushes links below the sticky nav bar */
-.nav-mob::before{
-  content:'';display:block;
-  height:56px;          /* matches desktop nav height */
-  flex-shrink:0;
-  border-bottom:1px solid #f0f0f0;
-}
+.nav-mob.open{display:block}
 .nav-mob a{
-  display:block;
-  padding:20px 28px;
-  font-size:19px;font-weight:600;
-  color:#111111;line-height:1.3;
-  border-bottom:1px solid #f0f0f0;
+  display:block;padding:18px 0;font-size:18px;font-weight:600;
+  color:var(--ink);border-bottom:1px solid #f0f0f0;
   letter-spacing:0;text-transform:none;
-  background:#ffffff;text-decoration:none;
 }
-.nav-mob a:last-child{border-bottom:none}
-.nav-mob a:hover,.nav-mob a:active{color:var(--blue);background:#f4f8ff}
-
-/* ── Responsive breakpoint */
+.nav-mob a:hover{color:var(--blue)}
 @media(max-width:960px){
-  .nav{background:#ffffff} /* always solid on mobile */
   .nav-links{display:none}
   .nav-divider{display:none}
   .nav-toggle{display:flex}
   .nav-right .nav-desk{display:none}
-  .nav-logo-name{font-size:18px}
-  .nav-logo-tagline{font-size:7.5px}
+  .nav-logo-name{font-size:19px}
   .nav-inner{height:50px;padding:0 16px}
   .nav-right{margin-left:auto}
-  .nav-logo{margin-right:auto;gap:10px}
-  .nav-mob::before{height:50px} /* match mobile nav height */
+  .nav-logo{margin-right:auto}
 }
 
 /* ─── CATEGORY PILL BAR ───────────────────────────────────── */
@@ -224,7 +179,7 @@ img{max-width:100%;display:block}
 }
 
 /* ── Logo fix — hide broken img, show text cleanly ── */
-.nav-logo img{height:30px;width:auto;display:inline-block;flex-shrink:0}
+.nav-logo img{height:32px;width:auto;display:inline-block;flex-shrink:0}
 .nav-logo img[src=""]{display:none}
 .nav-logo img:not([src]){display:none}
 
@@ -329,7 +284,7 @@ img{max-width:100%;display:block}
 .cat-hdr p{font-size:15px;color:var(--ink3);max-width:540px;line-height:1.6}
 
 /* ─── ARTICLE PAGE ────────────────────────────────────────── */
-.art-wrap{max-width:760px;margin:0 auto;padding:48px 24px 80px}
+.art-wrap{max-width:720px;margin:0 auto;padding:48px 24px 80px}
 .art-breadcrumb{font-size:12px;color:var(--ink4);margin-bottom:14px;display:flex;gap:8px;align-items:center}
 .art-breadcrumb a{color:var(--ink4)}
 .art-breadcrumb a:hover{color:var(--blue)}
@@ -353,8 +308,8 @@ img{max-width:100%;display:block}
 .art-wrap figure{margin:0 0 30px}
 .art-wrap figure img{width:100%;max-height:480px;object-fit:cover;border-radius:var(--radius)}
 .art-wrap figure figcaption{font-size:11px;color:var(--ink4);text-align:center;margin-top:7px}
-.art-body{font-size:16px;line-height:1.78;color:var(--ink)}
-.art-body p{margin-bottom:20px}
+.art-body{font-family:var(--body-serif);font-size:18px;line-height:1.75;color:#333}
+.art-body p{margin-bottom:22px}
 .art-body h3{
   font-family:var(--serif);font-size:20px;line-height:1.25;
   margin:32px 0 12px;color:var(--ink);
@@ -403,6 +358,14 @@ img{max-width:100%;display:block}
 }
 .art-more a::after{content:"→";margin-left:auto}
 .art-more a:hover{color:var(--blue2)}
+/* ── Drop cap for article intros ── */
+.art-body p:first-of-type::first-letter{
+  float:left;font-size:3.8rem;line-height:1;padding-right:12px;
+  font-weight:800;font-family:var(--serif);color:var(--ink);
+}
+@media(max-width:480px){
+  .art-body p:first-of-type::first-letter{font-size:3rem;padding-right:8px}
+}
 
 /* ─── PAGINATION ──────────────────────────────────────────── */
 .pag{
@@ -737,80 +700,63 @@ img{max-width:100%;display:block}
   max-width: 640px;
 }
 
-/* ─── FOOTER — Premium (matches Header B) ─────────────────── */
-.footer{
-  background:#fafafa;
-  border-top:1px solid #e5e5e5;
-  padding:0;
-}
-/* Gold accent mirrors nav-gold */
+/* ─── FOOTER ──────────────────────────────────────────────── */
+.footer{background:#fafafa;border-top:1px solid #e5e5e5;padding:0}
 .footer-gold{
   height:1.5px;
   background:linear-gradient(90deg,transparent 5%,#c9a84c 30%,#b8860b 50%,#c9a84c 70%,transparent 95%);
 }
 .footer-grid{
-  max-width:var(--max);margin:0 auto;
-  padding:40px 24px 28px;
-  display:grid;
-  grid-template-columns:1.8fr 1fr 1fr 0.9fr;
+  max-width:var(--max);margin:0 auto;padding:40px 32px 28px;
+  display:grid;grid-template-columns:1.8fr 1fr 1fr 0.9fr;
   gap:36px;
 }
-/* Brand column */
 .footer-brand{
   font-family:var(--serif);font-size:20px;font-weight:400;
   color:#1a1a1a;letter-spacing:-0.01em;line-height:1;
-  margin-bottom:0;
 }
 .footer-tagline{
-  font-family:var(--font);font-size:8px;font-weight:700;
-  color:var(--gold);letter-spacing:0.18em;text-transform:uppercase;
-  margin:4px 0 14px;
+  font-family:var(--font);font-size:8.5px;font-weight:600;
+  color:var(--gold);letter-spacing:0.2em;text-transform:uppercase;
+  margin-top:4px;margin-bottom:14px;
 }
-.footer-tag{font-size:13px;color:#777;line-height:1.65;margin:0 0 16px;max-width:340px}
-/* Social links inline under brand */
-.footer-social{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.footer-tag{font-size:13px;color:#777;line-height:1.65;max-width:340px}
+.footer-social{display:flex;gap:10px;align-items:center;margin-top:16px;flex-wrap:wrap}
 .footer-social-link{
-  display:inline-flex;align-items:center;gap:5px;
-  font-size:12.5px;font-weight:500;color:#888;
-  transition:color .15s;text-decoration:none;padding:2px 0;
+  display:inline-flex;align-items:center;gap:6px;
+  padding:6px 14px;border-radius:6px;
+  font-size:12px;font-weight:600;color:#555;
+  background:#f0f0f2;border:1px solid #e5e5e5;
+  transition:all .15s;text-decoration:none;
 }
-.footer-social-link svg{fill:#888;flex-shrink:0;transition:fill .15s}
-.footer-social-link:hover{color:var(--blue)}
-.footer-social-link:hover svg{fill:var(--blue)}
-.footer-social-sep{color:#ddd;margin:0 2px;font-size:13px;user-select:none}
-/* Column headers */
+.footer-social-link:hover{color:var(--blue);border-color:var(--blue);background:#f0f5ff}
+.footer-social-link svg{width:14px !important;height:14px !important;max-width:14px;max-height:14px;fill:currentColor;flex-shrink:0;display:inline-block}
 .footer-col h4{
   font-size:10px;font-weight:700;text-transform:uppercase;
-  letter-spacing:.12em;color:#1a1a1a;margin:0 0 14px;
+  letter-spacing:0.12em;color:#1a1a1a;margin-bottom:14px;
+  font-family:var(--font);
 }
 .footer-col a{
   display:block;font-size:13px;color:#777;
-  margin-bottom:10px;transition:color .15s;text-decoration:none;
+  margin-bottom:10px;transition:color .15s;
 }
 .footer-col a:hover{color:var(--blue)}
-/* Bottom bar */
 .footer-bottom{
-  max-width:var(--max);margin:0 auto;
-  padding:14px 24px;
+  max-width:var(--max);margin:0 auto;padding:14px 32px;
   border-top:1px solid #e8e8e8;
   display:flex;justify-content:space-between;align-items:center;
   flex-wrap:wrap;gap:6px;
 }
 .footer-bottom span,.footer-bottom a{font-size:11.5px;color:#aaa}
 .footer-bottom a:hover{color:var(--blue)}
-@media(max-width:900px){
-  .footer-grid{grid-template-columns:1.6fr 1fr 1fr;gap:28px}
-  .footer-grid>div:last-child{grid-column:1 / -1} /* Dublin row full-width */
-}
-@media(max-width:640px){
-  .footer-grid{grid-template-columns:1fr 1fr;gap:24px;padding:28px 16px 20px}
+@media(max-width:768px){
+  .footer-grid{grid-template-columns:1fr 1fr;gap:28px;padding:32px 20px 24px}
   .footer-grid>div:first-child{grid-column:span 2}
-  .footer-grid>div:last-child{grid-column:1}
-  .footer-bottom{flex-direction:column;text-align:center;padding:12px 16px}
+  .footer-bottom{flex-direction:column;text-align:center;padding:14px 20px}
 }
-@media(max-width:400px){
+@media(max-width:480px){
   .footer-grid{grid-template-columns:1fr}
-  .footer-grid>div:first-child,.footer-grid>div:last-child{grid-column:1}
+  .footer-grid>div:first-child{grid-column:1}
 }
 
 /* ─── COOKIE BANNER ───────────────────────────────────────── */
