@@ -923,19 +923,33 @@ def _item_target(a):
     return ''
 
 def _hp_news_item(a):
-    href = _item_href(a)
-    target = _item_target(a)
+    analysis_href = f"articles/{a['slug']}.html" if a.get('slug') else '#'
+    source_href = a.get('source_url') or a.get('url') or '#'
+
+    source_target = ''
+    if source_href.startswith(('http://', 'https://')):
+        source_target = ' target="_blank" rel="noopener noreferrer nofollow"'
+
     title = e(a.get("title", ""))
     src = e(_source_name(a.get("source_domain", a.get("source", ""))))
     dt = d(a.get("published", ""))
-    return f'''<a href="{href}"{target} class="hp-news-item">
-  <div class="hp-news-thumb"><img src="{_hp_img(a)}" alt="{title}" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
+
+    return f'''<div class="hp-news-item">
+  <a href="{analysis_href}" class="hp-news-thumb">
+    <img src="{_hp_img(a)}" alt="{title}" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+  </a>
   <div class="hp-news-body">
     <span class="hp-news-src">{src}</span>
-    <span class="hp-news-title">{title}</span>
-    <div class="hp-news-foot"><time class="hp-news-date">{dt}</time><span class="hp-news-read">Read more &#8594;</span></div>
+    <a href="{analysis_href}" class="hp-news-title">{title}</a>
+    <div class="hp-news-foot">
+      <time class="hp-news-date">{dt}</time>
+      <div class="hp-news-links">
+        <a href="{analysis_href}" class="hp-news-read">Analysis →</a>
+        <a href="{source_href}"{source_target} class="hp-news-source">Source ↗</a>
+      </div>
+    </div>
   </div>
-</a>'''
+</div>'''
 def _hp_sidebar_pick(a):
     href = f"articles/{a['slug']}.html"
     title = e(a.get("title", ""))
