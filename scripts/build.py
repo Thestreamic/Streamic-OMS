@@ -1369,6 +1369,7 @@ def article_page(a):
 </div></main>
 {footer()}
 {_cookie_banner()}
+<script src="main.js" defer></script>
 </body></html>"""
 
     cat   = a.get("category","featured")
@@ -1554,6 +1555,7 @@ def about_page():
 </div></main>
 {footer()}
 {_cookie_banner()}
+<script src="main.js" defer></script>
 </body></html>"""
 
 def contact_page():
@@ -1609,6 +1611,7 @@ def contact_page():
 </div></main>
 {footer()}
 {_cookie_banner()}
+<script src="main.js" defer></script>
 </body></html>"""
 
 def privacy_page():
@@ -1633,6 +1636,7 @@ def privacy_page():
 </div></main>
 {footer()}
 {_cookie_banner()}
+<script src="main.js" defer></script>
 </body></html>"""
 
 def terms_page():
@@ -1654,6 +1658,7 @@ def terms_page():
 </div></main>
 {footer()}
 {_cookie_banner()}
+<script src="main.js" defer></script>
 </body></html>"""
 
 def editorial_policy_page():
@@ -1695,6 +1700,7 @@ def editorial_policy_page():
 </div></main>
 {footer()}
 {_cookie_banner()}
+<script src="main.js" defer></script>
 </body></html>"""
 
 def howto_page():
@@ -1795,6 +1801,7 @@ def howto_page():
 </div></main>
 {footer()}
 {_cookie_banner()}
+<script src="main.js" defer></script>
 </body></html>"""
 
 def vlog_page():
@@ -1814,6 +1821,7 @@ def vlog_page():
 </div></main>
 {footer()}
 {_cookie_banner()}
+<script src="main.js" defer></script>
 </body></html>"""
 
 # ── SITEMAP
