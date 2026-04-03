@@ -954,3 +954,10 @@ img{max-width:100%;display:block}
   transition: background 0.15s ease, transform 0.2s ease,
               box-shadow 0.2s ease;
 }
+body.menu-open {
+  overflow: hidden;
+}
+
+.nav-mob {
+  z-index: 999;
+}
