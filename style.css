@@ -39,10 +39,10 @@ img{max-width:100%;display:block}
 
 /* ─── NAV — Header B: Minimal Modern ─────────────────────── */
 .nav{
-  position:sticky;top:0;z-index:200;
-  background:rgba(255,255,255,.92);
-  backdrop-filter:blur(12px);
-  -webkit-backdrop-filter:blur(12px);
+  position:sticky;top:0;z-index:300;
+  background:rgba(255,255,255,.94);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
   border-bottom:1px solid #eee;
   overflow:visible;
 }
@@ -53,6 +53,7 @@ img{max-width:100%;display:block}
 .nav-inner{
   max-width:var(--max);margin:0 auto;padding:0 24px;
   height:56px;display:flex;align-items:center;gap:0;
+  position:relative;
 }
 .nav-logo{
   display:flex;align-items:center;gap:14px;
@@ -87,30 +88,34 @@ img{max-width:100%;display:block}
 .nav-desk:hover{color:var(--blue)}
 .nav-toggle{
   display:none;background:none;border:none;cursor:pointer;
-  flex-direction:column;gap:5px;padding:8px;
+  flex-direction:column;gap:5px;padding:8px;position:relative;z-index:1001;
 }
-.nav-toggle span{display:block;height:1.5px;width:22px;background:var(--ink);border-radius:2px;transition:all .25s}
-/* ── Mobile menu — dropdown panel below header ── */
+.nav-toggle span{
+  display:block;height:1.5px;width:22px;background:var(--ink);
+  border-radius:2px;transition:all .25s;
+}
+
+/* ── Premium mobile menu panel ── */
 .nav-mob{
   display:none;
   position:absolute;
-  top:100%;
+  top:calc(100% + 1px);
   left:0;
   right:0;
-  background:rgba(255,255,255,.98);
+  background:rgba(255,255,255,.985);
   backdrop-filter:blur(20px);
   -webkit-backdrop-filter:blur(20px);
-  z-index:999;
-  padding:12px 16px 18px;
+  z-index:1000;
+  padding:14px 18px 18px;
   border-top:1px solid #f0f0f0;
   border-bottom:1px solid #e8e8e8;
-  box-shadow:0 12px 30px rgba(0,0,0,.08);
+  box-shadow:0 18px 40px rgba(0,0,0,.10);
 }
 .nav-mob.open{display:block}
 .nav-mob a{
   display:block;
-  padding:14px 0;
-  font-size:16px;
+  padding:15px 0;
+  font-size:17px;
   font-weight:600;
   color:var(--ink);
   border-bottom:1px solid #f0f0f0;
@@ -120,6 +125,7 @@ img{max-width:100%;display:block}
 }
 .nav-mob a:last-child{border-bottom:none}
 .nav-mob a:hover{color:var(--blue)}
+
 @media(max-width:960px){
   .nav-links{display:none}
   .nav-divider{display:none}
@@ -968,4 +974,9 @@ img{max-width:100%;display:block}
 .howto-card {
   transition: background 0.15s ease, transform 0.2s ease,
               box-shadow 0.2s ease;
+}
+
+
+body.menu-open {
+  overflow: hidden;
 }
