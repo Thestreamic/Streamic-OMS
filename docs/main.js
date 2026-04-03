@@ -274,24 +274,15 @@
     tog.dataset.tsInit = '1';
     tog.setAttribute('aria-expanded', 'false');
 
-    // CRITICAL: Move .nav-mob to <body> so it escapes the
-    // position:sticky stacking context on <nav>. A sticky ancestor
-    // with z-index creates a stacking context that traps position:fixed
-    // children — moving to body makes the fixed overlay truly viewport-level.
-    document.body.appendChild(mob);
-
     const closeMenu = () => {
       mob.classList.remove('open');
       tog.setAttribute('aria-expanded', 'false');
-      document.body.style.overflow = '';
     };
     const toggleMenu = e => {
       e.preventDefault();
       e.stopPropagation();
       const open = mob.classList.toggle('open');
       tog.setAttribute('aria-expanded', open ? 'true' : 'false');
-      // Lock body scroll while menu is open (prevents iOS scroll-through)
-      document.body.style.overflow = open ? 'hidden' : '';
     };
 
     tog.addEventListener('click', toggleMenu, { passive: false });
