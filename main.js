@@ -15,23 +15,22 @@
 (() => {
   'use strict';
 
-  const BUST    = Date.now();
-  const BATCH   = 12;
+  const BUST = Date.now();
+  const BATCH = 12;
 
-  let allItems   = [];
+  let allItems = [];
   let shownCount = 0;
-  let lazyObs    = null;
+  let lazyObs = null;
 
-  // ── Fallback images (broadcast-safe Unsplash, no warehouse/food) ──
   const FALLBACK = {
-    featured:            'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=900&q=80',
-    newsroom:            'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=900&q=80',
-    playout:             'https://images.unsplash.com/photo-1478737270239-2f02b77fc618?w=900&q=80',
-    infrastructure:      'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=900&q=80',
-    graphics:            'https://images.unsplash.com/photo-1504639725590-34d0984388bd?w=900&q=80',
-    cloud:               'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=900&q=80',
-    streaming:           'https://images.unsplash.com/photo-1499364615650-ec38552f4f34?w=900&q=80',
-    'ai-post-production':'https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=900&q=80',
+    featured: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=900&q=80',
+    newsroom: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=900&q=80',
+    playout: 'https://images.unsplash.com/photo-1478737270239-2f02b77fc618?w=900&q=80',
+    infrastructure: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=900&q=80',
+    graphics: 'https://images.unsplash.com/photo-1504639725590-34d0984388bd?w=900&q=80',
+    cloud: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=900&q=80',
+    streaming: 'https://images.unsplash.com/photo-1499364615650-ec38552f4f34?w=900&q=80',
+    'ai-post-production': 'https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=900&q=80',
   };
 
   function getImg(item) {
@@ -54,7 +53,6 @@
     return url.startsWith('http://') || url.startsWith('https://');
   }
 
-  // ── Lazy image observer ──────────────────────────────────────
   function setupLazy() {
     if (!('IntersectionObserver' in window)) return null;
     return new IntersectionObserver((entries, obs) => {
@@ -81,24 +79,29 @@
     container.querySelectorAll('img.lz').forEach((img) => lazyObs.observe(img));
   }
 
-  // ── CARD BUILDERS ────────────────────────────────────────────
   function buildFeatured(item) {
-    const li       = document.createElement('li');
-    li.className   = 'bento-grid-item';
+    const li = document.createElement('li');
+    li.className = 'bento-grid-item';
 
     const internalUrl = getUrl(item);
-    const srcUrl      = getSourceUrl(item);
-    const imgUrl      = getImg(item);
-    const title       = (item.title || 'Untitled').trim();
-    const cat         = (item.category || 'featured').toLowerCase().trim();
-    const catLbl      = cat.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
-    const srcTxt      = (item.source_domain || item.source || '').replace(/https?:\/\//, '').replace('www.', '').split('/')[0].toUpperCase();
-    const titleHref   = isExternal(srcUrl) ? srcUrl : internalUrl;
+    const srcUrl = getSourceUrl(item);
+    const imgUrl = getImg(item);
+    const title = (item.title || 'Untitled').trim();
+    const cat = (item.category || 'featured').toLowerCase().trim();
+    const catLbl = cat.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+    const srcTxt = (item.source_domain || item.source || '')
+      .replace(/https?:\/\//, '')
+      .replace('www.', '')
+      .split('/')[0]
+      .toUpperCase();
+
+    const titleHref = isExternal(srcUrl) ? srcUrl : internalUrl;
     const titleTarget = isExternal(titleHref) ? ' target="_blank"' : '';
-    const titleRel    = isExternal(titleHref) ? ' rel="noopener noreferrer nofollow"' : '';
-    const ctaHref     = item.slug ? internalUrl : srcUrl;
-    const ctaTarget   = isExternal(ctaHref) ? ' target="_blank"' : '';
-    const ctaRel      = isExternal(ctaHref) ? ' rel="noopener noreferrer nofollow"' : '';
+    const titleRel = isExternal(titleHref) ? ' rel="noopener noreferrer nofollow"' : '';
+
+    const ctaHref = item.slug ? internalUrl : srcUrl;
+    const ctaTarget = isExternal(ctaHref) ? ' target="_blank"' : '';
+    const ctaRel = isExternal(ctaHref) ? ' rel="noopener noreferrer nofollow"' : '';
 
     li.innerHTML = `
       <div class="bento-img-wrap bento-img-featured">
@@ -124,22 +127,28 @@
   }
 
   function buildStandard(item) {
-    const li       = document.createElement('li');
-    li.className   = 'bento-grid-item bento-standard';
+    const li = document.createElement('li');
+    li.className = 'bento-grid-item bento-standard';
 
     const internalUrl = getUrl(item);
-    const srcUrl      = getSourceUrl(item);
-    const imgUrl      = getImg(item);
-    const title       = (item.title || 'Untitled').trim();
-    const cat         = (item.category || 'featured').toLowerCase().trim();
-    const catLbl      = cat.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
-    const srcTxt      = (item.source_domain || item.source || '').replace(/https?:\/\//, '').replace('www.', '').split('/')[0].toUpperCase();
-    const titleHref   = isExternal(srcUrl) ? srcUrl : internalUrl;
+    const srcUrl = getSourceUrl(item);
+    const imgUrl = getImg(item);
+    const title = (item.title || 'Untitled').trim();
+    const cat = (item.category || 'featured').toLowerCase().trim();
+    const catLbl = cat.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+    const srcTxt = (item.source_domain || item.source || '')
+      .replace(/https?:\/\//, '')
+      .replace('www.', '')
+      .split('/')[0]
+      .toUpperCase();
+
+    const titleHref = isExternal(srcUrl) ? srcUrl : internalUrl;
     const titleTarget = isExternal(titleHref) ? ' target="_blank"' : '';
-    const titleRel    = isExternal(titleHref) ? ' rel="noopener noreferrer nofollow"' : '';
-    const ctaHref     = item.slug ? internalUrl : srcUrl;
-    const ctaTarget   = isExternal(ctaHref) ? ' target="_blank"' : '';
-    const ctaRel      = isExternal(ctaHref) ? ' rel="noopener noreferrer nofollow"' : '';
+    const titleRel = isExternal(titleHref) ? ' rel="noopener noreferrer nofollow"' : '';
+
+    const ctaHref = item.slug ? internalUrl : srcUrl;
+    const ctaTarget = isExternal(ctaHref) ? ' target="_blank"' : '';
+    const ctaRel = isExternal(ctaHref) ? ' rel="noopener noreferrer nofollow"' : '';
 
     li.innerHTML = `
       <div class="bento-img-wrap bento-img-std">
@@ -163,7 +172,6 @@
     return li;
   }
 
-  // ── RENDER ───────────────────────────────────────────────────
   function renderBatch(grid) {
     const slice = allItems.slice(shownCount, shownCount + BATCH);
     if (!slice.length) {
@@ -173,9 +181,7 @@
 
     const frag = document.createDocumentFragment();
     slice.forEach((item, idx) => {
-      frag.appendChild(
-        (shownCount + idx === 0) ? buildFeatured(item) : buildStandard(item)
-      );
+      frag.appendChild((shownCount + idx === 0) ? buildFeatured(item) : buildStandard(item));
     });
 
     grid.appendChild(frag);
@@ -196,7 +202,7 @@
     const wrap = document.createElement('div');
     wrap.style.cssText = 'margin:40px 0;text-align:center';
 
-    const btn  = document.createElement('button');
+    const btn = document.createElement('button');
     btn.id = 'ts-more';
     btn.textContent = 'Load More Stories';
     btn.style.cssText = 'padding:13px 44px;border-radius:999px;border:1.5px solid var(--line);background:var(--white);color:var(--ink);font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font);letter-spacing:-0.02em;transition:all .15s';
@@ -205,7 +211,7 @@
       btn.style.color = '#fff';
       btn.style.borderColor = 'var(--ink)';
     };
-    btn.onmouseout  = () => {
+    btn.onmouseout = () => {
       btn.style.background = 'var(--white)';
       btn.style.color = 'var(--ink)';
       btn.style.borderColor = 'var(--line)';
@@ -216,7 +222,6 @@
     grid.parentElement.appendChild(wrap);
   }
 
-  // ── DATA LOADER ──────────────────────────────────────────────
   async function loadNews() {
     const paths = [
       'data/generated_articles.json?v=' + BUST,
@@ -237,7 +242,7 @@
         }
         return {
           featured_priority: raw.slice ? raw.slice(0, 6) : [],
-          items: raw.slice ? raw.slice(6) : []
+          items: raw.slice ? raw.slice(6) : [],
         };
       } catch (_) {}
     }
@@ -286,7 +291,6 @@
     return out;
   }
 
-  // ── MOBILE NAV ───────────────────────────────────────────────
   function initNav() {
     const tog = document.querySelector('.nav-toggle');
     const mob = document.querySelector('.nav-mob');
@@ -311,15 +315,10 @@
     const toggleMenu = (e) => {
       e.preventDefault();
       e.stopPropagation();
-
-      if (mob.classList.contains('open')) {
-        closeMenu();
-      } else {
-        openMenu();
-      }
+      mob.classList.contains('open') ? closeMenu() : openMenu();
     };
 
-    tog.addEventListener('click', toggleMenu, { passive: false });
+    tog.addEventListener('click', toggleMenu);
 
     document.addEventListener('click', (e) => {
       if (!mob.contains(e.target) && !tog.contains(e.target)) {
@@ -327,16 +326,15 @@
       }
     });
 
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') closeMenu();
-    });
-
     mob.querySelectorAll('a').forEach((a) => {
       a.addEventListener('click', closeMenu);
     });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeMenu();
+    });
   }
 
-  // ── BOOT ─────────────────────────────────────────────────────
   async function boot() {
     lazyObs = setupLazy();
     initNav();
@@ -348,8 +346,8 @@
     grid.innerHTML = '<li class="bento-loading">Loading latest broadcast news…</li>';
 
     try {
-      const data  = await loadNews();
-      const pool  = [...(data.featured_priority || []), ...(data.items || [])];
+      const data = await loadNews();
+      const pool = [...(data.featured_priority || []), ...(data.items || [])];
       const valid = pool.filter((it) => it.slug || it.url || it.link);
 
       allItems = (!cat || cat === 'featured')
