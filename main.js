@@ -98,8 +98,6 @@
     const cat         = (item.category || 'featured').toLowerCase().trim();
     const catLbl      = cat.replace(/-/g,' ').replace(/\b\w/g, c => c.toUpperCase());
     const srcTxt      = (item.source_domain || item.source || '').replace(/https?:\/\//,'').replace('www.','').split('/')[0].toUpperCase();
-    const text        = item.card_summary || item.dek || item.meta_description || item.teaser || '';
-    // Title links to SOURCE, CTA links to internal analysis page
     const titleHref   = isExternal(srcUrl) ? srcUrl : internalUrl;
     const titleTarget = isExternal(titleHref) ? ' target="_blank"' : '';
     const titleRel    = isExternal(titleHref) ? ' rel="noopener noreferrer nofollow"' : '';
@@ -142,7 +140,6 @@
     const cat         = (item.category || 'featured').toLowerCase().trim();
     const catLbl      = cat.replace(/-/g,' ').replace(/\b\w/g, c => c.toUpperCase());
     const srcTxt      = (item.source_domain || item.source || '').replace(/https?:\/\//,'').replace('www.','').split('/')[0].toUpperCase();
-    const text        = item.card_summary || item.dek || item.meta_description || item.teaser || '';
     const titleHref   = isExternal(srcUrl) ? srcUrl : internalUrl;
     const titleTarget = isExternal(titleHref) ? ' target="_blank"' : '';
     const titleRel    = isExternal(titleHref) ? ' rel="noopener noreferrer nofollow"' : '';
@@ -270,29 +267,49 @@
   function initNav() {
     const tog = document.querySelector('.nav-toggle');
     const mob = document.querySelector('.nav-mob');
+
     if (!tog || !mob || tog.dataset.tsInit === '1') return;
+
     tog.dataset.tsInit = '1';
     tog.setAttribute('aria-expanded', 'false');
 
+    const openMenu = () => {
+      mob.classList.add('open');
+      document.body.classList.add('menu-open');
+      tog.setAttribute('aria-expanded', 'true');
+    };
+
     const closeMenu = () => {
       mob.classList.remove('open');
+      document.body.classList.remove('menu-open');
       tog.setAttribute('aria-expanded', 'false');
     };
-    const toggleMenu = e => {
+
+    const toggleMenu = (e) => {
       e.preventDefault();
       e.stopPropagation();
-      const open = mob.classList.toggle('open');
-      tog.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if (mob.classList.contains('open')) {
+        closeMenu();
+      } else {
+        openMenu();
+      }
     };
 
     tog.addEventListener('click', toggleMenu, { passive: false });
-    document.addEventListener('click', e => {
-      if (!mob.contains(e.target) && !tog.contains(e.target)) closeMenu();
+
+    document.addEventListener('click', (e) => {
+      if (!mob.contains(e.target) && !tog.contains(e.target)) {
+        closeMenu();
+      }
     });
-    document.addEventListener('keydown', e => {
+
+    document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') closeMenu();
     });
-    mob.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
+
+    mob.querySelectorAll('a').forEach((a) => {
+      a.addEventListener('click', closeMenu);
+    });
   }
 
   // ── BOOT ─────────────────────────────────────────────────────
@@ -304,7 +321,7 @@
     if (!grid) return;
 
     const cat = (document.body.dataset.category || '').toLowerCase().trim();
-    grid.innerHTML = '<li class="bento-loading">Loading latest broadcast news\u2026</li>';
+    grid.innerHTML = '<li class="bento-loading">Loading latest broadcast news…</li>';
 
     try {
       const data  = await loadNews();
