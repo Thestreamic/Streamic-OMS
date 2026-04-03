@@ -961,18 +961,3 @@ body.menu-open {
 .nav-mob {
   z-index: 999;
 }
-.hp-news-links {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-
-.hp-news-source {
-  font-size: 11.5px;
-  color: #666;
-  text-decoration: none;
-}
-
-.hp-news-source:hover {
-  color: var(--blue);
-}
