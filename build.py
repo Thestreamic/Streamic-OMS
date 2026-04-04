@@ -175,36 +175,49 @@ def head(title, desc, canon, css="style.css", og_img="", robots="index,follow"):
 </head>"""
 
 def nav(active="", base=""):
-    # AdSense mode: only Home, AI Post category, and How-To visible
     cats = [
-        ("index.html", "Home"),
-        ("ai-post-production.html", "AI in Broadcasting"),
-        ("howto.html", "How-To Guides"),
+        ("/",                              "Home"),
+        ("ai-post-production.html",        "AI in Broadcasting"),
+        ("howto.html",                     "How-To Guides"),
         ("post-production-workflows.html", "Post Production Workflows"),
-            ]
+        ("insights.html",                  "Insights"),
+    ]
     def _nav_li(h, lbl, base=base, active=active):
         cls = ' class="active"' if h == active else ''
-        return f'<li><a href="{base}{h}"{cls}>{lbl}</a></li>'
+        href = h if h.startswith("/") else f"{base}{h}"
+        return f'<li><a href="{href}"{cls}>{lbl}</a></li>'
     lis = "".join(_nav_li(h, lbl) for h, lbl in cats)
+    mob_all = cats + [("about.html","About"),("contact.html","Contact")]
     mob_links = "".join(
-        f'<a href="{base}{h}">{lbl}</a>' for h, lbl in cats)
+        f'<a href="{h if h.startswith("/") else base+h}">{lbl}</a>' for h, lbl in mob_all)
+    _onclick = (
+        "onclick=\"(function(b,m){"
+        "m.classList.toggle('open');"
+        "b.setAttribute('aria-expanded',m.classList.contains('open'));"
+        "document.body.classList.toggle('menu-open',m.classList.contains('open'));"
+        "})(this,this.closest('nav').querySelector('.nav-mob'))\""
+    )
     return f"""<nav class="nav">
   <div class="nav-inner">
-    <a href="{base}index.html" class="nav-logo">
+    <a href="{base if base else '/'}" class="nav-logo">
       <img src="{base}assets/logo.png" alt="" onerror="this.style.display='none'" aria-hidden="true">
-      <span>The Streamic</span>
+      <div class="nav-logo-text">
+        <span class="nav-logo-name">The Streamic</span>
+        <span class="nav-logo-tagline">Media &amp; Broadcast IT Analysis</span>
+      </div>
     </a>
+    <div class="nav-divider" aria-hidden="true"></div>
     <ul class="nav-links">{lis}</ul>
     <div class="nav-right">
       <a href="{base}about.html" class="nav-desk">About</a>
-      <button class="nav-toggle" aria-label="Menu" onclick="document.querySelector('.nav-mob').classList.toggle('open')">
+      <button class="nav-toggle" aria-label="Menu" type="button" {_onclick}>
         <span></span><span></span><span></span>
       </button>
     </div>
   </div>
-  <div class="nav-mob">{mob_links}<a href="{base}about.html">About</a><a href="{base}contact.html">Contact</a></div>
+  <div class="nav-gold" aria-hidden="true"></div>
+  <div class="nav-mob">{mob_links}</div>
 </nav>"""
-
 def catbar(active_cat="", base=""):
     # Hidden during AdSense review — only AI Post visible via nav
     return ""
