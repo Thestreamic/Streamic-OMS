@@ -25,36 +25,81 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="homepage-layout.css">
-  <style>
+<style>
+  .hp-hero{
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 16 / 9;
+    min-height: 420px;
+    max-height: 820px;
+    border-radius: 28px;
+  }
+
+  .hp-hero-img-link{
+    position: absolute;
+    inset: 0;
+    display: block;
+  }
+
+  .hp-hero-img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .hp-hero::before{
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to right,
+      rgba(0,0,0,0.75) 0%,
+      rgba(0,0,0,0.55) 35%,
+      rgba(0,0,0,0.2) 60%,
+      rgba(0,0,0,0) 100%
+    );
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .hp-hero-overlay{
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+  }
+
+  .hp-hero-body{
+    position: absolute;
+    left: 48px;
+    right: 48px;
+    bottom: 44px;
+    z-index: 3;
+    max-width: 760px;
+  }
+
+  .hp-hero-hl{
+    max-width: 700px;
+  }
+
+  @media (max-width: 900px){
     .hp-hero{
-      position:relative;
-      overflow:hidden;
+      min-height: 500px;
+      aspect-ratio: auto;
     }
-    .hp-hero::before{
-      content:"";
-      position:absolute;
-      inset:0;
-      background:linear-gradient(
-        to right,
-        rgba(0,0,0,0.75) 0%,
-        rgba(0,0,0,0.55) 35%,
-        rgba(0,0,0,0.2) 60%,
-        rgba(0,0,0,0) 100%
-      );
-      z-index:1;
-      pointer-events:none;
-    }
-    .hp-hero-overlay{
-      z-index:2;
-    }
+
     .hp-hero-body{
-      position:relative;
-      z-index:3;
+      left: 24px;
+      right: 24px;
+      bottom: 24px;
+      max-width: none;
     }
+
     .hp-hero-hl{
-      max-width:700px;
+      max-width: none;
     }
-  </style>
+  }
+</style>
 </head>
 <body data-category="featured">
 <nav class="nav">
