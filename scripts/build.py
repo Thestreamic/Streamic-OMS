@@ -332,14 +332,14 @@ def news_card(a, base="", is_first=False):
   </div>
 </li>"""
 
-def news_grid(arts, base=""):
-    """SSR bento grid &#8212; JS hydrates from news.json, this provides SEO content."""
+def news_grid(arts, base="", grid_id="bentoGridLarge"):
+    """SSR bento grid. Use grid_id='catGrid' on category pages to keep SSR content."""
     if not arts: return ""
     cards = "\n".join(
         news_card(a, base, is_first=(i==0))
         for i, a in enumerate(arts)
     )
-    return f'<ul id="bentoGridLarge" class="bento-grid-large">\n{cards}\n</ul>'
+    return f'<ul id="{grid_id}" class="bento-grid-large">\n{cards}\n</ul>'
 
 # ── EDITORIAL CARD (deep-dive articles)
 def ed_card(a, base=""):
@@ -1060,7 +1060,7 @@ def featured_page(arts):
 
     return f'''{homepage_head}
 <body data-category="featured">
-{nav("index.html")}
+{nav("/")}
 <main>
   <div class="w">
     {hero_html}
@@ -1171,7 +1171,7 @@ def category_page(cat, arts):
         rest   = sl[1:]
 
         hero_html = hero_block(first[0], base="") if first else ""
-        grid_html = news_grid(rest) if rest else ""
+        grid_html = news_grid(rest, grid_id="catGrid") if rest else ""
 
         pag = _pag_html(cat, pg, total_pages)
 
@@ -2004,6 +2004,7 @@ def main():
     w(os.path.join(DOCS,"featured.html"), fp)
     w(os.path.join(DOCS,"index.html"),    fp)
     w(os.path.join(ROOT,"index.html"),    fp)   # Also at root — fixes 404 when Pages serves from branch root
+    w(os.path.join(ROOT,"featured.html"), fp)  # Mirror at root so /featured.html resolves everywhere
     print("  &#10003; featured.html + index.html")
 
     # ── posts.html — noindex (preserve links, hide from Google) ──────────
@@ -2055,6 +2056,23 @@ def main():
     for fn in howto_guides:
         shutil.copy2(os.path.join(ARTS_D,fn), os.path.join(root_arts,fn))
     print(f"  &#10003; {len(howto_guides)} how-to guides mirrored to root/articles/")
+
+    # ── Copy root-level hand-authored articles to docs/articles/ ──────────
+    # These are manually created articles that live at repo root and must
+    # also be served from docs/articles/ for GitHub Pages to find them.
+    _root_html_articles = [
+        "studio-grade-video-workflow-post-production-2026.html",
+    ]
+    for _fn in _root_html_articles:
+        _src_path = os.path.join(ROOT, _fn)
+        _dst_path = os.path.join(ARTS_D, _fn)
+        if os.path.isfile(_src_path) and not os.path.exists(_dst_path):
+            shutil.copy2(_src_path, _dst_path)
+            print(f"  &#10003; {_fn} copied to docs/articles/")
+        elif os.path.isfile(_src_path):
+            # Always update — root is the source of truth for hand-authored articles
+            shutil.copy2(_src_path, _dst_path)
+            print(f"  &#10003; {_fn} synced to docs/articles/")
 
     # ── docs/data/ for client-side JS — only visible articles ────────────
     docs_data_dir = os.path.join(DOCS, "data")
