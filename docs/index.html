@@ -25,6 +25,36 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="homepage-layout.css">
+  <style>
+    .hp-hero{
+      position:relative;
+      overflow:hidden;
+    }
+    .hp-hero::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(
+        to right,
+        rgba(0,0,0,0.75) 0%,
+        rgba(0,0,0,0.55) 35%,
+        rgba(0,0,0,0.2) 60%,
+        rgba(0,0,0,0) 100%
+      );
+      z-index:1;
+      pointer-events:none;
+    }
+    .hp-hero-overlay{
+      z-index:2;
+    }
+    .hp-hero-body{
+      position:relative;
+      z-index:3;
+    }
+    .hp-hero-hl{
+      max-width:700px;
+    }
+  </style>
 </head>
 <body data-category="featured">
 <nav class="nav">
