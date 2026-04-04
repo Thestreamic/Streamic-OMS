@@ -1231,3 +1231,24 @@
 
 
 .hp-sec-sub{margin:8px 0 0;color:#666;font:500 14px/1.55 "DM Sans",system-ui,sans-serif;max-width:720px;}
+
+/* ── Fix: nav gold bar visibility on homepage ──────────────────────
+   The 1.5px sub-pixel height in style.css renders inconsistently,
+   and the gradient fades to transparent at edges, blending into the
+   dark hero image below. This override forces a visible 2px line.   */
+body[data-category="featured"] .nav-gold {
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent 5%,
+    #c9a84c 28%,
+    #b8860b 50%,
+    #c9a84c 72%,
+    transparent 95%
+  );
+  opacity: 1;
+}
+/* Remove duplicate grey border so gold line stands alone */
+body[data-category="featured"] .nav {
+  border-bottom: none;
+}
