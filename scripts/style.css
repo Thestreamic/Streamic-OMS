@@ -1158,3 +1158,47 @@ img{max-width:100%;display:block}
 body.menu-open {
   overflow: hidden;
 }
+/* --- Insight Card Layout --- */
+.insight-card {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+  background: #ffffff;
+  margin-bottom: 24px;
+  transition: box-shadow 0.2s ease;
+  text-decoration: none;
+  color: inherit;
+}
+
+.insight-card:hover {
+  box-shadow: 0 4px 24px rgba(0,0,0,0.09);
+}
+
+.insight-card-content {
+  padding: 32px 36px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.insight-card-image {
+  overflow: hidden;
+}
+
+/* --- Mobile View Fix --- */
+@media (max-width: 768px) {
+  .insight-card {
+    grid-template-columns: 1fr; /* Stacks text and image vertically */
+  }
+  
+  .insight-card-image {
+    order: -1; /* Moves the image to the top of the card on mobile */
+    height: 220px; /* Gives the image a nice fixed height so it isn't too tall */
+  }
+
+  .insight-card-content {
+    padding: 24px; /* Slightly tighter padding for small phone screens */
+  }
+}
