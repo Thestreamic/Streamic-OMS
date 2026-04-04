@@ -1981,7 +1981,7 @@ def sitemap(arts):
         ("howto.html",                   "weekly",  "0.85"),
         ("post-production-workflows.html","weekly",  "0.80"),
         # UNHIDE: uncomment next line to add Insights to sitemap
-        # ("insights.html",                "weekly",  "0.85"),
+         ("insights.html",                "weekly",  "0.85"),
         ("about.html",                   "monthly", "0.6"),
         ("contact.html",                 "monthly", "0.5"),
         ("editorial-policy.html",        "monthly", "0.6"),
