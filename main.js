@@ -288,6 +288,7 @@
   function openSearch() {
     const ov = document.getElementById('ts-search-ov');
     if (!ov) return;
+    ov.style.display = 'flex'; // override inline display:none
     ov.classList.add('open');
     document.body.classList.add('ts-modal-open');
     const inp = document.getElementById('ts-si');
@@ -298,7 +299,7 @@
 
   function closeSearch() {
     const ov = document.getElementById('ts-search-ov');
-    if (ov) { ov.classList.remove('open'); document.body.classList.remove('ts-modal-open'); }
+    if (ov) { ov.style.display = 'none'; ov.classList.remove('open'); document.body.classList.remove('ts-modal-open'); }
   }
 
   function injectSearchUI() {
@@ -321,15 +322,15 @@
     if (document.getElementById('ts-search-ov')) return;
     const ov = document.createElement('div');
     ov.id = 'ts-search-ov';
-    ov.style.display = 'none';
+    ov.style.cssText = 'display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.55);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);padding:80px 16px 16px;align-items:flex-start;justify-content:center;overflow-y:auto;box-sizing:border-box;';
     ov.setAttribute('role', 'dialog');
     ov.setAttribute('aria-label', 'Search');
     ov.innerHTML =
-      `<div class="ts-sbox">` +
-        `<div class="ts-shead">` +
-          `<svg class="ts-sico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7.5"/><line x1="20.5" y1="20.5" x2="16.3" y2="16.3"/></svg>` +
-          `<input id="ts-si" type="search" placeholder="Search articles, topics, technology…" autocomplete="off" spellcheck="false">` +
-          `<button class="ts-sclose" aria-label="Close" onclick="(function(){var o=document.getElementById('ts-search-ov');if(o){o.classList.remove('open');document.body.classList.remove('ts-modal-open');}})()">&#10005;</button>` +
+      `<div class="ts-sbox" style="background:#fff;border-radius:16px;width:100%;max-width:680px;box-shadow:0 24px 60px rgba(0,0,0,.18);overflow:hidden;display:flex;flex-direction:column;">` +
+        `<div class="ts-shead" style="display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid #e5e5e5;">` +
+          `<svg class="ts-sico" width="20" height="20" style="width:20px;height:20px;min-width:20px;flex-shrink:0;color:#86868b;display:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7.5"/><line x1="20.5" y1="20.5" x2="16.3" y2="16.3"/></svg>` +
+          `<input id="ts-si" type="search" placeholder="Search articles, topics, technology…" autocomplete="off" spellcheck="false" style="flex:1;border:none;outline:none;font-size:16px;font-family:inherit;background:transparent;color:#1d1d1f;min-width:0;">` +
+          `<button class="ts-sclose" aria-label="Close" style="background:none;border:none;cursor:pointer;font-size:18px;color:#86868b;padding:4px 6px;flex-shrink:0;" onclick="(function(){var o=document.getElementById('ts-search-ov');if(o){o.style.display='none';o.classList.remove('open');document.body.classList.remove('ts-modal-open');}})()">&#10005;</button>` +
         `</div>` +
         `<div id="ts-sr" class="ts-sr"></div>` +
         `<div class="ts-shint">Press <kbd>Esc</kbd> to close &nbsp;·&nbsp; Press <kbd>/</kbd> from anywhere to open</div>` +
@@ -404,6 +405,7 @@
   function openArchive() {
     const ov = document.getElementById('ts-arc-ov');
     if (!ov) return;
+    ov.style.display = 'flex'; // override inline display:none
     ov.classList.add('open');
     document.body.classList.add('ts-modal-open');
     getArchiveData().then(items => {
@@ -423,7 +425,7 @@
 
   function closeArchive() {
     const ov = document.getElementById('ts-arc-ov');
-    if (ov) { ov.classList.remove('open'); document.body.classList.remove('ts-modal-open'); }
+    if (ov) { ov.style.display = 'none'; ov.classList.remove('open'); document.body.classList.remove('ts-modal-open'); }
   }
 
   function injectArchiveUI() {
@@ -447,16 +449,16 @@
     if (document.getElementById('ts-arc-ov')) return;
     const ov = document.createElement('div');
     ov.id = 'ts-arc-ov';
-    ov.style.display = 'none';
+    ov.style.cssText = 'display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.55);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);padding:80px 16px 16px;align-items:flex-start;justify-content:center;overflow-y:auto;box-sizing:border-box;';
     ov.setAttribute('role', 'dialog');
     ov.setAttribute('aria-label', 'Article Archive');
     ov.innerHTML =
-      `<div class="ts-arcbox">` +
+      `<div class="ts-arcbox" style="background:#fff;border-radius:16px;width:100%;max-width:760px;max-height:85vh;box-shadow:0 24px 60px rgba(0,0,0,.18);overflow:hidden;display:flex;flex-direction:column;">` +
         `<div class="ts-archdr">` +
           `<h2 class="ts-arctitle">Article Archive</h2>` +
           `<div class="ts-arccontrols">` +
             `<select id="ts-arc-sel" class="ts-arcsel"><option value="">All Categories</option></select>` +
-            `<button class="ts-arcclose" aria-label="Close archive" onclick="(function(){var o=document.getElementById('ts-arc-ov');if(o){o.classList.remove('open');document.body.classList.remove('ts-modal-open');}})()">&#10005;</button>` +
+            `<button class="ts-arcclose" aria-label="Close archive" style="background:none;border:none;cursor:pointer;font-size:18px;color:#86868b;padding:4px 6px;" onclick="(function(){var o=document.getElementById('ts-arc-ov');if(o){o.style.display='none';o.classList.remove('open');document.body.classList.remove('ts-modal-open');}})()">&#10005;</button>` +
           `</div>` +
         `</div>` +
         `<div id="ts-arc-body" class="ts-arc-body"><div class="ts-arcload">Loading archive…</div></div>` +
