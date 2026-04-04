@@ -218,6 +218,7 @@ def nav(active="", base=""):
   <div class="nav-gold" aria-hidden="true"></div>
   <div class="nav-mob">{mob_links}</div>
 </nav>"""
+
 def catbar(active_cat="", base=""):
     # Hidden during AdSense review — only AI Post visible via nav
     return ""
@@ -1021,15 +1022,17 @@ def featured_page(arts):
     cinfo = CAT.get((hero_art or {}).get("category", "featured"), CAT["featured"])
     # Hero title overrides — edit here to control displayed title without touching JSON
     HERO_TITLE_OVERRIDES = {
-        "ai-reducing-broadcast-operational-costs-2026": "Beyond Automation: How Can AI Optimize Broadcast Costs and Scales Human Potential in 2026",
+        "ai-reducing-broadcast-operational-costs-2026": "Beyond Automation: How AI Can Optimize Broadcast Costs and Scale Human Potential in 2026",
     }
 
     hero_html = ""
     if hero_art:
         _hero_title = HERO_TITLE_OVERRIDES.get(hero_art.get("slug", ""), hero_art.get("title", ""))
+        _hero_img_src = 'assets/hero-broadcast-male.png' if os.path.exists(custom_hero_path) else _hp_img(hero_art)
+        _hero_img_alt = "Broadcast production switcher in a modern control room with illuminated buttons and blurred monitoring screens" if os.path.exists(custom_hero_path) else e(_hero_title)
         hero_html = f'''<section class="hp-hero" aria-label="Featured story">
   <a href="articles/{hero_art['slug']}.html" class="hp-hero-img-link" tabindex="-1" aria-hidden="true">
-    <img class="hp-hero-img" src="{'assets/hero-broadcast-male.png' if os.path.exists(custom_hero_path) else _hp_img(hero_art)}" alt="{e(_hero_title)}" loading="eager" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+    <img class="hp-hero-img" src="{_hero_img_src}" alt="{_hero_img_alt}" loading="eager" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
   </a>
   <div class="hp-hero-overlay" aria-hidden="true"></div>
   <div class="hp-hero-body">
