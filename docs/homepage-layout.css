@@ -26,9 +26,10 @@
 .hp-hero {
   position: relative;
   display: block;
-  border-radius: var(--radius);
+  /* Full-bleed: escape .w's 24px padding so image reaches viewport edge */
+  border-radius: 0;
   overflow: hidden;
-  margin: 32px 0 0;
+  margin: 32px -24px 0;
   background: #0a0a0f;
 }
 .hp-hero-img-link {
@@ -39,7 +40,8 @@
   width: 100%;
   height: 400px;
   object-fit: cover;
-  object-position: center 40%;
+  /* Reframed: show the illuminated console buttons, not the dark monitors at top */
+  object-position: center 65%;
   display: block;
   /* Lift subject without clipping amber button glow */
   filter: brightness(1.18) contrast(1.08) saturate(1.06);
@@ -77,6 +79,7 @@
   left: 0;
   right: 0;
   padding: 40px 36px 56px;
+  text-align: left;
   /* Staggered fade-up entrance */
   animation: heroBodyReveal 0.9s 0.25s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
@@ -115,7 +118,7 @@
   font-family: var(--serif);
   font-size: clamp(20px, 2.2vw, 28px);
   line-height: 1.25;
-  letter-spacing: -.03em;
+  letter-spacing: -.04em;
   color: #fff;
   margin: 0 0 20px;
   text-shadow: 0 1px 12px rgba(0, 0, 0, .45);
@@ -1060,8 +1063,9 @@
   }
 
   /* ── Hero mobile ─────────────────────────────────────────────── */
-  .hp-hero       { border-radius: 10px; margin: 20px 0 0; }
-  .hp-hero-img   { height: 260px; object-position: center 35%; }
+  /* Re-compensate: .w drops to padding:0 16px at this breakpoint */
+  .hp-hero       { border-radius: 0; margin: 20px -16px 0; }
+  .hp-hero-img   { height: 260px; object-position: center 60%; }
 
   .hp-hero-body  {
     /* Reset desktop's 56px bottom lift — image is too short on mobile */
@@ -1116,7 +1120,7 @@
 
 /* Small mobile (≤ 480px) */
 @media (max-width: 480px) {
-  .hp-hero-img  { height: 220px; object-position: center 30%; }
+  .hp-hero-img  { height: 220px; object-position: center 58%; }
   .hp-hero-body {
     padding: 0 14px 16px;
   }
@@ -1152,7 +1156,7 @@
 
 /* Very small / landscape phones (≤ 380px) */
 @media (max-width: 380px) {
-  .hp-hero-img  { height: 195px; }
+  .hp-hero-img  { height: 195px; object-position: center 55%; }
   .hp-hero-body { padding: 0 12px 14px; }
   .hp-hero-body::before { display: none; }
   .hp-hero-hl   { font-size: 15px; margin-bottom: 10px; }
@@ -1178,7 +1182,7 @@
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
   @media (max-width: 768px) {
     .hp-hero-body {
-      padding-bottom: max(20px, env(safe-area-inset-bottom));
+      padding-bottom: max(22px, env(safe-area-inset-bottom));
     }
   }
 }
