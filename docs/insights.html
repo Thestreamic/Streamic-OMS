@@ -39,7 +39,7 @@
     <ul class="nav-links"><li><a href="/">Home</a></li><li><a href="ai-post-production.html">AI in Broadcasting</a></li><li><a href="howto.html">How-To Guides</a></li><li><a href="post-production-workflows.html">Post Production Workflows</a></li><li><a href="insights.html" class="active">Insights</a></li></ul>
     <div class="nav-right">
       <a href="about.html" class="nav-desk">About</a>
-      <button class="nav-toggle" aria-label="Menu" type="button">
+      <button class="nav-toggle" aria-label="Menu" type="button" onclick="(function(b,m){m.classList.toggle('open');b.setAttribute('aria-expanded',m.classList.contains('open'));document.body.classList.toggle('menu-open',m.classList.contains('open'));})(this,this.closest('nav').querySelector('.nav-mob'))">
         <span></span><span></span><span></span>
       </button>
     </div>

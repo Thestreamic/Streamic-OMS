@@ -184,20 +184,29 @@ def head(title, desc, canon, css="style.css", og_img="", robots="index,follow"):
 
 def nav(active="", base=""):
     cats = [
-        ("/", "Home"),
-        ("ai-post-production.html", "AI in Broadcasting"),
-        ("howto.html", "How-To Guides"),
+        ("/",                              "Home"),
+        ("ai-post-production.html",        "AI in Broadcasting"),
+        ("howto.html",                     "How-To Guides"),
         ("post-production-workflows.html", "Post Production Workflows"),
-        # UNHIDE: uncomment next line to add Insights to nav
-        # ("insights.html", "Insights"),
+        ("insights.html",                  "Insights"),
     ]
     def _nav_li(h, lbl, base=base, active=active):
         cls = ' class="active"' if h == active else ''
         href = h if h.startswith("/") else f"{base}{h}"
         return f'<li><a href="{href}"{cls}>{lbl}</a></li>'
     lis = "".join(_nav_li(h, lbl) for h, lbl in cats)
+    # Mobile = all desktop links + About + Contact
+    mob_all = cats + [("about.html","About"),("contact.html","Contact")]
     mob_links = "".join(
-        f'<a href="{h if h.startswith("/") else base+h}">{lbl}</a>' for h, lbl in cats)
+        f'<a href="{h if h.startswith("/") else base+h}">{lbl}</a>' for h, lbl in mob_all)
+    # Inline onclick: toggles open, syncs aria-expanded, handles body scroll lock
+    _onclick = (
+        "onclick=\"(function(b,m){"
+        "m.classList.toggle('open');"
+        "b.setAttribute('aria-expanded',m.classList.contains('open'));"
+        "document.body.classList.toggle('menu-open',m.classList.contains('open'));"
+        "})(this,this.closest('nav').querySelector('.nav-mob'))\""
+    )
     return f"""<nav class="nav">
   <div class="nav-inner">
     <a href="{base if base else '/'}" class="nav-logo">
@@ -211,13 +220,13 @@ def nav(active="", base=""):
     <ul class="nav-links">{lis}</ul>
     <div class="nav-right">
       <a href="{base}about.html" class="nav-desk">About</a>
-      <button class="nav-toggle" aria-label="Menu" type="button">
+      <button class="nav-toggle" aria-label="Menu" type="button" {_onclick}>
         <span></span><span></span><span></span>
       </button>
     </div>
   </div>
   <div class="nav-gold" aria-hidden="true"></div>
-  <div class="nav-mob">{mob_links}<a href="{base}about.html">About</a><a href="{base}contact.html">Contact</a></div>
+  <div class="nav-mob">{mob_links}</div>
 </nav>"""
 
 def catbar(active_cat="", base=""):
