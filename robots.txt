@@ -1,5 +1,43 @@
+# Streamic Robots.txt - Final Version
+
+# Global rules for all search engines
 User-agent: *
+Content-Signal: search=yes,ai-input=no,ai-train=no
 Allow: /
 Disallow: /featured.html
+Disallow: /cdn-cgi/
 
+# Specifically allow AdSense crawler to ensure approval
+User-agent: Mediapartners-Google
+Allow: /
+
+# Block AI scrapers and non-search crawlers
+User-agent: Amazonbot
+Disallow: /
+
+User-agent: Applebot-Extended
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: ClaudeBot
+Disallow: /
+
+User-agent: CloudflareBrowserRenderingCrawler
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: GPTBot
+Disallow: /
+
+User-agent: meta-externalagent
+Disallow: /
+
+# Sitemap location
 Sitemap: https://www.thestreamic.in/sitemap.xml
