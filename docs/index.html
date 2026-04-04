@@ -26,12 +26,14 @@
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="homepage-layout.css">
 <style>
+  <style>
   .hp-hero{
     position: relative;
     overflow: hidden;
     aspect-ratio: 16 / 9;
-    min-height: 380px;
-    max-height: 720px;
+    min-height: 0;
+    height: auto;
+    max-height: 680px;
     border-radius: 28px;
   }
 
@@ -84,19 +86,45 @@
 
   @media (max-width: 900px){
     .hp-hero{
-      min-height: 500px;
-      aspect-ratio: auto;
+      aspect-ratio: 16 / 10;
+      min-height: 0;
+      max-height: none;
+      border-radius: 22px;
     }
 
     .hp-hero-body{
       left: 24px;
       right: 24px;
-      bottom: 24px;
-      max-width: none;
+      bottom: 22px;
+      max-width: 92%;
     }
 
     .hp-hero-hl{
-      max-width: none;
+      max-width: 100%;
+    }
+  }
+
+  @media (max-width: 640px){
+    .hp-hero{
+      aspect-ratio: 4 / 5;
+      border-radius: 18px;
+    }
+
+    .hp-hero-body{
+      left: 18px;
+      right: 18px;
+      bottom: 18px;
+      max-width: 100%;
+    }
+
+    .hp-hero::before{
+      background: linear-gradient(
+        to top,
+        rgba(0,0,0,0.82) 0%,
+        rgba(0,0,0,0.58) 38%,
+        rgba(0,0,0,0.18) 68%,
+        rgba(0,0,0,0.05) 100%
+      );
     }
   }
 </style>
