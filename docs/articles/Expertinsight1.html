@@ -29,7 +29,7 @@
   <style>
     .interview-wrap{max-width:720px;margin:0 auto;padding:48px 24px 80px}
     
-    /* Breadcrumb styling - fixed for alignment and mobile wrapping */
+    /* Breadcrumb styling */
     .art-breadcrumb{font-size:13px;color:var(--ink3, #666);margin-bottom:24px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-family:var(--font, sans-serif)}
     .art-breadcrumb a{color:var(--ink2, #333);text-decoration:none;transition:color 0.2s}
     .art-breadcrumb a:hover{color:var(--gold)}
@@ -38,10 +38,13 @@
     .interview-headline{font-family:var(--serif);font-size:clamp(28px,5vw,44px);line-height:1.1;margin-bottom:16px;color:var(--ink)}
     .interview-dek{font-size:18px;color:var(--ink2);line-height:1.55;margin-bottom:24px;font-family:var(--body-serif)}
     .interview-meta{font-size:13px;color:var(--ink4);margin-bottom:32px;padding-bottom:16px;border-bottom:1px solid var(--line);display:flex;gap:15px;flex-wrap:wrap}
+    
+    /* Expert Card Base */
     .expert-card{display:flex;align-items:center;gap:24px;background:var(--bg);border-radius:var(--radius);padding:24px;margin-bottom:40px;border:1px solid var(--line)}
-    .expert-photo{width:100px;height:100px;border-radius:50%;object-fit:cover;box-shadow:var(--shadow-md)}
+    .expert-photo{width:100px;height:100px;border-radius:50%;object-fit:cover;box-shadow:var(--shadow-md);flex-shrink:0}
     .expert-name{font-family:var(--serif);font-size:24px;margin-bottom:4px;color:var(--ink)}
     .expert-title{font-size:13px;color:var(--ink3);line-height:1.4}
+    
     .intro-box{background:#fdfbf7;border-left:4px solid var(--gold);padding:24px;border-radius:4px;margin-bottom:40px;font-family:var(--body-serif);font-size:16px;line-height:1.75;color:#555;font-style:italic}
     .intro-box strong{font-style:normal;color:var(--ink)}
     .qa-block{margin-bottom:40px}
@@ -50,12 +53,19 @@
     .qa-answer{font-family:var(--body-serif);font-size:17px;line-height:1.75;color:#333}
     .pull-quote{font-family:var(--serif);font-size:24px;color:var(--ink);line-height:1.4;font-style:italic;padding:30px;background:#fdfbf7;border-left:4px solid var(--gold);margin:40px 0}
     
-    /* Mobile Responsiveness */
+    /* MOBILE FIXES */
     @media(max-width:600px){
-      .expert-card{flex-direction:column;text-align:center;padding:20px}
-      .expert-photo{width:80px;height:80px}
-      .pull-quote{font-size:20px;padding:20px;margin:30px 0}
+      .interview-wrap{padding:32px 20px 60px}
+      
+      /* Force card to stack and center */
+      .expert-card{flex-direction:column;text-align:center;padding:30px 20px;gap:16px}
+      .expert-photo{width:90px;height:90px;margin:0 auto}
+      .expert-info{width:100%}
+      .expert-name{font-size:22px}
+      
+      .pull-quote{font-size:20px;padding:24px;margin:30px 0}
       .qa-question{font-size:20px}
+      .interview-headline{font-size:30px}
     }
   </style>
 </head>
