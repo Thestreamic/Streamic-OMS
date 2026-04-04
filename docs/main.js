@@ -310,6 +310,7 @@
         btn.id = 'ts-search-btn';
         btn.setAttribute('aria-label', 'Search');
         btn.title = 'Search  /';
+    btn.style.cssText = 'display:inline-flex;align-items:center;justify-content:center;background:none;border:none;cursor:pointer;padding:6px;border-radius:8px;color:var(--ink3);flex-shrink:0;width:32px;height:32px;overflow:hidden';
         btn.innerHTML = `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7.5"/><line x1="20.5" y1="20.5" x2="16.3" y2="16.3"/></svg>`;
         btn.onclick = openSearch;
         const tog = navRight.querySelector('.nav-toggle');
@@ -320,12 +321,13 @@
     if (document.getElementById('ts-search-ov')) return;
     const ov = document.createElement('div');
     ov.id = 'ts-search-ov';
+    ov.style.display = 'none';
     ov.setAttribute('role', 'dialog');
     ov.setAttribute('aria-label', 'Search');
     ov.innerHTML =
       `<div class="ts-sbox">` +
         `<div class="ts-shead">` +
-          `<svg class="ts-sico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7.5"/><line x1="20.5" y1="20.5" x2="16.3" y2="16.3"/></svg>` +
+          `<svg class="ts-sico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7.5"/><line x1="20.5" y1="20.5" x2="16.3" y2="16.3"/></svg>` +
           `<input id="ts-si" type="search" placeholder="Search articles, topics, technology…" autocomplete="off" spellcheck="false">` +
           `<button class="ts-sclose" aria-label="Close" onclick="(function(){var o=document.getElementById('ts-search-ov');if(o){o.classList.remove('open');document.body.classList.remove('ts-modal-open');}})()">&#10005;</button>` +
         `</div>` +
@@ -445,6 +447,7 @@
     if (document.getElementById('ts-arc-ov')) return;
     const ov = document.createElement('div');
     ov.id = 'ts-arc-ov';
+    ov.style.display = 'none';
     ov.setAttribute('role', 'dialog');
     ov.setAttribute('aria-label', 'Article Archive');
     ov.innerHTML =

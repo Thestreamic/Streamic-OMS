@@ -258,8 +258,7 @@ def footer(base=""):
       <a href="{base}ai-post-production.html">AI in Broadcasting</a>
       <a href="{base}howto.html">How-To Guides</a>
       <a href="{base}post-production-workflows.html">Post Production Workflows</a>
-      <!-- UNHIDE: uncomment next line to add Insights to footer -->
-      <!-- <a href="{base}insights.html">Insights</a> -->
+      <a href="{base}insights.html">Insights</a>
     </div>
     <div class="footer-col">
       <h4>Site</h4>
@@ -280,6 +279,7 @@ def footer(base=""):
     <span>All trademarks belong to their respective owners.</span>
   </div>
 </footer>"""
+
 
 # ── NEWS GRID (SSR from generated_articles.json)
 def _nc_img(a, base=""):
