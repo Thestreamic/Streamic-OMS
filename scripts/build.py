@@ -1108,17 +1108,20 @@ def featured_page(arts):
     guide_map = {a.get("slug"): a for a in editorial_all}
     guide_arts = [guide_map[s] for s in guide_slug_order if s in guide_map]
 
-    insight_slug_order = [
-        "beyond-the-chatbot-operational-ai-newsroom-2026",
-        "st-2110-small-market-hybrid-ip-broadcasters-2026",
-        "paris-2024-cloud-production-legacy-global-events-2026",
-        "c2pa-deepfake-news-credibility-digital-provenance-2026",
-    ]
-    art_map = {a.get("slug"): a for a in arts}
-    insight_arts = [art_map[s] for s in insight_slug_order if s in art_map]
-    if len(insight_arts) < 4:
-        used = {a.get("slug") for a in insight_arts} | {a.get("slug") for a in guide_arts} | ({hero_art.get("slug")} if hero_art else set())
-        insight_arts += [a for a in editorial_all + regular_all if a.get("slug") not in used][:4-len(insight_arts)]
+    # ── Latest Insights: pick 4 newest articles (excluding hero + guides) ──
+    used_slugs = {a.get("slug") for a in guide_arts} | ({hero_art.get("slug")} if hero_art else set())
+    insight_pool = [a for a in editorial_all + regular_all if a.get("slug") not in used_slugs]
+    # Already sorted newest-first (editorial_all and regular_all are pre-sorted)
+    # De-duplicate while preserving order
+    _seen_ins = set()
+    insight_arts = []
+    for a in insight_pool:
+        s = a.get("slug")
+        if s and s not in _seen_ins:
+            _seen_ins.add(s)
+            insight_arts.append(a)
+        if len(insight_arts) >= 4:
+            break
 
     sidebar_picks = [a for a in editorial_all if a.get("slug") != (hero_art or {}).get("slug")][:3]
     fresh_feed = load_homepage_feed(arts, limit=16)
