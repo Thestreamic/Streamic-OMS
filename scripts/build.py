@@ -30,9 +30,74 @@ PAGE_SIZE = 24
 
 # ── AdSense approval mode ─────────────────────────────────────────────────────
 # Show curated high-quality content. Full dataset remains hidden.
-MAX_ARTICLES   = 35          # raised to accommodate all 13 editorial + top RSS
+MAX_ARTICLES   = 120         # 78 editorial + top RSS; raised from 35
 VISIBLE_CAT    = "ai-post-production"  # only this category page is indexed
 MIN_BODY_SCORE = 50          # minimum editorial score to appear on homepage
+MIN_ARTICLE_WORDS = 800      # hard quality gate — reject articles below this
+
+# ── Broadcast & Media IT relevance terms ──────────────────────────────────────
+# Articles must contain at least 2 of these terms (case-insensitive) to pass.
+# This keeps the site focused on genuine broadcast engineering content.
+BROADCAST_TERMS = {
+    # Vendors & products
+    "avid", "media composer", "interplay", "mediacentral", "isis", "nexis",
+    "adobe", "premiere", "after effects", "frame.io",
+    "vizrt", "viz one", "viz engine", "viz artist", "ndn",
+    "grass valley", "gv", "edius", "kameleon",
+    "harmonic", "harmonic inc", "spectrum x", "polaris",
+    "telestream", "vantage", "lightspeed", "wirecast",
+    "pebble", "pebble beach", "lighthouse", "marina",
+    "imagine communications", "selenio",
+    "dalet", "dalet flex", "dalia",
+    "mediageni", "mediagenix", "whats on",
+    "editshare", "mediasilo",
+    "cinegy", "playout", "cinegy air",
+    "evertz", "dreamcatcher",
+    "ross video", "xpression", "carbonite",
+    "newtek", "tricaster",
+    "blackmagic", "davinci resolve", "atem", "decklink",
+    "playbox", "playbox neo",
+    "tedial", "media it",
+    "clear-com", "riedel", "bolero",
+    "aveco", "astra",
+    "signiant", "aspera",
+    # Protocols & standards
+    "smpte", "st 2110", "st2110", "st 2022", "nmos", "is-04", "is-05",
+    "aes67", "dante", "ravenna",
+    "scte-35", "scte 35", "bxf", "mos protocol", "mos gateway",
+    "ndi", "srt", "rist", "zixi",
+    "hls", "dash", "cmaf", "abr",
+    "atsc", "atsc 3.0", "dvb",
+    # Broadcast infrastructure
+    "sdi", "12g-sdi", "ip core", "ip routing",
+    "mam", "pam", "dam", "media asset management",
+    "nrcs", "newsroom computer", "inews", "enps", "octopus",
+    "playout", "channel in a box", "channel-in-a-box", "ciab",
+    "master control", "mcr", "automation engine",
+    "baseband", "embedder", "de-embedder",
+    "multiviewer", "monitoring", "probe",
+    "lto", "archive", "nearline", "deep archive",
+    # Workflow & operations
+    "broadcast", "broadcaster", "broadcast engineer",
+    "post-production", "post production", "color grading", "colour grading",
+    "transcode", "transcoding", "encoding", "mezzanine",
+    "ingest", "capture", "record",
+    "graphics", "cg", "lower third", "ticker",
+    "rundown", "studio automation",
+    "cloud playout", "cloud production", "remi", "remote production",
+    "cdn", "content delivery", "origin server",
+    "ott", "fast channel", "streaming", "live streaming",
+    "drm", "conditional access", "forensic watermark",
+    "qc", "quality control", "loudness", "ebu r128",
+    "metadata", "metadata enrichment",
+    "aaf", "edl", "xml", "mxf", "imf",
+    # AI / cloud
+    "ai", "artificial intelligence", "machine learning",
+    "aws", "amazon web services", "elemental",
+    "azure", "google cloud",
+    "ai metadata", "ai enrichment", "deepva",
+    "agentic", "llm",
+}
 
 CAT = {
     "featured":           {"label":"Featured",           "icon":"⭐","color":"#1d1d1f","desc":"Independent broadcast and streaming technology journalism."},
@@ -743,6 +808,49 @@ def _score_art(a):
     elif wc >= 200: s += 10
     if a.get("quality_score",0) >= 75: s += 25
     return s
+
+
+def _passes_quality_gate(a):
+    """Hard quality gate: article must be ≥ MIN_ARTICLE_WORDS AND contain
+    at least 2 broadcast/media-IT terms from BROADCAST_TERMS.
+
+    Hand-written editorials (generated_by == 'gpt_manual_editorial')
+    bypass the word count check — they are manually curated high-quality
+    content. They still must pass the relevance check.
+
+    Returns (passes: bool, reason: str) for diagnostics.
+    """
+    body = a.get("body_html", "") or ""
+    # Strip HTML tags for plain text
+    plain = re.sub(r"<[^>]+>", " ", body)
+    plain = re.sub(r"\s+", " ", plain).strip()
+    words = plain.split()
+    wc = len(words)
+
+    is_manual_editorial = a.get("generated_by") == "gpt_manual_editorial"
+
+    # ── Word count gate (auto-generated only) ────────────────────────────
+    if not is_manual_editorial and wc < MIN_ARTICLE_WORDS:
+        return False, f"too short ({wc} words, need {MIN_ARTICLE_WORDS})"
+
+    # ── Even manual editorials need a minimum body ───────────────────────
+    if is_manual_editorial and wc < 400:
+        return False, f"editorial too short ({wc} words, need 400)"
+
+    # ── Broadcast relevance gate ─────────────────────────────────────────
+    # Check title + body (lowercased) for BROADCAST_TERMS matches
+    search_text = (a.get("title", "") + " " + plain).lower()
+    matched = set()
+    for term in BROADCAST_TERMS:
+        if term in search_text:
+            matched.add(term)
+        if len(matched) >= 2:
+            break  # fast exit — 2 is enough
+
+    if len(matched) < 2:
+        return False, f"low relevance (matched {len(matched)} terms: {matched})"
+
+    return True, "ok"
 
 
 def enforce_sections(body_html: str) -> bool:
@@ -1517,7 +1625,7 @@ def about_page():
     return f"""{head("About The Streamic — Prerak K Mehta","Independent broadcast and streaming technology journalism from Dublin, Ireland.",f"{BASE_URL}/about.html")}
 <body>
 {nav()}
-<main><div class="w" style="padding:52px 0 80px;max-width:780px">
+<main><div class="w" style="padding:52px 24px 80px;max-width:780px">
 <h1 style="font-family:var(--serif);font-size:clamp(28px,4vw,44px);margin-bottom:16px;letter-spacing:-.5px">About The Streamic</h1>
 <p style="font-size:17px;color:var(--ink2);line-height:1.65;margin-bottom:20px">The Streamic is an independent broadcast and streaming technology publication covering the tools, standards, and workflows that shape modern media production and delivery.</p>
 <p style="font-size:15px;color:var(--ink3);line-height:1.7;margin-bottom:20px">We publish original editorial analysis on topics including IP infrastructure (SMPTE ST 2110, NMOS), cloud-native production, operational AI, real-time graphics, playout automation, and newsroom technology. Our readership includes broadcast engineers, operations managers, technology directors, and media industry professionals.</p>
@@ -1560,7 +1668,7 @@ def contact_page():
     return f"""{head("Contact — The Streamic","Get in touch with The Streamic editorial team in Dublin, Ireland.",f"{BASE_URL}/contact.html")}
 <body>
 {nav()}
-<main><div class="w" style="padding:52px 0 80px;max-width:680px">
+<main><div class="w" style="padding:52px 24px 80px;max-width:680px">
 <h1 style="font-family:var(--serif);font-size:clamp(28px,4vw,40px);margin-bottom:8px">Contact</h1>
 <p style="font-size:15px;color:var(--ink3);line-height:1.7;margin-bottom:32px">We welcome editorial feedback, tips, corrections, and partnership enquiries.</p>
 <div style="background:var(--bg);border-radius:14px;padding:24px 28px;margin-bottom:32px">
@@ -1616,7 +1724,7 @@ def privacy_page():
     return f"""{head("Privacy Policy — The Streamic","Privacy Policy for thestreamic.in",f"{BASE_URL}/privacy.html")}
 <body>
 {nav()}
-<main><div class="w" style="padding:52px 0 80px;max-width:760px">
+<main><div class="w" style="padding:52px 24px 80px;max-width:760px">
 <h1 style="font-family:var(--serif);font-size:clamp(24px,4vw,38px);margin-bottom:20px">Privacy Policy</h1>
 <p style="font-size:12px;color:var(--ink4);margin-bottom:28px">Last updated: March 2026</p>
 <div style="font-size:15px;color:var(--ink3);line-height:1.75">
@@ -1639,7 +1747,7 @@ def terms_page():
     return f"""{head("Terms of Use — The Streamic","Terms of Use for thestreamic.in",f"{BASE_URL}/terms.html")}
 <body>
 {nav()}
-<main><div class="w" style="padding:52px 0 80px;max-width:760px">
+<main><div class="w" style="padding:52px 24px 80px;max-width:760px">
 <h1 style="font-family:var(--serif);font-size:clamp(24px,4vw,38px);margin-bottom:20px">Terms of Use</h1>
 <p style="font-size:12px;color:var(--ink4);margin-bottom:28px">Last updated: March 2026</p>
 <div style="font-size:15px;color:var(--ink3);line-height:1.75">
@@ -1661,7 +1769,7 @@ def editorial_policy_page():
     return f"""{head("Editorial Policy — The Streamic","How The Streamic produces, reviews, and attributes broadcast technology content.",f"{BASE_URL}/editorial-policy.html")}
 <body>
 {nav()}
-<main><div class="w" style="padding:52px 0 80px;max-width:780px">
+<main><div class="w" style="padding:52px 24px 80px;max-width:780px">
 <h1 style="font-family:var(--serif);font-size:clamp(26px,4vw,42px);margin-bottom:16px;letter-spacing:-.5px">Editorial Policy</h1>
 <p style="font-size:13px;color:var(--ink4);margin-bottom:32px">Last updated: {yr}</p>
 
@@ -1801,7 +1909,7 @@ def vlog_page():
     return f"""{head("Editor's Desk — The Streamic","Notes, commentary and perspective from the Streamic editorial team.",f"{BASE_URL}/vlog.html")}
 <body>
 {nav("vlog.html")}
-<main><div class="w" style="padding:52px 0 80px;max-width:760px">
+<main><div class="w" style="padding:52px 24px 80px;max-width:760px">
 <div class="cat-hdr">
   <h1>Editor's Desk</h1>
   <p>Commentary, perspective, and notes from the editorial team at The Streamic.</p>
@@ -1867,7 +1975,53 @@ def main():
             if fallback:
                 a["body_html"] = f"<p>{fallback}</p>"
 
-    print(f"  Total articles loaded: {len(arts)}")
+    # ── HARD QUALITY GATE: word count + broadcast relevance ──────────────
+    # Reject articles that are too short or not about broadcast/media IT.
+    # This runs BEFORE the editorial/RSS split so it applies to everything.
+    #
+    # HOMEPAGE PROTECTION: articles hardcoded into the homepage layout
+    # (hero, Latest Insights, Professional Media Systems Guide) must
+    # ALWAYS survive — they were manually curated by the editor.
+    HOMEPAGE_PROTECTED_SLUGS = {
+        # Hero
+        "ai-reducing-broadcast-operational-costs-2026",
+        # Professional Media Systems Guide
+        "broadcast-automation-systems-guide-2026",
+        "ip-broadcasting-smpte-st2110-engineering-guide-2026",
+        "cloud-broadcast-workflows-remote-production-2026",
+        "media-asset-management-ai-era-monetisation-2026",
+        # Latest Insights
+        "beyond-the-chatbot-operational-ai-newsroom-2026",
+        "st-2110-small-market-hybrid-ip-broadcasters-2026",
+        "paris-2024-cloud-production-legacy-global-events-2026",
+        "c2pa-deepfake-news-credibility-digital-provenance-2026",
+        # Flagship article
+        "studio-grade-video-workflow-post-production-2026",
+        "green-broadcast-cloud-carbon-footprint-sustainability-2026",
+        "ai-reducing-broadcast-operational-costs-2026",
+    }
+
+    quality_pass, quality_fail = [], []
+    for a in arts:
+        slug = a.get("slug", "")
+        # Homepage-protected articles always pass
+        if slug in HOMEPAGE_PROTECTED_SLUGS:
+            quality_pass.append(a)
+            continue
+        ok, reason = _passes_quality_gate(a)
+        if ok:
+            quality_pass.append(a)
+        else:
+            quality_fail.append((slug, reason))
+    if quality_fail:
+        print(f"  Quality gate: {len(quality_pass)} pass, {len(quality_fail)} rejected")
+        for slug, reason in quality_fail[:10]:  # show first 10
+            print(f"    ✗ {slug[:60]}  — {reason}")
+        if len(quality_fail) > 10:
+            print(f"    … and {len(quality_fail)-10} more")
+    arts = quality_pass
+
+    print(f"  Total articles after quality gate: {len(arts)}")
 
     # ── Select top MAX_ARTICLES by quality — editorial always first ───────
     # SAFE DESIGN: AdSense quality affects index/noindex status, NOT visibility.
