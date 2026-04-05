@@ -1252,3 +1252,97 @@ body[data-category="featured"] .nav-gold {
 body[data-category="featured"] .nav {
   border-bottom: none;
 }
+
+/* ══════════════════════════════════════════════════════════════════
+   MOBILE FIXES — Professional Media Systems Guide + How-To Cards
+   Targeted at ≤ 768px only. No desktop rules changed.
+══════════════════════════════════════════════════════════════════ */
+
+/* ── Fix 1: Disable hover transforms on touch — they steal the first
+   tap on mobile, requiring a second tap before the link opens.     */
+@media (hover: none) {
+  .hp-guide-card:hover,
+  .hp-sb-guide-item:hover,
+  .hp-flagship__cta:hover {
+    transform: none;
+  }
+}
+
+/* ── Fix 2: Professional Media Systems Guide — mobile spacing ────── */
+@media (max-width: 768px) {
+  /* Section container: tighter horizontal padding */
+  .hp-guide {
+    padding: 16px 14px 18px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+  }
+
+  /* Banner: prevent label text from overflowing the decorative line */
+  .hp-guide-banner {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding-bottom: 12px;
+    margin-bottom: 14px;
+  }
+  .hp-guide-banner::after {
+    display: none; /* decorative line doesn't work when text wraps */
+  }
+
+  /* Cards: single column already set in 768px block above —
+     fix image height, overlay padding, and label readability */
+  .hp-guide-card-img-wrap {
+    height: 160px;
+  }
+  .hp-guide-card-overlay {
+    padding: 12px 12px 14px;
+  }
+  .hp-guide-card-label {
+    font-size: 13px;
+    line-height: 1.45;
+    letter-spacing: -0.01em;
+    /* Allow full label to show — no clamping */
+    display: block;
+    white-space: normal;
+  }
+  .hp-guide-card-sub {
+    font-size: 9px;
+    padding: 3px 8px;
+  }
+}
+
+/* ── Fix 3: Sidebar How-To Guide cards — mobile readability ─────── */
+@media (max-width: 768px) {
+  /* When sidebar stacks below main, guide items need full-width layout */
+  .hp-sb-guides-grid {
+    gap: 10px;
+  }
+  .hp-sb-guide-item {
+    padding: 12px 14px;
+    border-radius: 10px;
+    /* Ensure entire card area is the tap target */
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+    gap: 4px 10px;
+    /* min tap target height */
+    min-height: 52px;
+    align-items: center;
+  }
+  .hp-sb-guide-title {
+    font-family: var(--font);      /* switch from serif: less overflow risk */
+    font-size: 13.5px;
+    font-weight: 600;
+    line-height: 1.35;
+    white-space: normal;
+    word-break: break-word;
+  }
+  .hp-sb-guide-cat {
+    font-size: 9.5px;
+    letter-spacing: .6px;
+  }
+  .hp-sb-guide-time {
+    font-size: 11px;
+    white-space: nowrap;
+    align-self: end;
+  }
+}
