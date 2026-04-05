@@ -975,7 +975,12 @@ def _source_name(val):
     return (val or '').replace('https://','').replace('http://','').replace('www.','').split('/')[0]
 
 def load_homepage_feed(arts, limit=14):
-    """Use fresh data/news.json for homepage and map to internal articles when possible."""
+    """Use fresh data/news.json for homepage and map to internal articles.
+    
+    Only returns items that map to an internal article (has slug) so all
+    homepage links go to our own analysis pages, never to external sources.
+    Prefers articles with more body content (longer = higher quality).
+    """
     by_url, by_title = {}, {}
     for a in arts:
         for key in (a.get('source_url'), a.get('url'), a.get('link')):
@@ -1009,7 +1014,9 @@ def load_homepage_feed(arts, limit=14):
         url = item.get('link') or item.get('url') or item.get('guid')
         title_key = (item.get('title') or '').strip().lower()
         art = by_url.get(url) or by_title.get(title_key)
-        merged = dict(art or {})
+        if not art or not art.get('slug'):
+            continue  # skip items without internal article — no external links
+        merged = dict(art)
         merged.update({
             'title': item.get('title') or merged.get('title',''),
             'category': item.get('category') or merged.get('category','featured'),
@@ -1018,17 +1025,23 @@ def load_homepage_feed(arts, limit=14):
             'source_url': url or merged.get('source_url',''),
             'url': url or merged.get('url',''),
             'image_url': item.get('image') or merged.get('image_url') or '',
-            'slug': merged.get('slug',''),
+            'slug': art['slug'],
         })
-        key = merged.get('slug') or merged.get('source_url') or merged.get('title')
-        if key and key not in seen:
+        key = merged['slug']
+        if key not in seen:
             seen.add(key)
             mapped.append(merged)
-        if len(mapped) >= limit:
-            break
+
+    # Sort: newest first, then by body length (prefer longer articles)
+    def _feed_sort(a):
+        body = a.get('body_html','') or ''
+        wc = len(re.sub(r'<[^>]+>',' ',body).split())
+        return (a.get('published',''), wc)
+    mapped.sort(key=_feed_sort, reverse=True)
+
     if not mapped:
         mapped = sorted([a for a in arts if not a.get('is_editorial') and not a.get('editorial')], key=lambda a: a.get('published',''), reverse=True)[:limit]
-    return mapped
+    return mapped[:limit]
 
 def _item_href(a):
     slug = a.get('slug')
@@ -1378,10 +1391,12 @@ def _clean_body(a):
 
     body_html  = a.get("body_html", "") or ""
     word_count = a.get("word_count", 0)
+    # Also check actual body length — metadata word_count may be missing
+    actual_wc  = len(re.sub(r"<[^>]+>", " ", body_html).split())
 
     # ── AI-enhanced articles: has h2 structure OR substantial word count ──
     # Return the full body without ANY stripping — Gemini output is complete.
-    if "<h2>" in body_html or "<h3>" in body_html or word_count > 300:
+    if "<h2>" in body_html or "<h3>" in body_html or word_count > 300 or actual_wc > 300:
         # Only strip accidental markdown fences Gemini occasionally produces
         body_clean = re.sub(r"```html?\n?|```\n?", "", body_html).strip()
         # Remove boilerplate filler sentences while keeping all structure
@@ -1415,7 +1430,7 @@ def _clean_body(a):
     cs_raw = re.sub(r"\s+", " ", cs_raw)
     cs_words = cs_raw.split()
 
-    if len(cs_words) >= 120 and not _is_boilerplate(cs_raw):
+    if len(cs_words) >= 50 and not _is_boilerplate(cs_raw):
         mid = len(cs_words) // 2
         for i in range(mid, min(mid + 25, len(cs_words))):
             if cs_words[i].endswith((".", "?")): mid = i + 1; break
@@ -1423,7 +1438,7 @@ def _clean_body(a):
         p2 = " ".join(cs_words[mid:])
         return f"<p>{p1}</p>\n" + (f"<p>{p2}</p>" if p2 else "")
 
-    # Raw paragraphs — limit to 4, strip boilerplate
+    # Raw paragraphs — keep ALL that pass quality check (no arbitrary limit)
     paras = re.findall(r"<p[^>]*>(.*?)</p>", body_html, re.DOTALL)
     clean = []
     for p in paras:
@@ -1434,7 +1449,7 @@ def _clean_body(a):
         clean.append(f"<p>{p.strip()}</p>")
 
     if clean:
-        return "\n".join(clean[:4])   # limit raw RSS to 4 paragraphs
+        return "\n".join(clean)   # no truncation — article passed quality gate
 
     # Last resort: dek + short teaser
     dek    = (a.get("dek") or "").strip()
@@ -1507,12 +1522,16 @@ def article_page(a):
     }, indent=2)
 
     source_credit = ""
-    if src_url and src_dom and not is_ed:
+    # Derive source domain from URL if field is missing
+    if not src_dom and src_url:
+        src_dom = src_url.replace("https://","").replace("http://","").replace("www.","").split("/")[0]
+    if src_url and not is_ed:
+        _src_name = e(src_dom) if src_dom else "Original Source"
         source_credit = f"""<div class="art-source-credit">
   <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
     <div>
       <span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--blue);display:block;margin-bottom:4px">Original Source</span>
-      <strong style="font-size:14px;color:var(--ink)">{e(src_dom)}</strong>
+      <strong style="font-size:14px;color:var(--ink)">{_src_name}</strong>
     </div>
     <a href="{e(src_url)}" target="_blank" rel="noopener noreferrer nofollow"
        style="display:inline-flex;align-items:center;gap:6px;padding:10px 20px;
@@ -1522,7 +1541,8 @@ def article_page(a):
     </a>
   </div>
   <p style="margin:10px 0 0;font-size:12px;color:var(--ink4)">
-    The analysis above is original editorial commentary by The Streamic. The news is reported by {e(src_dom)}.
+    The analysis above is original editorial commentary by The Streamic. The original news was reported by {_src_name}.
+    <a href="{e(src_url)}" target="_blank" rel="noopener noreferrer nofollow" style="color:var(--blue);margin-left:4px">Read the original article &rarr;</a>
   </p>
 </div>"""
 
@@ -1975,13 +1995,21 @@ def main():
             if fallback:
                 a["body_html"] = f"<p>{fallback}</p>"
 
-    # ── HARD QUALITY GATE: word count + broadcast relevance ──────────────
-    # Reject articles that are too short or not about broadcast/media IT.
-    # This runs BEFORE the editorial/RSS split so it applies to everything.
+    # ── QUALITY GATE — TWO-TIER SYSTEM ─────────────────────────────────────
+    #
+    # Tier 1 (page exists, internal link works): 400+ words + 2 broadcast terms
+    #   → article HTML page is generated, used by Intelligence section, etc.
+    #   → gets noindex,nofollow (not visible to Google)
+    #
+    # Tier 2 (SEO-visible, fully indexed): 800+ words OR gpt_manual_editorial
+    #   → gets index,follow — the high-quality articles Google sees
     #
     # HOMEPAGE PROTECTION: articles hardcoded into the homepage layout
-    # (hero, Latest Insights, Professional Media Systems Guide) must
-    # ALWAYS survive — they were manually curated by the editor.
+    # (hero, Latest Insights, Professional Media Systems Guide) always survive.
+    # ─────────────────────────────────────────────────────────────────────────
+
+    MIN_FEED_WORDS = 400   # minimum for article page to exist at all
+
     HOMEPAGE_PROTECTED_SLUGS = {
         # Hero
         "ai-reducing-broadcast-operational-costs-2026",
@@ -1995,27 +2023,53 @@ def main():
         "st-2110-small-market-hybrid-ip-broadcasters-2026",
         "paris-2024-cloud-production-legacy-global-events-2026",
         "c2pa-deepfake-news-credibility-digital-provenance-2026",
-        # Flagship article
+        # Flagship / pillar articles
         "studio-grade-video-workflow-post-production-2026",
         "green-broadcast-cloud-carbon-footprint-sustainability-2026",
-        "ai-reducing-broadcast-operational-costs-2026",
     }
 
     quality_pass, quality_fail = [], []
     for a in arts:
         slug = a.get("slug", "")
+
         # Homepage-protected articles always pass
         if slug in HOMEPAGE_PROTECTED_SLUGS:
             quality_pass.append(a)
             continue
-        ok, reason = _passes_quality_gate(a)
-        if ok:
-            quality_pass.append(a)
-        else:
-            quality_fail.append((slug, reason))
+
+        # Manual editorials: 400-word floor (they're hand-curated)
+        is_manual = a.get("generated_by") == "gpt_manual_editorial"
+        body = a.get("body_html", "") or ""
+        plain = re.sub(r"<[^>]+>", " ", body)
+        plain = re.sub(r"\s+", " ", plain).strip()
+        wc = len(plain.split())
+
+        if is_manual and wc < MIN_FEED_WORDS:
+            quality_fail.append((slug, f"editorial too short ({wc}w, need {MIN_FEED_WORDS})"))
+            continue
+
+        # Auto-generated: need MIN_FEED_WORDS (400) to get a page at all
+        if not is_manual and wc < MIN_FEED_WORDS:
+            quality_fail.append((slug, f"too short ({wc}w, need {MIN_FEED_WORDS})"))
+            continue
+
+        # Broadcast relevance: need 2+ matching terms
+        search_text = (a.get("title", "") + " " + plain).lower()
+        matched = set()
+        for term in BROADCAST_TERMS:
+            if term in search_text:
+                matched.add(term)
+            if len(matched) >= 2:
+                break
+        if len(matched) < 2:
+            quality_fail.append((slug, f"low relevance ({len(matched)} terms)"))
+            continue
+
+        quality_pass.append(a)
+
     if quality_fail:
         print(f"  Quality gate: {len(quality_pass)} pass, {len(quality_fail)} rejected")
-        for slug, reason in quality_fail[:10]:  # show first 10
+        for slug, reason in quality_fail[:10]:
             print(f"    ✗ {slug[:60]}  — {reason}")
         if len(quality_fail) > 10:
             print(f"    … and {len(quality_fail)-10} more")
@@ -2178,7 +2232,11 @@ def main():
     w(os.path.join(DOCS,"terms.html"),            terms_page())
     w(os.path.join(DOCS,"editorial-policy.html"), editorial_policy_page())
     w(os.path.join(DOCS,"howto.html"),            howto_page())
-    w(os.path.join(DOCS,"how-to.html"),           howto_page())
+    # how-to.html → redirect to canonical howto.html (avoid duplicate content)
+    w(os.path.join(DOCS,"how-to.html"),
+      '<!doctype html><html><head><meta http-equiv="refresh" content="0; url=howto.html">'
+      '<link rel="canonical" href="https://www.thestreamic.in/howto.html"></head>'
+      '<body><p>Redirecting to <a href="howto.html">How-To Guides</a>.</p></body></html>')
     w(os.path.join(DOCS,"vlog.html"),             vlog_page())
     print("  &#10003; static pages")
 
