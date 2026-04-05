@@ -918,6 +918,120 @@ def is_high_value(article: dict) -> bool:
     # Any article with a title passes (never blank)
     return bool(article.get("title", "").strip())
 
+# ── BROADCAST IMAGE SYSTEM ──────────────────────────────────────────────────
+# Curated Unsplash images: server rooms, control rooms, vision mixers, cameras,
+# edit suites, studio equipment, network infrastructure. NO typewriters, newspapers.
+
+_BAD_IMAGE_IDS = {
+    "photo-1495020689067-958852a7765e",   # person reading newspaper
+    "photo-1504711434969-e33886168f5c",   # newspaper stack
+    "photo-1432821596592-e2c18b78144f",   # TYPEWRITER
+    "photo-1453738773917-9c3eff1db985",   # old newspaper on wooden desk
+    "photo-1557804506-669a67965ba0",      # generic business meeting room
+}
+
+# 30 unique broadcast/media IT images — no repeats, all relevant
+_BROADCAST_IMAGES = [
+    # Server rooms & data centers
+    "photo-1558494949-ef010cbdcc31",      # server room blue LED racks
+    "photo-1544197150-b99a580bb7a8",      # data center corridor
+    "photo-1573164713988-8665fc963095",   # fiber optic cables glowing
+    "photo-1504384308090-c894fdcc538d",   # server room ceiling view
+    "photo-1451187580459-43490279c0fa",   # global network data visualization
+    # Broadcast control rooms & production
+    "photo-1598488035139-bdbb2231ce04",   # audio/broadcast mixing console
+    "photo-1478737270239-2f02b77fc618",   # control room buttons & panels
+    "photo-1524253482453-3fed8d2fe12b",   # video editing workstation
+    "photo-1616401784845-180882ba9ba8",   # camera / video production gear
+    "photo-1492619375914-88005aa9e8fb",   # video production multi-cam setup
+    # Post-production & edit suites
+    "photo-1535016120720-40c646be5580",   # video editing timeline on monitor
+    "photo-1547658719-da2b51169166",      # multi-monitor edit workstation
+    "photo-1605106702734-205df224ecce",   # VFX / tech screen
+    "photo-1581092918056-0c4c3acd3789",   # tech lab equipment
+    "photo-1611532736597-de2d4265fba3",   # broadcast / streaming setup
+    # AI & technology
+    "photo-1677442135703-1787eea5ce01",   # AI neural network visualization
+    "photo-1620712943543-bcc4688e7485",   # AI / machine learning
+    "photo-1593642632559-0c6d3fc62b89",   # circuit board close-up
+    "photo-1518770660439-4636190af475",   # circuit board macro
+    "photo-1515879218367-8466d910aaa4",   # code on dark screen
+    # Network & infrastructure
+    "photo-1545987796-200677ee1011",      # network fiber connections
+    "photo-1551288049-bebda4e38f71",      # data analytics dashboard
+    "photo-1504639725590-34d0984388bd",   # programming / code screen
+    "photo-1516321497487-e288fb19713f",   # tech workspace monitors
+    "photo-1497366754035-f200968a6e72",   # modern tech office
+    # Streaming & media
+    "photo-1586788680434-30d324b2d46f",   # live streaming / video
+    "photo-1560472355-536de3962603",      # video / media content
+    "photo-1561736778-92e52a7769ef",      # graphics workstation
+    "photo-1516321318423-f06f85e504b3",   # monitoring screens
+    "photo-1517694712202-14dd9538aa97",   # tech laptop workspace
+]
+
+def _unsplash_url(photo_id):
+    return f"https://images.unsplash.com/{photo_id}?w=1200&auto=format&fit=crop&q=80"
+
+def _is_bad_image(url):
+    """Check if an image URL is in the blacklist."""
+    if not url:
+        return True
+    return any(bad_id in url for bad_id in _BAD_IMAGE_IDS)
+
+def _fix_article_images(arts):
+    """Replace bad/repeated images with unique broadcast-relevant images.
+    
+    Rules:
+    1. Any blacklisted image (typewriter, newspaper) gets replaced
+    2. Any image used more than once gets replaced on subsequent uses
+    3. Replacement images are drawn round-robin from _BROADCAST_IMAGES
+    4. No two consecutive articles get the same image
+    """
+    used_images = set()
+    pool_idx = 0
+    
+    def _next_image():
+        nonlocal pool_idx
+        for _ in range(len(_BROADCAST_IMAGES)):
+            img_id = _BROADCAST_IMAGES[pool_idx % len(_BROADCAST_IMAGES)]
+            pool_idx += 1
+            if img_id not in used_images:
+                used_images.add(img_id)
+                return _unsplash_url(img_id)
+        # All used — reset and allow reuse (but still round-robin)
+        used_images.clear()
+        img_id = _BROADCAST_IMAGES[pool_idx % len(_BROADCAST_IMAGES)]
+        pool_idx += 1
+        used_images.add(img_id)
+        return _unsplash_url(img_id)
+    
+    replaced = 0
+    for a in arts:
+        img = a.get("image_url", "") or ""
+        # Extract photo ID from URL
+        photo_id = ""
+        if "photo-" in img:
+            try:
+                photo_id = "photo-" + img.split("photo-")[1].split("?")[0]
+            except IndexError:
+                pass
+        
+        needs_replace = False
+        if _is_bad_image(img):
+            needs_replace = True
+        elif photo_id and photo_id in used_images:
+            needs_replace = True  # duplicate — replace with unique image
+        
+        if needs_replace:
+            a["image_url"] = _next_image()
+            replaced += 1
+        else:
+            if photo_id:
+                used_images.add(photo_id)
+    
+    if replaced:
+        print(f"  Image fixer: {replaced} bad/duplicate images replaced with broadcast visuals")
 
 
 def _hp_img(a, base=""):
@@ -927,10 +1041,10 @@ def _hp_img(a, base=""):
     cat = (a.get("category") or "featured").lower()
     fallbacks = {
         "featured": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&auto=format&fit=crop&q=80",
-        "newsroom": "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1200&auto=format&fit=crop&q=80",
+        "newsroom": "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=1200&auto=format&fit=crop&q=80",
         "cloud": "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=1200&auto=format&fit=crop&q=80",
         "infrastructure": "https://images.unsplash.com/photo-1545987796-200677ee1011?w=1200&auto=format&fit=crop&q=80",
-        "graphics": "https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=1200&auto=format&fit=crop&q=80",
+        "graphics": "https://images.unsplash.com/photo-1547658719-da2b51169166?w=1200&auto=format&fit=crop&q=80",
         "streaming": "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=1200&auto=format&fit=crop&q=80",
         "ai-post-production": "https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=1200&auto=format&fit=crop&q=80",
         "playout": "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1200&auto=format&fit=crop&q=80",
@@ -1108,19 +1222,35 @@ def featured_page(arts):
     guide_map = {a.get("slug"): a for a in editorial_all}
     guide_arts = [guide_map[s] for s in guide_slug_order if s in guide_map]
 
-    # ── Latest Insights: pick 4 newest articles (excluding hero + guides) ──
+    # ── Latest Insights: up to 20 newest QUALITY articles ──────────────
+    #    Must be 800+ words AND have 2+ broadcast/media IT terms.
+    #    Newest on top. Excludes hero + guide articles.
+    INSIGHT_LIMIT = 20
     used_slugs = {a.get("slug") for a in guide_arts} | ({hero_art.get("slug")} if hero_art else set())
     insight_pool = [a for a in editorial_all + regular_all if a.get("slug") not in used_slugs]
     # Already sorted newest-first (editorial_all and regular_all are pre-sorted)
-    # De-duplicate while preserving order
+    # De-duplicate while preserving order, apply 800-word + broadcast relevance gate
     _seen_ins = set()
     insight_arts = []
     for a in insight_pool:
         s = a.get("slug")
-        if s and s not in _seen_ins:
-            _seen_ins.add(s)
-            insight_arts.append(a)
-        if len(insight_arts) >= 4:
+        if not s or s in _seen_ins:
+            continue
+        # ── Quality gate: 800+ words ──
+        _body = a.get("body_html", "") or ""
+        _plain = re.sub(r"<[^>]+>", " ", _body)
+        _wc = len(re.sub(r"\s+", " ", _plain).strip().split())
+        is_manual_ed = a.get("generated_by") == "gpt_manual_editorial"
+        if not is_manual_ed and _wc < MIN_ARTICLE_WORDS:
+            continue
+        # ── Broadcast relevance: 2+ terms ──
+        _search = (a.get("title", "") + " " + _plain).lower()
+        _hits = sum(1 for t in BROADCAST_TERMS if t in _search)
+        if _hits < 2:
+            continue
+        _seen_ins.add(s)
+        insight_arts.append(a)
+        if len(insight_arts) >= INSIGHT_LIMIT:
             break
 
     sidebar_picks = [a for a in editorial_all if a.get("slug") != (hero_art or {}).get("slug")][:3]
@@ -2079,6 +2209,9 @@ def main():
     arts = quality_pass
 
     print(f"  Total articles after quality gate: {len(arts)}")
+
+    # ── Fix images: replace typewriters/newspapers with broadcast visuals ──
+    _fix_article_images(arts)
 
     # ── Select top MAX_ARTICLES by quality — editorial always first ───────
     # SAFE DESIGN: AdSense quality affects index/noindex status, NOT visibility.
