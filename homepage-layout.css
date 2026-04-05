@@ -22,32 +22,55 @@
 ══════════════════════════════════════════════════════════════════ */
 
 /* ── HERO — full width above the two-column grid ────────────────── */
+/* ── Hero — Awwwwards-style cinematic layout ─────────────────────── */
 .hp-hero {
   position: relative;
   display: block;
-  border-radius: var(--radius);
+  /* Full-bleed: escape .w's 24px padding so image reaches viewport edge */
+  border-radius: 0;
   overflow: hidden;
-  margin: 32px 0 0;
-  background: var(--ink);
+  margin: 32px -24px 0;
+  background: #0a0a0f;
 }
 .hp-hero-img-link {
   display: block;
+  line-height: 0;
 }
 .hp-hero-img {
   width: 100%;
   height: 400px;
   object-fit: cover;
+  /* Reframed: show the illuminated console buttons, not the dark monitors at top */
+  object-position: center 65%;
   display: block;
+  /* Lift subject without clipping amber button glow */
+  filter: brightness(1.18) contrast(1.08) saturate(1.06);
+  /* Subtle scale-in on load */
+  animation: heroImgReveal 1.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes heroImgReveal {
+  from { transform: scale(1.04); opacity: 0.85; }
+  to   { transform: scale(1);    opacity: 1; }
 }
 .hp-hero-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    to top,
-    rgba(0, 0, 0, .90) 0%,
-    rgba(0, 0, 0, .50) 45%,
-    rgba(0, 0, 0, .10) 100%
-  );
+  background:
+    linear-gradient(
+      to top,
+      rgba(0, 0, 0, .94) 0%,
+      rgba(0, 0, 0, .72) 38%,
+      rgba(0, 0, 0, .22) 68%,
+      rgba(0, 0, 0, .04) 100%
+    ),
+    linear-gradient(
+      to right,
+      rgba(0, 0, 0, .35) 0%,
+      transparent 60%
+    );
+  /* Awwwwards cinematic depth — very subtle, just softens grain */
+  backdrop-filter: blur(1.5px);
+  -webkit-backdrop-filter: blur(1.5px);
   pointer-events: none;
 }
 .hp-hero-body {
@@ -55,60 +78,107 @@
   bottom: 0;
   left: 0;
   right: 0;
-  padding: 28px 28px 26px;
+  padding: 40px 36px 56px;
+  text-align: left;
+  /* Staggered fade-up entrance */
+  animation: heroBodyReveal 0.9s 0.25s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes heroBodyReveal {
+  from { transform: translateY(12px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+/* Thin amber accent line above the body text */
+.hp-hero-body::before {
+  content: '';
+  display: block;
+  width: 32px;
+  height: 2px;
+  background: #c9a84c;
+  margin-bottom: 16px;
+  border-radius: 1px;
 }
 .hp-hero-tag {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   font-size: 10px;
-  font-weight: 800;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  padding: 3px 10px;
-  border-radius: 5px;
-  color: #fff;
-  background: rgba(255, 255, 255, .18);
-  margin-bottom: 10px;
+  letter-spacing: 1.2px;
+  padding: 4px 11px;
+  border-radius: 4px;
+  color: rgba(255, 255, 255, .92);
+  background: rgba(255, 255, 255, .12);
+  border: 1px solid rgba(255, 255, 255, .18);
+  margin-bottom: 16px;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
 }
 .hp-hero-hl {
   font-family: var(--serif);
-  font-size: clamp(18px, 2vw, 26px);
-  line-height: 1.2;
-  letter-spacing: -.03em;
+  font-size: clamp(20px, 2.2vw, 28px);
+  line-height: 1.25;
+  letter-spacing: -.04em;
   color: #fff;
-  margin: 0 0 10px;
+  margin: 0 0 20px;
+  text-shadow: 0 1px 12px rgba(0, 0, 0, .45);
+  max-width: 640px;
 }
 .hp-hero-hl a {
   color: inherit;
   text-decoration: none;
+  transition: color 0.18s ease;
+}
+.hp-hero-hl a:hover {
+  color: rgba(255, 255, 255, .82);
 }
 .hp-hero-meta {
   font-size: 12px;
-  color: rgba(255, 255, 255, .65);
+  color: rgba(255, 255, 255, .58);
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 7px;
   align-items: center;
-  margin-bottom: 14px;
+  margin-bottom: 22px;
+  letter-spacing: .01em;
 }
 .hp-hero-cta {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: 12.5px;
+  gap: 8px;
+  font-size: 12px;
   font-weight: 700;
   color: #fff;
-  background: rgba(255, 255, 255, .14);
-  border: 1px solid rgba(255, 255, 255, .35);
-  padding: 7px 16px;
+  background: rgba(255, 255, 255, .11);
+  border: 1px solid rgba(255, 255, 255, .30);
+  padding: 8px 20px;
   border-radius: 999px;
   text-decoration: none;
-  letter-spacing: -.01em;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  /* Inset highlight + depth shadow = premium glass feel */
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .18),
+    0 2px 14px rgba(0, 0, 0, .28);
+  transition: background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
 }
-.hp-hero-cta::after {
-  content: "→";
-  font-weight: 400;
+.hp-hero-cta:hover {
+  background: rgba(255, 255, 255, .20);
+  border-color: rgba(255, 255, 255, .52);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .24),
+    0 4px 20px rgba(0, 0, 0, .35);
+}
+.hp-hero-cta__arrow {
+  font-weight: 300;
+  font-size: 14px;
+  line-height: 1;
+  transition: transform 0.18s ease;
+}
+.hp-hero-cta:hover .hp-hero-cta__arrow {
+  transform: translateX(3px);
 }
 
 
@@ -960,8 +1030,9 @@
     grid-template-columns: 1fr 260px;
     gap: 28px;
   }
-  .hp-hero-img { height: 360px; }
-  .hp-sb-img-card { height: 130px; }
+  .hp-hero-img     { height: 360px; }
+  .hp-hero-body    { padding: 36px 32px 28px; }
+  .hp-sb-img-card  { height: 130px; }
 }
 
 /* Tablet */
@@ -970,10 +1041,13 @@
     grid-template-columns: 1fr 240px;
     gap: 22px;
   }
-  .hp-hero-img { height: 310px; }
-  .hp-insights-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+  .hp-hero-img  { height: 310px; }
+  .hp-hero-body { padding: 30px 28px 24px; }
+  .hp-hero-hl   { font-size: clamp(18px, 2.6vw, 24px); margin-bottom: 16px; }
+  .hp-hero-tag  { margin-bottom: 12px; }
+  .hp-hero-meta { margin-bottom: 18px; }
+  .hp-hero-body::before { width: 26px; margin-bottom: 12px; }
+  .hp-insights-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
 /* Mobile — single column, sidebar drops below main content */
@@ -987,51 +1061,133 @@
     position: static;
     margin-top: 32px;
   }
-  .hp-hero-img { height: 280px; }
-  .hp-hero-body { padding: 18px 18px 16px; }
-  .hp-hero-hl { font-size: 18px; }
-  .hp-insights-grid { grid-template-columns: 1fr; gap: 10px; }
-  .hp-guide-grid { grid-template-columns: 1fr; gap: 12px; }
-  .hp-guide-card { height: auto; }
-  .hp-guide-card-img-wrap { height: 180px; }
-  .hp-guide { padding: 18px 16px 20px; border-radius: 12px; }
+
+  /* ── Hero mobile ─────────────────────────────────────────────── */
+  /* Re-compensate: .w drops to padding:0 16px at this breakpoint */
+  .hp-hero       { border-radius: 0; margin: 20px -16px 0; }
+  .hp-hero-img   { height: 260px; object-position: center 60%; }
+
+  .hp-hero-body  {
+    /* Reset desktop's 56px bottom lift — image is too short on mobile */
+    padding: 0 18px 22px;
+  }
+  /* Shift amber line to be thinner and tighter on mobile */
+  .hp-hero-body::before {
+    width: 22px;
+    height: 2px;
+    margin-bottom: 12px;
+  }
+  .hp-hero-tag  {
+    font-size: 9px;
+    letter-spacing: 1px;
+    padding: 3px 9px;
+    margin-bottom: 12px;
+  }
+  .hp-hero-hl   {
+    font-size: 18px;
+    line-height: 1.28;
+    letter-spacing: -.025em;
+    margin-bottom: 14px;
+    max-width: 100%;
+    text-shadow: 0 1px 8px rgba(0,0,0,.55);
+  }
+  .hp-hero-meta {
+    font-size: 11px;
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+  .hp-hero-cta  {
+    font-size: 11px;
+    padding: 7px 16px;
+    letter-spacing: .03em;
+  }
+
+  /* ── Other sections ──────────────────────────────────────────── */
+  .hp-insights-grid      { grid-template-columns: 1fr; gap: 10px; }
+  .hp-guide-grid         { grid-template-columns: 1fr; gap: 12px; }
+  .hp-guide-card         { height: auto; }
+  .hp-guide-card-img-wrap{ height: 180px; }
+  .hp-guide              { padding: 18px 16px 20px; border-radius: 12px; }
   /* Sidebar image cards go 2-col on mobile for compactness */
   .hp-sb-featured {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
   }
-  .hp-sb-featured .hp-sb-hdr {
-    grid-column: 1 / -1;
-  }
-  .hp-sb-img-card {
-    margin-bottom: 0;
-    height: 120px;
-  }
+  .hp-sb-featured .hp-sb-hdr { grid-column: 1 / -1; }
+  .hp-sb-img-card { margin-bottom: 0; height: 120px; }
 }
 
-/* Small mobile */
+/* Small mobile (≤ 480px) */
 @media (max-width: 480px) {
-  .hp-hero-img { height: 230px; }
-  .hp-hero-body { padding: 14px 14px 12px; }
-  .hp-hero-hl  { font-size: 16px; }
-  .hp-hero-meta { font-size: 11px; }
-  .hp-news-item {
-    grid-template-columns: 68px 1fr;
-    gap: 11px;
+  .hp-hero-img  { height: 220px; object-position: center 58%; }
+  .hp-hero-body {
+    padding: 0 14px 16px;
   }
-  .hp-news-thumb {
-    width: 68px;
-    height: 52px;
+  .hp-hero-body::before {
+    width: 18px;
+    margin-bottom: 10px;
   }
-  .hp-sb-featured {
-    grid-template-columns: 1fr;
+  .hp-hero-tag  {
+    font-size: 9px;
+    padding: 2px 8px;
+    margin-bottom: 10px;
   }
+  .hp-hero-hl   {
+    font-size: 16px;
+    line-height: 1.3;
+    margin-bottom: 12px;
+  }
+  .hp-hero-meta {
+    font-size: 11px;
+    gap: 5px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+  .hp-hero-cta  {
+    font-size: 10.5px;
+    padding: 6px 14px;
+  }
+  .hp-news-item  { grid-template-columns: 68px 1fr; gap: 11px; }
+  .hp-news-thumb { width: 68px; height: 52px; }
+  .hp-sb-featured { grid-template-columns: 1fr; }
   .hp-sb-img-card { height: 140px; }
 }
 
+/* Very small / landscape phones (≤ 380px) */
+@media (max-width: 380px) {
+  .hp-hero-img  { height: 195px; object-position: center 55%; }
+  .hp-hero-body { padding: 0 12px 14px; }
+  .hp-hero-body::before { display: none; }
+  .hp-hero-hl   { font-size: 15px; margin-bottom: 10px; }
+  .hp-hero-cta  { font-size: 10px; padding: 5px 13px; }
+}
 
-/* Homepage ad-slot cleanup */
+
+/* ── Hero overlay deepened on mobile for short image + full-height text ── */
+@media (max-width: 768px) {
+  .hp-hero-overlay {
+    background:
+      linear-gradient(
+        to top,
+        rgba(0, 0, 0, .97) 0%,
+        rgba(0, 0, 0, .80) 42%,
+        rgba(0, 0, 0, .30) 72%,
+        rgba(0, 0, 0, .06) 100%
+      );
+  }
+}
+
+/* iOS safe-area: prevent CTA/meta from sitting under home indicator */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  @media (max-width: 768px) {
+    .hp-hero-body {
+      padding-bottom: max(22px, env(safe-area-inset-bottom));
+    }
+  }
+}
+
+
 .hp-sb-ad:empty {
   display: none;
 }
@@ -1075,3 +1231,118 @@
 
 
 .hp-sec-sub{margin:8px 0 0;color:#666;font:500 14px/1.55 "DM Sans",system-ui,sans-serif;max-width:720px;}
+
+/* ── Fix: nav gold bar visibility on homepage ──────────────────────
+   The 1.5px sub-pixel height in style.css renders inconsistently,
+   and the gradient fades to transparent at edges, blending into the
+   dark hero image below. This override forces a visible 2px line.   */
+body[data-category="featured"] .nav-gold {
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent 5%,
+    #c9a84c 28%,
+    #b8860b 50%,
+    #c9a84c 72%,
+    transparent 95%
+  );
+  opacity: 1;
+}
+/* Remove duplicate grey border so gold line stands alone */
+body[data-category="featured"] .nav {
+  border-bottom: none;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   MOBILE FIXES — Professional Media Systems Guide + How-To Cards
+   Targeted at ≤ 768px only. No desktop rules changed.
+══════════════════════════════════════════════════════════════════ */
+
+/* ── Fix 1: Disable hover transforms on touch — they steal the first
+   tap on mobile, requiring a second tap before the link opens.     */
+@media (hover: none) {
+  .hp-guide-card:hover,
+  .hp-sb-guide-item:hover,
+  .hp-flagship__cta:hover {
+    transform: none;
+  }
+}
+
+/* ── Fix 2: Professional Media Systems Guide — mobile spacing ────── */
+@media (max-width: 768px) {
+  /* Section container: tighter horizontal padding */
+  .hp-guide {
+    padding: 16px 14px 18px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+  }
+
+  /* Banner: prevent label text from overflowing the decorative line */
+  .hp-guide-banner {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding-bottom: 12px;
+    margin-bottom: 14px;
+  }
+  .hp-guide-banner::after {
+    display: none; /* decorative line doesn't work when text wraps */
+  }
+
+  /* Cards: single column already set in 768px block above —
+     fix image height, overlay padding, and label readability */
+  .hp-guide-card-img-wrap {
+    height: 160px;
+  }
+  .hp-guide-card-overlay {
+    padding: 12px 12px 14px;
+  }
+  .hp-guide-card-label {
+    font-size: 13px;
+    line-height: 1.45;
+    letter-spacing: -0.01em;
+    /* Allow full label to show — no clamping */
+    display: block;
+    white-space: normal;
+  }
+  .hp-guide-card-sub {
+    font-size: 9px;
+    padding: 3px 8px;
+  }
+}
+
+/* ── Fix 3: Sidebar How-To Guide cards — mobile readability ─────── */
+@media (max-width: 768px) {
+  /* When sidebar stacks below main, guide items need full-width layout */
+  .hp-sb-guides-grid {
+    gap: 10px;
+  }
+  .hp-sb-guide-item {
+    padding: 12px 14px;
+    border-radius: 10px;
+    /* Ensure entire card area is the tap target */
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+    gap: 4px 10px;
+    /* min tap target height */
+    min-height: 52px;
+    align-items: center;
+  }
+  .hp-sb-guide-title {
+    font-family: var(--font);      /* switch from serif: less overflow risk */
+    font-size: 13.5px;
+    font-weight: 600;
+    line-height: 1.35;
+    white-space: normal;
+    word-break: break-word;
+  }
+  .hp-sb-guide-cat {
+    font-size: 9.5px;
+    letter-spacing: .6px;
+  }
+  .hp-sb-guide-time {
+    font-size: 11px;
+    white-space: nowrap;
+    align-self: end;
+  }
+}
