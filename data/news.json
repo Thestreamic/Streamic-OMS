@@ -1,5 +1,15 @@
 [
   {
+    "title": "Haivision Unveils Makito ONE Live Video Contribution Platform",
+    "link": "https://www.tvtechnology.com/production/haivision-unveils-makito-one-live-video-contribution-platform",
+    "guid": "c63D6SYwum48KnDENVvGY3",
+    "category": "newsroom",
+    "source": "TV Technology",
+    "image": "https://cdn.mos.cms.futurecdn.net/D57sUdudr5tFbcmQznYC79-1280-80.jpg",
+    "pubDate": "2026-04-07T16:02:08+00:00",
+    "timestamp": 1775578567
+  },
+  {
     "title": "Sachtler To Highlight Latest Aktiv, FSB Mk II Fluid Head Additions At 2026 NAB Show",
     "link": "https://www.tvtechnology.com/production/sachtler-to-highlight-latest-aktiv-fsb-mk-ii-fluid-head-additions-at-2026-nab-show",
     "guid": "joSssKcb7tiAVC9RzFwxKM",
@@ -7,7 +17,7 @@
     "source": "TV Technology",
     "image": "https://cdn.mos.cms.futurecdn.net/Q9D7JMyoMGDmChHBqgurrC-1280-80.jpg",
     "pubDate": "2026-04-07T15:25:55+00:00",
-    "timestamp": 1775577598
+    "timestamp": 1775578567
   },
   {
     "title": "Manifold Partners with NEP Group for FPGA-accelerated Software-defined Production at Scale",
@@ -17,7 +27,7 @@
     "source": "TV Technology",
     "image": "https://cdn.mos.cms.futurecdn.net/ovU2wAPBsWuhgEozHoTGhc-1280-80.png",
     "pubDate": "2026-04-07T14:00:09+00:00",
-    "timestamp": 1775577598
+    "timestamp": 1775578567
   },
   {
     "title": "34th Annual Broadcasting+Cable Hall of Fame Gala Set For Sept. 29 in New York",
@@ -27,7 +37,7 @@
     "source": "TV Technology",
     "image": "https://cdn.mos.cms.futurecdn.net/29ArnED8hdEkZe3taqLDci-1280-80.jpg",
     "pubDate": "2026-04-07T14:00:00+00:00",
-    "timestamp": 1775577598
+    "timestamp": 1775578567
   },
   {
     "title": "Avid to Debut Avid Content Core on AWS at 2026 NAB Show",
@@ -37,7 +47,7 @@
     "source": "TV Technology",
     "image": "https://cdn.mos.cms.futurecdn.net/G8xdJ7LhWHPAFV5pu4YB9W-1280-80.jpg",
     "pubDate": "2026-04-07T13:37:00+00:00",
-    "timestamp": 1775577598
+    "timestamp": 1775578567
   },
   {
     "title": "AWS brings AI-powered scale to storytellers at NAB 2026",
@@ -47,7 +57,7 @@
     "source": "AWS",
     "image": "https://d2908q01vomqb2.cloudfront.net/fb644351560d8296fe6da332236b1f8d61b2828a/2026/04/06/Blog-social-card.png",
     "pubDate": "2026-04-06T21:16:39+00:00",
-    "timestamp": 1775577636
+    "timestamp": 1775578609
   },
   {
     "title": "Grass Valley Launches Future Playmakers Program",
@@ -57,17 +67,7 @@
     "source": "TV Technology",
     "image": "https://cdn.mos.cms.futurecdn.net/qMU96z8gxt7iEBLpqvLufe-1280-80.jpg",
     "pubDate": "2026-04-06T21:13:57+00:00",
-    "timestamp": 1775577598
-  },
-  {
-    "title": "KTVJ Completes Major Signal Upgrade",
-    "link": "https://www.tvtechnology.com/platform/broadcast/ktvj-tv-completes-major-signal-upgrade",
-    "guid": "biU6CaFhVbtja2VyKiRFWm",
-    "category": "newsroom",
-    "source": "TV Technology",
-    "image": "https://cdn.mos.cms.futurecdn.net/gqayddZFJvYhSaqwynx7CF-1280-80.png",
-    "pubDate": "2026-04-06T19:12:18+00:00",
-    "timestamp": 1775577598
+    "timestamp": 1775578567
   },
   {
     "title": "Ray-Ban Meta Smart Glasses | Gismo.tv",
@@ -77,7 +77,7 @@
     "source": "Motionographer",
     "image": "https://s35726.pcdn.co/wp-content/uploads/2026/03/Screenshot-2026-03-23-at-12.48.31-PM-700x454.png",
     "pubDate": "2026-04-03T14:00:44+00:00",
-    "timestamp": 1775577635
+    "timestamp": 1775578609
   },
   {
     "title": "Le Chant des Orages | Caroline Attia Larivière / Sacrebleu Production",
@@ -87,7 +87,7 @@
     "source": "Motionographer",
     "image": "https://s35726.pcdn.co/wp-content/uploads/2026/03/Visuel6-700x399.png",
     "pubDate": "2026-04-02T14:00:52+00:00",
-    "timestamp": 1775577635
+    "timestamp": 1775578609
   },
   {
     "title": "ISR Video in Command Centers for Real-Time Response Coordination",
@@ -97,7 +97,7 @@
     "source": "Haivision",
     "image": "https://www.haivision.com/wp-content/uploads/isr-video-command-centers-blog.jpg",
     "pubDate": "2026-04-01T15:27:39+00:00",
-    "timestamp": 1775577613
+    "timestamp": 1775578590
   },
   {
     "title": "In Death We’ve Just Begun ft. Poppy and Son Lux (Official Music Video) | Marathon Launch Cinematic",
@@ -107,7 +107,7 @@
     "source": "Motionographer",
     "image": "https://s35726.pcdn.co/wp-content/uploads/2026/03/marathon-700x467.jpg",
     "pubDate": "2026-04-01T15:00:57+00:00",
-    "timestamp": 1775577635
+    "timestamp": 1775578609
   },
   {
     "title": "Live streaming localization and accessibility using AWS Media Services",
@@ -117,7 +117,17 @@
     "source": "AWS",
     "image": "https://d2908q01vomqb2.cloudfront.net/fb644351560d8296fe6da332236b1f8d61b2828a/2026/03/31/Live-streaming-localization-and-accessibility-using-AWS-Media-Services.png",
     "pubDate": "2026-04-01T13:11:30+00:00",
-    "timestamp": 1775577636
+    "timestamp": 1775578610
+  },
+  {
+    "title": "Behind the Scenes: How Google Veo Powers VideoAI on Pond5",
+    "link": "https://blog.pond5.com/81412-behind-the-scenes-how-google-veo-powers-videoai-on-pond5/",
+    "guid": "https://blog.pond5.com/?p=81412",
+    "category": "ai-post-production",
+    "source": "Pond5",
+    "image": "https://blog.pond5.com/wp-content/uploads/sites/5/2026/03/pond5-veo-videoai.jpg",
+    "pubDate": "2026-04-01T12:39:10+00:00",
+    "timestamp": 1775578647
   },
   {
     "title": "Watch Outpost’s VFX breakdown for ‘Bridgerton’ season 4",
@@ -127,7 +137,7 @@
     "source": "Befores & Afters",
     "image": "https://beforesandafters.com/wp-content/uploads/2026/04/Bridg.png",
     "pubDate": "2026-03-31T23:01:19+00:00",
-    "timestamp": 1775577680
+    "timestamp": 1775578646
   },
   {
     "title": "New Codec Data: 40% of Respondents Plan to Deploy AV1 in 2026, H.264/AVC Has 84% Adoption",
@@ -137,7 +147,7 @@
     "source": "Streaming Media Blog",
     "image": "https://www.streamingmediablog.com/wp-content/uploads/2026/03/Chart1.jpg",
     "pubDate": "2026-03-30T17:36:28+00:00",
-    "timestamp": 1775577650
+    "timestamp": 1775578624
   },
   {
     "title": "Rethinking Review: Eliminating Proxy Bottlenecks in Media Workflows",
@@ -147,7 +157,7 @@
     "source": "Telestream",
     "image": "https://blog.telestream.com/wp-content/uploads/2026/03/Blog-Hero_Rethinking-Review-Eliminating-Proxy-Bottlenecks-in-Media-Workflows.png",
     "pubDate": "2026-03-30T12:55:00+00:00",
-    "timestamp": 1775577678
+    "timestamp": 1775578644
   },
   {
     "title": "All the ‘Witcher’ season 4 VFX breakdowns in one place",
@@ -157,7 +167,7 @@
     "source": "Befores & Afters",
     "image": null,
     "pubDate": "2026-03-30T10:49:39+00:00",
-    "timestamp": 1775577680
+    "timestamp": 1775578646
   },
   {
     "title": "Watch ILM’s VFX breakdown for ‘Stranger Things’ 5",
@@ -167,7 +177,7 @@
     "source": "Befores & Afters",
     "image": null,
     "pubDate": "2026-03-28T22:04:44+00:00",
-    "timestamp": 1775577680
+    "timestamp": 1775578646
   },
   {
     "title": "Current obsession: this how to animate water video from LAIKA",
@@ -177,7 +187,7 @@
     "source": "Befores & Afters",
     "image": null,
     "pubDate": "2026-03-27T23:51:52+00:00",
-    "timestamp": 1775577680
+    "timestamp": 1775578646
   },
   {
     "title": "Achieve Perfect Sync in Every Live Video Production",
@@ -187,7 +197,7 @@
     "source": "Haivision",
     "image": "https://www.haivision.com/wp-content/uploads/achieve-perfect-sync-blog.jpg",
     "pubDate": "2026-03-26T15:55:58+00:00",
-    "timestamp": 1775577617
+    "timestamp": 1775578593
   },
   {
     "title": "How Mobile Video Transmitters are Enhancing Sports Broadcasts",
@@ -197,7 +207,7 @@
     "source": "Haivision",
     "image": "https://www.haivision.com/wp-content/uploads/sports-broadcasting.jpg",
     "pubDate": "2026-03-25T15:00:52+00:00",
-    "timestamp": 1775577622
+    "timestamp": 1775578597
   },
   {
     "title": "Intelligent Camera Card Ingest for Modern Media Production",
@@ -207,7 +217,17 @@
     "source": "Telestream",
     "image": "https://blog.telestream.com/wp-content/uploads/2026/03/Intelligent-Camera-Card-Ingest-for-Modern-Media-Production_REVISED.png",
     "pubDate": "2026-03-23T12:55:00+00:00",
-    "timestamp": 1775577678
+    "timestamp": 1775578644
+  },
+  {
+    "title": "Why We Chose a Credit-Based Model for VideoAI",
+    "link": "https://blog.pond5.com/81407-why-we-chose-a-credit-based-model-for-videoai/",
+    "guid": "https://blog.pond5.com/?p=81407",
+    "category": "ai-post-production",
+    "source": "Pond5",
+    "image": "https://blog.pond5.com/wp-content/uploads/sites/5/2026/03/credits-videoai.jpg",
+    "pubDate": "2026-03-23T11:15:34+00:00",
+    "timestamp": 1775578647
   },
   {
     "title": "How Telestream EDC Now Understands Your Media",
@@ -217,7 +237,7 @@
     "source": "Telestream",
     "image": "https://blog.telestream.com/wp-content/uploads/2026/03/BlogHero_HowTelestreamEDCNowUnderstandsYourMedia-2.png",
     "pubDate": "2026-03-19T13:00:00+00:00",
-    "timestamp": 1775577678
+    "timestamp": 1775578644
   },
   {
     "title": "Everything You Need to Know About Video Wall Technology",
@@ -227,7 +247,7 @@
     "source": "Haivision",
     "image": "https://www.haivision.com/wp-content/uploads/everything-video-wall-blog.jpg",
     "pubDate": "2026-03-18T15:00:08+00:00",
-    "timestamp": 1775577625
+    "timestamp": 1775578600
   },
   {
     "title": "Remote Production Perfection: From Cloud Capture to Beyond the Edge",
@@ -237,7 +257,7 @@
     "source": "Telestream",
     "image": "https://blog.telestream.com/wp-content/uploads/2026/03/BlogHero_RemoteProductionPerfection.png",
     "pubDate": "2026-03-16T16:39:21+00:00",
-    "timestamp": 1775577678
+    "timestamp": 1775578644
   },
   {
     "title": "How Sony Pictures Networks India Delivered Personalized Ad Insertion at Scale on AWS",
@@ -247,7 +267,7 @@
     "source": "AWS",
     "image": "https://d2908q01vomqb2.cloudfront.net/fb644351560d8296fe6da332236b1f8d61b2828a/2026/03/08/How-Sony-Pictures-Networks-India-Delivered-Personalized-Ad-Insertion-at-Scale-on-AWS-1120x630.png",
     "pubDate": "2026-03-16T14:04:47+00:00",
-    "timestamp": 1775577636
+    "timestamp": 1775578610
   },
   {
     "title": "Cloud-Native Revolution: Harmonic VOS and Red Hat OpenShift Mastering Video Delivery, Cost, and Scale",
@@ -257,7 +277,7 @@
     "source": "Harmonic",
     "image": "https://www.harmonicinc.com/hubfs/Cloud-NativeRevolution-FeaturedImage.webp",
     "pubDate": "2026-03-12T19:15:20+00:00",
-    "timestamp": 1775577604
+    "timestamp": 1775578583
   },
   {
     "title": "How Video Wall Solutions Improve Situational Awareness",
@@ -265,9 +285,9 @@
     "guid": "https://www.haivision.com/?p=54641",
     "category": "infrastructure",
     "source": "Haivision",
-    "image": null,
+    "image": "https://www.haivision.com/wp-content/uploads/vws-situational-awareness-blog.jpg",
     "pubDate": "2026-03-12T15:00:16+00:00",
-    "timestamp": 1775577630
+    "timestamp": 1775578605
   },
   {
     "title": "Top 5 Technology Trends from Haivision’s 2026 Broadcast Report",
@@ -277,7 +297,7 @@
     "source": "Haivision",
     "image": null,
     "pubDate": "2026-03-11T15:00:09+00:00",
-    "timestamp": 1775577630
+    "timestamp": 1775578605
   },
   {
     "title": "How AWS powers Dramaze AI-enhanced streaming platform",
@@ -287,7 +307,7 @@
     "source": "AWS",
     "image": null,
     "pubDate": "2026-03-06T15:45:16+00:00",
-    "timestamp": 1775577636
+    "timestamp": 1775578610
   },
   {
     "title": "Designing the Modern Media Stack for Speed, Scale, and Simplicity",
@@ -297,7 +317,7 @@
     "source": "Telestream",
     "image": null,
     "pubDate": "2026-03-05T17:55:00+00:00",
-    "timestamp": 1775577678
+    "timestamp": 1775578644
   },
   {
     "title": "Building intelligent media supply chain automation using Amazon Bedrock AgentCore",
@@ -307,27 +327,7 @@
     "source": "AWS",
     "image": null,
     "pubDate": "2026-03-05T01:54:08+00:00",
-    "timestamp": 1775577636
-  },
-  {
-    "title": "The Beginner’s Guide to AI Video",
-    "link": "https://jonnyelwyn.co.uk/film-and-video-editing/the-beginners-guide-to-ai-video/",
-    "guid": "https://jonnyelwyn.co.uk/?p=89156",
-    "category": "ai-post-production",
-    "source": "Jonny Elwyn",
-    "image": null,
-    "pubDate": "2026-02-19T18:22:09+00:00",
-    "timestamp": 1775577679
-  },
-  {
-    "title": "The Best AI Tools for Video and Audio Post Production",
-    "link": "https://jonnyelwyn.co.uk/film-and-video-editing/the-best-ai-tools-for-video-and-audio-post-production/",
-    "guid": "https://jonnyelwyn.co.uk/?p=65319",
-    "category": "ai-post-production",
-    "source": "Jonny Elwyn",
-    "image": null,
-    "pubDate": "2026-01-21T14:22:10+00:00",
-    "timestamp": 1775577679
+    "timestamp": 1775578610
   },
   {
     "title": "Pushing the Boundaries of Video Innovation Through the Power of Collaboration",
@@ -337,7 +337,7 @@
     "source": "Harmonic",
     "image": "https://www.harmonicinc.com/hubfs/2025_Blog_Main_Image_Video_Innovation_Harmonic_Akamai_NVIDIA_VB_V1.png",
     "pubDate": "2025-10-28T20:09:24+00:00",
-    "timestamp": 1775577604
+    "timestamp": 1775578583
   },
   {
     "title": "The Economics of Hybrid Streaming Architectures",
@@ -347,7 +347,7 @@
     "source": "Harmonic",
     "image": "https://www.harmonicinc.com/hubfs/video-streaming/vos-media-software-image.jpg",
     "pubDate": "2025-09-02T12:00:00+00:00",
-    "timestamp": 1775577604
+    "timestamp": 1775578583
   },
   {
     "title": "The Everything Era: What NAB 2025 Really Told Us About Streaming’s Future",
@@ -357,7 +357,7 @@
     "source": "Harmonic",
     "image": "https://www.harmonicinc.com/hubfs/video-streaming/services/Harmonic-video-service-tools.webp",
     "pubDate": "2025-06-09T14:05:14+00:00",
-    "timestamp": 1775577604
+    "timestamp": 1775578583
   },
   {
     "title": "Harmonic Leads Broadband Industry Transformation",
@@ -367,6 +367,6 @@
     "source": "Harmonic",
     "image": "https://www.harmonicinc.com/hubfs/harmonic-leader-cos-image-blog-article.jpg",
     "pubDate": "2025-02-21T14:53:46+00:00",
-    "timestamp": 1775577604
+    "timestamp": 1775578583
   }
 ]
