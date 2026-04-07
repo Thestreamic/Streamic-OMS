@@ -1222,21 +1222,22 @@ def featured_page(arts):
     guide_map = {a.get("slug"): a for a in editorial_all}
     guide_arts = [guide_map[s] for s in guide_slug_order if s in guide_map]
 
-    # ── Latest Insights: up to 20 newest QUALITY articles ──────────────
-    #    Must be 800+ words AND have 2+ broadcast/media IT terms.
-    #    Newest on top. Excludes hero + guide articles.
-    INSIGHT_LIMIT = 20
+    # ── Latest Insights: ALL quality articles, newest first ────────────
+    #    Must be 800+ words (or gpt_manual_editorial) + 2 broadcast terms.
+    #    First 6 visible on page load; rest hidden behind "Load More" button.
     used_slugs = {a.get("slug") for a in guide_arts} | ({hero_art.get("slug")} if hero_art else set())
-    insight_pool = [a for a in editorial_all + regular_all if a.get("slug") not in used_slugs]
-    # Already sorted newest-first (editorial_all and regular_all are pre-sorted)
-    # De-duplicate while preserving order, apply 800-word + broadcast relevance gate
+    # Merge editorial + regular into ONE list sorted by date (not editorial-first)
+    insight_pool = sorted(
+        [a for a in arts if a.get("slug") not in used_slugs],
+        key=lambda a: a.get("published", ""), reverse=True
+    )
     _seen_ins = set()
     insight_arts = []
     for a in insight_pool:
         s = a.get("slug")
         if not s or s in _seen_ins:
             continue
-        # ── Quality gate: 800+ words ──
+        # ── Quality gate: 800+ words (manual editorials bypass) ──
         _body = a.get("body_html", "") or ""
         _plain = re.sub(r"<[^>]+>", " ", _body)
         _wc = len(re.sub(r"\s+", " ", _plain).strip().split())
@@ -1250,8 +1251,7 @@ def featured_page(arts):
             continue
         _seen_ins.add(s)
         insight_arts.append(a)
-        if len(insight_arts) >= INSIGHT_LIMIT:
-            break
+    # No cap — all quality articles included
 
     sidebar_picks = [a for a in editorial_all if a.get("slug") != (hero_art or {}).get("slug")][:3]
     fresh_feed = load_homepage_feed(arts, limit=16)
@@ -1299,7 +1299,27 @@ def featured_page(arts):
 
     guide_subs = ["2026 Engineering Edition", "Complete Technical Reference", "Distributed Production Playbook", "Metadata, Search & Monetisation"]
     guides_html = ''.join(_hp_guide_card(a, guide_subs[i] if i < len(guide_subs) else "Technical Guide") for i, a in enumerate(guide_arts))
-    insights_html = ''.join(_hp_insight_card(a) for a in insight_arts)
+    # First 6 visible, rest hidden — revealed by Load More button
+    INSIGHT_INITIAL = 20
+    _insight_cards = []
+    for i, a in enumerate(insight_arts):
+        card_html = _hp_insight_card(a)
+        if i >= INSIGHT_INITIAL:
+            # Add hidden class to the <a> tag
+            card_html = card_html.replace('class="hp-insight-card"', 'class="hp-insight-card hp-insight-hidden"', 1)
+        _insight_cards.append(card_html)
+    insights_html = ''.join(_insight_cards)
+    # Load More button — only if there are hidden cards
+    _hidden_count = max(0, len(insight_arts) - INSIGHT_INITIAL)
+    insights_loadmore = ""
+    if _hidden_count > 0:
+        insights_loadmore = f'''<div class="hp-insights-loadmore">
+  <button id="insightLoadMore" type="button" class="hp-loadmore-btn" aria-label="Load more insights">
+    <span class="hp-loadmore-label">Load More</span>
+    <span class="hp-loadmore-count">{_hidden_count} more</span>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+  </button>
+</div>'''
     news_html = ''.join(_hp_news_item(a) for a in homepage_news)
     picks_html = ''.join(_hp_sidebar_pick(a) for a in sidebar_picks)
     sb_news_html = ''.join(_hp_sidebar_news(a) for a in breaking_news)
@@ -1361,6 +1381,7 @@ def featured_page(arts):
       <div class="hp-main">
         <section class="hp-insights hp-insights-premium">
           <div class="hp-insights-grid">{insights_html}</div>
+          {insights_loadmore}
         </section>
         <section class="hp-guide">
           <div class="hp-guide-banner"><span>Professional Media Systems Guide</span></div>
@@ -1392,6 +1413,24 @@ def featured_page(arts):
 {footer()}
 {_cookie_banner()}
 <script src="main.js" defer></script>
+<script>
+(function(){{
+  var btn=document.getElementById('insightLoadMore');
+  if(!btn)return;
+  var BATCH=6;
+  btn.addEventListener('click',function(){{
+    var hidden=document.querySelectorAll('.hp-insight-hidden');
+    var count=0;
+    for(var i=0;i<hidden.length&&count<BATCH;i++,count++){{
+      hidden[i].classList.remove('hp-insight-hidden');
+      hidden[i].classList.add('hp-insight-reveal');
+    }}
+    var left=document.querySelectorAll('.hp-insight-hidden').length;
+    if(left===0){{btn.parentElement.style.display='none';}}
+    else{{btn.querySelector('.hp-loadmore-count').textContent=left+' more';}}
+  }});
+}})();
+</script>
 </body>
 </html>'''
 
