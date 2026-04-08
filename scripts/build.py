@@ -1170,19 +1170,30 @@ def _item_target(a):
     return ''
 
 def _hp_news_item(a):
-    href = _item_href(a)
-    target = _item_target(a)
+    slug = a.get("slug","")
+    analysis_href = f"articles/{slug}.html" if slug else "#"
+    src_url = e(a.get("source_url","") or a.get("url","") or "")
     title = e(a.get("title", ""))
     src = e(_source_name(a.get("source_domain", a.get("source", ""))))
     dt = d(a.get("published", ""))
-    return f'''<a href="{href}"{target} class="hp-news-item">
+    dek = e((a.get("dek") or a.get("card_summary") or a.get("meta_description") or "")[:120])
+    # Source link — only if we have a real URL
+    src_link = ""
+    if src_url and src:
+        src_link = f'<a href="{src_url}" target="_blank" rel="noopener noreferrer nofollow" class="hp-news-src-link">Source: {src} &#8599;</a>'
+    return f'''<div class="hp-news-item">
   <div class="hp-news-thumb"><img src="{_hp_img(a)}" alt="{title}" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-news-body">
     <span class="hp-news-src">{src}</span>
-    <span class="hp-news-title">{title}</span>
-    <div class="hp-news-foot"><time class="hp-news-date">{dt}</time><span class="hp-news-read">Read more &#8594;</span></div>
+    <a href="{analysis_href}" class="hp-news-title">{title}</a>
+    <span class="hp-news-dek">{dek}</span>
+    <div class="hp-news-foot">
+      <time class="hp-news-date">{dt}</time>
+      <a href="{analysis_href}" class="hp-news-read">Read Streamic Analysis &#8594;</a>
+    </div>
+    {src_link}
   </div>
-</a>'''
+</div>'''
 def _hp_sidebar_pick(a):
     href = f"articles/{a['slug']}.html"
     title = e(a.get("title", ""))
@@ -1192,19 +1203,24 @@ def _hp_sidebar_pick(a):
 </a>'''
 
 def _hp_sidebar_news(a):
-    href = _item_href(a)
-    target = _item_target(a)
+    slug = a.get("slug","")
+    analysis_href = f"articles/{slug}.html" if slug else "#"
+    src_url = e(a.get("source_url","") or a.get("url","") or "")
     title = e(a.get("title", ""))
     src = e(_source_name(a.get("source_domain", a.get("source", ""))))
     dt = d(a.get("published", ""))
-    return f'''<a href="{href}"{target} class="hp-sb-news-item">
+    src_link = ""
+    if src_url and src:
+        src_link = f'<a href="{src_url}" target="_blank" rel="noopener noreferrer nofollow" style="font-size:10px;color:var(--ink4);text-decoration:none;margin-top:2px;display:block">Source: {src} &#8599;</a>'
+    return f'''<div class="hp-sb-news-item">
   <div class="hp-sb-news-thumb"><img src="{_hp_img(a)}" alt="{title}" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-sb-news-body">
     <span class="hp-sb-news-src">{src}</span>
-    <span class="hp-sb-news-title">{title}</span>
+    <a href="{analysis_href}" class="hp-sb-news-title">{title}</a>
     <time class="hp-sb-news-date">{dt}</time>
+    {src_link}
   </div>
-</a>'''
+</div>'''
 def featured_page(arts):
     """Homepage built from generated_articles.json with premium magazine layout."""
     editorial_all = sorted([a for a in arts if a.get("is_editorial") or a.get("editorial")], key=lambda a: a.get("published", ""), reverse=True)
@@ -1721,27 +1737,40 @@ def article_page(a):
     }, indent=2)
 
     source_credit = ""
+    source_banner = ""
     # Derive source domain from URL if field is missing
     if not src_dom and src_url:
         src_dom = src_url.replace("https://","").replace("http://","").replace("www.","").split("/")[0]
     if src_url and not is_ed:
         _src_name = e(src_dom) if src_dom else "Original Source"
-        source_credit = f"""<div class="art-source-credit">
-  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
-    <div>
-      <span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--blue);display:block;margin-bottom:4px">Original Source</span>
-      <strong style="font-size:14px;color:var(--ink)">{_src_name}</strong>
-    </div>
-    <a href="{e(src_url)}" target="_blank" rel="noopener noreferrer nofollow"
-       style="display:inline-flex;align-items:center;gap:6px;padding:10px 20px;
-              background:var(--blue);color:#fff;border-radius:8px;font-size:13px;
-              font-weight:600;text-decoration:none;">
-      View Original Article &rarr;
-    </a>
-  </div>
-  <p style="margin:10px 0 0;font-size:12px;color:var(--ink4)">
-    The analysis above is original editorial commentary by The Streamic. The original news was reported by {_src_name}.
-    <a href="{e(src_url)}" target="_blank" rel="noopener noreferrer nofollow" style="color:var(--blue);margin-left:4px">Read the original article &rarr;</a>
+        _pub_date = a.get("published","")
+        _pub_month = ""
+        if _pub_date:
+            try:
+                from datetime import datetime as _dt
+                _pub_month = _dt.strptime(_pub_date, "%Y-%m-%d").strftime("%B %Y")
+            except Exception:
+                _pub_month = _pub_date
+
+        # ── TOP: Source attribution banner ──
+        source_banner = f"""<div style="background:#f0f4ff;border:1px solid #d0daf0;border-radius:10px;padding:16px 20px;margin-bottom:28px;font-size:13.5px;color:var(--ink2);line-height:1.6">
+  <span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--blue);display:block;margin-bottom:6px">Source Attribution</span>
+  This analysis is based on publicly available reporting from:
+  <strong style="color:var(--ink)"><a href="{e(src_url)}" target="_blank" rel="noopener noreferrer nofollow" style="color:var(--blue);text-decoration:none">{_src_name}</a></strong>{f" ({_pub_month})" if _pub_month else ""}.
+  <br>This article provides independent technical interpretation by The Streamic.
+</div>"""
+
+        # ── BOTTOM: Sources & Further Reading ──
+        source_credit = f"""<div style="background:var(--bg);border-radius:12px;padding:22px 24px;margin-top:36px;border-top:3px solid var(--blue)">
+  <h4 style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--blue);margin:0 0 14px">Sources &amp; Further Reading</h4>
+  <ul style="margin:0;padding-left:18px;list-style:disc">
+    <li style="font-size:13.5px;color:var(--ink2);line-height:1.6;margin-bottom:6px">
+      <strong style="color:var(--ink)">{_src_name}</strong> &mdash;
+      <a href="{e(src_url)}" target="_blank" rel="noopener noreferrer nofollow" style="color:var(--blue);text-decoration:none">Read the original article &rarr;</a>
+    </li>
+  </ul>
+  <p style="margin:12px 0 0;font-size:12px;color:var(--ink4);line-height:1.5">
+    The Streamic provides independent editorial commentary. All source material is credited and linked above. External links carry <code style="font-size:11px;background:#e8e8ed;padding:1px 5px;border-radius:3px">rel="nofollow noopener"</code>.
   </p>
 </div>"""
 
@@ -1823,7 +1852,7 @@ def article_page(a):
       <img src="{eu(img)}" alt="{e(title)}" loading="eager">
       <figcaption>{e(a.get("image_credit","Photo via Unsplash &#8212; free to use under the Unsplash License"))} &#8212; <a href="{lic_url}" rel="nofollow noopener" target="_blank" style="color:var(--ink4)">{lic_label}</a></figcaption>
     </figure>
-    <div class="art-body">{body}{editors_note}</div>
+    <div class="art-body">{source_banner}{body}{editors_note}</div>
     {source_credit}
     {author_box}
     <div class="art-more">
