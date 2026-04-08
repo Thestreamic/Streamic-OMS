@@ -1346,3 +1346,119 @@ body[data-category="featured"] .nav {
     align-self: end;
   }
 }
+
+/* ── LATEST INSIGHTS: LOAD MORE ──────────────────────────────────── */
+.hp-insight-hidden {
+  display: none !important;
+}
+.hp-insights-loadmore {
+  display: flex;
+  justify-content: center;
+  padding: 28px 0 8px;
+}
+.hp-loadmore-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 36px;
+  border: 1.5px solid var(--line);
+  border-radius: 980px;
+  background: var(--white);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(.4,0,.2,1);
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+.hp-loadmore-btn:hover {
+  background: var(--ink);
+  color: var(--white);
+  border-color: var(--ink);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  transform: translateY(-1px);
+}
+.hp-loadmore-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  transition-duration: 0.08s;
+}
+.hp-loadmore-count {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ink4);
+  background: var(--bg);
+  padding: 3px 10px;
+  border-radius: 980px;
+  transition: all 0.25s;
+}
+.hp-loadmore-btn:hover .hp-loadmore-count {
+  background: rgba(255,255,255,0.18);
+  color: rgba(255,255,255,0.7);
+}
+.hp-loadmore-btn svg {
+  transition: transform 0.25s;
+  opacity: 0.5;
+}
+.hp-loadmore-btn:hover svg {
+  opacity: 1;
+}
+/* Fade-in animation for revealed cards */
+@keyframes insightReveal {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.hp-insight-reveal {
+  animation: insightReveal 0.35s cubic-bezier(.4,0,.2,1) both;
+}
+
+/* ── DUAL-LINK CARD REFINEMENTS ──────────────────────────────────── */
+/* News title is now <a> instead of <span> — remove underline */
+a.hp-news-title,
+a.hp-sb-news-title {
+  text-decoration: none;
+  color: var(--ink);
+}
+a.hp-news-title:hover { color: var(--blue); }
+a.hp-sb-news-title:hover { color: var(--blue); }
+
+/* Summary line in Intelligence cards */
+.hp-news-dek {
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--ink3);
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin: 1px 0;
+}
+
+/* Source link in Intelligence cards */
+.hp-news-src-link {
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--ink4);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-top: 4px;
+  padding-top: 5px;
+  border-top: 1px solid var(--bg);
+  transition: color .15s;
+}
+.hp-news-src-link:hover {
+  color: var(--blue);
+}
+
+/* Analysis link styling */
+a.hp-news-read {
+  text-decoration: none;
+}
+a.hp-news-read:hover {
+  text-decoration: underline;
+}
