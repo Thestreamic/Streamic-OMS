@@ -1170,19 +1170,30 @@ def _item_target(a):
     return ''
 
 def _hp_news_item(a):
-    href = _item_href(a)
-    target = _item_target(a)
+    slug = a.get("slug","")
+    analysis_href = f"articles/{slug}.html" if slug else "#"
+    src_url = e(a.get("source_url","") or a.get("url","") or "")
     title = e(a.get("title", ""))
     src = e(_source_name(a.get("source_domain", a.get("source", ""))))
     dt = d(a.get("published", ""))
-    return f'''<a href="{href}"{target} class="hp-news-item">
+    dek = e((a.get("dek") or a.get("card_summary") or a.get("meta_description") or "")[:120])
+    # Source link — only if we have a real URL
+    src_link = ""
+    if src_url and src:
+        src_link = f'<a href="{src_url}" target="_blank" rel="noopener noreferrer nofollow" class="hp-news-src-link">Source: {src} &#8599;</a>'
+    return f'''<div class="hp-news-item">
   <div class="hp-news-thumb"><img src="{_hp_img(a)}" alt="{title}" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-news-body">
     <span class="hp-news-src">{src}</span>
-    <span class="hp-news-title">{title}</span>
-    <div class="hp-news-foot"><time class="hp-news-date">{dt}</time><span class="hp-news-read">Read more &#8594;</span></div>
+    <a href="{analysis_href}" class="hp-news-title">{title}</a>
+    <span class="hp-news-dek">{dek}</span>
+    <div class="hp-news-foot">
+      <time class="hp-news-date">{dt}</time>
+      <a href="{analysis_href}" class="hp-news-read">Read Streamic Analysis &#8594;</a>
+    </div>
+    {src_link}
   </div>
-</a>'''
+</div>'''
 def _hp_sidebar_pick(a):
     href = f"articles/{a['slug']}.html"
     title = e(a.get("title", ""))
@@ -1192,19 +1203,24 @@ def _hp_sidebar_pick(a):
 </a>'''
 
 def _hp_sidebar_news(a):
-    href = _item_href(a)
-    target = _item_target(a)
+    slug = a.get("slug","")
+    analysis_href = f"articles/{slug}.html" if slug else "#"
+    src_url = e(a.get("source_url","") or a.get("url","") or "")
     title = e(a.get("title", ""))
     src = e(_source_name(a.get("source_domain", a.get("source", ""))))
     dt = d(a.get("published", ""))
-    return f'''<a href="{href}"{target} class="hp-sb-news-item">
+    src_link = ""
+    if src_url and src:
+        src_link = f'<a href="{src_url}" target="_blank" rel="noopener noreferrer nofollow" style="font-size:10px;color:var(--ink4);text-decoration:none;margin-top:2px;display:block">Source: {src} &#8599;</a>'
+    return f'''<div class="hp-sb-news-item">
   <div class="hp-sb-news-thumb"><img src="{_hp_img(a)}" alt="{title}" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-sb-news-body">
     <span class="hp-sb-news-src">{src}</span>
-    <span class="hp-sb-news-title">{title}</span>
+    <a href="{analysis_href}" class="hp-sb-news-title">{title}</a>
     <time class="hp-sb-news-date">{dt}</time>
+    {src_link}
   </div>
-</a>'''
+</div>'''
 def featured_page(arts):
     """Homepage built from generated_articles.json with premium magazine layout."""
     editorial_all = sorted([a for a in arts if a.get("is_editorial") or a.get("editorial")], key=lambda a: a.get("published", ""), reverse=True)
@@ -1223,8 +1239,11 @@ def featured_page(arts):
     guide_arts = [guide_map[s] for s in guide_slug_order if s in guide_map]
 
     # ── Latest Insights: ALL quality articles, newest first ────────────
-    #    Must be 800+ words (or gpt_manual_editorial) + 2 broadcast terms.
-    #    First 6 visible on page load; rest hidden behind "Load More" button.
+    #    Must be 400+ words + 2 broadcast terms (lower than the 800-word
+    #    SEO gate so latest daily articles always appear on the homepage).
+    #    Manual editorials bypass word count entirely.
+    #    First 20 visible on load; rest behind "Load More" button.
+    MIN_INSIGHT_WORDS = 400
     used_slugs = {a.get("slug") for a in guide_arts} | ({hero_art.get("slug")} if hero_art else set())
     # Merge editorial + regular into ONE list sorted by date (not editorial-first)
     insight_pool = sorted(
@@ -1237,12 +1256,12 @@ def featured_page(arts):
         s = a.get("slug")
         if not s or s in _seen_ins:
             continue
-        # ── Quality gate: 800+ words (manual editorials bypass) ──
+        # ── Quality gate: 400+ words (manual editorials bypass) ──
         _body = a.get("body_html", "") or ""
         _plain = re.sub(r"<[^>]+>", " ", _body)
         _wc = len(re.sub(r"\s+", " ", _plain).strip().split())
         is_manual_ed = a.get("generated_by") == "gpt_manual_editorial"
-        if not is_manual_ed and _wc < MIN_ARTICLE_WORDS:
+        if not is_manual_ed and _wc < MIN_INSIGHT_WORDS:
             continue
         # ── Broadcast relevance: 2+ terms ──
         _search = (a.get("title", "") + " " + _plain).lower()
@@ -1309,17 +1328,59 @@ def featured_page(arts):
             card_html = card_html.replace('class="hp-insight-card"', 'class="hp-insight-card hp-insight-hidden"', 1)
         _insight_cards.append(card_html)
     insights_html = ''.join(_insight_cards)
-    # Load More button — only if there are hidden cards
+    # Load More — self-contained component (inline CSS + HTML + JS)
     _hidden_count = max(0, len(insight_arts) - INSIGHT_INITIAL)
     insights_loadmore = ""
     if _hidden_count > 0:
-        insights_loadmore = f'''<div class="hp-insights-loadmore">
-  <button id="insightLoadMore" type="button" class="hp-loadmore-btn" aria-label="Load more insights">
-    <span class="hp-loadmore-label">Load More</span>
-    <span class="hp-loadmore-count">{_hidden_count} more</span>
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        insights_loadmore = f'''<style>
+.hp-insight-hidden{{display:none!important}}
+@keyframes insightReveal{{from{{opacity:0;transform:translateY(16px)}}to{{opacity:1;transform:translateY(0)}}}}
+.hp-insight-reveal{{animation:insightReveal .4s cubic-bezier(.25,.46,.45,.94) both}}
+.hp-lm-wrap{{display:flex;justify-content:center;padding:36px 0 12px}}
+.hp-lm{{position:relative;display:inline-flex;align-items:center;gap:14px;padding:0;background:none;border:none;cursor:pointer;font-family:var(--font);-webkit-tap-highlight-color:transparent;outline:none}}
+.hp-lm-ring{{position:relative;width:52px;height:52px;flex-shrink:0}}
+.hp-lm-ring svg{{width:52px;height:52px;transform:rotate(-90deg)}}
+.hp-lm-ring .ring-track{{fill:none;stroke:var(--line);stroke-width:2}}
+.hp-lm-ring .ring-fill{{fill:none;stroke:var(--blue);stroke-width:2.5;stroke-linecap:round;stroke-dasharray:150;stroke-dashoffset:150;transition:stroke-dashoffset .6s cubic-bezier(.4,0,.2,1)}}
+.hp-lm:hover .ring-fill{{stroke-dashoffset:0}}
+.hp-lm-icon{{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}}
+.hp-lm-icon svg{{width:18px;height:18px;stroke:var(--ink);stroke-width:2;fill:none;transition:transform .35s cubic-bezier(.4,0,.2,1),stroke .2s}}
+.hp-lm:hover .hp-lm-icon svg{{transform:rotate(180deg);stroke:var(--blue)}}
+.hp-lm-text{{display:flex;flex-direction:column;align-items:flex-start;gap:2px}}
+.hp-lm-label{{font-size:14px;font-weight:600;color:var(--ink);letter-spacing:-.01em;transition:color .2s}}
+.hp-lm:hover .hp-lm-label{{color:var(--blue)}}
+.hp-lm-sub{{font-size:11px;font-weight:500;color:var(--ink4);transition:color .2s}}
+.hp-lm:hover .hp-lm-sub{{color:var(--blue)}}
+.hp-lm-bar{{position:absolute;bottom:-10px;left:0;width:100%;height:1.5px;background:var(--line);border-radius:2px;overflow:hidden}}
+.hp-lm-bar span{{display:block;width:0;height:100%;background:var(--blue);border-radius:2px;transition:width .5s cubic-bezier(.4,0,.2,1)}}
+.hp-lm:hover .hp-lm-bar span{{width:100%}}
+</style>
+<div class="hp-lm-wrap">
+  <button id="insightLoadMore" type="button" class="hp-lm" aria-label="Load more insights">
+    <div class="hp-lm-ring">
+      <svg viewBox="0 0 52 52"><circle class="ring-track" cx="26" cy="26" r="24"/><circle class="ring-fill" cx="26" cy="26" r="24"/></svg>
+      <div class="hp-lm-icon"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg></div>
+    </div>
+    <div class="hp-lm-text">
+      <span class="hp-lm-label">Load More</span>
+      <span class="hp-lm-sub" id="lmCount">{_hidden_count} more articles</span>
+    </div>
+    <div class="hp-lm-bar"><span></span></div>
   </button>
-</div>'''
+</div>
+<script>
+(function(){{
+  var btn=document.getElementById('insightLoadMore'),B=6;
+  if(!btn)return;
+  btn.addEventListener('click',function(){{
+    var h=document.querySelectorAll('.hp-insight-hidden'),c=0,i;
+    for(i=0;i<h.length&&c<B;i++,c++){{h[i].classList.remove('hp-insight-hidden');h[i].classList.add('hp-insight-reveal');}}
+    var left=document.querySelectorAll('.hp-insight-hidden').length;
+    if(left<1)btn.parentElement.style.display='none';
+    else document.getElementById('lmCount').textContent=left+' more articles';
+  }});
+}})();
+</script>'''
     news_html = ''.join(_hp_news_item(a) for a in homepage_news)
     picks_html = ''.join(_hp_sidebar_pick(a) for a in sidebar_picks)
     sb_news_html = ''.join(_hp_sidebar_news(a) for a in breaking_news)
@@ -1413,24 +1474,6 @@ def featured_page(arts):
 {footer()}
 {_cookie_banner()}
 <script src="main.js" defer></script>
-<script>
-(function(){{
-  var btn=document.getElementById('insightLoadMore');
-  if(!btn)return;
-  var BATCH=6;
-  btn.addEventListener('click',function(){{
-    var hidden=document.querySelectorAll('.hp-insight-hidden');
-    var count=0;
-    for(var i=0;i<hidden.length&&count<BATCH;i++,count++){{
-      hidden[i].classList.remove('hp-insight-hidden');
-      hidden[i].classList.add('hp-insight-reveal');
-    }}
-    var left=document.querySelectorAll('.hp-insight-hidden').length;
-    if(left===0){{btn.parentElement.style.display='none';}}
-    else{{btn.querySelector('.hp-loadmore-count').textContent=left+' more';}}
-  }});
-}})();
-</script>
 </body>
 </html>'''
 
@@ -1694,27 +1737,40 @@ def article_page(a):
     }, indent=2)
 
     source_credit = ""
+    source_banner = ""
     # Derive source domain from URL if field is missing
     if not src_dom and src_url:
         src_dom = src_url.replace("https://","").replace("http://","").replace("www.","").split("/")[0]
     if src_url and not is_ed:
         _src_name = e(src_dom) if src_dom else "Original Source"
-        source_credit = f"""<div class="art-source-credit">
-  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
-    <div>
-      <span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--blue);display:block;margin-bottom:4px">Original Source</span>
-      <strong style="font-size:14px;color:var(--ink)">{_src_name}</strong>
-    </div>
-    <a href="{e(src_url)}" target="_blank" rel="noopener noreferrer nofollow"
-       style="display:inline-flex;align-items:center;gap:6px;padding:10px 20px;
-              background:var(--blue);color:#fff;border-radius:8px;font-size:13px;
-              font-weight:600;text-decoration:none;">
-      View Original Article &rarr;
-    </a>
-  </div>
-  <p style="margin:10px 0 0;font-size:12px;color:var(--ink4)">
-    The analysis above is original editorial commentary by The Streamic. The original news was reported by {_src_name}.
-    <a href="{e(src_url)}" target="_blank" rel="noopener noreferrer nofollow" style="color:var(--blue);margin-left:4px">Read the original article &rarr;</a>
+        _pub_date = a.get("published","")
+        _pub_month = ""
+        if _pub_date:
+            try:
+                from datetime import datetime as _dt
+                _pub_month = _dt.strptime(_pub_date, "%Y-%m-%d").strftime("%B %Y")
+            except Exception:
+                _pub_month = _pub_date
+
+        # ── TOP: Source attribution banner ──
+        source_banner = f"""<div style="background:#f0f4ff;border:1px solid #d0daf0;border-radius:10px;padding:16px 20px;margin-bottom:28px;font-size:13.5px;color:var(--ink2);line-height:1.6">
+  <span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--blue);display:block;margin-bottom:6px">Source Attribution</span>
+  This analysis is based on publicly available reporting from:
+  <strong style="color:var(--ink)"><a href="{e(src_url)}" target="_blank" rel="noopener noreferrer nofollow" style="color:var(--blue);text-decoration:none">{_src_name}</a></strong>{f" ({_pub_month})" if _pub_month else ""}.
+  <br>This article provides independent technical interpretation by The Streamic.
+</div>"""
+
+        # ── BOTTOM: Sources & Further Reading ──
+        source_credit = f"""<div style="background:var(--bg);border-radius:12px;padding:22px 24px;margin-top:36px;border-top:3px solid var(--blue)">
+  <h4 style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--blue);margin:0 0 14px">Sources &amp; Further Reading</h4>
+  <ul style="margin:0;padding-left:18px;list-style:disc">
+    <li style="font-size:13.5px;color:var(--ink2);line-height:1.6;margin-bottom:6px">
+      <strong style="color:var(--ink)">{_src_name}</strong> &mdash;
+      <a href="{e(src_url)}" target="_blank" rel="noopener noreferrer nofollow" style="color:var(--blue);text-decoration:none">Read the original article &rarr;</a>
+    </li>
+  </ul>
+  <p style="margin:12px 0 0;font-size:12px;color:var(--ink4);line-height:1.5">
+    The Streamic provides independent editorial commentary. All source material is credited and linked above. External links carry <code style="font-size:11px;background:#e8e8ed;padding:1px 5px;border-radius:3px">rel="nofollow noopener"</code>.
   </p>
 </div>"""
 
@@ -1796,7 +1852,7 @@ def article_page(a):
       <img src="{eu(img)}" alt="{e(title)}" loading="eager">
       <figcaption>{e(a.get("image_credit","Photo via Unsplash &#8212; free to use under the Unsplash License"))} &#8212; <a href="{lic_url}" rel="nofollow noopener" target="_blank" style="color:var(--ink4)">{lic_label}</a></figcaption>
     </figure>
-    <div class="art-body">{body}{editors_note}</div>
+    <div class="art-body">{source_banner}{body}{editors_note}</div>
     {source_credit}
     {author_box}
     <div class="art-more">
