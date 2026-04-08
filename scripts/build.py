@@ -1741,7 +1741,11 @@ def article_page(a):
     # Derive source domain from URL if field is missing
     if not src_dom and src_url:
         src_dom = src_url.replace("https://","").replace("http://","").replace("www.","").split("/")[0]
-    if src_url and not is_ed:
+    # Show source attribution for ALL articles with a source_url,
+    # EXCEPT truly hand-written editorials (gpt_manual_editorial).
+    # rewrite_feed_local articles have is_editorial=True but ARE sourced from news.
+    _is_original = a.get("generated_by") == "gpt_manual_editorial"
+    if src_url and not _is_original:
         _src_name = e(src_dom) if src_dom else "Original Source"
         _pub_date = a.get("published","")
         _pub_month = ""
