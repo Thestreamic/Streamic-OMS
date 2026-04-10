@@ -48,6 +48,12 @@
     "image_credit": "Photo: Unsplash — free to use under the Unsplash License",
     "image_license": "Unsplash License",
     "image_license_url": "https://unsplash.com/license",
+    "topic_type": "broadcast_infrastructure",
+    "priority_for_insights": true,
+    "technical_keywords": [
+      "nab"
+    ],
+    "needs_gemini": false,
     "is_editorial": true,
     "editorial": true
   },
@@ -74,6 +80,12 @@
     "image_credit": "Photo: Unsplash — free to use under the Unsplash License",
     "image_license": "Unsplash License",
     "image_license_url": "https://unsplash.com/license",
+    "topic_type": "broadcast_infrastructure",
+    "priority_for_insights": true,
+    "technical_keywords": [
+      "nab"
+    ],
+    "needs_gemini": false,
     "is_editorial": true,
     "editorial": true
   },
@@ -204,6 +216,13 @@
     "image_credit": "Photo: Unsplash — free to use under the Unsplash License",
     "image_license": "Unsplash License",
     "image_license_url": "https://unsplash.com/license",
+    "topic_type": "ai_metadata",
+    "priority_for_insights": true,
+    "technical_keywords": [
+      "ai",
+      "nab"
+    ],
+    "needs_gemini": false,
     "is_editorial": true,
     "editorial": true
   },
@@ -282,6 +301,12 @@
     "image_credit": "Photo: Unsplash — free to use under the Unsplash License",
     "image_license": "Unsplash License",
     "image_license_url": "https://unsplash.com/license",
+    "topic_type": "broadcast_infrastructure",
+    "priority_for_insights": true,
+    "technical_keywords": [
+      "nab"
+    ],
+    "needs_gemini": false,
     "is_editorial": true,
     "editorial": true
   },
@@ -308,6 +333,10 @@
     "image_credit": "Photo: Unsplash — free to use under the Unsplash License",
     "image_license": "Unsplash License",
     "image_license_url": "https://unsplash.com/license",
+    "topic_type": "streaming_delivery",
+    "priority_for_insights": true,
+    "technical_keywords": [],
+    "needs_gemini": false,
     "is_editorial": true,
     "editorial": true
   },
@@ -412,6 +441,10 @@
     "image_credit": "Photo: Unsplash — free to use under the Unsplash License",
     "image_license": "Unsplash License",
     "image_license_url": "https://unsplash.com/license",
+    "topic_type": "broadcast_infrastructure",
+    "priority_for_insights": true,
+    "technical_keywords": [],
+    "needs_gemini": false,
     "is_editorial": true,
     "editorial": true
   },
@@ -438,6 +471,10 @@
     "image_credit": "Photo: Unsplash — free to use under the Unsplash License",
     "image_license": "Unsplash License",
     "image_license_url": "https://unsplash.com/license",
+    "topic_type": "postproduction",
+    "priority_for_insights": false,
+    "technical_keywords": [],
+    "needs_gemini": false,
     "is_editorial": true,
     "editorial": true
   },
@@ -464,6 +501,10 @@
     "image_credit": "Photo: Unsplash — free to use under the Unsplash License",
     "image_license": "Unsplash License",
     "image_license_url": "https://unsplash.com/license",
+    "topic_type": "broadcast_infrastructure",
+    "priority_for_insights": false,
+    "technical_keywords": [],
+    "needs_gemini": false,
     "is_editorial": true,
     "editorial": true
   },
@@ -802,6 +843,10 @@
     "image_credit": "Photo: Unsplash — free to use under the Unsplash License",
     "image_license": "Unsplash License",
     "image_license_url": "https://unsplash.com/license",
+    "topic_type": "broadcast_infrastructure",
+    "priority_for_insights": true,
+    "technical_keywords": [],
+    "needs_gemini": false,
     "is_editorial": true,
     "editorial": true
   },
@@ -1192,6 +1237,10 @@
     "image_credit": "Photo: Unsplash — free to use under the Unsplash License",
     "image_license": "Unsplash License",
     "image_license_url": "https://unsplash.com/license",
+    "topic_type": "broadcast_infrastructure",
+    "priority_for_insights": true,
+    "technical_keywords": [],
+    "needs_gemini": false,
     "is_editorial": true,
     "editorial": true
   },
@@ -1270,6 +1319,13 @@
     "image_credit": "Photo: Unsplash — free to use under the Unsplash License",
     "image_license": "Unsplash License",
     "image_license_url": "https://unsplash.com/license",
+    "topic_type": "cloud_production",
+    "priority_for_insights": true,
+    "technical_keywords": [
+      "ai",
+      "nab"
+    ],
+    "needs_gemini": false,
     "is_editorial": true,
     "editorial": true
   },
@@ -2378,6 +2434,10 @@
     "image_credit": "Photo: Unsplash — free to use under the Unsplash License",
     "image_license": "Unsplash License",
     "image_license_url": "https://unsplash.com/license",
+    "topic_type": "streaming_delivery",
+    "priority_for_insights": true,
+    "technical_keywords": [],
+    "needs_gemini": false,
     "is_editorial": true,
     "editorial": true
   },
@@ -2790,6 +2850,12 @@
     "image_credit": "Photo: Unsplash — free to use under the Unsplash License",
     "image_license": "Unsplash License",
     "image_license_url": "https://unsplash.com/license",
+    "topic_type": "streaming_delivery",
+    "priority_for_insights": true,
+    "technical_keywords": [
+      "ott"
+    ],
+    "needs_gemini": false,
     "is_editorial": true,
     "editorial": true
   },
@@ -2915,6 +2981,10 @@
     "image_credit": "Photo: Unsplash — free to use under the Unsplash License",
     "image_license": "Unsplash License",
     "image_license_url": "https://unsplash.com/license",
+    "topic_type": "broadcast_infrastructure",
+    "priority_for_insights": true,
+    "technical_keywords": [],
+    "needs_gemini": false,
     "is_editorial": true,
     "editorial": true
   },
@@ -4070,6 +4140,12 @@
     "image_credit": "Photo: Unsplash — free to use under the Unsplash License",
     "image_license": "Unsplash License",
     "image_license_url": "https://unsplash.com/license",
+    "topic_type": "broadcast_infrastructure",
+    "priority_for_insights": true,
+    "technical_keywords": [
+      "ndi"
+    ],
+    "needs_gemini": false,
     "is_editorial": true,
     "editorial": true
   },
@@ -4145,6 +4221,12 @@
     "image_credit": "Photo: Unsplash — free to use under the Unsplash License",
     "image_license": "Unsplash License",
     "image_license_url": "https://unsplash.com/license",
+    "topic_type": "cloud_production",
+    "priority_for_insights": true,
+    "technical_keywords": [
+      "cloud"
+    ],
+    "needs_gemini": false,
     "is_editorial": true,
     "editorial": true
   },
@@ -4197,6 +4279,12 @@
     "image_credit": "Photo: Unsplash — free to use under the Unsplash License",
     "image_license": "Unsplash License",
     "image_license_url": "https://unsplash.com/license",
+    "topic_type": "streaming_delivery",
+    "priority_for_insights": true,
+    "technical_keywords": [
+      "ai"
+    ],
+    "needs_gemini": false,
     "is_editorial": true,
     "editorial": true
   },
@@ -4223,6 +4311,12 @@
     "image_credit": "Photo: Unsplash — free to use under the Unsplash License",
     "image_license": "Unsplash License",
     "image_license_url": "https://unsplash.com/license",
+    "topic_type": "playout_automation",
+    "priority_for_insights": true,
+    "technical_keywords": [
+      "ai"
+    ],
+    "needs_gemini": false,
     "is_editorial": true,
     "editorial": true
   },
@@ -4327,6 +4421,10 @@
     "image_credit": "Photo: Unsplash — free to use under the Unsplash License",
     "image_license": "Unsplash License",
     "image_license_url": "https://unsplash.com/license",
+    "topic_type": "streaming_delivery",
+    "priority_for_insights": true,
+    "technical_keywords": [],
+    "needs_gemini": false,
     "is_editorial": true,
     "editorial": true
   },
@@ -4353,6 +4451,12 @@
     "image_credit": "Photo: Unsplash — free to use under the Unsplash License",
     "image_license": "Unsplash License",
     "image_license_url": "https://unsplash.com/license",
+    "topic_type": "streaming_delivery",
+    "priority_for_insights": true,
+    "technical_keywords": [
+      "nab"
+    ],
+    "needs_gemini": false,
     "is_editorial": true,
     "editorial": true
   },
