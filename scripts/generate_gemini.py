@@ -218,13 +218,14 @@ _GENERIC_FULL = [
 ]
 
 def validate_body_quality(body_html: str, domain_terms: str) -> tuple:
-    """Returns (is_valid, failures_list). Same gates as generate_summaries.py."""
+    """Returns (is_valid, failures_list). Aligned with 6-section <h2> structure."""
     failures = []
     wc = len(re.sub(r"<[^>]+>", " ", body_html).split())
-    if wc < 500:
-        failures.append(f"Too short: {wc} words")
-    if len(re.findall(r"<h3", body_html, re.IGNORECASE)) < 3:
-        failures.append("Fewer than 3 <h3> sections")
+    if wc < 700:
+        failures.append(f"Too short: {wc} words (target 850+)")
+    # New structure uses <h2> for all 6 sections
+    if len(re.findall(r"<h2", body_html, re.IGNORECASE)) < 5:
+        failures.append("Fewer than 5 <h2> sections (expected 6)")
     terms_list = [t.strip().lower() for t in domain_terms.split(",") if t.strip()]
     if sum(1 for t in terms_list if t in body_html.lower()) < 2:
         failures.append("Fewer than 2 domain terms")
@@ -232,18 +233,21 @@ def validate_body_quality(body_html: str, domain_terms: str) -> tuple:
         failures.append("Generic phrases detected")
     if not any(s in body_html.lower() for s in _STANCE_SIGNALS):
         failures.append("No editorial stance detected")
+    # Mandatory system flow check
+    if "→" not in body_html and "->" not in body_html:
+        failures.append("Missing mandatory system-flow arrow notation")
     return len(failures) == 0, failures
 
 
 def compute_quality_score(body_html: str, card_summary: str) -> int:
-    """0-100 quality score -- same formula as generate_summaries.py."""
+    """0–100 quality score aligned with 6-section h2 structure."""
     score = 0
     wc = len(re.sub(r"<[^>]+>", " ", body_html).split())
-    if wc >= 700:   score += 30
-    elif wc >= 500: score += 15
-    h3s = len(re.findall(r"<h3", body_html, re.IGNORECASE))
-    if h3s >= 5:   score += 25
-    elif h3s >= 3: score += 15
+    if wc >= 850:   score += 30
+    elif wc >= 700: score += 15
+    h2s = len(re.findall(r"<h2", body_html, re.IGNORECASE))
+    if h2s >= 6:   score += 25
+    elif h2s >= 4: score += 15
     if not any(p in body_html.lower() for p in _GENERIC_FULL): score += 20
     if any(s in body_html.lower() for s in _STANCE_SIGNALS):   score += 15
     if card_summary and len(card_summary.split()) >= 80:        score += 10
@@ -290,8 +294,8 @@ def needs_gemini_processing(slug: str) -> tuple:
     if gen_by != "gemini-2.5-pro":
         return True, f"upgrade_from_{gen_by or 'unknown'}"
 
-    # Missing structure -- Gemini Pro articles should always have h2 headings
-    if "<h2>" not in body_html:
+    # Missing structure — articles should have all 6 <h2> sections
+    if "<h2>" not in body_html and "<h2 " not in body_html:
         return True, "no_h2_structure"
 
     # Explicitly flagged by Groq quality gate
@@ -441,162 +445,176 @@ def gemini_call(prompt: str, max_retries: int = 2, use_pro: bool = True) -> str:
 
 def build_article_prompt(title: str, teaser: str, source: str, category: str) -> str:
     """
-    Senior Broadcast & Media Systems Engineer prompt (v2 — Apr 2026).
-    
-    Adaptive structure: only mandatory sections always render. Optional sections
-    are included ONLY when relevant to the source topic. The model classifies
-    the article first, then picks the right sections instead of forcing a template.
-    
-    Word floor: 850 words minimum (clears the build.py 800-word SEO indexing gate).
-    Output: HTML only — no markdown, no preamble. The pipeline strips/parses HTML.
-    Note: build.py automatically appends source attribution + bottom Sources block,
-    so the prompt does NOT emit those — that prevents duplicates on the article page.
+    Elite Broadcast & Media Systems Architect prompt — The Streamic (v3, Apr 2026).
+
+    6-section fixed structure with mandatory system-flow diagram, anti-generic rules,
+    readability rules, vendor realism, and decision-maker output.
+
+    Word target: 850–1000 words.
+    Output: HTML only. No markdown. No preamble before first <h2>.
+    Note: build.py appends source attribution + Sources block automatically — do NOT emit those.
     """
     domain = classify_domain(title, teaser)
     ctx    = _DOMAIN_CONTEXT[domain]
 
+    # Topic-aware technical depth instruction injected into Technical Breakdown section
+    _DEPTH = {
+        "BROADCAST": (
+            "Focus depth on: SMPTE ST 2110 transport layers (2110-20 video, 2110-30 audio, "
+            "2110-40 ancillary), PTP/IEEE 1588 timing, SDI-to-IP migration trade-offs, "
+            "software-defined routing behaviour, and redundancy/failover design under "
+            "live production conditions."
+        ),
+        "MEDIA_IT": (
+            "Focus depth on: MAM/PAM integration (Avid Interplay, Dalet), ingest pipeline "
+            "design, object storage tiering (S3/nearline/LTO), orchestration (Kubernetes, "
+            "microservices), and how file-based workflow automation reduces manual QC effort "
+            "and operational overhead."
+        ),
+        "SECURITY": (
+            "Focus depth on: broadcast-specific threat surfaces (signal interception, "
+            "newsroom credential exposure, content piracy), Zero Trust architecture in "
+            "media environments, DRM (Widevine, PlayReady, FairPlay), forensic watermarking, "
+            "and how these controls fit into a live broadcast operations workflow."
+        ),
+    }.get(domain, "Focus on the most relevant broadcast infrastructure layers this story touches.")
+
     _TEMPLATE = (
-        "You are a senior Broadcast & Media Systems Engineer with 20+ years of hands-on "
-        "experience in Avid, OTT, IP video, SMPTE ST 2110, MAM/PAM, playout automation, "
-        "newsroom systems, and cloud-native broadcast workflows. You write for fellow "
-        "engineers — broadcast CTOs, streaming architects, post-production supervisors — "
-        "not for marketing audiences."
-        "\n\nYour task is to transform the SOURCE ARTICLE below into a high-quality, "
-        "100% original technical analysis for The Streamic."
-        "\n\n=================================================================="
+        "You are a Senior Broadcast & Media Systems Architect and Technical Editor with 20+ years "
+        "of hands-on experience in IP video, SMPTE ST 2110, MAM/PAM, playout automation, "
+        "newsroom systems, and cloud-native broadcast workflows. You write for The Streamic "
+        "(thestreamic.in) — an independent editorial publication for broadcast engineers, "
+        "CTOs, streaming architects, and media IT professionals."
+        "\n\nYour reader is both a broadcast CTO who knows the technology AND a media executive "
+        "who needs to understand the business impact. Write so both get value."
+
+        "\n\n======================================================================"
         "\nCRITICAL RULES (NON-NEGOTIABLE)"
-        "\n=================================================================="
-        "\n- DO NOT summarize blindly. DO NOT rewrite the source sentence-by-sentence."
-        "\n- Extract facts, interpret like an engineer, then rebuild with new structure."
-        "\n- Add missing technical depth where the source is shallow."
-        "\n- 100% original wording (AdSense + copyright safe)."
-        "\n- NO copying any phrase longer than 8-10 words from the source."
-        "\n- NO marketing tone. NO words like \"seamless\", \"innovative\", \"game-changer\","
-        " \"industry-leading\", \"robust\", \"leverage\", \"synergy\", \"rapidly evolving\","
-        " \"unlock\", \"empower\", \"revolutionary\"."
-        "\n- Professional, Apple Newsroom-style authoritative voice."
-        "\n- Output VALID HTML only. No markdown fences. No backticks. No preamble before <h2>."
-        "\n- Minimum 850 words of body content. Target 900-1000 words."
-        "\n\n=================================================================="
-        "\nSTEP 1 — UNDERSTAND THE SOURCE (think before writing)"
-        "\n=================================================================="
-        "\nIdentify silently:"
-        "\n- Core topic"
-        "\n- Key technical components (hardware, software, protocols, standards)"
-        "\n- Real-world use case (broadcast / OTT / newsroom / command center / cloud / post)"
-        "\n- Key capabilities mentioned"
-        "\n- What the source does NOT explain but is technically important"
-        "\n\n=================================================================="
-        "\nSTEP 2 — CLASSIFY (pick ONE primary category)"
-        "\n=================================================================="
-        "\nai_metadata | ai_postproduction | streaming_delivery | broadcast_infrastructure"
-        "\nplayout_automation | cloud_production | newsroom_workflow | mam_asset_management"
-        "\ncommand_center_visualization | networking_transport | cybersecurity_media"
-        "\ngeneral_industry_news"
-        "\n\n=================================================================="
-        "\nSTEP 3 — ADAPTIVE STRUCTURE (use ONLY relevant sections)"
-        "\n=================================================================="
-        "\nMANDATORY (always include):"
-        "\n  1. HEADLINE"
-        "\n  2. INTRODUCTION"
-        "\n  3. TECHNICAL INTELLIGENCE"
-        "\n  4. WHY THIS MATTERS"
-        "\n\nOPTIONAL (include ONLY if relevant to the topic — not as filler):"
-        "\n  - SYSTEM ARCHITECTURE"
-        "\n  - INSTALLATION / IMPLEMENTATION"
-        "\n  - OPERATIONAL WORKFLOW"
-        "\n  - WORKFLOW TRANSFORMATION"
-        "\n  - INTEGRATION CONSIDERATIONS"
-        "\n  - PERFORMANCE & DELIVERY"
-        "\n  - STREAMIC EDITOR'S NOTE"
-        "\n\nADAPTIVE RULE:"
-        "\n- AI metadata / newsroom → focus on workflow, NOT installation"
-        "\n- Streaming / CDN → focus on delivery & protocol, NOT physical setup"
-        "\n- Hardware / infrastructure → include installation + architecture"
-        "\n- Command center / video wall → system layers + AV/IP transport + scalability"
-        "\n- DO NOT force sections that don't fit. Omit or replace with something more useful."
-        "\n\n=================================================================="
-        "\nSTEP 4 — TOPIC-SPECIFIC PRIORITY"
-        "\n=================================================================="
-        "\nIf ai_metadata / newsroom_workflow:"
-        "\n  → ingest → AI → metadata → indexing → retrieval ; MAM/NRCS integration ;"
-        "    journalist/operator workflow ; accuracy & validation risks"
-        "\nIf command_center_visualization / video_wall:"
-        "\n  → processor / control / display layers ; AV-over-IP transport ;"
-        "    installation planning ; operator usability ; scalability & redundancy"
-        "\nIf streaming_delivery / transport:"
-        "\n  → latency ; bitrate / ABR ; protocol behavior ; CDN / edge ; packet loss / resilience"
-        "\nIf broadcast_infrastructure:"
-        "\n  → architecture ; interoperability ; redundancy ; networking & timing ; operational impact"
-        "\n\n=================================================================="
-        "\nSTEP 5 — TECHNICAL ENRICHMENT"
-        "\n=================================================================="
-        "\nIf the source is shallow → add real-world broadcast engineering context."
-        "\nIf the source is vendor-biased → neutralize and generalize."
-        "\nIf the source is incomplete → fill gaps using standard industry practice:"
-        "\n  IP video workflows ; encode/decode pipelines ; MAM/NRCS integration ;"
-        "\n  CDN/OTT delivery ; control room ops ; PTP/NMOS timing ; SCTE-35 signaling."
-        "\nDO NOT invent fake specs, unsupported features, or unrealistic claims."
-        "\n\n=================================================================="
-        "\nDOMAIN HINT (use naturally — do not list verbatim)"
-        "\n=================================================================="
-        "\n- Domain: __LABEL__"
-        "\n- Focus: __FOCUS__"
-        "\n- Terminology to weave in: __TERMS__"
-        "\n- Guardrail: __GUARDRAIL__"
-        "\n- Operational ROI angle: __ROI__"
-        "\n\n=================================================================="
+        "\n======================================================================"
+        "\n- DO NOT summarise the source sentence-by-sentence. Extract the signal, interpret "
+        "  it like an engineer, rebuild with new structure and deeper analysis."
+        "\n- Add missing technical context where the source is shallow."
+        "\n- 100% original wording — no phrase longer than 8 words copied from the source."
+        "\n- Output VALID HTML only. No markdown fences. No backticks. Start with <h2>."
+        "\n- Minimum 850 words. Target 900–1000 words."
+        "\n- No SOURCES section — added automatically by the publishing pipeline."
+        "\n- No top attribution banner — also added automatically."
+
+        "\n\n======================================================================"
+        "\nANTI-GENERIC RULE (STRICT)"
+        "\n======================================================================"
+        "\nNEVER use these phrases or any close variant:"
+        "\n  ✗ \"This highlights the importance\""
+        "\n  ✗ \"In today's evolving landscape\""
+        "\n  ✗ \"Rapidly changing industry\""
+        "\n  ✗ \"It is worth noting\""
+        "\n  ✗ \"Game-changer\" / \"seamless\" / \"innovative\" / \"revolutionary\""
+        "\n  ✗ \"Industry-leading\" / \"best-in-class\" / \"robust\" / \"leverage\" / \"unlock\""
+        "\n  ✗ \"This underscores\" / \"this reflects\" / \"organizations should consider\""
+        "\nEvery paragraph must contain EITHER a real technical explanation OR a real-world "
+        "operational implication. No paragraph may exist solely to transition or summarise."
+
+        "\n\n======================================================================"
+        "\nREADABILITY RULE"
+        "\n======================================================================"
+        "\n- Maximum paragraph length: 4–5 lines"
+        "\n- Mix short punchy sentences with longer analytical ones"
+        "\n- Never repeat the same idea in different words"
+        "\n- Break complex ideas into steps — not run-on sentences"
+        "\n- Write like a broadcast engineer explaining a real project to a colleague"
+
+        "\n\n======================================================================"
+        "\nVENDOR REALISM RULE"
+        "\n======================================================================"
+        "\nReference 2–3 real systems naturally where accurate and relevant:"
+        "\n  Editing/MAM:    Avid Media Composer, Nexis, MediaCentral, Dalet, Interplay"
+        "\n  Graphics:       Vizrt, Chyron, Unreal Engine AR"
+        "\n  Playout:        Pebble Control, Harmonic Spectrum, Mediagenix WHATS'On"
+        "\n  Streaming:      AWS MediaConnect, MediaLive, Elemental"
+        "\n  Newsroom:       iNews, Dalet Newsroom, MediaCentral Newsroom"
+        "\n  Infrastructure: SMPTE ST 2110, AES67, Dante, NDI, SRT, NMOS IS-04/05"
+        "\n  Live/Control:   EVS, Ross Video, Grass Valley, Riedel, Imagine Communications"
+        "\nDo NOT force vendor names in where they don't naturally fit."
+
+        "\n\n======================================================================"
+        "\nDOMAIN CONTEXT (weave in naturally — do not list verbatim)"
+        "\n======================================================================"
+        "\n- Domain:     __LABEL__"
+        "\n- Focus:      __FOCUS__"
+        "\n- Terminology: __TERMS__"
+        "\n- Guardrail:  __GUARDRAIL__"
+        "\n- ROI angle:  __ROI__"
+        "\n- Technical depth instruction: __DEPTH__"
+
+        "\n\n======================================================================"
         "\nINPUT SOURCE"
-        "\n=================================================================="
+        "\n======================================================================"
         "\n- Source publication: __SOURCE__"
         "\n- Category: __CATEGORY__"
         "\n- Title: __TITLE__"
         "\n- Source content: __TEASER__"
-        "\n\n=================================================================="
-        "\nOUTPUT REQUIREMENTS"
-        "\n=================================================================="
-        "\n- Start IMMEDIATELY with <h2>YOUR HEADLINE</h2>. No preamble."
-        "\n- Use <h2> for major sections (Technical Intelligence, Why This Matters, etc.)."
-        "\n- Use <h3> for sub-sections inside major sections."
-        "\n- Use <p> for paragraphs. Use <ul><li> or <ol><li> for genuine lists only."
-        "\n- Reference 2-3 real vendors naturally where relevant: Avid, Vizrt, Grass Valley,"
-        "  Harmonic, Telestream, Pebble Beach, Dalet, EVS, Imagine Communications, Ross Video,"
-        "  Cinegy, EditShare, Tedial, Riedel, Aveco, Signiant, AWS Elemental, Azure Media,"
-        "  Google Cloud Media."
-        "\n- Reference real standards where relevant: SMPTE ST 2110, NMOS IS-04/05, AES67,"
-        "  PTP (IEEE 1588), SCTE-35, HLS, DASH, CMAF, SRT, NDI, MXF, IMF, AAF."
-        "\n- Vary sentence structure: mix short declarative sentences with longer analytical ones."
-        "\n- DO NOT include a SOURCES & FURTHER READING section at the end —"
-        "  that is added automatically by the publishing pipeline."
-        "\n- DO NOT include a TOP source attribution banner —"
-        "  that is also added automatically."
-        "\n- After the main body, append the author bio block exactly as shown below."
-        "\n\n=================================================================="
-        "\nMANDATORY BIO BLOCK (paste at the very end, after the last section)"
-        "\n=================================================================="
-        "\n<div class=\"art-author-bio\">"
-        "\n  <div class=\"bio-avatar\">S</div>"
-        "\n  <div class=\"bio-body\">"
-        "\n    <strong class=\"bio-name\">Prerak K Mehta</strong>"
-        "\n    <span class=\"bio-title\">Founder, The Streamic &middot; Dublin, Ireland</span>"
-        "\n    <p class=\"bio-text\">Broadcast technology professional with 25+ years in IT and"
-        " 20 years in media/post-production and broadcast IT systems — IP signal transport"
-        " (ST 2110, NMOS, NDI, SRT), cloud-native production workflows, MAM/PAM systems,"
-        " and OTT origin and delivery stacks. Independent analysis from Dublin, Ireland.</p>"
-        "\n  </div>"
-        "\n</div>"
-        "\n\n__FOOTER__"
-        "\n\nFINAL VALIDATION before output:"
-        "\n+ Does the article start immediately with <h2>?"
-        "\n+ Are the four mandatory sections present (Headline, Intro, Technical Intelligence, Why This Matters)?"
-        "\n+ Are optional sections only included if relevant to this specific topic?"
+
+        "\n\n======================================================================"
+        "\nARTICLE STRUCTURE — use exactly these six <h2> sections in this order"
+        "\n======================================================================"
+
+        "\n\n<h2>Introduction</h2>"
+        "\nHook the reader. Do NOT open with a summary of the announcement. Open with the "
+        "real operational or engineering tension this story responds to. Why does a broadcast "
+        "engineer or CTO need to read this today? What problem does it address? 2–3 paragraphs."
+
+        "\n\n<h2>Technical Breakdown</h2>"
+        "\nExplain the relevant layers of the broadcast chain this story touches. Show how "
+        "systems connect end-to-end — not isolated components. Only include layers that are "
+        "actually relevant to this topic. Use the TECHNICAL DEPTH INSTRUCTION above to guide "
+        "what to cover. Include correct broadcast/media terminology throughout. 3–4 paragraphs."
+
+        "\n\n<h2>Real Workflow Impact</h2>"
+        "\nDescribe a concrete, realistic workflow this story affects — newsroom-to-air, "
+        "PCR/MCR control room operation, ingest-to-playout chain, or cloud production pipeline. "
+        "Show the before-and-after. Make it feel like a real broadcast operation, not a case study."
+        "\n\nMANDATORY — include at least one full system flow using this arrow notation:"
+        "\n  Input → Processing → System → Output"
+        "\nExamples:"
+        "\n  Live feed → ST 2110 core → playout automation → CDN → viewer"
+        "\n  Wire ingest → iNews NRCS → MOS → production switcher → transmission"
+        "\n  Camera → EVS replay → MediaCentral → playout → archive"
+        "\n2–3 paragraphs."
+
+        "\n\n<h2>Practical Impact</h2>"
+        "\nWhere is the real ROI? What specifically gets faster, cheaper, or more reliable? "
+        "What operational burden does this remove — or introduce? Cover: cost, efficiency, "
+        "scalability, and operational resilience. Be precise. No vendor language."
+        "\n\nMust include a DECISION-MAKER answer (can be woven into prose, not a list):"
+        "\n  • Should this be adopted now, piloted, or watched?"
+        "\n  • Where does the ROI actually appear in the workflow?"
+        "\n  • What specific problem does it definitively solve?"
+        "\n2–3 paragraphs."
+
+        "\n\n<h2>Reality Check</h2>"
+        "\nBe honest. What are the real limitations? What is overstated in the announcement? "
+        "What integration challenges, vendor lock-in risks, or missing dependencies should "
+        "engineers know about? What is NOT mentioned that a practitioner would ask about? "
+        "2 paragraphs."
+
+        "\n\n<h2>Why This Matters</h2>"
+        "\nLong-term signal: what does this tell us about where broadcast technology is heading? "
+        "How does it fit the larger shift — IP infrastructure, cloud-native production, "
+        "AI-assisted workflows, or streaming-first delivery? What is the strategic read "
+        "for engineering leads? 1–2 paragraphs."
+
+        "\n\n======================================================================"
+        "\nFINAL VALIDATION before writing"
+        "\n======================================================================"
+        "\n+ Does the intro open with tension/relevance — not a press release summary?"
+        "\n+ Are all six sections present?"
+        "\n+ Does Real Workflow Impact contain at least one arrow-notation system flow?"
+        "\n+ Does Practical Impact answer: adopt/pilot/wait, where is ROI, what problem solved?"
+        "\n+ Does Reality Check name at least one real limitation or risk?"
         "\n+ Is the body 850+ words?"
-        "\n+ Are 2-3 real vendor names mentioned naturally?"
-        "\n+ Are real standards (ST 2110, NMOS, SCTE-35, etc.) referenced where applicable?"
-        "\n+ Zero markdown fences, zero backticks, zero preamble?"
-        "\n+ Is the art-author-bio block at the very end?"
-        "\n+ NO SOURCES & FURTHER READING section (pipeline adds it)?"
-        "\n\nWrite the full article now. Start immediately with the opening <h2> tag:"
+        "\n+ Are 2–3 real vendor or standard names referenced naturally?"
+        "\n+ Zero generic phrases from the banned list?"
+        "\n\nWrite the full article now. Start immediately with <h2>Introduction</h2>:"
     )
 
     return (
@@ -606,25 +624,26 @@ def build_article_prompt(title: str, teaser: str, source: str, category: str) ->
         .replace("__TERMS__",    ctx["terms"])
         .replace("__GUARDRAIL__", ctx["guardrail"])
         .replace("__ROI__",      ctx["roi"])
+        .replace("__DEPTH__",    _DEPTH)
         .replace("__SOURCE__",   source)
         .replace("__CATEGORY__", category)
         .replace("__TITLE__",    title)
         .replace("__TEASER__",   teaser)
-        .replace("__FOOTER__",   _MANDATORY_FOOTER)
     )
 
 
 def build_card_prompt(title: str, teaser: str, source: str) -> str:
     """
-    Humanized expert intelligence card prompt -- opinionated analyst voice, not a summary.
-    Shown on homepage cards (~120-150 words, plain text).
+    Expert intelligence card — opinionated analyst voice, not a summary.
+    Shown on homepage cards (~120–150 words, plain text, 2 paragraphs).
+    Anti-generic and stance rules match the main article prompt.
     """
     domain = classify_domain(title, teaser)
     ctx    = _DOMAIN_CONTEXT[domain]
 
-    return f"""You are writing as a named senior analyst at The Streamic with 15+ years in broadcast engineering, OTT infrastructure, and media systems. You write for broadcast CTOs, streaming architects, and media engineers.
+    return f"""You are a senior broadcast technology analyst writing for The Streamic. Your readers are broadcast CTOs, streaming architects, and media engineers who make real purchasing and architecture decisions.
 
-You are NOT summarizing an article. You are interpreting an industry signal and telling engineers what it means.
+You are NOT summarising an article. You are interpreting an industry signal and telling engineers what it means — and what they should do with that information.
 
 DOMAIN: {ctx['label']}
 FOCUS: {ctx['focus']}
@@ -635,15 +654,17 @@ SOURCE: {source}
 TITLE: {title}
 CONTENT: {teaser}
 
-Write exactly 2 paragraphs of expert intelligence (120-150 words total). Plain text only -- no HTML, no bullets.
+Write exactly 2 paragraphs of expert intelligence (120–150 words total). Plain text only — no HTML, no bullets.
 
-PARAGRAPH 1 (55-70 words): Interpret the technical or operational signal -- not what happened, but what it means architecturally. Use precise domain terminology from: {ctx['terms']}. Take a stance if warranted. Do not open with the company name.
+PARAGRAPH 1 (55–70 words): Interpret the technical or operational signal. Not what happened — what it means architecturally or operationally. Use precise domain terminology from: {ctx['terms']}. Take a stance. Do not open with the company name.
 
-PARAGRAPH 2 (55-70 words): Identify the real-world trade-off, hidden risk, or second-order effect an experienced engineer would spot. Use a natural human phrase like "In practice, this means..." or "The trade-off here is..." or "For engineering teams, the real challenge is..." -- pick whichever fits. No template phrasing.
+PARAGRAPH 2 (55–70 words): Identify the real trade-off, hidden risk, or second-order effect an experienced engineer would spot. Open with a natural phrase such as "In practice, this means..." or "The trade-off here is..." or "For broadcast teams, the real question is..." — pick whichever fits the content. Do not use a template opener.
 
-MANDATORY FINAL CHECK: Does it read like a template or a filled-in blank? If yes, rewrite. Does it express a stance? If no, add one.
+MANDATORY CHECK before submitting:
+- Does it read like it was written by a person, not filled into a template? If no, rewrite.
+- Does it express a clear stance or insight? If no, add one.
 
-FORBIDDEN: "this highlights", "this underscores", "this reflects", "organizations should consider", "in today's landscape", "rapidly evolving", "plays a key role", "game-changer", "seamless", "delivers"
+FORBIDDEN PHRASES: "this highlights", "this underscores", "this reflects", "organizations should consider", "in today's landscape", "rapidly evolving", "plays a key role", "game-changer", "seamless", "delivers", "innovative", "revolutionary"
 
 Write the 2-paragraph expert intelligence now:"""
 
@@ -782,16 +803,21 @@ def main():
         if cat not in {"featured", "newsroom", "streaming", "cloud", "infrastructure"}:
             continue
         items_to_process.append({
-            "slug":     slug,
-            "title":    a.get("title", ""),
-            "teaser":   a.get("dek") or a.get("meta_description") or a.get("teaser") or "",
-            "category": cat,
-            "source":   a.get("source_domain") or a.get("source") or "",
-            "reason":   reason,
-            "premium_score": 1 if "nab" in f"{a.get('title', '')} {a.get('dek', '')}".lower() else 0,
+            "slug":             slug,
+            "title":            a.get("title", ""),
+            "teaser":           a.get("dek") or a.get("meta_description") or a.get("teaser") or "",
+            "category":         cat,
+            "source":           a.get("source_domain") or a.get("source") or "",
+            "reason":           reason,
+            "premium_score":    1 if "nab" in f"{a.get('title', '')} {a.get('dek', '')}".lower() else 0,
+            "needs_gemini_flag": bool(a.get("needs_gemini")),  # from rewrite_feed.py classifier
         })
 
-    items_to_process.sort(key=lambda x: (x.get("premium_score",0), x.get("category") == "featured"), reverse=True)
+    items_to_process.sort(key=lambda x: (
+        x.get("needs_gemini_flag", False),   # rewrite_feed.py priority signal
+        x.get("premium_score", 0),
+        x.get("category") == "featured"
+    ), reverse=True)
     total = len(items_to_process)
     batch = items_to_process[:MAX_ITEMS_PER_RUN]
     print(f"Items to process: {total} (this run: {len(batch)}) | "
@@ -853,7 +879,30 @@ def main():
 
             body_valid, failures = validate_body_quality(body_html, ctx["terms"])
             if not body_valid:
-                print(f"      ⚠ Quality gate: {'; '.join(failures)} -- saving anyway")
+                print(f"      ⚠ Quality gate FAILED: {'; '.join(failures)} -- skipping full article save")
+
+                # Save only card summary (if valid), do NOT overwrite body_html
+                try:
+                    existing_path = summary_path(slug)
+                    if os.path.exists(existing_path):
+                        with open(existing_path, encoding="utf-8") as ef:
+                            existing_data = json.load(ef)
+                    else:
+                        existing_data = {}
+
+                    existing_data["card_summary"] = card_summary
+                    existing_data["generated_by"] = "gemini-partial"
+                    existing_data["needs_gemini"] = True
+
+                    with open(existing_path, "w", encoding="utf-8") as ef:
+                        json.dump(existing_data, ef, indent=2, ensure_ascii=False)
+
+                except Exception as e:
+                    print(f"      ⚠ Failed partial save: {e}")
+
+                processed += 1
+                time.sleep(2)
+                continue
 
             qs = compute_quality_score(body_html, card_summary)
             used_model = GEMINI_PRO_MODEL if use_pro else GEMINI_FLASH_LITE_MODEL
