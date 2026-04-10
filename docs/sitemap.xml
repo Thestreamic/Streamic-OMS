@@ -1,24 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://www.thestreamic.in/index.html</loc><lastmod>2026-04-09</lastmod><changefreq>daily</changefreq><priority>1.0</priority></url>
-  <url><loc>https://www.thestreamic.in/featured.html</loc><lastmod>2026-04-09</lastmod><changefreq>daily</changefreq><priority>0.98</priority></url>
-  <url><loc>https://www.thestreamic.in/ai-post-production.html</loc><lastmod>2026-04-09</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://www.thestreamic.in/howto.html</loc><lastmod>2026-04-09</lastmod><changefreq>weekly</changefreq><priority>0.85</priority></url>
-  <url><loc>https://www.thestreamic.in/post-production-workflows.html</loc><lastmod>2026-04-09</lastmod><changefreq>weekly</changefreq><priority>0.90</priority></url>
-  <url><loc>https://www.thestreamic.in/about.html</loc><lastmod>2026-04-09</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://www.thestreamic.in/contact.html</loc><lastmod>2026-04-09</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://www.thestreamic.in/editorial-policy.html</loc><lastmod>2026-04-09</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://www.thestreamic.in/privacy.html</loc><lastmod>2026-04-09</lastmod><changefreq>yearly</changefreq><priority>0.3</priority></url>
-  <url><loc>https://www.thestreamic.in/terms.html</loc><lastmod>2026-04-09</lastmod><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://www.thestreamic.in/index.html</loc><lastmod>2026-04-10</lastmod><changefreq>daily</changefreq><priority>1.0</priority></url>
+  <url><loc>https://www.thestreamic.in/featured.html</loc><lastmod>2026-04-10</lastmod><changefreq>daily</changefreq><priority>0.98</priority></url>
+  <url><loc>https://www.thestreamic.in/ai-post-production.html</loc><lastmod>2026-04-10</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://www.thestreamic.in/howto.html</loc><lastmod>2026-04-10</lastmod><changefreq>weekly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://www.thestreamic.in/post-production-workflows.html</loc><lastmod>2026-04-10</lastmod><changefreq>weekly</changefreq><priority>0.90</priority></url>
+  <url><loc>https://www.thestreamic.in/about.html</loc><lastmod>2026-04-10</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://www.thestreamic.in/contact.html</loc><lastmod>2026-04-10</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://www.thestreamic.in/editorial-policy.html</loc><lastmod>2026-04-10</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://www.thestreamic.in/privacy.html</loc><lastmod>2026-04-10</lastmod><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://www.thestreamic.in/terms.html</loc><lastmod>2026-04-10</lastmod><changefreq>yearly</changefreq><priority>0.3</priority></url>
   <url><loc>https://www.thestreamic.in/articles/2026-04-09-newsroom-harmonic-to-showcase-newly-enhanced-hybrid-st.html</loc><lastmod>2026-04-09</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
   <url><loc>https://www.thestreamic.in/articles/2026-04-09-newsroom-enco-to-showcase-new-aitrack-capabilities-at-.html</loc><lastmod>2026-04-09</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
   <url><loc>https://www.thestreamic.in/articles/2026-04-09-newsroom-digitalglue-challenges-ai-fatigue-at-nab-show.html</loc><lastmod>2026-04-09</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
   <url><loc>https://www.thestreamic.in/articles/2026-04-09-newsroom-nab-show-2026-multidyne-to-launch-two-new-pro.html</loc><lastmod>2026-04-09</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
   <url><loc>https://www.thestreamic.in/articles/2026-04-09-newsroom-lawo-to-launch-edge-one-converged-video-audio.html</loc><lastmod>2026-04-09</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
+  <url><loc>https://www.thestreamic.in/articles/2026-04-09-newsroom-proton-expands-minicam-portfolio-with-proton-.html</loc><lastmod>2026-04-09</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
   <url><loc>https://www.thestreamic.in/articles/2026-04-09-newsroom-portland-fire-streaming-platform-launches.html</loc><lastmod>2026-04-09</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
+  <url><loc>https://www.thestreamic.in/articles/2026-04-09-newsroom-insync-unveils-advanced-video-processing-and-.html</loc><lastmod>2026-04-09</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
   <url><loc>https://www.thestreamic.in/articles/2026-04-09-newsroom-ltn-unveils-network-enhancements-in-advance-o.html</loc><lastmod>2026-04-09</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
   <url><loc>https://www.thestreamic.in/articles/2026-04-09-newsroom-great-american-family-selects-cts-for-channel.html</loc><lastmod>2026-04-09</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
   <url><loc>https://www.thestreamic.in/articles/2026-04-09-infrastructu-video-wall-installation-best-practices-fo.html</loc><lastmod>2026-04-09</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
+  <url><loc>https://www.thestreamic.in/articles/2026-04-09-ai-post-prod-watch-framestores-vfx-breakdown-for-micke.html</loc><lastmod>2026-04-09</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
   <url><loc>https://www.thestreamic.in/articles/2026-04-09-graphics-premiere-the-chase-ddd26-opening-titles-by-fl.html</loc><lastmod>2026-04-09</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
   <url><loc>https://www.thestreamic.in/articles/2026-04-08-newsroom-smpte-to-host-first-of-its-kind-st-2110-ip-me.html</loc><lastmod>2026-04-08</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
   <url><loc>https://www.thestreamic.in/articles/2026-04-08-newsroom-nab-show-kokusai-denki-to-feature-new-afforda.html</loc><lastmod>2026-04-08</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
@@ -31,8 +34,8 @@
   <url><loc>https://www.thestreamic.in/articles/2026-04-08-newsroom-pliant-technologies-showcases-expanded-access.html</loc><lastmod>2026-04-08</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
   <url><loc>https://www.thestreamic.in/articles/2026-04-08-newsroom-scripps-sports-gets-broadcast-rights-tor-nash.html</loc><lastmod>2026-04-08</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
   <url><loc>https://www.thestreamic.in/articles/2026-04-08-newsroom-analyst-preliminary-injunction-halting-nexsta.html</loc><lastmod>2026-04-08</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
-  <url><loc>https://www.thestreamic.in/articles/2026-04-08-streaming-telestream-integrates-mpeg-h-audio-to-stream.html</loc><lastmod>2026-04-08</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
   <url><loc>https://www.thestreamic.in/articles/2026-04-08-newsroom-telestream-and-mimir-integration-facilitates-.html</loc><lastmod>2026-04-08</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
+  <url><loc>https://www.thestreamic.in/articles/2026-04-08-streaming-telestream-integrates-mpeg-h-audio-to-stream.html</loc><lastmod>2026-04-08</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
   <url><loc>https://www.thestreamic.in/articles/2026-04-08-graphics-mad-propz-cub-studio.html</loc><lastmod>2026-04-08</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
   <url><loc>https://www.thestreamic.in/articles/2026-04-07-newsroom-cuez-brings-four-new-innovations-to-nab-2026-.html</loc><lastmod>2026-04-07</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
   <url><loc>https://www.thestreamic.in/articles/2026-04-07-newsroom-neutrik-to-unveil-true1-data-connector-series.html</loc><lastmod>2026-04-07</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
@@ -127,7 +130,4 @@
   <url><loc>https://www.thestreamic.in/articles/c2pa-deepfake-news-credibility-digital-provenance-2026.html</loc><lastmod>2026-03-17</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
   <url><loc>https://www.thestreamic.in/articles/2026-03-16-cloud-how-sony-pictures-networks-india-delivered-perso.html</loc><lastmod>2026-03-16</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
   <url><loc>https://www.thestreamic.in/articles/2026-03-16-streaming-remote-production-perfection-from-cloud-capt.html</loc><lastmod>2026-03-16</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
-  <url><loc>https://www.thestreamic.in/articles/green-broadcast-cloud-carbon-footprint-sustainability-2026.html</loc><lastmod>2026-03-16</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
-  <url><loc>https://www.thestreamic.in/articles/2026-03-12-playout-cloud-native-revolution-harmonic-vos-and-red-h.html</loc><lastmod>2026-03-12</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
-  <url><loc>https://www.thestreamic.in/articles/2026-03-11-infrastructu-top-5-technology-trends-from-haivisions-2.html</loc><lastmod>2026-03-11</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
 </urlset>
