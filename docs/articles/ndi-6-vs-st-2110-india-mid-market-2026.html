@@ -1,43 +1,263 @@
-<!-- HAND_AUTHORED -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NDI 6 vs ST 2110 for India's Mid-Market Broadcasters: The Pragmatic Read | The Streamic</title>
-<meta name="description" content="ST 2110 is the standard. NDI 6 is the one most Indian regional broadcasters can actually afford to deploy. The honest engineering comparison — latency, compression, network cost, and where each protocol earns its place in a 2026 Indian broadcast plant.">
-<link rel="canonical" href="https://www.thestreamic.in/articles/ndi-6-vs-st-2110-india-mid-market-2026.html">
-<link rel="stylesheet" href="../style.css">
+  <script>
+    window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+    gtag('consent','default',{'analytics_storage':'denied','ad_storage':'denied',
+    'ad_user_data':'denied','ad_personalization':'denied','wait_for_update':500});
+  </script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-0VSHDN3ZR6"></script>
+  <script>gtag('js',new Date());gtag('config','G-0VSHDN3ZR6');</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>NDI 6 vs ST 2110 for India's Mid-Market Broadcasters: The Pragmatic Read | The Streamic</title>
+  <meta name="description" content="NDI 6 and SMPTE ST 2110 are often framed as rivals. This Streamic analysis shows why the better question is which part of the plant needs which level of determinism, timing precision, and network investment.">
+  <meta name="robots" content="index,follow">
+  <meta name="author" content="The Streamic Editorial Team">
+  <link rel="canonical" href="https://www.thestreamic.in/articles/ndi-6-vs-st-2110-india-mid-market-2026.html">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="The Streamic">
+  <meta property="og:title" content="NDI 6 vs ST 2110 for India's Mid-Market Broadcasters: The Pragmatic Read | The Streamic">
+  <meta property="og:description" content="NDI 6 and SMPTE ST 2110 are often framed as rivals. This Streamic analysis shows why the better question is which part of the plant needs which level of determinism, timing precision, and network investment.">
+  <meta property="og:url" content="https://www.thestreamic.in/articles/ndi-6-vs-st-2110-india-mid-market-2026.html">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
 </head>
 <body>
-<article class="article-body">
-<header>
-<p class="cat">INFRASTRUCTURE</p>
-<h1>NDI 6 vs ST 2110 for India's Mid-Market Broadcasters: The Pragmatic Read</h1>
-<p class="dek">SMPTE ST 2110 is the standard the global tier-1 broadcasters are migrating to. NDI 6 is the protocol that most Indian regional and OTT broadcasters will actually deploy in 2026. Both answers are correct for different plants.</p>
-<p class="byline">The Streamic Editorial · April 2026</p>
-</header>
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="../" class="nav-logo">
+      <img src="../assets/logo.png" alt="" onerror="this.style.display='none'" aria-hidden="true">
+      <div class="nav-logo-text">
+        <span class="nav-logo-name">The Streamic</span>
+        <span class="nav-logo-tagline">Media &amp; Broadcast IT Analysis</span>
+      </div>
+    </a>
+    <div class="nav-divider" aria-hidden="true"></div>
+    <ul class="nav-links"><li><a href="/">Home</a></li><li><a href="../ai-post-production.html">AI in Broadcasting</a></li><li><a href="../howto.html">How-To Guides</a></li><li><a href="../post-production-workflows.html">Post Production Workflows</a></li><li><a href="../insights.html">Insights</a></li></ul>
+    <div class="nav-right">
+      <a href="../about.html" class="nav-desk">About</a>
+      <button class="nav-toggle" aria-label="Menu" type="button" onclick="(function(b,m){m.classList.toggle('open');b.setAttribute('aria-expanded',m.classList.contains('open'));document.body.classList.toggle('menu-open',m.classList.contains('open'));})(this,this.closest('nav').querySelector('.nav-mob'))">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+  <div class="nav-gold" aria-hidden="true"></div>
+  <div class="nav-mob"><a href="/">Home</a><a href="../ai-post-production.html">AI in Broadcasting</a><a href="../howto.html">How-To Guides</a><a href="../post-production-workflows.html">Post Production Workflows</a><a href="../insights.html">Insights</a><a href="../about.html">About</a><a href="../contact.html">Contact</a></div>
+</nav>
+<main>
+  <div class="art-wrap">
+    <div class="art-breadcrumb">
+      <a href="../index.html">Home</a>
+      <span>›</span>
+      <a href="../broadcast-systems-hub.html" style="color:#7c3aed">Professional Media Systems Guide</a>
+    </div>
+    <span class="art-tag" style="background:#7c3aed">📡 Infrastructure</span>
+    <h1>NDI 6 vs ST 2110 for India's Mid-Market Broadcasters: The Pragmatic Read</h1>
+    <p class="art-dek">ST 2110 is the strategic standard for high-end IP production. NDI 6 is the protocol many mid-market broadcasters can deploy faster and more affordably. In practice, smart plants are increasingly using both.</p>
+    <div class="art-byline">
+      <strong>The Streamic Editorial Team</strong>
+      <time datetime="2026-04-11" style="color:var(--ink4);font-size:13px">April 11, 2026</time>
+      <span>1590 words · 7 min read</span>
+      <span style="background:var(--blue);color:#fff;padding:3px 9px;border-radius:5px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.8px">Analysis</span>
+    </div>
+    <figure>
+      <svg viewBox="0 0 1200 675" role="img" aria-label="NDI 6 vs ST 2110 for India&#x27;s Mid-Market Broad" style="width:100%;height:auto;display:block;border-radius:18px;background:linear-gradient(135deg,#f7f2e8 0%,#fff 55%,#eef4ff 100%)">
+      <defs>
+        <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#7c3aed" stop-opacity="0.95"/>
+          <stop offset="100%" stop-color="#0f172a" stop-opacity="0.9"/>
+        </linearGradient>
+      </defs>
+      <rect x="0" y="0" width="1200" height="675" rx="24" fill="url(#g)"/>
+      <circle cx="960" cy="140" r="130" fill="#ffffff" opacity="0.08"/>
+      <circle cx="1030" cy="200" r="210" fill="#ffffff" opacity="0.04"/>
+      <rect x="70" y="70" width="530" height="50" rx="25" fill="#fff" opacity="0.14"/>
+      <text x="95" y="103" fill="#fff" font-size="19" font-family="DM Sans, Arial, sans-serif" font-weight="700" letter-spacing="2">THE STREAMIC · PREMIUM ANALYSIS</text>
+      <text x="80" y="250" fill="#fff" font-size="58" font-family="DM Serif Display, Georgia, serif" font-weight="700">NDI 6 vs ST 2110 for India&#x27;s Mid-M</text>
+      <text x="80" y="320" fill="#fff" font-size="58" font-family="DM Serif Display, Georgia, serif" font-weight="700">arket Broad</text>
+      <text x="80" y="395" fill="#eef2ff" font-size="26" font-family="DM Sans, Arial, sans-serif">Why protocol choice is really workflow choice</text>
+      <g opacity="0.9">
+        <rect x="760" y="290" width="320" height="210" rx="20" fill="#fff" opacity="0.11"/>
+        <rect x="790" y="325" width="150" height="110" rx="16" fill="#fff" opacity="0.25"/>
+        <rect x="955" y="325" width="95" height="26" rx="13" fill="#fff" opacity="0.4"/>
+        <rect x="955" y="366" width="78" height="18" rx="9" fill="#fff" opacity="0.28"/>
+        <rect x="955" y="396" width="58" height="18" rx="9" fill="#fff" opacity="0.28"/>
+        <rect x="955" y="426" width="85" height="18" rx="9" fill="#fff" opacity="0.28"/>
+      </g>
+      <text x="80" y="590" fill="#fff" font-size="18" font-family="DM Sans, Arial, sans-serif" opacity="0.9">Broadcast systems strategy · workflow economics · operational reality</text>
+    </svg>
+      <figcaption>Original Streamic illustration for an NDI-versus-ST-2110 infrastructure comparison.</figcaption>
+    </figure>
+    <div class="art-body">
+      <div style="background:#f0f4ff;border:1px solid #d0daf0;border-radius:10px;padding:16px 20px;margin-bottom:28px;font-size:13.5px;color:var(--ink2);line-height:1.6">
+        <span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--blue);display:block;margin-bottom:6px">Editorial Positioning</span>
+        This article is written in The Streamic's long-form analysis format: vendor-neutral, workflow-focused, and aimed at broadcast engineers, architects, newsroom technology leads, and media operations teams. The diagrams below are original Streamic illustrations and are safe for publication as site-owned visual elements.
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:0 0 30px">
+        <div style="background:#fff;border:1px solid #e6dfd2;border-radius:12px;padding:14px 14px 12px"><div style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--blue);margin-bottom:7px">Key takeaway</div><div style="font-size:13.5px;line-height:1.55;color:var(--ink2)">NDI and ST 2110 are not simply competing formats. They solve different operational and budget realities inside the same plant.</div></div>
+<div style="background:#fff;border:1px solid #e6dfd2;border-radius:12px;padding:14px 14px 12px"><div style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--blue);margin-bottom:7px">Key takeaway</div><div style="font-size:13.5px;line-height:1.55;color:var(--ink2)">The real comparison is not compression versus no compression. It is network cost, orchestration maturity, timing discipline, and where failure is tolerated.</div></div>
+<div style="background:#fff;border:1px solid #e6dfd2;border-radius:12px;padding:14px 14px 12px"><div style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--blue);margin-bottom:7px">Key takeaway</div><div style="font-size:13.5px;line-height:1.55;color:var(--ink2)">For many regional or mid-market facilities, hybrid coexistence is more rational than ideological commitment to one protocol.</div></div>
+      </div>
+      
+<h2>Stop asking which protocol is “better”</h2>
+<p>The most misleading version of this debate assumes NDI 6 and ST 2110 are trying to do the same job under the same economic constraints. They are not. ST 2110 is the benchmark architecture for high-end, standards-led, precision-timed IP broadcast environments. NDI 6 is a more accessible and operationally forgiving way to move production signals across IP in facilities that value flexibility, speed of deployment, and lower entry cost.</p>
+<p>That does not make one professional and the other compromised. It means engineering leaders need to identify where determinism is essential, where slight latency or compression trade-offs are acceptable, and where their team can realistically operate the control plane without creating a fragile plant.</p>
 
-<h2>The Protocols Aren't Competing — The Use Cases Are</h2>
-<p>The NDI-versus-2110 debate in the trade press treats these as alternatives for the same job. They aren't. ST 2110 carries uncompressed video at ~12 Gb/s per UHD flow over managed 25/100 GbE fabrics with PTP timing and NMOS control. NDI 6 carries lightly-compressed video (SpeedHQ, roughly 100–250 Mb/s per UHD flow) over standard Ethernet with mDNS discovery and no external timing requirement. The engineering trade-offs only look parallel until you cost the network.</p>
-<p>A fully-specified ST 2110 production plant — spine-leaf 100 GbE, redundant PTP grandmasters, Red/Blue fabric, NMOS IS-04/IS-05 registry, and the orchestration tooling to manage it — typically runs ₹8–15 crore in hardware and licenses alone for a mid-size PCR. An equivalent-capability NDI 6 plant runs on commodity 10 GbE switches, often re-uses existing office-grade network gear, and typically lands at ₹1.5–3 crore total. For an Indian regional broadcaster running three to five studios on a budget that doesn't accommodate an 8-figure infrastructure refresh, that isn't a trade-off — it's a gate.</p>
+<h2>Where ST 2110 earns its cost</h2>
+<p>ST 2110 remains the correct answer when signal integrity, timing accuracy, and scale matter more than simplicity. Large routers, premium live production environments, transmission-critical paths, and multi-vendor IP plants benefit from a standards-based architecture with separate essence flows, PTP discipline, and a maturing NMOS ecosystem. When you need predictable behavior across large, high-performance infrastructures, 2110 gives you a professional operating model that aligns well with long-cycle capital planning.</p>
+<p>But that operating model is not free. It requires serious switching design, careful timing distribution, strong documentation, and engineering staff who understand not only IP networking but broadcast-specific behavior under failure. If those prerequisites are weak, a 2110 deployment can look sophisticated on paper while remaining operationally brittle in practice.</p>
 
-<h2>What NDI 6 Actually Gives Up</h2>
-<p>Honest engineering means being clear about the compromises. NDI's SpeedHQ codec is visually lossless for almost all broadcast use cases, but "almost all" excludes the handful where it matters most: chroma key pulls for VFX compositing, DI color grading reference feeds, and any workflow where the source will be re-encoded four or more times downstream. The generation-loss math on light compression catches up eventually, and ST 2110's uncompressed path avoids that class of problem entirely.</p>
-<p>NDI's latency is typically 1–2 frames end-to-end versus ST 2110's sub-frame. For local PCR work and single-venue production, nobody notices. For a remote production with multiple camera feeds being cut live across a wide-area network, the 1-frame floor starts to matter when the director is calling shots and the cut needs to land on the beat. This is why the IPL remote production infrastructure uses ST 2110 between venues even when individual studio plants use NDI internally.</p>
-<p>The real weakness of NDI isn't technical — it's <strong>ecosystem control</strong>. NDI is owned by Vizrt. The protocol is free to implement, but the reference libraries and the certification program are not open-governance the way SMPTE's standardisation of 2110 is. For a tier-1 broadcaster that's committing 20-year CapEx, betting the entire plant on a protocol owned by a single vendor is a governance risk that has nothing to do with engineering. For a regional broadcaster with a 5-year refresh cycle, it's a non-issue.</p>
+<h2>Where NDI 6 wins on pragmatism</h2>
+<p>NDI 6 offers a dramatically easier starting point. Discovery is simpler. Network requirements are lighter. Deployments can move quickly. Existing facilities can adopt it incrementally rather than committing to a complete fabric redesign. For many mid-market studios, regional news operations, smaller PCRs, educational broadcasters, and OTT-first production environments, that is not a compromise. It is what makes IP production achievable within the available budget and team capability.</p>
+<p>NDI’s strengths are therefore not just technical. They are organizational. A system is more useful when the local team can support it confidently, expand it without fear, and troubleshoot it without waiting for a specialist every time something behaves strangely. In many facilities, that practical supportability is worth more than theoretical purity.</p>
 
-<h2>The Hybrid Pattern That's Actually Winning in India</h2>
-<p>Across the deployments we've reviewed in the past eighteen months — and this covers Hindi GEC, Tamil regional, Marathi news, Telugu movie channels, and two OTT-only operations — the same architectural pattern keeps emerging. ST 2110 is reserved for the <strong>master router and the transmission path</strong>: the MCR output bus, the playout-to-transmission handoff, and the primary multiviewer feeds. Everything upstream — camera-to-switcher, graphics-to-switcher, audio-to-embedder, intercom, tally — runs on NDI over 10 GbE.</p>
-<p>The logic is operational, not technical. The master router and transmission path is the part of the plant where a single frame of glitch costs revenue and regulatory exposure. Everything upstream has human operators who can retake, recompose, or re-route in real time. Spending ST 2110 money on the camera hall is a luxury when NDI works for 98% of the production day; spending ST 2110 money on the transmission path is insurance against the 2% of days that matter most.</p>
+<h2>The real fault line: plant zones</h2>
+<p>The most productive way to compare the two is by plant zone. In camera acquisition and studio contribution, many operations can live comfortably with NDI if the workflow is not critically dependent on ultra-low deterministic timing. In graphics, monitoring, collaboration, quick-turn studio setups, and flexible routing, NDI often delivers excellent value. In transmission handoff, master control, and premium multi-vendor core routing, 2110 usually earns its place.</p>
+<p>This zone-based thinking is why hybrid plants are becoming more common. Broadcasters are no longer forced to choose one protocol as an ideological identity. They can decide where cost discipline matters most, where interoperability matters most, and where operational risk is least tolerable.</p>
 
-<h2>Vendor Reality Check</h2>
-<p>Grass Valley, EVS, and Ross are all shipping hybrid switchers that accept both protocols on the same frame in 2026 — the GV LDX 150 takes NDI directly on an optional card, as do Ross's Ultrix routers. That vendor movement is the clearest signal of where the market is actually landing: not protocol wars, but protocol coexistence inside the same chassis.</p>
-<p>For a new-build Indian broadcast facility in 2026, the honest recommendation is to start with NDI 6 end-to-end, provision the transmission path with ST 2110 capability from day one, and leave the camera hall alone until the economics of 100 GbE switching come down another generation — which, based on Broadcom's Tomahawk 5 pricing trajectory, happens around 2027. Deploying full ST 2110 in the camera hall today for an Indian regional plant is an engineering decision driven by trade-show envy, not by workflow need.</p>
+<h2>What mid-market buyers should challenge</h2>
+<p>Broadcasters in India’s mid-market are often sold aspiration rather than fit. Some are encouraged toward full 2110 because it looks future-proof and premium. Others are pushed toward all-NDI because it is faster and less intimidating. Both pitches can be wrong when they erase the operational context. A protocol recommendation that does not account for staffing depth, redundancy philosophy, capital cycle, vendor mix, and likely growth path is not a professional recommendation.</p>
+<p>The right buyer questions are simple. Which signals truly require 2110-grade treatment? How much of the plant can tolerate lightly compressed contribution? What will the operations team be able to maintain at 2 a.m. during a fault? How does the network expand if the broadcaster adds another studio, another control room, or a REMI layer? Those questions produce far better answers than headline arguments about standards or marketing ecosystems.</p>
 
-<h2>What to Watch</h2>
-<p>The NDI 6 release late in 2025 added HDR metadata passthrough, improved bandwidth management under packet loss, and a new low-latency profile targeting remote production. The gap to ST 2110 narrows with each release. Meanwhile, SMPTE's work on JPEG XS carriage over 2110 (ST 2110-22) is making the uncompressed-vs-compressed debate increasingly meaningless at the protocol level. By 2027, the practical distinction between "2110 plant" and "NDI plant" may be a difference in control plane conventions more than a difference in essence transport.</p>
-<p>The broadcasters who'll win the next five years are the ones who stop arguing about protocols and start costing workflows.</p>
-</article>
+<h2>The hybrid model is becoming the mature answer</h2>
+<p>Many of the strongest 2026 architectures are hybrid by design. They use NDI where fast deployment and cost efficiency matter, then reserve 2110 for the paths where determinism and deeper multi-vendor interoperability justify the extra complexity. That is not a halfway solution. It is often the most intelligent allocation of engineering effort and capital.</p>
+<p>The mid-market broadcaster that chooses this path is not behind the curve. In many cases, it is simply refusing to overspend on purity where workflow reality does not demand it.</p>
+
+<h2>The Streamic view</h2>
+<p>NDI 6 versus ST 2110 is not a culture war. It is a workflow architecture choice. The plant that wins is the one that matches protocol discipline to business and operational reality. That usually means designing for coexistence, not forcing every signal path into the same philosophical camp.</p>
+
+      <div style="margin:34px 0 10px">
+        <h2 style="margin-bottom:14px">Architecture Snapshot</h2>
+        <div style="background:#fff;border:1px solid #e6dfd2;border-radius:16px;padding:14px 14px 8px;box-shadow:0 10px 30px rgba(0,0,0,.04)">
+          <svg viewBox="0 0 1100 420" role="img" aria-label="Workflow diagram" style="width:100%;height:auto;display:block">
+      <rect x="0" y="0" width="1100" height="420" rx="22" fill="#fcfaf5"/>
+      <text x="45" y="58" fill="#111827" font-size="26" font-family="DM Serif Display, Georgia, serif">Workflow and decision path</text>
+      <text x="45" y="88" fill="#6b7280" font-size="14" font-family="DM Sans, Arial, sans-serif">Illustrative flow for engineering review and deployment planning</text>
+      <line x1="233" y1="175" x2="250" y2="175" stroke="#7c3aed" stroke-width="4"/><polygon points="250,175 236,167 236,183" fill="#7c3aed"/><line x1="448" y1="175" x2="465" y2="175" stroke="#7c3aed" stroke-width="4"/><polygon points="465,175 451,167 451,183" fill="#7c3aed"/><line x1="663" y1="175" x2="680" y2="175" stroke="#7c3aed" stroke-width="4"/><polygon points="680,175 666,167 666,183" fill="#7c3aed"/><line x1="878" y1="175" x2="895" y2="175" stroke="#7c3aed" stroke-width="4"/><polygon points="895,175 881,167 881,183" fill="#7c3aed"/>
+      <rect x="45" y="120" width="180" height="110" rx="18" fill="#fff" stroke="#d8cfbf"/><text x="63" y="162" fill="#111827" font-size="18" font-family="DM Sans, Arial, sans-serif" font-weight="700">Camera / studio</text><text x="63" y="190" fill="#6b7280" font-size="13" font-family="DM Sans, Arial, sans-serif">flexible contribution zone</text><rect x="260" y="120" width="180" height="110" rx="18" fill="#fff" stroke="#d8cfbf"/><text x="278" y="162" fill="#111827" font-size="18" font-family="DM Sans, Arial, sans-serif" font-weight="700">Production core</text><text x="278" y="190" fill="#6b7280" font-size="13" font-family="DM Sans, Arial, sans-serif">switching and monitoring</text><rect x="475" y="120" width="180" height="110" rx="18" fill="#fff" stroke="#d8cfbf"/><text x="493" y="162" fill="#111827" font-size="18" font-family="DM Sans, Arial, sans-serif" font-weight="700">MCR / transmission</text><text x="493" y="190" fill="#6b7280" font-size="13" font-family="DM Sans, Arial, sans-serif">critical output path</text><rect x="690" y="120" width="180" height="110" rx="18" fill="#fff" stroke="#d8cfbf"/><text x="708" y="162" fill="#111827" font-size="18" font-family="DM Sans, Arial, sans-serif" font-weight="700">Control plane</text><text x="708" y="190" fill="#6b7280" font-size="13" font-family="DM Sans, Arial, sans-serif">timing + orchestration</text><rect x="905" y="120" width="180" height="110" rx="18" fill="#fff" stroke="#d8cfbf"/><text x="923" y="162" fill="#111827" font-size="18" font-family="DM Sans, Arial, sans-serif" font-weight="700">Recommended model</text><text x="923" y="190" fill="#6b7280" font-size="13" font-family="DM Sans, Arial, sans-serif">NDI + 2110 coexistence</text>
+    </svg>
+        </div>
+        <p style="font-size:12px;color:var(--ink4);margin-top:10px">Original explanatory diagram created for this article by The Streamic.</p>
+      </div>
+    </div>
+    <div style="background:var(--bg);border-radius:12px;padding:22px 24px;margin-top:36px;border-top:3px solid var(--blue)">
+      <h4 style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--blue);margin:0 0 14px">Sources &amp; Further Reading</h4>
+      <ul style="margin:0;padding-left:18px;list-style:disc">
+        <li style="font-size:13.5px;color:var(--ink2);line-height:1.6;margin-bottom:6px"><strong style="color:var(--ink)">Recommended follow-up:</strong> SMPTE ST 2110 standards overview, NMOS guidance, NDI 6 workflow documentation, and vendor interoperability notes for mixed-protocol deployments.</li>
+      </ul>
+      <p style="margin:12px 0 0;font-size:12px;color:var(--ink4);line-height:1.5">
+        The Streamic provides independent editorial commentary. External links, where present, should carry <code style="font-size:11px;background:#e8e8ed;padding:1px 5px;border-radius:3px">rel="nofollow noopener"</code>.
+      </p>
+    </div>
+    <div class="art-author">
+      <strong>About this article</strong>
+      Original analysis and commentary by The Streamic Editorial Team. Independent broadcast technology journalism for engineers and media professionals.
+      <a href="/about.html" style="color:var(--blue);margin-left:6px;">About The Streamic &rarr;</a>
+    </div>
+    <div class="art-more">
+      <h3>Continue Reading</h3>
+      <a href="../broadcast-systems-hub.html">📡 Infrastructure More in Professional Media Systems Guide</a>
+      <a href="../insights.html">⭐ Streamic Insights</a>
+    </div>
+  </div>
+</main>
+<script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "NewsArticle",
+  "headline": "NDI 6 vs ST 2110 for India's Mid-Market Broadcasters: The Pragmatic Read",
+  "description": "NDI 6 and SMPTE ST 2110 are often framed as rivals. This Streamic analysis shows why the better question is which part of the plant needs which level of determinism, timing precision, and network investment.",
+  "datePublished": "2026-04-11",
+  "dateModified": "2026-04-11",
+  "author": {
+    "@type": "Organization",
+    "name": "The Streamic Editorial Team"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "The Streamic",
+    "url": "https://www.thestreamic.in",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://www.thestreamic.in/assets/logo.png"
+    }
+  },
+  "mainEntityOfPage": "https://www.thestreamic.in/articles/ndi-6-vs-st-2110-india-mid-market-2026.html",
+  "wordCount": 1590
+}</script>
+<footer class="footer">
+  <div class="footer-gold" aria-hidden="true"></div>
+  <div class="footer-grid">
+    <div>
+      <div class="footer-brand">The Streamic</div>
+      <div class="footer-tagline">Media &amp; Broadcast IT Analysis</div>
+      <p class="footer-tag">Independent broadcast &amp; streaming technology journalism. Original analysis for engineers and media professionals.</p>
+      <div class="footer-social">
+        <a href="https://twitter.com/thestreamic" target="_blank" rel="noopener noreferrer" class="footer-social-link">
+          <svg width="14" height="14" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          @thestreamic
+        </a>
+        <a href="https://www.linkedin.com/company/thestreamic" target="_blank" rel="noopener noreferrer" class="footer-social-link">
+          <svg width="14" height="14" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          TheStreamic
+        </a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Coverage</h4>
+      <a href="../ai-post-production.html">AI in Broadcasting</a>
+      <a href="../howto.html">How-To Guides</a>
+      <a href="../post-production-workflows.html">Post Production Workflows</a>
+      <a href="../insights.html">Insights</a>
+    </div>
+    <div class="footer-col">
+      <h4>Site</h4>
+      <a href="../about.html">About</a>
+      <a href="../contact.html">Contact</a>
+      <a href="../editorial-policy.html">Editorial Policy</a>
+      <a href="../privacy.html">Privacy Policy</a>
+      <a href="../terms.html">Terms of Use</a>
+    </div>
+    <div class="footer-col">
+      <h4>Dublin, Ireland</h4>
+      <a href="mailto:technodate3@gmail.com" style="color:var(--blue)">technodate3@gmail.com</a>
+      <span style="font-size:12px;color:#bbb;display:block;margin-top:4px">Adamstown, Lucan</span>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>&copy; 2026 The Streamic &mdash; thestreamic.in</span>
+    <span>All trademarks belong to their respective owners.</span>
+  </div>
+</footer>
+<div id="ts-cookie">
+  <div class="cookie-in">
+    <div class="cookie-txt">
+      <strong>We use cookies</strong>
+      Analytics cookies help us understand site performance. Optional advertising cookies are disabled until future activation.
+      <a href="/privacy.html">Privacy Policy</a>
+    </div>
+    <div class="cookie-btns">
+      <button class="cookie-no" onclick="tsCC(false)">Reject optional</button>
+      <button class="cookie-ok" onclick="tsCC(true)">Accept all</button>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  var K='ts_cc',s=localStorage.getItem(K),b=document.getElementById('ts-cookie');
+  if(!s&&b)b.style.display='block';
+  window.tsCC=function(ok){
+    localStorage.setItem(K,ok?'granted':'denied');
+    if(b)b.style.display='none';
+    if(typeof gtag!='undefined')gtag('consent','update',{
+      analytics_storage:ok?'granted':'denied',ad_storage:'denied',
+      ad_user_data:'denied',ad_personalization:'denied'});
+  };
+  if(s==='granted'&&typeof gtag!='undefined')gtag('consent','update',{
+    analytics_storage:'granted',ad_storage:'denied',
+    ad_user_data:'denied',ad_personalization:'denied'});
+})();
+</script>
 </body>
 </html>

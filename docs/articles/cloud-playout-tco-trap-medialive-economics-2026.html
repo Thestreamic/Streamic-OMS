@@ -1,43 +1,263 @@
-<!-- HAND_AUTHORED -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Cloud Playout TCO Trap: Why AWS MediaLive Looks Cheap Until It Isn't | The Streamic</title>
-<meta name="description" content="Cloud playout pricing models look linear on the slide deck and exponential on the invoice. The real cost curve for AWS MediaLive, Elemental, and Azure Media Services in 2026 — and where the break-even with on-prem Grass Valley Ignite actually sits.">
-<link rel="canonical" href="https://www.thestreamic.in/articles/cloud-playout-tco-trap-medialive-economics-2026.html">
-<link rel="stylesheet" href="../style.css">
+  <script>
+    window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+    gtag('consent','default',{'analytics_storage':'denied','ad_storage':'denied',
+    'ad_user_data':'denied','ad_personalization':'denied','wait_for_update':500});
+  </script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-0VSHDN3ZR6"></script>
+  <script>gtag('js',new Date());gtag('config','G-0VSHDN3ZR6');</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>The Cloud Playout TCO Trap: Why AWS MediaLive Looks Cheap Until It Isn't | The Streamic</title>
+  <meta name="description" content="Cloud playout is often sold on per-hour simplicity. This Streamic analysis explains why 24/7 channel economics hinge on egress, inter-AZ traffic, resilience design, and operational shape rather than encoder list price.">
+  <meta name="robots" content="index,follow">
+  <meta name="author" content="The Streamic Editorial Team">
+  <link rel="canonical" href="https://www.thestreamic.in/articles/cloud-playout-tco-trap-medialive-economics-2026.html">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="The Streamic">
+  <meta property="og:title" content="The Cloud Playout TCO Trap: Why AWS MediaLive Looks Cheap Until It Isn't | The Streamic">
+  <meta property="og:description" content="Cloud playout is often sold on per-hour simplicity. This Streamic analysis explains why 24/7 channel economics hinge on egress, inter-AZ traffic, resilience design, and operational shape rather than encoder list price.">
+  <meta property="og:url" content="https://www.thestreamic.in/articles/cloud-playout-tco-trap-medialive-economics-2026.html">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
 </head>
 <body>
-<article class="article-body">
-<header>
-<p class="cat">CLOUD PRODUCTION</p>
-<h1>The Cloud Playout TCO Trap: Why AWS MediaLive Looks Cheap Until It Isn't</h1>
-<p class="dek">Cloud playout proposals in 2026 still open with the same math: "pay only for what you use." For 24/7 linear channels, that's a promise nobody should sign without the egress calculator open in a second tab.</p>
-<p class="byline">The Streamic Editorial · April 2026</p>
-</header>
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="../" class="nav-logo">
+      <img src="../assets/logo.png" alt="" onerror="this.style.display='none'" aria-hidden="true">
+      <div class="nav-logo-text">
+        <span class="nav-logo-name">The Streamic</span>
+        <span class="nav-logo-tagline">Media &amp; Broadcast IT Analysis</span>
+      </div>
+    </a>
+    <div class="nav-divider" aria-hidden="true"></div>
+    <ul class="nav-links"><li><a href="/">Home</a></li><li><a href="../ai-post-production.html">AI in Broadcasting</a></li><li><a href="../howto.html">How-To Guides</a></li><li><a href="../post-production-workflows.html">Post Production Workflows</a></li><li><a href="../insights.html">Insights</a></li></ul>
+    <div class="nav-right">
+      <a href="../about.html" class="nav-desk">About</a>
+      <button class="nav-toggle" aria-label="Menu" type="button" onclick="(function(b,m){m.classList.toggle('open');b.setAttribute('aria-expanded',m.classList.contains('open'));document.body.classList.toggle('menu-open',m.classList.contains('open'));})(this,this.closest('nav').querySelector('.nav-mob'))">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+  <div class="nav-gold" aria-hidden="true"></div>
+  <div class="nav-mob"><a href="/">Home</a><a href="../ai-post-production.html">AI in Broadcasting</a><a href="../howto.html">How-To Guides</a><a href="../post-production-workflows.html">Post Production Workflows</a><a href="../insights.html">Insights</a><a href="../about.html">About</a><a href="../contact.html">Contact</a></div>
+</nav>
+<main>
+  <div class="art-wrap">
+    <div class="art-breadcrumb">
+      <a href="../index.html">Home</a>
+      <span>›</span>
+      <a href="../post-production-workflows.html" style="color:#059669">Post Production Workflows</a>
+    </div>
+    <span class="art-tag" style="background:#059669">☁️ Cloud & Playout</span>
+    <h1>The Cloud Playout TCO Trap: Why AWS MediaLive Looks Cheap Until It Isn't</h1>
+    <p class="art-dek">Cloud playout proposals often look efficient on a slide and punitive on the invoice. For linear channels, the wrong TCO model can turn a flexible architecture into a permanent operating cost problem.</p>
+    <div class="art-byline">
+      <strong>The Streamic Editorial Team</strong>
+      <time datetime="2026-04-11" style="color:var(--ink4);font-size:13px">April 11, 2026</time>
+      <span>1665 words · 8 min read</span>
+      <span style="background:var(--blue);color:#fff;padding:3px 9px;border-radius:5px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.8px">Analysis</span>
+    </div>
+    <figure>
+      <svg viewBox="0 0 1200 675" role="img" aria-label="The Cloud Playout TCO Trap: Why MediaLive Looks" style="width:100%;height:auto;display:block;border-radius:18px;background:linear-gradient(135deg,#f7f2e8 0%,#fff 55%,#eef4ff 100%)">
+      <defs>
+        <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#059669" stop-opacity="0.95"/>
+          <stop offset="100%" stop-color="#0f172a" stop-opacity="0.9"/>
+        </linearGradient>
+      </defs>
+      <rect x="0" y="0" width="1200" height="675" rx="24" fill="url(#g)"/>
+      <circle cx="960" cy="140" r="130" fill="#ffffff" opacity="0.08"/>
+      <circle cx="1030" cy="200" r="210" fill="#ffffff" opacity="0.04"/>
+      <rect x="70" y="70" width="530" height="50" rx="25" fill="#fff" opacity="0.14"/>
+      <text x="95" y="103" fill="#fff" font-size="19" font-family="DM Sans, Arial, sans-serif" font-weight="700" letter-spacing="2">THE STREAMIC · PREMIUM ANALYSIS</text>
+      <text x="80" y="250" fill="#fff" font-size="58" font-family="DM Serif Display, Georgia, serif" font-weight="700">The Cloud Playout TCO Trap: Why Me</text>
+      <text x="80" y="320" fill="#fff" font-size="58" font-family="DM Serif Display, Georgia, serif" font-weight="700">diaLive Looks</text>
+      <text x="80" y="395" fill="#eef2ff" font-size="26" font-family="DM Sans, Arial, sans-serif">Where per-hour pricing hides persistent cost</text>
+      <g opacity="0.9">
+        <rect x="760" y="290" width="320" height="210" rx="20" fill="#fff" opacity="0.11"/>
+        <rect x="790" y="325" width="150" height="110" rx="16" fill="#fff" opacity="0.25"/>
+        <rect x="955" y="325" width="95" height="26" rx="13" fill="#fff" opacity="0.4"/>
+        <rect x="955" y="366" width="78" height="18" rx="9" fill="#fff" opacity="0.28"/>
+        <rect x="955" y="396" width="58" height="18" rx="9" fill="#fff" opacity="0.28"/>
+        <rect x="955" y="426" width="85" height="18" rx="9" fill="#fff" opacity="0.28"/>
+      </g>
+      <text x="80" y="590" fill="#fff" font-size="18" font-family="DM Sans, Arial, sans-serif" opacity="0.9">Broadcast systems strategy · workflow economics · operational reality</text>
+    </svg>
+      <figcaption>Original Streamic illustration showing the hidden cost layers beneath cloud playout architecture.</figcaption>
+    </figure>
+    <div class="art-body">
+      <div style="background:#f0f4ff;border:1px solid #d0daf0;border-radius:10px;padding:16px 20px;margin-bottom:28px;font-size:13.5px;color:var(--ink2);line-height:1.6">
+        <span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--blue);display:block;margin-bottom:6px">Editorial Positioning</span>
+        This article is written in The Streamic's long-form analysis format: vendor-neutral, workflow-focused, and aimed at broadcast engineers, architects, newsroom technology leads, and media operations teams. The diagrams below are original Streamic illustrations and are safe for publication as site-owned visual elements.
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:0 0 30px">
+        <div style="background:#fff;border:1px solid #e6dfd2;border-radius:12px;padding:14px 14px 12px"><div style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--blue);margin-bottom:7px">Key takeaway</div><div style="font-size:13.5px;line-height:1.55;color:var(--ink2)">For 24/7 channels, egress and traffic shape matter more than encoder headline pricing.</div></div>
+<div style="background:#fff;border:1px solid #e6dfd2;border-radius:12px;padding:14px 14px 12px"><div style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--blue);margin-bottom:7px">Key takeaway</div><div style="font-size:13.5px;line-height:1.55;color:var(--ink2)">Cloud playout wins decisively for events, burst channels, DR, and niche FAST launches — not automatically for every flagship linear service.</div></div>
+<div style="background:#fff;border:1px solid #e6dfd2;border-radius:12px;padding:14px 14px 12px"><div style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--blue);margin-bottom:7px">Key takeaway</div><div style="font-size:13.5px;line-height:1.55;color:var(--ink2)">The right 2026 design is usually hybrid: fixed heavy channels on optimized primary infrastructure, variable services in elastic cloud layers.</div></div>
+      </div>
+      
+<h2>The slide-deck mistake</h2>
+<p>Cloud playout is usually introduced with a simple promise: move from fixed capital expenditure to flexible operating expenditure and pay only for what you use. That logic is compelling for seasonal workloads and burst channels. It becomes far less compelling when a broadcaster treats a 24/7 flagship channel as if it were an event service with occasional demand spikes.</p>
+<p>The engineering problem is not that cloud playout is expensive by definition. The problem is that many TCO conversations focus on the wrong meter. Teams obsess over encoder hourly rates because those numbers are obvious and easy to compare. But for any always-on service with meaningful viewership, the decisive economics are almost always downstream: packaging, inter-zone traffic, control-plane resilience, cache behavior, ad insertion, monitoring, and especially egress.</p>
 
-<h2>The Slide Deck vs. The Invoice</h2>
-<p>Every cloud playout pitch we've reviewed in the last twelve months opens the same way. A per-hour price for the encoder. A per-GB price for egress. A per-channel price for the packager. A reassuring note that storage is "negligible." The slide looks like a linear function; the invoice three months later looks nothing like one.</p>
-<p>The math most broadcasters get wrong is the 24/7 assumption. A linear HD channel at 8 Mb/s multicast-to-unicast for, say, 5 million concurrent peak viewers in an Indian OTT context generates egress in the petabyte range per month. At AWS CloudFront's standard India egress pricing, that one line item can run $30,000–$80,000 per month depending on commit tier. The encoder compute — the number everyone focuses on — is often under $4,000 per month for the same channel.</p>
-<p>Egress is the actual unit economics of cloud playout. Encoder cost is a rounding error.</p>
+<h2>What makes the invoice diverge from the architecture diagram</h2>
+<p>In a typical cloud playout stack, there is an ingest layer, a channel assembly or encoding layer, packaging, origin, CDN delivery, observability, and often a separate ad-tech layer. On paper, each piece looks modular and individually affordable. In production, the parts compound. Once traffic becomes continuous instead of occasional, the cost model behaves less like a flexible utility and more like a permanently spinning meter.</p>
+<p>This is where many board-level conversations go wrong. A linear channel running all day is not simply “using cloud.” It is renting compute, storage, network movement, distribution, monitoring, resilience capacity, and potentially duplicated zones every minute of the day. If the service has predictable demand, the broadcaster must ask whether it is buying true elasticity or merely leasing permanence at cloud rates.</p>
 
-<h2>Where MediaLive + MediaPackage Actually Wins</h2>
-<p>This isn't an argument against cloud playout. It's an argument for costing it correctly. AWS MediaLive paired with MediaPackage is genuinely the right architecture for three specific workloads, and the wrong architecture for a fourth that keeps getting proposed.</p>
-<p>It wins for <strong>event playout</strong>: IPL matches, elections, concerts, one-off sports tournaments. Spin up, run for 6 weeks, shut down. The per-hour encoder pricing is exactly the shape of the workload. It wins for <strong>DR and burst capacity</strong>: primary playout stays on a Grass Valley Ignite or Imagine Versio on-prem, and MediaLive runs as a hot standby that only meters traffic when traffic actually flows to it. And it wins for <strong>niche-language FAST channels</strong>: 200 thin linear channels each with a few thousand concurrents where provisioning 200 on-prem playout chains makes no sense.</p>
-<p>Where it consistently loses on TCO is the case it's most often pitched for: <strong>a flagship 24/7 entertainment channel with stable viewership</strong>. For that workload, the on-prem playout chain was already amortised, the egress runs through a negotiated peering agreement or a CDN commit, and the cloud per-hour meter never stops spinning. The break-even in our client work consistently lands around 18–22 months — after which the cloud option is 2–3× more expensive per month than maintaining the existing Grass Valley or Imagine chain.</p>
+<h2>Where cloud playout genuinely wins</h2>
+<p>There are several scenarios where cloud economics are not only acceptable but strategically superior. Event channels are the cleanest example. Sports tournaments, elections, temporary pop-up channels, premium live feeds, and overflow services all benefit from turning infrastructure on for a finite window and shutting it down immediately afterward. That is exactly the workload cloud was built to price well.</p>
+<p>Cloud also wins for disaster recovery and selective resilience. Keeping a hot or warm backup chain in the cloud can make operational sense even when the main playout path remains elsewhere. It wins for early-stage FAST expansion, where dozens or hundreds of thin channels must be launched rapidly without building heavy on-prem footprints for each one. And it wins where the engineering team values speed of experimentation more than long-run monthly minimization.</p>
 
-<h2>The Hidden Line Items</h2>
-<p>Three cost categories never appear in the initial proposal but always appear on the invoice.</p>
-<p><strong>Inter-AZ traffic.</strong> If your MediaLive encoder is in ap-south-1a and your MediaPackage endpoint is in ap-south-1b (which happens automatically for HA), every packet crosses an Availability Zone boundary at $0.01/GB. On a high-bitrate 4K feed, that's another $2,000–$4,000 per month per channel that wasn't on the quote.</p>
-<p><strong>Ad insertion compute.</strong> Server-side ad insertion via MediaTailor is metered per ad decision. For a FAST channel running 15-minute ad pods every hour across 10 million monthly uniques, MediaTailor billing can exceed the MediaLive encoder line item. This almost never appears on initial TCO models because the broadcaster's ad ops team is on a different org chart than the engineering team running the proof-of-concept.</p>
-<p><strong>Origin shield and cache miss economics.</strong> CloudFront's origin shield layer is a line item separate from edge egress. For popular live events, 95%+ of requests hit the edge cache and never touch origin. For long-tail FAST content, cache-hit ratios drop below 50% and origin fetches dominate the bill. The same CDN architecture has radically different economics depending on content shape, and the pitch deck never models both.</p>
+<h2>Where the economics turn against you</h2>
+<p>The trap is applying that same logic to stable, high-duty-cycle, high-viewership channels. Once the channel is on constantly and audience demand is relatively predictable, “pay only for what you use” stops being a benefit and starts becoming a reminder that you are paying for everything all the time. Egress grows with success. Resilience duplicates spend. Ad insertion adds transaction volume. Origin behavior changes with content mix. Monitoring and alerting stack up quietly. None of those line items are surprising individually. Together, they can overwhelm the story the original proposal told.</p>
+<p>Another hidden factor is organizational fragmentation. Ad tech, CDN, cloud architecture, editorial operations, and transmission may all sit with different teams. The proof of concept often gets approved by one team while the later cost lands in someone else’s budget. A technical architecture that looks elegant inside one department can become a commercial frustration across the wider operation.</p>
 
-<h2>What the Right 2026 Architecture Looks Like</h2>
-<p>For a major Indian broadcaster running 8–12 flagship channels, the honest 2026 blueprint is neither "all on-prem" nor "all cloud." It's a <strong>hybrid with clearly-drawn boundaries</strong>: flagship channels stay on Grass Valley Ignite or Imagine Versio with a primary+backup air chain, traditional SDI handoff to the transmission network, and Akamai or Jio CDN for distribution under a committed-use contract. Event channels, FAST channels, and burst capacity run on MediaLive with MediaPackage fronted by CloudFront, metered per-event and shut down between events.</p>
-<p>The Avid MediaCentral and iNEWS newsroom stays on-prem because the frame-accurate editorial workflow tolerates exactly zero network jitter. Graphics rendering on Vizrt Engine stays on-prem for the same reason. Archive sits in S3 Glacier or Azure Archive because that's where per-TB-per-month economics genuinely flip in favor of cloud — typically by a factor of 10× against LTO-9 including operational staff costs.</p>
-<p>The mistake isn't choosing cloud or on-prem. The mistake is letting the vendor who profits from one model write the TCO spreadsheet that compares it to the other.</p>
-</article>
+<h2>The hybrid design that makes more sense</h2>
+<p>For many broadcasters, the strongest 2026 answer is not “cloud first” or “on-prem forever.” It is boundary discipline. Keep predictable flagship chains in the environment where you already know the economics and operational behavior well. Push burst, seasonal, disaster-recovery, niche-language, or pilot channels into cloud-native playout layers where agility creates real value. Archive and long-retention storage can absolutely sit in cloud-oriented tiers where the economics are mature. Live channel assembly should be judged far more critically.</p>
+<p>This hybrid model has an additional advantage: it lets engineering teams separate business experimentation from core service risk. You can launch new FAST ideas quickly without re-architecting your main channel chain. You can expand event capacity without permanently resizing the plant. And you can preserve the operational muscle memory of teams who still have to deliver frame-accurate, regulator-sensitive services every day.</p>
+
+<h2>How to review a proposal properly</h2>
+<p>Any cloud playout proposal worth taking seriously should be modeled in three ways: a low-volume event case, a steady-state flagship case, and a high-growth success case. If the numbers only look attractive in one of those models, that does not invalidate the architecture — but it tells you what job the architecture is actually fit for.</p>
+<p>Teams should also separate non-negotiables from optimizations. Resilience is not optional. Monitoring is not optional. Logging, alerting, compliance recording, and publication controls are not optional. If a TCO model makes those layers look negligible, the model is usually incomplete. A realistic cost model is less flattering, but it is far more useful.</p>
+
+<h2>The Streamic view</h2>
+<p>Cloud playout is not a trap because cloud is flawed. It becomes a trap when workload shape is misunderstood. Event logic and permanent channel logic are not the same. The engineering team that treats them as the same will either overspend or under-protect something important. The broadcaster that draws clean architectural boundaries, however, can take the best of both worlds: agility where demand is uncertain, and efficiency where demand is known.</p>
+
+      <div style="margin:34px 0 10px">
+        <h2 style="margin-bottom:14px">Architecture Snapshot</h2>
+        <div style="background:#fff;border:1px solid #e6dfd2;border-radius:16px;padding:14px 14px 8px;box-shadow:0 10px 30px rgba(0,0,0,.04)">
+          <svg viewBox="0 0 1100 420" role="img" aria-label="Workflow diagram" style="width:100%;height:auto;display:block">
+      <rect x="0" y="0" width="1100" height="420" rx="22" fill="#fcfaf5"/>
+      <text x="45" y="58" fill="#111827" font-size="26" font-family="DM Serif Display, Georgia, serif">Workflow and decision path</text>
+      <text x="45" y="88" fill="#6b7280" font-size="14" font-family="DM Sans, Arial, sans-serif">Illustrative flow for engineering review and deployment planning</text>
+      <line x1="233" y1="175" x2="250" y2="175" stroke="#059669" stroke-width="4"/><polygon points="250,175 236,167 236,183" fill="#059669"/><line x1="448" y1="175" x2="465" y2="175" stroke="#059669" stroke-width="4"/><polygon points="465,175 451,167 451,183" fill="#059669"/><line x1="663" y1="175" x2="680" y2="175" stroke="#059669" stroke-width="4"/><polygon points="680,175 666,167 666,183" fill="#059669"/><line x1="878" y1="175" x2="895" y2="175" stroke="#059669" stroke-width="4"/><polygon points="895,175 881,167 881,183" fill="#059669"/>
+      <rect x="45" y="120" width="180" height="110" rx="18" fill="#fff" stroke="#d8cfbf"/><text x="63" y="162" fill="#111827" font-size="18" font-family="DM Sans, Arial, sans-serif" font-weight="700">Ingest / assembly</text><text x="63" y="190" fill="#6b7280" font-size="13" font-family="DM Sans, Arial, sans-serif">channel prep and automation</text><rect x="260" y="120" width="180" height="110" rx="18" fill="#fff" stroke="#d8cfbf"/><text x="278" y="162" fill="#111827" font-size="18" font-family="DM Sans, Arial, sans-serif" font-weight="700">Encode / package</text><text x="278" y="190" fill="#6b7280" font-size="13" font-family="DM Sans, Arial, sans-serif">primary service chain</text><rect x="475" y="120" width="180" height="110" rx="18" fill="#fff" stroke="#d8cfbf"/><text x="493" y="162" fill="#111827" font-size="18" font-family="DM Sans, Arial, sans-serif" font-weight="700">Distribution</text><text x="493" y="190" fill="#6b7280" font-size="13" font-family="DM Sans, Arial, sans-serif">CDN + regional delivery</text><rect x="690" y="120" width="180" height="110" rx="18" fill="#fff" stroke="#d8cfbf"/><text x="708" y="162" fill="#111827" font-size="18" font-family="DM Sans, Arial, sans-serif" font-weight="700">Monetization / SSAI</text><text x="708" y="190" fill="#6b7280" font-size="13" font-family="DM Sans, Arial, sans-serif">ad decision + insertion</text><rect x="905" y="120" width="180" height="110" rx="18" fill="#fff" stroke="#d8cfbf"/><text x="923" y="162" fill="#111827" font-size="18" font-family="DM Sans, Arial, sans-serif" font-weight="700">Cost reality</text><text x="923" y="190" fill="#6b7280" font-size="13" font-family="DM Sans, Arial, sans-serif">egress + resilience + ops</text>
+    </svg>
+        </div>
+        <p style="font-size:12px;color:var(--ink4);margin-top:10px">Original explanatory diagram created for this article by The Streamic.</p>
+      </div>
+    </div>
+    <div style="background:var(--bg);border-radius:12px;padding:22px 24px;margin-top:36px;border-top:3px solid var(--blue)">
+      <h4 style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--blue);margin:0 0 14px">Sources &amp; Further Reading</h4>
+      <ul style="margin:0;padding-left:18px;list-style:disc">
+        <li style="font-size:13.5px;color:var(--ink2);line-height:1.6;margin-bottom:6px"><strong style="color:var(--ink)">Recommended follow-up:</strong> vendor cost calculators, CDN commit models, MediaLive and MediaPackage documentation, and internal 12-to-24 month steady-state channel projections.</li>
+      </ul>
+      <p style="margin:12px 0 0;font-size:12px;color:var(--ink4);line-height:1.5">
+        The Streamic provides independent editorial commentary. External links, where present, should carry <code style="font-size:11px;background:#e8e8ed;padding:1px 5px;border-radius:3px">rel="nofollow noopener"</code>.
+      </p>
+    </div>
+    <div class="art-author">
+      <strong>About this article</strong>
+      Original analysis and commentary by The Streamic Editorial Team. Independent broadcast technology journalism for engineers and media professionals.
+      <a href="/about.html" style="color:var(--blue);margin-left:6px;">About The Streamic &rarr;</a>
+    </div>
+    <div class="art-more">
+      <h3>Continue Reading</h3>
+      <a href="../post-production-workflows.html">☁️ Cloud & Playout More in Post Production Workflows</a>
+      <a href="../insights.html">⭐ Streamic Insights</a>
+    </div>
+  </div>
+</main>
+<script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "NewsArticle",
+  "headline": "The Cloud Playout TCO Trap: Why AWS MediaLive Looks Cheap Until It Isn't",
+  "description": "Cloud playout is often sold on per-hour simplicity. This Streamic analysis explains why 24/7 channel economics hinge on egress, inter-AZ traffic, resilience design, and operational shape rather than encoder list price.",
+  "datePublished": "2026-04-11",
+  "dateModified": "2026-04-11",
+  "author": {
+    "@type": "Organization",
+    "name": "The Streamic Editorial Team"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "The Streamic",
+    "url": "https://www.thestreamic.in",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://www.thestreamic.in/assets/logo.png"
+    }
+  },
+  "mainEntityOfPage": "https://www.thestreamic.in/articles/cloud-playout-tco-trap-medialive-economics-2026.html",
+  "wordCount": 1665
+}</script>
+<footer class="footer">
+  <div class="footer-gold" aria-hidden="true"></div>
+  <div class="footer-grid">
+    <div>
+      <div class="footer-brand">The Streamic</div>
+      <div class="footer-tagline">Media &amp; Broadcast IT Analysis</div>
+      <p class="footer-tag">Independent broadcast &amp; streaming technology journalism. Original analysis for engineers and media professionals.</p>
+      <div class="footer-social">
+        <a href="https://twitter.com/thestreamic" target="_blank" rel="noopener noreferrer" class="footer-social-link">
+          <svg width="14" height="14" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          @thestreamic
+        </a>
+        <a href="https://www.linkedin.com/company/thestreamic" target="_blank" rel="noopener noreferrer" class="footer-social-link">
+          <svg width="14" height="14" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          TheStreamic
+        </a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Coverage</h4>
+      <a href="../ai-post-production.html">AI in Broadcasting</a>
+      <a href="../howto.html">How-To Guides</a>
+      <a href="../post-production-workflows.html">Post Production Workflows</a>
+      <a href="../insights.html">Insights</a>
+    </div>
+    <div class="footer-col">
+      <h4>Site</h4>
+      <a href="../about.html">About</a>
+      <a href="../contact.html">Contact</a>
+      <a href="../editorial-policy.html">Editorial Policy</a>
+      <a href="../privacy.html">Privacy Policy</a>
+      <a href="../terms.html">Terms of Use</a>
+    </div>
+    <div class="footer-col">
+      <h4>Dublin, Ireland</h4>
+      <a href="mailto:technodate3@gmail.com" style="color:var(--blue)">technodate3@gmail.com</a>
+      <span style="font-size:12px;color:#bbb;display:block;margin-top:4px">Adamstown, Lucan</span>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>&copy; 2026 The Streamic &mdash; thestreamic.in</span>
+    <span>All trademarks belong to their respective owners.</span>
+  </div>
+</footer>
+<div id="ts-cookie">
+  <div class="cookie-in">
+    <div class="cookie-txt">
+      <strong>We use cookies</strong>
+      Analytics cookies help us understand site performance. Optional advertising cookies are disabled until future activation.
+      <a href="/privacy.html">Privacy Policy</a>
+    </div>
+    <div class="cookie-btns">
+      <button class="cookie-no" onclick="tsCC(false)">Reject optional</button>
+      <button class="cookie-ok" onclick="tsCC(true)">Accept all</button>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  var K='ts_cc',s=localStorage.getItem(K),b=document.getElementById('ts-cookie');
+  if(!s&&b)b.style.display='block';
+  window.tsCC=function(ok){
+    localStorage.setItem(K,ok?'granted':'denied');
+    if(b)b.style.display='none';
+    if(typeof gtag!='undefined')gtag('consent','update',{
+      analytics_storage:ok?'granted':'denied',ad_storage:'denied',
+      ad_user_data:'denied',ad_personalization:'denied'});
+  };
+  if(s==='granted'&&typeof gtag!='undefined')gtag('consent','update',{
+    analytics_storage:'granted',ad_storage:'denied',
+    ad_user_data:'denied',ad_personalization:'denied'});
+})();
+</script>
 </body>
 </html>
