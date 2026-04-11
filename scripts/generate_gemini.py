@@ -744,17 +744,15 @@ def main():
                     continue
                 # rewrite_feed.py flags RSS-sourced articles with is_editorial=True
                 # so they route through the editorial pipeline, but they ARE scaffold
-                # stubs that still need Gemini upgrade. The correct test for
-                # "hand-authored, skip me" is generated_by: the Groq/Gemini editorials
-                # carry generated_by like "groq-*" or "gemini-2.5-*"; rewrite_feed
-                # scaffolds carry "rewrite_feed_local". Only skip true hand-authored
-                # editorials, not news-sourced scaffolds.
+                # stubs that still need Gemini upgrade. The correct "skip me, I'm
+                # hand-authored" signal is generated_by: Groq/Gemini editorials carry
+                # values like "groq-*" or "gemini-2.5-*"; rewrite_feed scaffolds carry
+                # "rewrite_feed_local". Only skip true hand-authored editorials.
                 gen_by = (a.get("generated_by") or "").lower()
-                is_scaffold = gen_by in ("rewrite_feed_local", "", "rewrite_feed")
+                is_scaffold = gen_by in ("", "rewrite_feed_local", "rewrite_feed")
                 is_hand_editorial = (
                     (a.get("is_editorial") or a.get("editorial"))
                     and not is_scaffold
-                    and gen_by not in ("", "rewrite_feed_local", "rewrite_feed")
                 )
                 if is_hand_editorial:
                     continue

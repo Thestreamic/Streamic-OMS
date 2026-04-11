@@ -261,8 +261,14 @@ def needs_reprocessing(article: dict[str, Any]) -> bool:
     # Must be flagged by rewrite_feed.py
     if not article.get("needs_gemini"):
         return False
-    # Must not already be editorial-quality
-    if article.get("is_editorial") or article.get("editorial"):
+    # rewrite_feed.py flags RSS-sourced scaffolds with is_editorial=True so they
+    # route through the editorial pipeline, but they are still scaffold stubs
+    # that need upgrade. The correct "already hand-authored, skip me" signal is
+    # generated_by: real editorials from generate_editorial.py carry "groq-*"
+    # or "gemini-*"; scaffolds carry "rewrite_feed_local" or empty.
+    gen_by = (article.get("generated_by") or "").lower()
+    is_scaffold = gen_by in ("", "rewrite_feed_local", "rewrite_feed")
+    if (article.get("is_editorial") or article.get("editorial")) and not is_scaffold:
         return False
 
     body = article.get("body_html", "") or ""
