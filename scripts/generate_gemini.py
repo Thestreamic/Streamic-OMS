@@ -938,35 +938,59 @@ def main():
 
 
 def patch_generated_articles():
-    """Apply Gemini summaries back into generated_articles.json."""
+    """Apply Gemini summaries back into generated_articles.json.
+
+    Safety rules (prevent stale-scaffold shadow regression):
+      - Only patch when the summary body is a real upgrade (word_count >= 800).
+      - Copy ALL upgraded fields (body, meta, generated_by, etc.) so build.py
+        and needs_gemini_processing() see a consistent upgraded state.
+      - Never write empty/None values over existing article fields.
+    """
     if not os.path.exists(GEN_ARTS_F):
         return
 
     with open(GEN_ARTS_F, "r", encoding="utf-8") as f:
         arts = json.load(f)
 
+    UPGRADE_FIELDS = (
+        "card_summary", "body_html", "word_count",
+        "dek", "meta_description", "generated_by",
+        "quality_score", "analysis_level", "generated_at",
+    )
+
     patched = 0
+    skipped_thin = 0
     for a in arts:
         slug = a.get("slug", "")
-        if not slug: continue
+        if not slug:
+            continue
         sp = summary_path(slug)
-        if not os.path.exists(sp): continue
+        if not os.path.exists(sp):
+            continue
         try:
             with open(sp, encoding="utf-8") as sf:
                 s = json.load(sf)
-            if s.get("card_summary"):
-                a["card_summary"] = s["card_summary"]
-            if s.get("body_html"):
-                a["body_html"]    = s["body_html"]
-            if s.get("word_count"):
-                a["word_count"]   = s["word_count"]
-            patched += 1
         except Exception:
             continue
 
+        # Guard: only patch from real Gemini upgrades, never from stale stubs.
+        body = s.get("body_html") or ""
+        wc   = s.get("word_count", 0)
+        if not body.strip() or wc < 800:
+            skipped_thin += 1
+            continue
+
+        for k in UPGRADE_FIELDS:
+            v = s.get(k)
+            if v is not None and v != "":
+                a[k] = v
+        a["needs_gemini"] = False
+        patched += 1
+
     with open(GEN_ARTS_F, "w", encoding="utf-8") as f:
         json.dump(arts, f, indent=2, ensure_ascii=False)
-    print(f"  Patched {patched} articles in generated_articles.json")
+    print(f"  Patched {patched} articles in generated_articles.json "
+          f"(skipped {skipped_thin} thin/stale summaries)")
 
 
 if __name__ == "__main__":
