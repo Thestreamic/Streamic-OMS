@@ -1,133 +1,118 @@
+<!-- HAND_AUTHORED -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <script>
-    window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
-    gtag('consent','default',{'analytics_storage':'denied','ad_storage':'denied',
-    'ad_user_data':'denied','ad_personalization':'denied','wait_for_update':500});
-  </script>
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-0VSHDN3ZR6"></script>
-  <script>gtag('js',new Date());gtag('config','G-0VSHDN3ZR6');</script>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Editor's Desk — The Streamic</title>
-  <meta name="description" content="Notes, commentary and perspective from the Streamic editorial team.">
-  <meta name="robots" content="index,follow">
-  <meta name="author" content="The Streamic Editorial Team">
-  <link rel="canonical" href="https://www.thestreamic.in/vlog.html">
-  <meta property="og:type" content="article">
-  <meta property="og:site_name" content="The Streamic">
-  <meta property="og:title" content="Editor's Desk — The Streamic">
-  <meta property="og:description" content="Notes, commentary and perspective from the Streamic editorial team.">
-  <meta property="og:url" content="https://www.thestreamic.in/vlog.html">
-  <meta name="twitter:card" content="summary_large_image">
-  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Editor's Desk — The Streamic</title>
+<meta name="description" content="Commentary, perspective, and in-depth technical analysis from the editorial team at The Streamic — broadcast and media IT engineering beyond the news cycle.">
+<link rel="canonical" href="https://www.thestreamic.in/vlog.html">
+<link rel="stylesheet" href="style.css">
+<style>
+.editor-hero{max-width:920px;margin:40px auto 20px;padding:0 24px}
+.editor-hero h1{font-family:'DM Serif Display',serif;font-size:48px;margin:0 0 8px}
+.editor-hero .dek{font-size:18px;color:#555;line-height:1.5;max-width:680px}
+.watching{max-width:920px;margin:30px auto;padding:24px 28px;background:#f6f3ec;border-left:4px solid #D4AF37;border-radius:4px}
+.watching h3{margin:0 0 10px;font-family:'DM Serif Display',serif;font-size:22px}
+.editorial-grid{max-width:1080px;margin:40px auto;padding:0 24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:28px}
+.ed-card{background:#fff;border:1px solid #e5e5e5;border-radius:6px;padding:24px;transition:border-color .2s,transform .2s}
+.ed-card:hover{border-color:#D4AF37;transform:translateY(-2px)}
+.ed-card .cat{font-size:11px;letter-spacing:1.4px;color:#D4AF37;font-weight:700;text-transform:uppercase;margin-bottom:8px}
+.ed-card h2{font-family:'DM Serif Display',serif;font-size:22px;line-height:1.25;margin:0 0 10px}
+.ed-card h2 a{color:#111;text-decoration:none}
+.ed-card h2 a:hover{color:#D4AF37}
+.ed-card .dek{font-size:14px;color:#555;line-height:1.55;margin:0 0 14px}
+.ed-card .read{font-size:13px;color:#D4AF37;font-weight:600;text-decoration:none}
+</style>
 </head>
 <body>
-<nav class="nav">
-  <div class="nav-inner">
-    <a href="/" class="nav-logo">
-      <img src="assets/logo.png" alt="" onerror="this.style.display='none'" aria-hidden="true">
-      <div class="nav-logo-text">
-        <span class="nav-logo-name">The Streamic</span>
-        <span class="nav-logo-tagline">Media &amp; Broadcast IT Analysis</span>
-      </div>
-    </a>
-    <div class="nav-divider" aria-hidden="true"></div>
-    <ul class="nav-links"><li><a href="/">Home</a></li><li><a href="ai-post-production.html">AI in Broadcasting</a></li><li><a href="howto.html">How-To Guides</a></li><li><a href="post-production-workflows.html">Post Production Workflows</a></li><li><a href="insights.html">Insights</a></li></ul>
-    <div class="nav-right">
-      <a href="about.html" class="nav-desk">About</a>
-      <button class="nav-toggle" aria-label="Menu" type="button" onclick="(function(b,m){m.classList.toggle('open');b.setAttribute('aria-expanded',m.classList.contains('open'));document.body.classList.toggle('menu-open',m.classList.contains('open'));})(this,this.closest('nav').querySelector('.nav-mob'))">
-        <span></span><span></span><span></span>
-      </button>
-    </div>
+
+<header class="site-header">
+  <div class="nav-wrap">
+    <a href="/" class="brand"><strong>The Streamic</strong> <span>MEDIA &amp; BROADCAST IT ANALYSIS</span></a>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/featured.html">AI in Broadcasting</a>
+      <a href="/how-to.html">How-To Guides</a>
+      <a href="/post-production.html">Post Production Workflows</a>
+      <a href="/insights.html">Insights</a>
+    </nav>
   </div>
-  <div class="nav-gold" aria-hidden="true"></div>
-  <div class="nav-mob"><a href="/">Home</a><a href="ai-post-production.html">AI in Broadcasting</a><a href="howto.html">How-To Guides</a><a href="post-production-workflows.html">Post Production Workflows</a><a href="insights.html">Insights</a><a href="about.html">About</a><a href="contact.html">Contact</a></div>
-</nav>
-<main><div class="w" style="padding:52px 24px 80px;max-width:760px">
-<div class="cat-hdr">
+</header>
+
+<section class="editor-hero">
   <h1>Editor's Desk</h1>
-  <p>Commentary, perspective, and notes from the editorial team at The Streamic.</p>
+  <p class="dek">Commentary, perspective, and engineering analysis from the editorial team at The Streamic. This is where we share technical reads that go beyond the news cycle — honest trade-off analysis for the broadcast engineers, CTOs, and media IT architects who actually have to deploy this stuff.</p>
+</section>
+
+<div class="watching">
+  <h3>What we're watching in 2026</h3>
+  <p>The ST 2110 adoption curve in small-market broadcasters. The real TCO of cloud playout post-NAB 2026. How C2PA is quietly becoming a newsroom compliance surface. The gap between AI-tagged MAMs in demos and AI-tagged MAMs in production. And the increasingly blurred line between NDI 6 and ST 2110 as hybrid switchers become the norm.</p>
 </div>
-<p style="font-size:15px;color:var(--ink3);line-height:1.7;margin-bottom:24px">The Streamic covers broadcast and streaming technology with a focus on what matters operationally to engineers and technology leaders. This is where we share perspective beyond the news cycle.</p>
-<div style="background:var(--bg);border-radius:14px;padding:28px;font-size:14px;color:var(--ink3);line-height:1.7">
-  <strong style="color:var(--ink);display:block;margin-bottom:8px">What we're watching in 2026</strong>
-  The ST 2110 adoption curve in small-market broadcasters. The economics of cloud production post-Paris 2024. How C2PA is changing newsroom verification workflows. The quiet revolution of operational AI inside MAM systems.
-</div>
-</div></main>
-<footer class="footer">
-  <div class="footer-gold" aria-hidden="true"></div>
-  <div class="footer-grid">
-    <div>
-      <div class="footer-brand">The Streamic</div>
-      <div class="footer-tagline">Media &amp; Broadcast IT Analysis</div>
-      <p class="footer-tag">Independent broadcast &amp; streaming technology journalism. Original analysis for engineers and media professionals.</p>
-      <div class="footer-social">
-        <a href="https://twitter.com/thestreamic" target="_blank" rel="noopener noreferrer" class="footer-social-link">
-          <svg width="14" height="14" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-          @thestreamic
-        </a>
-        <a href="https://www.linkedin.com/company/thestreamic" target="_blank" rel="noopener noreferrer" class="footer-social-link">
-          <svg width="14" height="14" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
-          TheStreamic
-        </a>
-      </div>
-    </div>
-    <div class="footer-col">
-      <h4>Coverage</h4>
-      <a href="ai-post-production.html">AI in Broadcasting</a>
-      <a href="howto.html">How-To Guides</a>
-      <a href="post-production-workflows.html">Post Production Workflows</a>
-      <a href="insights.html">Insights</a>
-    </div>
-    <div class="footer-col">
-      <h4>Site</h4>
-      <a href="about.html">About</a>
-      <a href="contact.html">Contact</a>
-      <a href="editorial-policy.html">Editorial Policy</a>
-      <a href="privacy.html">Privacy Policy</a>
-      <a href="terms.html">Terms of Use</a>
-    </div>
-    <div class="footer-col">
-      <h4>Dublin, Ireland</h4>
-      <a href="mailto:technodate3@gmail.com" style="color:var(--blue)">technodate3@gmail.com</a>
-      <span style="font-size:12px;color:#bbb;display:block;margin-top:4px">Adamstown, Lucan</span>
-    </div>
-  </div>
-  <div class="footer-bottom">
-    <span>&copy; 2026 The Streamic &mdash; thestreamic.in</span>
-    <span>All trademarks belong to their respective owners.</span>
-  </div>
+
+<section class="editorial-grid">
+
+  <article class="ed-card">
+    <p class="cat">INFRASTRUCTURE</p>
+    <h2><a href="/articles/st-2110-7-seamless-protection-redundancy-math-2026.html">ST 2110-7 Seamless Protection: The Redundancy Math Every IP Broadcaster Gets Wrong</a></h2>
+    <p class="dek">Hitless failover is the headline promise of ST 2110-7. The Red/Blue network math, PTP boundary clock placement, and the control plane gap are where 2026 IP migrations quietly fail.</p>
+    <a href="/articles/st-2110-7-seamless-protection-redundancy-math-2026.html" class="read">Read the analysis →</a>
+  </article>
+
+  <article class="ed-card">
+    <p class="cat">CLOUD PRODUCTION</p>
+    <h2><a href="/articles/cloud-playout-tco-trap-medialive-economics-2026.html">The Cloud Playout TCO Trap: Why AWS MediaLive Looks Cheap Until It Isn't</a></h2>
+    <p class="dek">Cloud playout pricing looks linear on the slide deck and exponential on the invoice. The real cost curve for MediaLive + MediaPackage, and where the break-even with Grass Valley Ignite actually sits.</p>
+    <a href="/articles/cloud-playout-tco-trap-medialive-economics-2026.html" class="read">Read the analysis →</a>
+  </article>
+
+  <article class="ed-card">
+    <p class="cat">AI IN BROADCASTING</p>
+    <h2><a href="/articles/ai-metadata-mam-accuracy-broadcast-2026.html">AI Metadata in the MAM: Why 95% Accuracy Is Still a Failing Grade</a></h2>
+    <p class="dek">Every MAM vendor ships AI auto-tagging in 2026. The accuracy numbers describe benchmarks editors never hit. The gap between "95% correct" and "useful for an editor on deadline" is where these systems still fail.</p>
+    <a href="/articles/ai-metadata-mam-accuracy-broadcast-2026.html" class="read">Read the analysis →</a>
+  </article>
+
+  <article class="ed-card">
+    <p class="cat">INFRASTRUCTURE</p>
+    <h2><a href="/articles/ndi-6-vs-st-2110-india-mid-market-2026.html">NDI 6 vs ST 2110 for India's Mid-Market Broadcasters: The Pragmatic Read</a></h2>
+    <p class="dek">ST 2110 is the standard. NDI 6 is what most Indian regional broadcasters will actually deploy. The honest engineering comparison — latency, compression, network cost, and where each earns its place.</p>
+    <a href="/articles/ndi-6-vs-st-2110-india-mid-market-2026.html" class="read">Read the analysis →</a>
+  </article>
+
+  <article class="ed-card">
+    <p class="cat">AI IN BROADCASTING</p>
+    <h2><a href="/articles/c2pa-provenance-newsroom-broadcast-mandate-2027.html">C2PA in the Newsroom: The Provenance Standard Nobody Can Afford to Ignore by 2027</a></h2>
+    <p class="dek">C2PA content provenance has been a compliance side-project since 2023. Synthetic media incidents and EU regulation mean 2026 is the last year it stays a side-project.</p>
+    <a href="/articles/c2pa-provenance-newsroom-broadcast-mandate-2027.html" class="read">Read the analysis →</a>
+  </article>
+
+  <article class="ed-card">
+    <p class="cat">EDITORIAL</p>
+    <h2><a href="/articles/beyond-the-chatbot-operational-ai-newsroom-2026.html">Beyond the Chatbot: Operational AI in the Newsroom</a></h2>
+    <p class="dek">The interesting AI in newsrooms isn't the one writing copy. It's the one routing video, tagging rushes, and quietly replacing three roles in the ingest workflow.</p>
+    <a href="/articles/beyond-the-chatbot-operational-ai-newsroom-2026.html" class="read">Read the analysis →</a>
+  </article>
+
+  <article class="ed-card">
+    <p class="cat">EDITORIAL</p>
+    <h2><a href="/articles/green-broadcast-cloud-carbon-footprint-sustainability-2026.html">Green Broadcast: The Cloud Carbon Footprint Conversation Nobody's Having Honestly</a></h2>
+    <p class="dek">The industry's sustainability numbers are almost all scope-1 and scope-2. Scope-3 — the cloud compute, the CDN egress, the AI inference calls — is where the real emissions are hiding.</p>
+    <a href="/articles/green-broadcast-cloud-carbon-footprint-sustainability-2026.html" class="read">Read the analysis →</a>
+  </article>
+
+  <article class="ed-card">
+    <p class="cat">EDITORIAL</p>
+    <h2><a href="/articles/ai-reducing-broadcast-operational-costs-2026.html">AI as an OpEx Lever: Where the Savings Are Real and Where They're Theatre</a></h2>
+    <p class="dek">Vendors are selling AI as cost reduction. Some of those claims are real. Some are creative accounting. Here's how to tell which is which before committing to a multi-year contract.</p>
+    <a href="/articles/ai-reducing-broadcast-operational-costs-2026.html" class="read">Read the analysis →</a>
+  </article>
+
+</section>
+
+<footer style="max-width:920px;margin:60px auto 40px;padding:24px;border-top:1px solid #e5e5e5;text-align:center;color:#888;font-size:13px">
+  <p>&copy; 2026 The Streamic · Broadcast &amp; Media IT Analysis · Dublin, Ireland</p>
 </footer>
-<div id="ts-cookie">
-  <div class="cookie-in">
-    <div class="cookie-txt">
-      <strong>We use cookies</strong>
-      Analytics cookies help us understand site performance. Optional advertising cookies are disabled until future activation.
-      <a href="/privacy.html">Privacy Policy</a>
-    </div>
-    <div class="cookie-btns">
-      <button class="cookie-no" onclick="tsCC(false)">Reject optional</button>
-      <button class="cookie-ok" onclick="tsCC(true)">Accept all</button>
-    </div>
-  </div>
-</div>
-<script>
-(function(){
-  var K='ts_cc',s=localStorage.getItem(K),b=document.getElementById('ts-cookie');
-  if(!s&&b)b.style.display='block';
-  window.tsCC=function(ok){
-    localStorage.setItem(K,ok?'granted':'denied');
-    if(b)b.style.display='none';
-    if(typeof gtag!='undefined')gtag('consent','update',{
-      analytics_storage:ok?'granted':'denied',ad_storage:'denied',
-      ad_user_data:'denied',ad_personalization:'denied'});
-  };
-  if(s==='granted'&&typeof gtag!='undefined')gtag('consent','update',{
-    analytics_storage:'granted',ad_storage:'denied',
-    ad_user_data:'denied',ad_personalization:'denied'});
-})();
-</script>
-</body></html>
+
+</body>
+</html>
