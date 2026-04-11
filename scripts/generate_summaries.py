@@ -47,7 +47,7 @@ REPROCESS_THRESHOLD = int(os.environ.get("REPROCESS_THRESHOLD", "700"))
 REQUIRE_HEADINGS    = os.environ.get("REQUIRE_HEADINGS", "true").lower() in {"1", "true", "yes", "y"}
 
 # ↓ 3–5 per run: free-tier safe, quality-first
-MAX_PER_RUN = int(os.environ.get("MAX_PER_RUN", "25"))
+MAX_PER_RUN = int(os.environ.get("MAX_PER_RUN", "8"))
 
 REQUEST_TIMEOUT = int(os.environ.get("GROQ_TIMEOUT", "90"))
 # Raised for 800–1000 word target
@@ -134,90 +134,7 @@ Examples:
 
 
 def build_user_prompt(title: str, source_text: str, category: str, topic_type: str, keywords: list) -> str:
-    import hashlib as _hashlib
     keywords_str = ", ".join(keywords) if keywords else "broadcast technology"
-
-    # ── STRUCTURAL ROTATION (Google helpful-content safety) ─────────────────
-    # Rigid 6-section templates trip helpful-content classifiers. Rotate
-    # deterministically through 5 formats based on a hash of the title so
-    # that the same article always gets the same format (idempotent) while
-    # the corpus-level distribution looks organically varied.
-    _format_id = int(_hashlib.md5(title.encode("utf-8", "ignore")).hexdigest()[:4], 16) % 5
-
-    _FORMAT_DEEP_DIVE = """ARTICLE STRUCTURE — deep technical analysis, 5 flexible sections (name them naturally, don't copy these labels verbatim):
-
-1. An opening hook (2 paragraphs, no heading) that explains why an engineer should care — start with a real operational problem, not the press release.
-2. <h2> The architecture in plain English — 3 paragraphs. Include one explicit Input → Processing → System → Output flow.
-3. <h2> Where it fits in a real broadcast plant — 2–3 paragraphs with concrete vendor names (Avid, Vizrt, Grass Valley, EVS, Ross, Harmonic, Pebble, AWS Media Services).
-4. <h2> The trade-offs nobody puts in the datasheet — 2 paragraphs of honest analysis.
-5. <h2> What to watch next — 1–2 paragraphs of strategic read.
-"""
-
-    _FORMAT_KEY_TAKEAWAYS = """ARTICLE STRUCTURE — 5 Key Takeaways format:
-
-Open with a 2-paragraph lede (no heading) that frames the story in operational terms.
-
-Then: <h2>5 Things Broadcast Engineers Should Take From This</h2>
-Under that heading, write 5 <h3> sub-sections, each 1–2 paragraphs, each with a concrete, actionable takeaway. Name specific systems and trade-offs. Do NOT use bullet points — write each takeaway as prose with its own <h3> title.
-
-Close with <h2>The Bottom Line</h2> — 1 paragraph of strategic judgement.
-"""
-
-    _FORMAT_COMPARISON = """ARTICLE STRUCTURE — comparison format:
-
-Open with 1 paragraph (no heading) explaining what's being compared and why it matters.
-
-<h2>What's Actually Being Proposed</h2>
-2 paragraphs of technical breakdown.
-
-<h2>How It Compares to What Broadcasters Already Run</h2>
-3 paragraphs comparing this to incumbent approaches. Name the incumbents explicitly (Avid Nexis vs object storage, Grass Valley Ignite vs AWS MediaLive, ST 2110 vs NDI, etc.). Include an explicit before/after workflow contrast.
-
-<h2>The Honest Read</h2>
-2 paragraphs of pros and cons — acknowledge where the new approach loses as well as wins.
-
-<h2>Who Should Actually Care</h2>
-1–2 paragraphs identifying the specific broadcaster profile this fits and the profile it doesn't.
-"""
-
-    _FORMAT_BRIEF = """ARTICLE STRUCTURE — engineering brief (shorter, punchier):
-
-Write as a single coherent piece of 700–850 words with only 3 <h2> headings:
-
-<h2>The Short Version</h2>
-2 paragraphs. Say what happened and why an engineer should care. Be direct.
-
-<h2>What It Means in the Plant</h2>
-3–4 paragraphs of technical and workflow analysis. This is the body of the piece. Include specific vendor systems and one explicit signal-path or data-flow example.
-
-<h2>The Call</h2>
-2 paragraphs of judgement — is this worth piloting, worth watching, or worth ignoring?
-"""
-
-    _FORMAT_ENGINEERING_IMPACT = """ARTICLE STRUCTURE — engineering-impact focus:
-
-Open with a 2-paragraph framing (no heading) of the operational problem this addresses.
-
-<h2>The Engineering Problem This Touches</h2>
-2 paragraphs describing the underlying pain point in broadcast/media IT terms — latency, redundancy, cost per channel, integration friction, skills gap, etc.
-
-<h2>How the Technology Maps to the Problem</h2>
-3 paragraphs of technical analysis. Include at least one explicit signal or data flow.
-
-<h2>What Changes in Day-to-Day Operations</h2>
-2 paragraphs of concrete workflow impact — what the MCR operator, ingest editor, or playout supervisor would notice.
-
-<h2>The Risks Worth Flagging</h2>
-1–2 paragraphs of honest risk assessment — vendor lock-in, standards immaturity, training gap, etc.
-"""
-
-    _format_block = [
-        _FORMAT_DEEP_DIVE,
-        _FORMAT_KEY_TAKEAWAYS,
-        _FORMAT_COMPARISON,
-        _FORMAT_BRIEF,
-        _FORMAT_ENGINEERING_IMPACT,
-    ][_format_id]
 
     depth_instruction = {
         "ai_metadata": (
@@ -298,22 +215,40 @@ Where relevant, connect the story to real broadcast and media systems such as:
 
 Do not force all of these. Use only what is genuinely relevant to the story.
 
-{_format_block}
+ARTICLE STRUCTURE — use exactly these six <h2> sections:
+
+<h2>Why This Matters Right Now</h2>
+Hook the reader quickly. Do not summarise the press release. Explain why a broadcast engineer, operations lead, or CTO should care now. What pressure, bottleneck, or workflow problem does this story speak to? 2–3 paragraphs.
+
+<h2>Under the Hood: How It Actually Works</h2>
+Give the technical breakdown. Explain where this sits in the signal path, data flow, or operational stack. Show the relevant systems and how they connect end-to-end. Compare the likely before-and-after architecture where useful. Include at least one explicit system flow in the form Input → Processing → System → Output. 3–4 paragraphs.
+
+<h2>What This Looks Like in a Real Broadcast Operation</h2>
+Describe a realistic workflow scenario in a newsroom, control room, ingest-to-playout chain, live production, post-production, or cloud environment — whichever best fits. Make it concrete and practical. 2–3 paragraphs.
+
+<h2>The Practical Impact: Cost, Speed, and Scale</h2>
+Explain where the real ROI is. What gets faster, cheaper, more reliable, or easier to scale? What manual work, infrastructure burden, or operational risk is reduced — and what new dependencies might be introduced? 2–3 paragraphs.
+
+<h2>The Reality Check</h2>
+Be honest. What is still unclear, overstated, incomplete, or difficult to integrate? What vendor bias, lock-in, operational complexity, skills gap, or standards challenge should technical teams keep in mind? 2 paragraphs.
+
+<h2>Where This Goes from Here</h2>
+Give the strategic read. Is this something teams should adopt now, test in a pilot, or watch carefully? What does it suggest about where broadcast and media technology are heading next? 1–2 paragraphs.
 
 ---
 
 OUTPUT REQUIREMENTS:
 
 1. Return ONLY valid HTML fragments. No <!DOCTYPE>, no <html>, no <head>. Start directly with an <h2> or <p> tag.
-2. Follow the structure above EXACTLY but use your own natural heading wording — do not copy the heading labels verbatim where instructed to vary them.
-3. Target 800–1000 words total (or 700–850 if the structure says brief). Dense, useful, readable.
+2. All prose paragraphs must sit inside the six sections above. No bullet lists anywhere.
+3. Target 800–1000 words total. Dense, useful, readable.
 4. Use correct broadcast terminology throughout where relevant: ST 2110, NMOS, NDI, SDI, AES67, HLS, DASH, CMAF, ABR, MAM, PAM, NRCS, MCR, PCR, playout, ingest, archive, graphics, replay, OTT, etc.
 5. Do NOT copy or paraphrase the source sentence-by-sentence. Fully transform it into original analysis.
 6. No byline, no article title, no preamble — body sections only.
 7. Keep the tone authoritative but readable. No marketing language. No filler.
-8. At least two paragraphs should include concrete vendor or system references.
+8. At least two paragraphs should include concrete vendor or system references where relevant rather than generic terms.
 9. Every paragraph must contain either a technical explanation or a real operational implication.
-10. Absolutely NEVER use the literal headings "What Was Announced", "Why It Matters", or "Operational Impact" — these are banned.
+10. Keep paragraphs compact and easy to scan.
 
 Begin the article now:
 """
@@ -322,40 +257,17 @@ Begin the article now:
 # ── Helpers (unchanged from v1) ───────────────────────────────────────────────
 
 def needs_reprocessing(article: dict[str, Any]) -> bool:
-    """Return True if this article needs Groq enrichment.
-
-    Detects scaffolds by generated_by directly, NOT by the needs_gemini flag.
-    The flag depended on rewrite_feed.py having run correctly, which creates
-    a fragile dependency: if rewrite_feed hasn't run (e.g. in build.yml's
-    6-hour cycle, which only runs summaries + build), the flag is stale and
-    all scaffolds get skipped forever. Direct detection on generated_by is
-    self-healing: every build sees every scaffold and upgrades it.
-    """
-    gen_by = (article.get("generated_by") or "").lower()
-    is_scaffold = gen_by in ("", "rewrite_feed_local", "rewrite_feed")
-
-    # Only skip if this is a real AI-upgraded editorial (not a scaffold).
-    if not is_scaffold:
-        # Already upgraded by Groq/Gemini — skip.
-        if (article.get("is_editorial") or article.get("editorial")):
-            return False
+    """Return True if this article needs Groq enrichment."""
+    # Must be flagged by rewrite_feed.py
+    if not article.get("needs_gemini"):
+        return False
+    # Must not already be editorial-quality
+    if article.get("is_editorial") or article.get("editorial"):
+        return False
 
     body = article.get("body_html", "") or ""
     wc   = int(article.get("word_count", 0) or 0)
 
-    # Scaffold? Always reprocess if thin.
-    if is_scaffold:
-        if not body or len(body.strip()) < 100:
-            return True
-        if wc < REPROCESS_THRESHOLD:
-            return True
-        if REQUIRE_HEADINGS and "<h2" not in body.lower():
-            return True
-        return False
-
-    # Non-scaffold path (for backward compatibility with needs_gemini flag)
-    if not article.get("needs_gemini"):
-        return False
     if not body or len(body.strip()) < 100:
         return True
     if wc < REPROCESS_THRESHOLD:
@@ -604,7 +516,7 @@ def main() -> None:
         if not new_body:
             print(f"    [SKIP] Groq returned nothing for: {slug}")
             processed += 1
-            time.sleep(1.5)
+            time.sleep(15)  # TPM rate-limit pacing (was 1.5s)
             continue
 
         wc       = count_words(new_body)
@@ -614,25 +526,25 @@ def main() -> None:
         if wc < 600:
             print(f"    [WARN] Generated body only {wc} words (target 800–1000) — skipping")
             processed += 1
-            time.sleep(1.5)
+            time.sleep(15)
             continue
 
-        if h2_count < 6:
-            print(f"    [WARN] Generated body has {h2_count}/6 H2 sections — skipping")
+        if h2_count < 4:
+            print(f"    [WARN] Generated body has {h2_count}/4 H2 sections (min) — skipping")
             processed += 1
-            time.sleep(1.5)
+            time.sleep(15)
             continue
 
         if has_too_many_generic_phrases(new_body):
             print("    [WARN] Generated body still contains too many generic phrases — skipping")
             processed += 1
-            time.sleep(1.5)
+            time.sleep(15)
             continue
 
         if not has_workflow_context(new_body):
             print("    [WARN] Generated body lacks enough workflow context — skipping")
             processed += 1
-            time.sleep(1.5)
+            time.sleep(15)
             continue
 
         article["body_html"]        = new_body
@@ -656,7 +568,7 @@ def main() -> None:
 
         processed += 1
         changed   += 1
-        time.sleep(2.5)   # slightly longer pause for larger token payloads
+        time.sleep(15)   # TPM rate-limit pacing — prevents 429 cascades
 
     if changed > 0:
         with open(ARTICLES_FILE, "w", encoding="utf-8") as f:

@@ -15,11 +15,7 @@ GA        = "G-0VSHDN3ZR6"
 ADS       = "ca-pub-8033069131874524"
 AUTHOR    = "The Streamic Editorial Team"
 
-# ── Editor's Note (REMOVED per editorial decision) ───────────────────────────
-# Previously injected an "AI-assisted" disclaimer at the bottom of every
-# article. Removed because it was perceived as undermining the editorial
-# voice. The Editorial Policy page covers AI assistance disclosure in one
-# central place; per-article disclaimers are no longer required.
+# ── Editor's Note (REMOVED — disclosure lives in editorial-policy.html) ─────
 _EDITORS_NOTE_HTML = ""
 
 PAGE_SIZE = 24
@@ -242,6 +238,7 @@ def nav(active="", base=""):
         ("howto.html",                     "How-To Guides"),
         ("post-production-workflows.html", "Post Production Workflows"),
         ("insights.html",                  "Insights"),
+        ("editorsdesk.html",               "Editorial Insights"),
     ]
     def _nav_li(h, lbl, base=base, active=active):
         cls = ' class="active"' if h == active else ''
@@ -310,6 +307,7 @@ def footer(base=""):
       <a href="{base}howto.html">How-To Guides</a>
       <a href="{base}post-production-workflows.html">Post Production Workflows</a>
       <a href="{base}insights.html">Insights</a>
+      <a href="{base}editorsdesk.html">Editorial Insights</a>
     </div>
     <div class="footer-col">
       <h4>Site</h4>
@@ -469,21 +467,13 @@ def hero_block(a, base=""):
 def intelligence_feed_section(arts, base=""):
     """
     Apple Newsroom-style card grid with images and diversity.
-    Cards: image top, category tag, title, source + date, Read button.
-    Sources are round-robin interleaved for vendor diversity.
+    Includes both pure RSS items and rewrite_feed_local scaffolds.
     """
-    # Include both pure RSS items AND rewrite_feed_local scaffolds (which
-    # carry is_editorial=True for routing reasons but are still news content,
-    # not hand-authored editorials). True hand-authored editorials carry
-    # generated_by like "groq-*" or "gemini-*"; scaffolds carry
-    # "rewrite_feed_local" or empty.
     def _is_news_card(a):
         gen_by = (a.get("generated_by") or "").lower()
         is_scaffold = gen_by in ("", "rewrite_feed_local", "rewrite_feed")
-        # Pure RSS (not editorial at all)
         if not (a.get("is_editorial") or a.get("editorial")):
             return True
-        # rewrite_feed scaffold flagged editorial — still news, include it
         if is_scaffold:
             return True
         return False
@@ -1181,7 +1171,11 @@ def load_homepage_feed(arts, limit=14):
             'published': item.get('pubDate') or item.get('published') or merged.get('published',''),
             'source_url': url or merged.get('source_url',''),
             'url': url or merged.get('url',''),
-            'image_url': item.get('image') or merged.get('image_url') or '',
+            # COPYRIGHT FIX: prefer the article's pool-normalized image_url
+            # over the raw RSS thumbnail in news.json. The previous order
+            # shipped copyrighted vendor PR photos into Breaking News,
+            # bypassing _fix_article_images() entirely.
+            'image_url': merged.get('image_url') or item.get('image') or '',
             'slug': art['slug'],
         })
         key = merged['slug']
@@ -1843,11 +1837,27 @@ def article_page(a):
   </div>
 </div>"""
 
-    # ── Editor's Note REMOVED ────────────────────────────────────────────
-    # Previously appended an "AI-assisted" disclaimer to every article body.
-    # Now silenced — disclosure lives in editorial-policy.html instead.
+    # ── Editor's Note with generated_by attribution (AdSense transparency) ──
     gen_by    = a.get("generated_by", "") or ""
-    editors_note = ""
+    gen_label = {
+        "gemini-2.5-pro":       "Gemini 2.5 Pro (Google)",
+        "gemini-2.5-flash-lite":"Gemini 2.5 Flash-Lite (Google)",
+        "groq-fallback":        "Groq / Llama (fallback)",
+    }.get(gen_by, gen_by if gen_by else "AI-assisted")
+
+    if is_ed:
+        editors_note = ""
+    else:
+        editors_note = (
+            '<hr style="margin-top:40px;border:0;border-top:1px solid #eee;">'
+            '<p style="font-style:italic;font-size:0.85rem;color:#666;line-height:1.5;margin-top:20px;">'
+            '<strong>Editor&#39;s Note:</strong> This technical analysis was synthesised from '
+            'industry sources and constructed with the assistance of AI tools '
+            f'(<strong>{gen_label}</strong>). '
+            'It has been reviewed and formatted by <strong>The Streamic Editorial Team</strong> '
+            'to ensure accuracy and relevance for broadcast professionals.'
+            '</p>'
+        )
     cinfo_color = cinfo.get('color','')
     cinfo_lbl   = cinfo.get('label','')
     cinfo_icon2 = cinfo.get('icon','')
@@ -2316,6 +2326,7 @@ def sitemap(arts):
         ("index.html","daily","1.0"),("featured.html","daily","0.98"),
         ("ai-post-production.html","daily","0.9"),
         ("howto.html","weekly","0.85"),("post-production-workflows.html","weekly","0.90"),
+        ("editorsdesk.html","weekly","0.88"),
         ("about.html","monthly","0.6"),("contact.html","monthly","0.5"),
         ("editorial-policy.html","monthly","0.6"),
         ("privacy.html","yearly","0.3"),("terms.html","yearly","0.3"),
@@ -2373,8 +2384,15 @@ def main():
     # (hero, Latest Insights, Professional Media Systems Guide) always survive.
     # ─────────────────────────────────────────────────────────────────────────
 
-    MIN_FEED_WORDS = 700   # minimum for article page to exist at all
-                           # raised from 400 after Groq upgrade floor of 800w
+    MIN_FEED_WORDS = 400   # Word-count floor only.
+                           # Kept at 400 because Groq TPM rate limits cause
+                           # scaffold upgrades to lag — raising the gate
+                           # before upgrades complete strips ~120 articles
+                           # from the visible site (verified in pipeline log
+                           # 2026-04-11 13:22 UTC: 62 pass / 122 rejected).
+                           # The 180-term BROADCAST_TERMS relevance gate
+                           # below is unchanged and remains the primary
+                           # quality protection.
 
     HOMEPAGE_PROTECTED_SLUGS = {
         # Hero
@@ -2608,21 +2626,17 @@ def main():
       '<body><p>Redirecting to <a href="howto.html">How-To Guides</a>.</p></body></html>')
     # Write Editor's Desk to editorsdesk.html (new canonical name).
     w(os.path.join(DOCS, "editorsdesk.html"), editorsdesk_page())
-    # Redirect stub: preserves any pre-existing inbound links to /vlog.html
-    # by auto-forwarding them to /editorsdesk.html (client-side + canonical).
-    _vlog_redirect = (
-        '<!DOCTYPE html><html lang="en"><head>'
-        '<meta charset="UTF-8">'
-        '<title>Editor\'s Desk &mdash; The Streamic</title>'
-        '<meta http-equiv="refresh" content="0; url=/editorsdesk.html">'
-        '<link rel="canonical" href="' + BASE_URL + '/editorsdesk.html">'
-        '<meta name="robots" content="noindex,follow">'
-        '</head><body>'
-        '<p>This page has moved to <a href="/editorsdesk.html">Editor&#8217;s Desk</a>.</p>'
-        '<script>window.location.replace("/editorsdesk.html");</script>'
-        '</body></html>'
-    )
-    w(os.path.join(DOCS, "vlog.html"), _vlog_redirect)
+    # vlog.html removal: previously a redirect stub was written here. Now we
+    # explicitly DELETE the file from docs/ if present, so /vlog.html returns
+    # a clean 404 instead of a soft-redirect or noindex page. Cleaner for
+    # Google Search Console and AdSense — no soft-404 risk, no link-juice
+    # leakage debate, no stale page in the index.
+    _stale_vlog = os.path.join(DOCS, "vlog.html")
+    if os.path.exists(_stale_vlog):
+        try:
+            os.remove(_stale_vlog)
+        except Exception:
+            pass
     print("  &#10003; static pages")
 
     # ── Sitemap — only visible articles + core pages ──────────────────────
