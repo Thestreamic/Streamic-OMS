@@ -979,18 +979,41 @@ def _is_bad_image(url):
         return True
     return any(bad_id in url for bad_id in _BAD_IMAGE_IDS)
 
+_POOL_IDS = set(_BROADCAST_IMAGES)
+
+def _image_is_from_pool(url: str) -> bool:
+    """True only if URL is an images.unsplash.com link to a pool photo ID."""
+    if not url:
+        return False
+    if "images.unsplash.com" not in url:
+        return False
+    if "photo-" not in url:
+        return False
+    try:
+        pid = "photo-" + url.split("photo-", 1)[1].split("?", 1)[0]
+    except IndexError:
+        return False
+    return pid in _POOL_IDS
+
 def _fix_article_images(arts):
-    """Replace bad/repeated images with unique broadcast-relevant images.
-    
-    Rules:
-    1. Any blacklisted image (typewriter, newspaper) gets replaced
-    2. Any image used more than once gets replaced on subsequent uses
-    3. Replacement images are drawn round-robin from _BROADCAST_IMAGES
-    4. No two consecutive articles get the same image
+    """Enforce broadcast-image policy across ALL article records.
+
+    Copyright rule: third-party RSS thumbnails (TV Technology, Motionographer,
+    Haivision, vendor PR photos, etc.) are never shipped on the live site.
+    Every image_url must resolve to an entry in the curated _BROADCAST_IMAGES
+    pool on images.unsplash.com, which Streamic licenses via Unsplash terms.
+
+    Rules applied in order:
+      1. Any non-pool image (RSS thumbnail, external CDN, vendor press photo,
+         blacklisted ID, empty, or malformed) is replaced with a pool image.
+      2. Any pool image already used in this run is replaced so the homepage
+         and category pages never show the same visual twice in a row.
+      3. Replacements are drawn round-robin from _BROADCAST_IMAGES for a
+         stable, deterministic distribution across the ~35 visible slugs.
     """
     used_images = set()
     pool_idx = 0
-    
+
     def _next_image():
         nonlocal pool_idx
         for _ in range(len(_BROADCAST_IMAGES)):
@@ -999,39 +1022,47 @@ def _fix_article_images(arts):
             if img_id not in used_images:
                 used_images.add(img_id)
                 return _unsplash_url(img_id)
-        # All used — reset and allow reuse (but still round-robin)
+        # All pool IDs consumed — reset and continue round-robin.
         used_images.clear()
         img_id = _BROADCAST_IMAGES[pool_idx % len(_BROADCAST_IMAGES)]
         pool_idx += 1
         used_images.add(img_id)
         return _unsplash_url(img_id)
-    
-    replaced = 0
+
+    replaced_non_pool = 0
+    replaced_duplicate = 0
     for a in arts:
         img = a.get("image_url", "") or ""
-        # Extract photo ID from URL
-        photo_id = ""
-        if "photo-" in img:
-            try:
-                photo_id = "photo-" + img.split("photo-")[1].split("?")[0]
-            except IndexError:
-                pass
-        
-        needs_replace = False
-        if _is_bad_image(img):
-            needs_replace = True
-        elif photo_id and photo_id in used_images:
-            needs_replace = True  # duplicate — replace with unique image
-        
-        if needs_replace:
+
+        if not _image_is_from_pool(img):
+            # Non-pool image (RSS/vendor/bad/empty) — force replacement.
             a["image_url"] = _next_image()
-            replaced += 1
-        else:
-            if photo_id:
-                used_images.add(photo_id)
-    
-    if replaced:
-        print(f"  Image fixer: {replaced} bad/duplicate images replaced with broadcast visuals")
+            # Attribution: pool images are Unsplash-licensed.
+            a["image_credit"] = "Unsplash"
+            a["image_license"] = "Unsplash License"
+            a["image_license_url"] = "https://unsplash.com/license"
+            replaced_non_pool += 1
+            continue
+
+        # Pool image — track uniqueness; replace if already used in this run.
+        try:
+            photo_id = "photo-" + img.split("photo-", 1)[1].split("?", 1)[0]
+        except IndexError:
+            photo_id = ""
+
+        if photo_id and photo_id in used_images:
+            a["image_url"] = _next_image()
+            a["image_credit"] = "Unsplash"
+            a["image_license"] = "Unsplash License"
+            a["image_license_url"] = "https://unsplash.com/license"
+            replaced_duplicate += 1
+        elif photo_id:
+            used_images.add(photo_id)
+
+    total = replaced_non_pool + replaced_duplicate
+    if total:
+        print(f"  Image fixer: {total} images normalized to broadcast pool "
+              f"({replaced_non_pool} non-pool/RSS, {replaced_duplicate} duplicates)")
 
 
 def _hp_img(a, base=""):
@@ -1741,7 +1772,11 @@ def article_page(a):
     # Derive source domain from URL if field is missing
     if not src_dom and src_url:
         src_dom = src_url.replace("https://","").replace("http://","").replace("www.","").split("/")[0]
-    if src_url and not is_ed:
+    # Show source attribution for ALL articles with a source_url,
+    # EXCEPT truly hand-written editorials (gpt_manual_editorial).
+    # rewrite_feed_local articles have is_editorial=True but ARE sourced from news.
+    _is_original = a.get("generated_by") == "gpt_manual_editorial"
+    if src_url and not _is_original:
         _src_name = e(src_dom) if src_dom else "Original Source"
         _pub_date = a.get("published","")
         _pub_month = ""
