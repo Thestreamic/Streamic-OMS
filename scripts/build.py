@@ -2189,20 +2189,77 @@ def howto_page():
 </body></html>"""
 
 def vlog_page():
-    return f"""{head("Editor's Desk — The Streamic","Notes, commentary and perspective from the Streamic editorial team.",f"{BASE_URL}/vlog.html")}
+    # Curated editorial index. Cards reference hand-authored articles that
+    # live under docs/articles/ and are protected by <!-- HAND_AUTHORED -->.
+    editorial_cards = [
+        ("INFRASTRUCTURE", "st-2110-7-seamless-protection-redundancy-math-2026",
+         "ST 2110-7 Seamless Protection: The Redundancy Math Every IP Broadcaster Gets Wrong",
+         "Hitless failover is the headline promise of ST 2110-7. The Red/Blue network math, PTP boundary clock placement, and the control plane gap are where 2026 IP migrations quietly fail."),
+        ("CLOUD PRODUCTION", "cloud-playout-tco-trap-medialive-economics-2026",
+         "The Cloud Playout TCO Trap: Why AWS MediaLive Looks Cheap Until It Isn't",
+         "Cloud playout pricing looks linear on the slide deck and exponential on the invoice. The real cost curve for MediaLive + MediaPackage, and where the break-even with Grass Valley Ignite actually sits."),
+        ("AI IN BROADCASTING", "ai-metadata-mam-accuracy-broadcast-2026",
+         "AI Metadata in the MAM: Why 95% Accuracy Is Still a Failing Grade",
+         "Every MAM vendor ships AI auto-tagging in 2026. The accuracy numbers describe benchmarks editors never hit. The gap between '95% correct' and 'useful for an editor on deadline' is where these systems still fail."),
+        ("INFRASTRUCTURE", "ndi-6-vs-st-2110-india-mid-market-2026",
+         "NDI 6 vs ST 2110 for India's Mid-Market Broadcasters: The Pragmatic Read",
+         "ST 2110 is the standard. NDI 6 is what most Indian regional broadcasters will actually deploy. The honest engineering comparison — latency, compression, network cost, and where each earns its place."),
+        ("AI IN BROADCASTING", "c2pa-provenance-newsroom-broadcast-mandate-2027",
+         "C2PA in the Newsroom: The Provenance Standard Nobody Can Afford to Ignore by 2027",
+         "C2PA content provenance has been a compliance side-project since 2023. Synthetic media incidents and EU regulation mean 2026 is the last year it stays a side-project."),
+        ("EDITORIAL", "beyond-the-chatbot-operational-ai-newsroom-2026",
+         "Beyond the Chatbot: Operational AI in the Newsroom",
+         "The interesting AI in newsrooms isn't the one writing copy. It's the one routing video, tagging rushes, and quietly replacing three roles in the ingest workflow."),
+        ("EDITORIAL", "green-broadcast-cloud-carbon-footprint-sustainability-2026",
+         "Green Broadcast: The Cloud Carbon Footprint Conversation Nobody's Having Honestly",
+         "The industry's sustainability numbers are almost all scope-1 and scope-2. Scope-3 — cloud compute, CDN egress, AI inference — is where the real emissions hide."),
+        ("EDITORIAL", "ai-reducing-broadcast-operational-costs-2026",
+         "AI as an OpEx Lever: Where the Savings Are Real and Where They're Theatre",
+         "Vendors are selling AI as cost reduction. Some claims are real. Some are creative accounting. Here's how to tell which is which before signing a multi-year contract."),
+    ]
+    cards_html = "".join(
+        f'''<article class="ed-card">
+<p class="cat">{cat}</p>
+<h2><a href="articles/{slug}.html">{title}</a></h2>
+<p class="dek">{dek}</p>
+<a href="articles/{slug}.html" class="read">Read the analysis →</a>
+</article>''' for (cat, slug, title, dek) in editorial_cards
+    )
+    extra_css = """<style>
+.editor-hero{max-width:920px;margin:40px auto 20px;padding:0 24px}
+.editor-hero h1{font-family:'DM Serif Display',serif;font-size:48px;margin:0 0 8px;color:var(--ink)}
+.editor-hero .dek{font-size:18px;color:var(--ink3);line-height:1.55;max-width:680px}
+.watching{max-width:920px;margin:26px auto;padding:22px 26px;background:var(--bg);border-left:4px solid #D4AF37;border-radius:6px}
+.watching strong{display:block;font-family:'DM Serif Display',serif;font-size:20px;color:var(--ink);margin-bottom:8px}
+.watching p{margin:0;font-size:15px;color:var(--ink3);line-height:1.65}
+.editorial-grid{max-width:1100px;margin:36px auto 80px;padding:0 24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:26px}
+.ed-card{background:#fff;border:1px solid #e8e4d9;border-radius:8px;padding:24px;transition:border-color .2s,transform .2s,box-shadow .2s}
+.ed-card:hover{border-color:#D4AF37;transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.06)}
+.ed-card .cat{font-size:11px;letter-spacing:1.4px;color:#D4AF37;font-weight:700;text-transform:uppercase;margin:0 0 10px}
+.ed-card h2{font-family:'DM Serif Display',serif;font-size:22px;line-height:1.25;margin:0 0 12px}
+.ed-card h2 a{color:var(--ink);text-decoration:none}
+.ed-card h2 a:hover{color:#D4AF37}
+.ed-card .dek{font-size:14px;color:var(--ink3);line-height:1.6;margin:0 0 16px}
+.ed-card .read{font-size:13px;color:#D4AF37;font-weight:600;text-decoration:none}
+.ed-card .read:hover{text-decoration:underline}
+</style>"""
+    return f"""{head("Editor's Desk — The Streamic","Commentary, perspective, and engineering analysis from the editorial team at The Streamic.",f"{BASE_URL}/vlog.html")}
+{extra_css}
 <body>
 {nav("vlog.html")}
-<main><div class="w" style="padding:52px 24px 80px;max-width:760px">
-<div class="cat-hdr">
+<main>
+<section class="editor-hero">
   <h1>Editor's Desk</h1>
-  <p>Commentary, perspective, and notes from the editorial team at The Streamic.</p>
+  <p class="dek">Commentary, perspective, and engineering analysis from the editorial team at The Streamic. This is where we share technical reads that go beyond the news cycle — honest trade-off analysis for the broadcast engineers, CTOs, and media IT architects who actually have to deploy this stuff.</p>
+</section>
+<div class="watching">
+  <strong>What we're watching in 2026</strong>
+  <p>The ST 2110 adoption curve in small-market broadcasters. The real TCO of cloud playout post-NAB 2026. How C2PA is quietly becoming a newsroom compliance surface. The gap between AI-tagged MAMs in demos and AI-tagged MAMs in production. And the increasingly blurred line between NDI 6 and ST 2110 as hybrid switchers become the norm.</p>
 </div>
-<p style="font-size:15px;color:var(--ink3);line-height:1.7;margin-bottom:24px">The Streamic covers broadcast and streaming technology with a focus on what matters operationally to engineers and technology leaders. This is where we share perspective beyond the news cycle.</p>
-<div style="background:var(--bg);border-radius:14px;padding:28px;font-size:14px;color:var(--ink3);line-height:1.7">
-  <strong style="color:var(--ink);display:block;margin-bottom:8px">What we're watching in 2026</strong>
-  The ST 2110 adoption curve in small-market broadcasters. The economics of cloud production post-Paris 2024. How C2PA is changing newsroom verification workflows. The quiet revolution of operational AI inside MAM systems.
-</div>
-</div></main>
+<section class="editorial-grid">
+{cards_html}
+</section>
+</main>
 {footer()}
 {_cookie_banner()}
 </body></html>"""
@@ -2271,7 +2328,10 @@ def main():
     # (hero, Latest Insights, Professional Media Systems Guide) always survive.
     # ─────────────────────────────────────────────────────────────────────────
 
-    MIN_FEED_WORDS = 400   # minimum for article page to exist at all
+    MIN_FEED_WORDS = 700   # minimum for article page to exist at all
+                           # (was 400; raised after Groq/Llama-3.3-70b upgrade
+                           # floor of 800w — anything below 700 is a failed
+                           # scaffold that shouldn't be shipped)
 
     HOMEPAGE_PROTECTED_SLUGS = {
         # Hero

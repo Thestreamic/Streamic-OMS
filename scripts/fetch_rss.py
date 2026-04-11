@@ -401,16 +401,56 @@ def validate_news_data(items):
     return True
 
 
+def _title_fingerprint(title: str) -> str:
+    """Normalized title signature for cross-feed duplicate detection.
+    Strips punctuation, lowercases, drops short stopwords, and keeps only
+    alphabetic tokens 4+ chars long, then takes the first 6 tokens sorted.
+    The same NAB press release on TV Technology and Broadcast Beat collapses
+    to the same fingerprint even with different GUIDs.
+    """
+    import re as _re
+    if not title:
+        return ""
+    t = _re.sub(r"[^a-zA-Z0-9\s]", " ", title.lower())
+    tokens = [w for w in t.split() if len(w) >= 4 and w not in {
+        "with", "from", "that", "this", "will", "show", "2026", "2025",
+        "announced", "launches", "introduces", "unveils", "debuts", "nabs",
+        "nab", "ibc", "new", "the", "and", "for", "are", "into",
+    }]
+    return " ".join(sorted(tokens[:6]))
+
+
 def deduplicate_by_guid(items):
-    """Remove duplicate articles by GUID"""
-    seen = set()
+    """Remove duplicate articles by GUID AND by normalized title fingerprint.
+
+    Two-pass dedup:
+      1. GUID/link exact match (fast, catches feed-level duplicates)
+      2. Title fingerprint (catches cross-feed story re-runs where the
+         same NAB/IBC announcement appears on TV Technology, Broadcast Beat,
+         TVBEurope, and Newscast Studio with different GUIDs but the same
+         underlying story)
+    """
+    seen_guids = set()
+    seen_fingerprints = set()
     out = []
+    dropped_guid = 0
+    dropped_title = 0
     for it in items:
         g = it.get('guid') or it.get('link')
-        if g and g not in seen:
-            seen.add(g)
-            out.append(it)
-    print(f"\n🔄 Deduplication: {len(items)} → {len(out)} (removed {len(items) - len(out)})")
+        if g and g in seen_guids:
+            dropped_guid += 1
+            continue
+        fp = _title_fingerprint(it.get('title', ''))
+        if fp and fp in seen_fingerprints:
+            dropped_title += 1
+            continue
+        if g:
+            seen_guids.add(g)
+        if fp:
+            seen_fingerprints.add(fp)
+        out.append(it)
+    print(f"\n🔄 Deduplication: {len(items)} → {len(out)} "
+          f"(removed {dropped_guid} by GUID, {dropped_title} by title fingerprint)")
     return out
 
 
