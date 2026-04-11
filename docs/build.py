@@ -10,7 +10,7 @@ ARTS_F    = os.path.join(ROOT, "data", "generated_articles.json")
 NEWS_F    = os.path.join(ROOT, "data", "news.json")
 DOCS      = os.path.join(ROOT, "docs")
 ARTS_D    = os.path.join(DOCS, "articles")
-BASE_URL  = os.environ.get("SITE_BASE_URL", "https://thestreamic.in").rstrip("/")
+BASE_URL  = os.environ.get("SITE_BASE_URL", "https://www.thestreamic.in").rstrip("/")
 GA        = "G-0VSHDN3ZR6"
 ADS       = "ca-pub-8033069131874524"
 AUTHOR    = "The Streamic Editorial Team"
@@ -30,9 +30,74 @@ PAGE_SIZE = 24
 
 # ── AdSense approval mode ─────────────────────────────────────────────────────
 # Show curated high-quality content. Full dataset remains hidden.
-MAX_ARTICLES   = 200         # all articles are quality-gated by adsense_cleanup.py
-VISIBLE_CAT    = None                   # all categories indexed after cleanup
+MAX_ARTICLES   = 120         # 78 editorial + top RSS; raised from 35
+VISIBLE_CAT    = "ai-post-production"  # only this category page is indexed
 MIN_BODY_SCORE = 50          # minimum editorial score to appear on homepage
+MIN_ARTICLE_WORDS = 800      # hard quality gate — reject articles below this
+
+# ── Broadcast & Media IT relevance terms ──────────────────────────────────────
+# Articles must contain at least 2 of these terms (case-insensitive) to pass.
+# This keeps the site focused on genuine broadcast engineering content.
+BROADCAST_TERMS = {
+    # Vendors & products
+    "avid", "media composer", "interplay", "mediacentral", "isis", "nexis",
+    "adobe", "premiere", "after effects", "frame.io",
+    "vizrt", "viz one", "viz engine", "viz artist", "ndn",
+    "grass valley", "gv", "edius", "kameleon",
+    "harmonic", "harmonic inc", "spectrum x", "polaris",
+    "telestream", "vantage", "lightspeed", "wirecast",
+    "pebble", "pebble beach", "lighthouse", "marina",
+    "imagine communications", "selenio",
+    "dalet", "dalet flex", "dalia",
+    "mediageni", "mediagenix", "whats on",
+    "editshare", "mediasilo",
+    "cinegy", "playout", "cinegy air",
+    "evertz", "dreamcatcher",
+    "ross video", "xpression", "carbonite",
+    "newtek", "tricaster",
+    "blackmagic", "davinci resolve", "atem", "decklink",
+    "playbox", "playbox neo",
+    "tedial", "media it",
+    "clear-com", "riedel", "bolero",
+    "aveco", "astra",
+    "signiant", "aspera",
+    # Protocols & standards
+    "smpte", "st 2110", "st2110", "st 2022", "nmos", "is-04", "is-05",
+    "aes67", "dante", "ravenna",
+    "scte-35", "scte 35", "bxf", "mos protocol", "mos gateway",
+    "ndi", "srt", "rist", "zixi",
+    "hls", "dash", "cmaf", "abr",
+    "atsc", "atsc 3.0", "dvb",
+    # Broadcast infrastructure
+    "sdi", "12g-sdi", "ip core", "ip routing",
+    "mam", "pam", "dam", "media asset management",
+    "nrcs", "newsroom computer", "inews", "enps", "octopus",
+    "playout", "channel in a box", "channel-in-a-box", "ciab",
+    "master control", "mcr", "automation engine",
+    "baseband", "embedder", "de-embedder",
+    "multiviewer", "monitoring", "probe",
+    "lto", "archive", "nearline", "deep archive",
+    # Workflow & operations
+    "broadcast", "broadcaster", "broadcast engineer",
+    "post-production", "post production", "color grading", "colour grading",
+    "transcode", "transcoding", "encoding", "mezzanine",
+    "ingest", "capture", "record",
+    "graphics", "cg", "lower third", "ticker",
+    "rundown", "studio automation",
+    "cloud playout", "cloud production", "remi", "remote production",
+    "cdn", "content delivery", "origin server",
+    "ott", "fast channel", "streaming", "live streaming",
+    "drm", "conditional access", "forensic watermark",
+    "qc", "quality control", "loudness", "ebu r128",
+    "metadata", "metadata enrichment",
+    "aaf", "edl", "xml", "mxf", "imf",
+    # AI / cloud
+    "ai", "artificial intelligence", "machine learning",
+    "aws", "amazon web services", "elemental",
+    "azure", "google cloud",
+    "ai metadata", "ai enrichment", "deepva",
+    "agentic", "llm",
+}
 
 CAT = {
     "featured":           {"label":"Featured",           "icon":"⭐","color":"#1d1d1f","desc":"Independent broadcast and streaming technology journalism."},
@@ -141,8 +206,7 @@ def _cookie_banner():
     analytics_storage:'granted',ad_storage:'denied',
     ad_user_data:'denied',ad_personalization:'denied'});
 })();
-</script>
-<script src="main.js" defer></script>"""
+</script>"""
 
 def _ad():
     # Ad slots removed - using Google Auto-Ads after AdSense approval
@@ -150,14 +214,7 @@ def _ad():
     return ""
 
 def _fonts():
-    return '<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">'
-
-def canonical_url(path):
-    """Normalize canonical URL: no www, no index.html, homepage = /"""
-    path = "/" + path.lstrip("/")
-    if path == "/index.html" or path == "/featured.html":
-        path = "/"
-    return f"https://thestreamic.in{path}"
+    return '<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">'
 
 def head(title, desc, canon, css="style.css", og_img="", robots="index,follow"):
     og = f'  <meta property="og:image" content="{eu(og_img)}">\n' if og_img else ""
@@ -195,11 +252,9 @@ def nav(active="", base=""):
         href = h if h.startswith("/") else f"{base}{h}"
         return f'<li><a href="{href}"{cls}>{lbl}</a></li>'
     lis = "".join(_nav_li(h, lbl) for h, lbl in cats)
-    # Mobile = all desktop links + About + Contact
     mob_all = cats + [("about.html","About"),("contact.html","Contact")]
     mob_links = "".join(
         f'<a href="{h if h.startswith("/") else base+h}">{lbl}</a>' for h, lbl in mob_all)
-    # Inline onclick: toggles open, syncs aria-expanded, handles body scroll lock
     _onclick = (
         "onclick=\"(function(b,m){"
         "m.classList.toggle('open');"
@@ -342,14 +397,14 @@ def news_card(a, base="", is_first=False):
   </div>
 </li>"""
 
-def news_grid(arts, base=""):
-    """SSR bento grid &#8212; JS hydrates from news.json, this provides SEO content."""
+def news_grid(arts, base="", grid_id="bentoGridLarge"):
+    """SSR bento grid. Use grid_id='catGrid' on category pages to keep SSR content."""
     if not arts: return ""
     cards = "\n".join(
         news_card(a, base, is_first=(i==0))
         for i, a in enumerate(arts)
     )
-    return f'<ul id="bentoGridLarge" class="bento-grid-large">\n{cards}\n</ul>'
+    return f'<ul id="{grid_id}" class="bento-grid-large">\n{cards}\n</ul>'
 
 # ── EDITORIAL CARD (deep-dive articles)
 def ed_card(a, base=""):
@@ -375,7 +430,7 @@ def ed_card(a, base=""):
     <h3 class="ed-hl"><a href="{href}">{title}</a></h3>
     <p class="ed-dek">{dek}</p>
     <div class="ed-foot">
-      <span class="ed-meta">{dt}</span>
+      <span class="ed-meta">{dt} &middot; {rm(wc)}</span>
       <a href="{href}" class="ed-read">Read full analysis &rarr;</a>
     </div>
   </div>
@@ -407,6 +462,7 @@ def hero_block(a, base=""):
       <div class="hero-meta">
         <span>By {AUTHOR}</span>
         <span>{dt}</span>
+        <span>{rm(wc)}</span>
       </div>
       <a href="{href}" class="hero-cta">Read full story</a>
     </div>
@@ -754,6 +810,49 @@ def _score_art(a):
     return s
 
 
+def _passes_quality_gate(a):
+    """Hard quality gate: article must be ≥ MIN_ARTICLE_WORDS AND contain
+    at least 2 broadcast/media-IT terms from BROADCAST_TERMS.
+
+    Hand-written editorials (generated_by == 'gpt_manual_editorial')
+    bypass the word count check — they are manually curated high-quality
+    content. They still must pass the relevance check.
+
+    Returns (passes: bool, reason: str) for diagnostics.
+    """
+    body = a.get("body_html", "") or ""
+    # Strip HTML tags for plain text
+    plain = re.sub(r"<[^>]+>", " ", body)
+    plain = re.sub(r"\s+", " ", plain).strip()
+    words = plain.split()
+    wc = len(words)
+
+    is_manual_editorial = a.get("generated_by") == "gpt_manual_editorial"
+
+    # ── Word count gate (auto-generated only) ────────────────────────────
+    if not is_manual_editorial and wc < MIN_ARTICLE_WORDS:
+        return False, f"too short ({wc} words, need {MIN_ARTICLE_WORDS})"
+
+    # ── Even manual editorials need a minimum body ───────────────────────
+    if is_manual_editorial and wc < 400:
+        return False, f"editorial too short ({wc} words, need 400)"
+
+    # ── Broadcast relevance gate ─────────────────────────────────────────
+    # Check title + body (lowercased) for BROADCAST_TERMS matches
+    search_text = (a.get("title", "") + " " + plain).lower()
+    matched = set()
+    for term in BROADCAST_TERMS:
+        if term in search_text:
+            matched.add(term)
+        if len(matched) >= 2:
+            break  # fast exit — 2 is enough
+
+    if len(matched) < 2:
+        return False, f"low relevance (matched {len(matched)} terms: {matched})"
+
+    return True, "ok"
+
+
 def enforce_sections(body_html: str) -> bool:
     """
     AdSense quality scoring: checks for preferred editorial sections.
@@ -819,6 +918,151 @@ def is_high_value(article: dict) -> bool:
     # Any article with a title passes (never blank)
     return bool(article.get("title", "").strip())
 
+# ── BROADCAST IMAGE SYSTEM ──────────────────────────────────────────────────
+# Curated Unsplash images: server rooms, control rooms, vision mixers, cameras,
+# edit suites, studio equipment, network infrastructure. NO typewriters, newspapers.
+
+_BAD_IMAGE_IDS = {
+    "photo-1495020689067-958852a7765e",   # person reading newspaper
+    "photo-1504711434969-e33886168f5c",   # newspaper stack
+    "photo-1432821596592-e2c18b78144f",   # TYPEWRITER
+    "photo-1453738773917-9c3eff1db985",   # old newspaper on wooden desk
+    "photo-1557804506-669a67965ba0",      # generic business meeting room
+}
+
+# 30 unique broadcast/media IT images — no repeats, all relevant
+_BROADCAST_IMAGES = [
+    # Server rooms & data centers
+    "photo-1558494949-ef010cbdcc31",      # server room blue LED racks
+    "photo-1544197150-b99a580bb7a8",      # data center corridor
+    "photo-1573164713988-8665fc963095",   # fiber optic cables glowing
+    "photo-1504384308090-c894fdcc538d",   # server room ceiling view
+    "photo-1451187580459-43490279c0fa",   # global network data visualization
+    # Broadcast control rooms & production
+    "photo-1598488035139-bdbb2231ce04",   # audio/broadcast mixing console
+    "photo-1478737270239-2f02b77fc618",   # control room buttons & panels
+    "photo-1524253482453-3fed8d2fe12b",   # video editing workstation
+    "photo-1616401784845-180882ba9ba8",   # camera / video production gear
+    "photo-1492619375914-88005aa9e8fb",   # video production multi-cam setup
+    # Post-production & edit suites
+    "photo-1535016120720-40c646be5580",   # video editing timeline on monitor
+    "photo-1547658719-da2b51169166",      # multi-monitor edit workstation
+    "photo-1605106702734-205df224ecce",   # VFX / tech screen
+    "photo-1581092918056-0c4c3acd3789",   # tech lab equipment
+    "photo-1611532736597-de2d4265fba3",   # broadcast / streaming setup
+    # AI & technology
+    "photo-1677442135703-1787eea5ce01",   # AI neural network visualization
+    "photo-1620712943543-bcc4688e7485",   # AI / machine learning
+    "photo-1593642632559-0c6d3fc62b89",   # circuit board close-up
+    "photo-1518770660439-4636190af475",   # circuit board macro
+    "photo-1515879218367-8466d910aaa4",   # code on dark screen
+    # Network & infrastructure
+    "photo-1545987796-200677ee1011",      # network fiber connections
+    "photo-1551288049-bebda4e38f71",      # data analytics dashboard
+    "photo-1504639725590-34d0984388bd",   # programming / code screen
+    "photo-1516321497487-e288fb19713f",   # tech workspace monitors
+    "photo-1497366754035-f200968a6e72",   # modern tech office
+    # Streaming & media
+    "photo-1586788680434-30d324b2d46f",   # live streaming / video
+    "photo-1560472355-536de3962603",      # video / media content
+    "photo-1561736778-92e52a7769ef",      # graphics workstation
+    "photo-1516321318423-f06f85e504b3",   # monitoring screens
+    "photo-1517694712202-14dd9538aa97",   # tech laptop workspace
+]
+
+def _unsplash_url(photo_id):
+    return f"https://images.unsplash.com/{photo_id}?w=1200&auto=format&fit=crop&q=80"
+
+def _is_bad_image(url):
+    """Check if an image URL is in the blacklist."""
+    if not url:
+        return True
+    return any(bad_id in url for bad_id in _BAD_IMAGE_IDS)
+
+_POOL_IDS = set(_BROADCAST_IMAGES)
+
+def _image_is_from_pool(url: str) -> bool:
+    """True only if URL is an images.unsplash.com link to a pool photo ID."""
+    if not url:
+        return False
+    if "images.unsplash.com" not in url:
+        return False
+    if "photo-" not in url:
+        return False
+    try:
+        pid = "photo-" + url.split("photo-", 1)[1].split("?", 1)[0]
+    except IndexError:
+        return False
+    return pid in _POOL_IDS
+
+def _fix_article_images(arts):
+    """Enforce broadcast-image policy across ALL article records.
+
+    Copyright rule: third-party RSS thumbnails (TV Technology, Motionographer,
+    Haivision, vendor PR photos, etc.) are never shipped on the live site.
+    Every image_url must resolve to an entry in the curated _BROADCAST_IMAGES
+    pool on images.unsplash.com, which Streamic licenses via Unsplash terms.
+
+    Rules applied in order:
+      1. Any non-pool image (RSS thumbnail, external CDN, vendor press photo,
+         blacklisted ID, empty, or malformed) is replaced with a pool image.
+      2. Any pool image already used in this run is replaced so the homepage
+         and category pages never show the same visual twice in a row.
+      3. Replacements are drawn round-robin from _BROADCAST_IMAGES for a
+         stable, deterministic distribution across the ~35 visible slugs.
+    """
+    used_images = set()
+    pool_idx = 0
+
+    def _next_image():
+        nonlocal pool_idx
+        for _ in range(len(_BROADCAST_IMAGES)):
+            img_id = _BROADCAST_IMAGES[pool_idx % len(_BROADCAST_IMAGES)]
+            pool_idx += 1
+            if img_id not in used_images:
+                used_images.add(img_id)
+                return _unsplash_url(img_id)
+        # All pool IDs consumed — reset and continue round-robin.
+        used_images.clear()
+        img_id = _BROADCAST_IMAGES[pool_idx % len(_BROADCAST_IMAGES)]
+        pool_idx += 1
+        used_images.add(img_id)
+        return _unsplash_url(img_id)
+
+    replaced_non_pool = 0
+    replaced_duplicate = 0
+    for a in arts:
+        img = a.get("image_url", "") or ""
+
+        if not _image_is_from_pool(img):
+            # Non-pool image (RSS/vendor/bad/empty) — force replacement.
+            a["image_url"] = _next_image()
+            # Attribution: pool images are Unsplash-licensed.
+            a["image_credit"] = "Unsplash"
+            a["image_license"] = "Unsplash License"
+            a["image_license_url"] = "https://unsplash.com/license"
+            replaced_non_pool += 1
+            continue
+
+        # Pool image — track uniqueness; replace if already used in this run.
+        try:
+            photo_id = "photo-" + img.split("photo-", 1)[1].split("?", 1)[0]
+        except IndexError:
+            photo_id = ""
+
+        if photo_id and photo_id in used_images:
+            a["image_url"] = _next_image()
+            a["image_credit"] = "Unsplash"
+            a["image_license"] = "Unsplash License"
+            a["image_license_url"] = "https://unsplash.com/license"
+            replaced_duplicate += 1
+        elif photo_id:
+            used_images.add(photo_id)
+
+    total = replaced_non_pool + replaced_duplicate
+    if total:
+        print(f"  Image fixer: {total} images normalized to broadcast pool "
+              f"({replaced_non_pool} non-pool/RSS, {replaced_duplicate} duplicates)")
 
 
 def _hp_img(a, base=""):
@@ -828,10 +1072,10 @@ def _hp_img(a, base=""):
     cat = (a.get("category") or "featured").lower()
     fallbacks = {
         "featured": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&auto=format&fit=crop&q=80",
-        "newsroom": "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1200&auto=format&fit=crop&q=80",
+        "newsroom": "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=1200&auto=format&fit=crop&q=80",
         "cloud": "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=1200&auto=format&fit=crop&q=80",
         "infrastructure": "https://images.unsplash.com/photo-1545987796-200677ee1011?w=1200&auto=format&fit=crop&q=80",
-        "graphics": "https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=1200&auto=format&fit=crop&q=80",
+        "graphics": "https://images.unsplash.com/photo-1547658719-da2b51169166?w=1200&auto=format&fit=crop&q=80",
         "streaming": "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=1200&auto=format&fit=crop&q=80",
         "ai-post-production": "https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=1200&auto=format&fit=crop&q=80",
         "playout": "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1200&auto=format&fit=crop&q=80",
@@ -876,7 +1120,12 @@ def _source_name(val):
     return (val or '').replace('https://','').replace('http://','').replace('www.','').split('/')[0]
 
 def load_homepage_feed(arts, limit=14):
-    """Use fresh data/news.json for homepage and map to internal articles when possible."""
+    """Use fresh data/news.json for homepage and map to internal articles.
+    
+    Only returns items that map to an internal article (has slug) so all
+    homepage links go to our own analysis pages, never to external sources.
+    Prefers articles with more body content (longer = higher quality).
+    """
     by_url, by_title = {}, {}
     for a in arts:
         for key in (a.get('source_url'), a.get('url'), a.get('link')):
@@ -910,7 +1159,9 @@ def load_homepage_feed(arts, limit=14):
         url = item.get('link') or item.get('url') or item.get('guid')
         title_key = (item.get('title') or '').strip().lower()
         art = by_url.get(url) or by_title.get(title_key)
-        merged = dict(art or {})
+        if not art or not art.get('slug'):
+            continue  # skip items without internal article — no external links
+        merged = dict(art)
         merged.update({
             'title': item.get('title') or merged.get('title',''),
             'category': item.get('category') or merged.get('category','featured'),
@@ -919,46 +1170,59 @@ def load_homepage_feed(arts, limit=14):
             'source_url': url or merged.get('source_url',''),
             'url': url or merged.get('url',''),
             'image_url': item.get('image') or merged.get('image_url') or '',
-            'slug': merged.get('slug',''),
+            'slug': art['slug'],
         })
-        key = merged.get('slug') or merged.get('source_url') or merged.get('title')
-        # AdSense: only show items that have internal article pages (slug exists)
-        if key and key not in seen and merged.get('slug'):
+        key = merged['slug']
+        if key not in seen:
             seen.add(key)
             mapped.append(merged)
-        if len(mapped) >= limit:
-            break
+
+    # Sort: newest first, then by body length (prefer longer articles)
+    def _feed_sort(a):
+        body = a.get('body_html','') or ''
+        wc = len(re.sub(r'<[^>]+>',' ',body).split())
+        return (a.get('published',''), wc)
+    mapped.sort(key=_feed_sort, reverse=True)
+
     if not mapped:
         mapped = sorted([a for a in arts if not a.get('is_editorial') and not a.get('editorial')], key=lambda a: a.get('published',''), reverse=True)[:limit]
-    return mapped
+    return mapped[:limit]
 
 def _item_href(a):
     slug = a.get('slug')
     if slug:
         return f"articles/{slug}.html"
-    # No slug = no internal article page — return empty (will be filtered)
-    return ''
+    return a.get('source_url') or a.get('url') or '#'
 
 def _item_target(a):
-    # Internal links only — never open in new tab
+    href = _item_href(a)
+    if href.startswith('http://') or href.startswith('https://'):
+        return ' target="_blank" rel="noopener noreferrer nofollow"'
     return ''
 
 def _hp_news_item(a):
-    href = _item_href(a)
+    slug = a.get("slug","")
+    analysis_href = f"articles/{slug}.html" if slug else "#"
+    src_url = e(a.get("source_url","") or a.get("url","") or "")
     title = e(a.get("title", ""))
     src = e(_source_name(a.get("source_domain", a.get("source", ""))))
     dt = d(a.get("published", ""))
-    src_url = a.get("source_url") or a.get("url") or ""
-    # Source attribution link (AdSense: clear content origin)
+    dek = e((a.get("dek") or a.get("card_summary") or a.get("meta_description") or "")[:120])
+    # Source link — only if we have a real URL
     src_link = ""
     if src_url and src:
-        src_link = f' <a href="{e(src_url)}" target="_blank" rel="noopener noreferrer nofollow" style="font-size:11px;color:var(--blue);text-decoration:none;font-weight:600;white-space:nowrap" onclick="event.stopPropagation()">Source: {src} &#8599;</a>'
-    return f'''<div class="hp-news-item" style="cursor:pointer" onclick="window.location.href='{href}'">
+        src_link = f'<a href="{src_url}" target="_blank" rel="noopener noreferrer nofollow" class="hp-news-src-link">Source: {src} &#8599;</a>'
+    return f'''<div class="hp-news-item">
   <div class="hp-news-thumb"><img src="{_hp_img(a)}" alt="{title}" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-news-body">
     <span class="hp-news-src">{src}</span>
-    <a href="{href}" class="hp-news-title" style="color:inherit;text-decoration:none">{title}</a>
-    <div class="hp-news-foot"><time class="hp-news-date">{dt}</time>{src_link}<a href="{href}" class="hp-news-read" style="color:var(--blue);text-decoration:none">Read more &#8594;</a></div>
+    <a href="{analysis_href}" class="hp-news-title">{title}</a>
+    <span class="hp-news-dek">{dek}</span>
+    <div class="hp-news-foot">
+      <time class="hp-news-date">{dt}</time>
+      <a href="{analysis_href}" class="hp-news-read">Read Streamic Analysis &#8594;</a>
+    </div>
+    {src_link}
   </div>
 </div>'''
 def _hp_sidebar_pick(a):
@@ -970,19 +1234,24 @@ def _hp_sidebar_pick(a):
 </a>'''
 
 def _hp_sidebar_news(a):
-    href = _item_href(a)
-    target = _item_target(a)
+    slug = a.get("slug","")
+    analysis_href = f"articles/{slug}.html" if slug else "#"
+    src_url = e(a.get("source_url","") or a.get("url","") or "")
     title = e(a.get("title", ""))
     src = e(_source_name(a.get("source_domain", a.get("source", ""))))
     dt = d(a.get("published", ""))
-    return f'''<a href="{href}"{target} class="hp-sb-news-item">
+    src_link = ""
+    if src_url and src:
+        src_link = f'<a href="{src_url}" target="_blank" rel="noopener noreferrer nofollow" style="font-size:10px;color:var(--ink4);text-decoration:none;margin-top:2px;display:block">Source: {src} &#8599;</a>'
+    return f'''<div class="hp-sb-news-item">
   <div class="hp-sb-news-thumb"><img src="{_hp_img(a)}" alt="{title}" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-sb-news-body">
     <span class="hp-sb-news-src">{src}</span>
-    <span class="hp-sb-news-title">{title}</span>
+    <a href="{analysis_href}" class="hp-sb-news-title">{title}</a>
     <time class="hp-sb-news-date">{dt}</time>
+    {src_link}
   </div>
-</a>'''
+</div>'''
 def featured_page(arts):
     """Homepage built from generated_articles.json with premium magazine layout."""
     editorial_all = sorted([a for a in arts if a.get("is_editorial") or a.get("editorial")], key=lambda a: a.get("published", ""), reverse=True)
@@ -1000,96 +1269,53 @@ def featured_page(arts):
     guide_map = {a.get("slug"): a for a in editorial_all}
     guide_arts = [guide_map[s] for s in guide_slug_order if s in guide_map]
 
-    # ── Latest Insights: 12 articles (4 rows × 3 col) ───────────────────────────
-    #
-    # PINNED (slots 1-6): Manually curated, high-quality broadcast IT analysis.
-    # These always appear first. Edit this list to change pinned articles.
-    #
-    # AUTO-FILL (slots 7-12): Automatically drawn from editorial articles with
-    # 1000+ word bodies that pass the broadcast-IT relevance check.
-    # New qualifying articles appear automatically — no manual edit needed.
-    # ─────────────────────────────────────────────────────────────────────────
-    INSIGHT_PINNED = [
-        "telestream-adobe-vantage-premiere-workflow-integration-2026",        # Telestream + Adobe Vantage workflow
-        "2026-03-27-ai-post-prod-current-obsession-this-how-to-animate-wat",  # Milano Cortina 2026 Olympics broadcast
-        "beyond-the-chatbot-operational-ai-newsroom-2026",                    # AI in newsroom operations
-        "ip-transition-2026-practical-guide-broadcast-engineers",             # IP transition practical guide
-        "cloud-playout-economics-2026-build-vs-buy",                          # Cloud playout build vs buy
-        "media-asset-management-ai-era-monetisation-2026",                    # MAM & AI monetisation
-    ]
-    INSIGHT_TARGET = 12   # 4 rows × 3 columns — increase to add more rows
-
-    # Broadcast-IT quality signals for auto-fill eligibility
-    _INSIGHT_SIGNALS = [
-        "broadcast", "streaming", "codec", "encoder", "decoder", "nab", "ibc",
-        "ott", "cdn", "latency", "playout", "mam", "pam", "nmos", "st 2110",
-        "sdi", "ip workflow", "cloud production", "media", "television", "tv",
-        "post-production", "editing", "vfx", "signal", "ingest", "archive",
-        "asset management", "live event", "jpeg xs", "ip media", "media server",
-        "workflow", "software-defined", "media asset", "encoding", "encode",
-        "avid", "harmonic", "telestream", "pebble", "vizrt", "ross video",
-        "aws media", "azure media", "smpte", "production",
-    ]
-
-    def _is_insight_eligible(a):
-        """True if article qualifies for auto-fill: editorial, 1000+ words, broadcast-IT topic."""
-        if not (a.get("is_editorial") or a.get("editorial")):
-            return False
-        body = a.get("body_html", "") or ""
-        word_count = len(re.sub(r"<[^>]+>", " ", body).split())
-        if word_count < 1000:
-            return False
-        text = (a.get("title", "") + " " + a.get("dek", "")).lower()
-        return any(sig in text for sig in _INSIGHT_SIGNALS)
-
-    art_map = {a.get("slug"): a for a in arts}
-
-    # Slots 1-6: pinned curated articles (in order)
-    insight_arts = [art_map[s] for s in INSIGHT_PINNED if s in art_map]
-
-    # Slots 7-12: auto-fill from qualifying editorial articles not already shown
-    pinned_set = {a.get("slug") for a in insight_arts}
-    guide_set  = {a.get("slug") for a in guide_arts}
-    hero_set   = {hero_art.get("slug")} if hero_art else set()
-    # Explicitly exclude articles removed from pinned list
-    AUTOFILL_EXCLUDED = {
-        "paris-2024-cloud-production-legacy-global-events-2026",  # replaced by Milano Cortina
-    }
-    excluded   = pinned_set | guide_set | hero_set | AUTOFILL_EXCLUDED
-
-    autofill_pool = [
-        a for a in sorted(editorial_all, key=lambda x: x.get("published", ""), reverse=True)
-        if a.get("slug") not in excluded and _is_insight_eligible(a)
-    ]
-    slots_remaining = INSIGHT_TARGET - len(insight_arts)
-    insight_arts += autofill_pool[:slots_remaining]
+    # ── Latest Insights: ALL quality articles, newest first ────────────
+    #    Must be 400+ words + 2 broadcast terms (lower than the 800-word
+    #    SEO gate so latest daily articles always appear on the homepage).
+    #    Manual editorials bypass word count entirely.
+    #    First 20 visible on load; rest behind "Load More" button.
+    MIN_INSIGHT_WORDS = 400
+    used_slugs = {a.get("slug") for a in guide_arts} | ({hero_art.get("slug")} if hero_art else set())
+    # Merge editorial + regular into ONE list sorted by date (not editorial-first)
+    insight_pool = sorted(
+        [a for a in arts if a.get("slug") not in used_slugs],
+        key=lambda a: a.get("published", ""), reverse=True
+    )
+    _seen_ins = set()
+    insight_arts = []
+    for a in insight_pool:
+        s = a.get("slug")
+        if not s or s in _seen_ins:
+            continue
+        # ── Quality gate: 400+ words (manual editorials bypass) ──
+        _body = a.get("body_html", "") or ""
+        _plain = re.sub(r"<[^>]+>", " ", _body)
+        _wc = len(re.sub(r"\s+", " ", _plain).strip().split())
+        is_manual_ed = a.get("generated_by") == "gpt_manual_editorial"
+        if not is_manual_ed and _wc < MIN_INSIGHT_WORDS:
+            continue
+        # ── Broadcast relevance: 2+ terms ──
+        _search = (a.get("title", "") + " " + _plain).lower()
+        _hits = sum(1 for t in BROADCAST_TERMS if t in _search)
+        if _hits < 2:
+            continue
+        _seen_ins.add(s)
+        insight_arts.append(a)
+    # No cap — all quality articles included
 
     sidebar_picks = [a for a in editorial_all if a.get("slug") != (hero_art or {}).get("slug")][:3]
-    fresh_feed = load_homepage_feed(arts, limit=24)
-    # Filter sidebar news to broadcast-IT relevant sources and topics
-    _SIDEBAR_SIGNALS = [
-        "broadcast","streaming","playout","encoder","codec","avid","harmonic",
-        "telestream","haivision","aws media","ott","cdn","smpte","mam","pam",
-        "nab","ibc","st 2110","media workflow","live production","media supply",
-        "newsroom","ingest","video management","cloud production","media server",
-    ]
-    def _sidebar_relevant(a):
-        text = (a.get('title','') + ' ' + a.get('source_domain','')).lower()
-        return any(s in text for s in _SIDEBAR_SIGNALS)
-
-    filtered_feed = [a for a in fresh_feed if _sidebar_relevant(a)]
-    # Fall back to full feed if not enough filtered items
-    breaking_news = (filtered_feed if len(filtered_feed) >= 7 else fresh_feed)[:7]
+    fresh_feed = load_homepage_feed(arts, limit=16)
+    breaking_news = fresh_feed[:4]
     homepage_news = fresh_feed[4:12]
     if not homepage_news:
         homepage_news = fresh_feed[:8]
 
     title = "The Streamic — AI in Broadcasting & Streaming Technology"
     desc = "Expert analysis on AI automation, cloud workflows, and operational intelligence for broadcast and streaming professionals."
-    canon = canonical_url("/")
+    canon = f"{BASE_URL}/index.html"
     schema = json.dumps({
         "@context": "https://schema.org", "@type": "WebPage",
-        "name": "The Streamic", "description": desc, "url": canonical_url("/"),
+        "name": "The Streamic", "description": desc, "url": f"{BASE_URL}/index.html",
         "publisher": {"@type": "Organization", "name": "The Streamic", "url": BASE_URL}
     })
 
@@ -1100,28 +1326,92 @@ def featured_page(arts):
     cinfo = CAT.get((hero_art or {}).get("category", "featured"), CAT["featured"])
     # Hero title overrides — edit here to control displayed title without touching JSON
     HERO_TITLE_OVERRIDES = {
-        "ai-reducing-broadcast-operational-costs-2026": "Beyond Automation: How Can AI Optimize Broadcast Costs and Scales Human Potential in 2026",
+        "ai-reducing-broadcast-operational-costs-2026": "Beyond Automation: How AI Can Optimize Broadcast Costs and Scale Human Potential in 2026",
     }
 
     hero_html = ""
     if hero_art:
         _hero_title = HERO_TITLE_OVERRIDES.get(hero_art.get("slug", ""), hero_art.get("title", ""))
+        _hero_img_src = 'assets/hero-broadcast-male.png' if os.path.exists(custom_hero_path) else _hp_img(hero_art)
+        _hero_img_alt = "Broadcast production switcher in a modern control room with illuminated buttons and blurred monitoring screens" if os.path.exists(custom_hero_path) else e(_hero_title)
         hero_html = f'''<section class="hp-hero" aria-label="Featured story">
   <a href="articles/{hero_art['slug']}.html" class="hp-hero-img-link" tabindex="-1" aria-hidden="true">
-    <img class="hp-hero-img" src="{'assets/hero-broadcast-male.png' if os.path.exists(custom_hero_path) else _hp_img(hero_art)}" alt="{e(_hero_title)}" loading="eager" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+    <img class="hp-hero-img" src="{_hero_img_src}" alt="{_hero_img_alt}" loading="eager" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
   </a>
   <div class="hp-hero-overlay" aria-hidden="true"></div>
   <div class="hp-hero-body">
     <span class="hp-hero-tag">{e(cinfo['icon'])} {e(cinfo['label'])}</span>
     <h1 class="hp-hero-hl"><a href="articles/{hero_art['slug']}.html">{e(_hero_title)}</a></h1>
-    <div class="hp-hero-meta"><span>By {AUTHOR}</span><span>&#124;</span><span>{d(hero_art.get("published", ""))}</span></div>
+    <div class="hp-hero-meta"><span>By {AUTHOR}</span><span>&#124;</span><span>{d(hero_art.get("published", ""))}</span><span>&#124;</span><span>{rm(hero_art.get("word_count", 1000))}</span></div>
     <a href="articles/{hero_art['slug']}.html" class="hp-hero-cta">View Analysis <span class="hp-hero-cta__arrow">→</span></a>
   </div>
 </section>'''
 
     guide_subs = ["2026 Engineering Edition", "Complete Technical Reference", "Distributed Production Playbook", "Metadata, Search & Monetisation"]
     guides_html = ''.join(_hp_guide_card(a, guide_subs[i] if i < len(guide_subs) else "Technical Guide") for i, a in enumerate(guide_arts))
-    insights_html = ''.join(_hp_insight_card(a) for a in insight_arts)
+    # First 6 visible, rest hidden — revealed by Load More button
+    INSIGHT_INITIAL = 20
+    _insight_cards = []
+    for i, a in enumerate(insight_arts):
+        card_html = _hp_insight_card(a)
+        if i >= INSIGHT_INITIAL:
+            # Add hidden class to the <a> tag
+            card_html = card_html.replace('class="hp-insight-card"', 'class="hp-insight-card hp-insight-hidden"', 1)
+        _insight_cards.append(card_html)
+    insights_html = ''.join(_insight_cards)
+    # Load More — self-contained component (inline CSS + HTML + JS)
+    _hidden_count = max(0, len(insight_arts) - INSIGHT_INITIAL)
+    insights_loadmore = ""
+    if _hidden_count > 0:
+        insights_loadmore = f'''<style>
+.hp-insight-hidden{{display:none!important}}
+@keyframes insightReveal{{from{{opacity:0;transform:translateY(16px)}}to{{opacity:1;transform:translateY(0)}}}}
+.hp-insight-reveal{{animation:insightReveal .4s cubic-bezier(.25,.46,.45,.94) both}}
+.hp-lm-wrap{{display:flex;justify-content:center;padding:36px 0 12px}}
+.hp-lm{{position:relative;display:inline-flex;align-items:center;gap:14px;padding:0;background:none;border:none;cursor:pointer;font-family:var(--font);-webkit-tap-highlight-color:transparent;outline:none}}
+.hp-lm-ring{{position:relative;width:52px;height:52px;flex-shrink:0}}
+.hp-lm-ring svg{{width:52px;height:52px;transform:rotate(-90deg)}}
+.hp-lm-ring .ring-track{{fill:none;stroke:var(--line);stroke-width:2}}
+.hp-lm-ring .ring-fill{{fill:none;stroke:var(--blue);stroke-width:2.5;stroke-linecap:round;stroke-dasharray:150;stroke-dashoffset:150;transition:stroke-dashoffset .6s cubic-bezier(.4,0,.2,1)}}
+.hp-lm:hover .ring-fill{{stroke-dashoffset:0}}
+.hp-lm-icon{{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}}
+.hp-lm-icon svg{{width:18px;height:18px;stroke:var(--ink);stroke-width:2;fill:none;transition:transform .35s cubic-bezier(.4,0,.2,1),stroke .2s}}
+.hp-lm:hover .hp-lm-icon svg{{transform:rotate(180deg);stroke:var(--blue)}}
+.hp-lm-text{{display:flex;flex-direction:column;align-items:flex-start;gap:2px}}
+.hp-lm-label{{font-size:14px;font-weight:600;color:var(--ink);letter-spacing:-.01em;transition:color .2s}}
+.hp-lm:hover .hp-lm-label{{color:var(--blue)}}
+.hp-lm-sub{{font-size:11px;font-weight:500;color:var(--ink4);transition:color .2s}}
+.hp-lm:hover .hp-lm-sub{{color:var(--blue)}}
+.hp-lm-bar{{position:absolute;bottom:-10px;left:0;width:100%;height:1.5px;background:var(--line);border-radius:2px;overflow:hidden}}
+.hp-lm-bar span{{display:block;width:0;height:100%;background:var(--blue);border-radius:2px;transition:width .5s cubic-bezier(.4,0,.2,1)}}
+.hp-lm:hover .hp-lm-bar span{{width:100%}}
+</style>
+<div class="hp-lm-wrap">
+  <button id="insightLoadMore" type="button" class="hp-lm" aria-label="Load more insights">
+    <div class="hp-lm-ring">
+      <svg viewBox="0 0 52 52"><circle class="ring-track" cx="26" cy="26" r="24"/><circle class="ring-fill" cx="26" cy="26" r="24"/></svg>
+      <div class="hp-lm-icon"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg></div>
+    </div>
+    <div class="hp-lm-text">
+      <span class="hp-lm-label">Load More</span>
+      <span class="hp-lm-sub" id="lmCount">{_hidden_count} more articles</span>
+    </div>
+    <div class="hp-lm-bar"><span></span></div>
+  </button>
+</div>
+<script>
+(function(){{
+  var btn=document.getElementById('insightLoadMore'),B=6;
+  if(!btn)return;
+  btn.addEventListener('click',function(){{
+    var h=document.querySelectorAll('.hp-insight-hidden'),c=0,i;
+    for(i=0;i<h.length&&c<B;i++,c++){{h[i].classList.remove('hp-insight-hidden');h[i].classList.add('hp-insight-reveal');}}
+    var left=document.querySelectorAll('.hp-insight-hidden').length;
+    if(left<1)btn.parentElement.style.display='none';
+    else document.getElementById('lmCount').textContent=left+' more articles';
+  }});
+}})();
+</script>'''
     news_html = ''.join(_hp_news_item(a) for a in homepage_news)
     picks_html = ''.join(_hp_sidebar_pick(a) for a in sidebar_picks)
     sb_news_html = ''.join(_hp_sidebar_news(a) for a in breaking_news)
@@ -1168,7 +1458,7 @@ def featured_page(arts):
       <div class="hp-flagship__meta">
         <span class="hp-flagship__author">Prerak K Mehta</span>
         <span class="hp-flagship__role">Broadcast Technology and Media IT Analyst</span>
-
+        <span class="hp-flagship__readtime">⏱ 5 min read</span>
       </div>
       <span class="hp-flagship__cta">Read Full Insight <span class="hp-flagship__cta-arrow">→</span></span>
     </div>
@@ -1183,24 +1473,29 @@ def featured_page(arts):
       <div class="hp-main">
         <section class="hp-insights hp-insights-premium">
           <div class="hp-insights-grid">{insights_html}</div>
+          {insights_loadmore}
         </section>
         <section class="hp-guide">
           <div class="hp-guide-banner"><span>Professional Media Systems Guide</span></div>
           <div class="hp-guide-grid">{guides_html}</div>
         </section>
         <section class="hp-news">
-          <div class="hp-sec-hdr"><h2>Latest Broadcast &amp; Media Technology News</h2></div>
+          <div class="hp-sec-hdr"><h2>The Streamic Intelligence</h2><p class="hp-sec-sub">In-depth coverage of playout, MAM/PAM, archive, cloud production, Adobe workflows, SMPTE standards, and AI-driven media operations.</p></div>
           <div class="hp-news-list">{news_html}</div>
         </section>
       </div>
       <aside class="hp-sidebar" aria-label="Sidebar">
         <div class="hp-sb-section hp-sb-featured">
-          <div class="hp-sb-hdr">Editor&#8217;s Picks</div>
+          <div class="hp-sb-hdr">Editor&#8217;s Picks <a href="vlog.html" class="hp-sb-hdr-link">View page &#8594;</a></div>
           {picks_html}
         </div>
         <div class="hp-sb-section">
           <div class="hp-sb-hdr">How-To Guides <a href="howto.html" class="hp-sb-hdr-link">View all &#8594;</a></div>
           {howto_html}
+        </div>
+        <div class="hp-sb-section">
+          <div class="hp-sb-hdr">Breaking Media Tech News</div>
+          {sb_news_html}
         </div>
       </aside>
     </div>
@@ -1243,7 +1538,7 @@ def category_page(cat, arts):
         rest   = sl[1:]
 
         hero_html = hero_block(first[0], base="") if first else ""
-        grid_html = news_grid(rest) if rest else ""
+        grid_html = news_grid(rest, grid_id="catGrid") if rest else ""
 
         pag = _pag_html(cat, pg, total_pages)
 
@@ -1342,10 +1637,12 @@ def _clean_body(a):
 
     body_html  = a.get("body_html", "") or ""
     word_count = a.get("word_count", 0)
+    # Also check actual body length — metadata word_count may be missing
+    actual_wc  = len(re.sub(r"<[^>]+>", " ", body_html).split())
 
     # ── AI-enhanced articles: has h2 structure OR substantial word count ──
     # Return the full body without ANY stripping — Gemini output is complete.
-    if "<h2>" in body_html or "<h3>" in body_html or word_count > 300:
+    if "<h2>" in body_html or "<h3>" in body_html or word_count > 300 or actual_wc > 300:
         # Only strip accidental markdown fences Gemini occasionally produces
         body_clean = re.sub(r"```html?\n?|```\n?", "", body_html).strip()
         # Remove boilerplate filler sentences while keeping all structure
@@ -1379,7 +1676,7 @@ def _clean_body(a):
     cs_raw = re.sub(r"\s+", " ", cs_raw)
     cs_words = cs_raw.split()
 
-    if len(cs_words) >= 120 and not _is_boilerplate(cs_raw):
+    if len(cs_words) >= 50 and not _is_boilerplate(cs_raw):
         mid = len(cs_words) // 2
         for i in range(mid, min(mid + 25, len(cs_words))):
             if cs_words[i].endswith((".", "?")): mid = i + 1; break
@@ -1387,7 +1684,7 @@ def _clean_body(a):
         p2 = " ".join(cs_words[mid:])
         return f"<p>{p1}</p>\n" + (f"<p>{p2}</p>" if p2 else "")
 
-    # Raw paragraphs — limit to 4, strip boilerplate
+    # Raw paragraphs — keep ALL that pass quality check (no arbitrary limit)
     paras = re.findall(r"<p[^>]*>(.*?)</p>", body_html, re.DOTALL)
     clean = []
     for p in paras:
@@ -1398,7 +1695,7 @@ def _clean_body(a):
         clean.append(f"<p>{p.strip()}</p>")
 
     if clean:
-        return "\n".join(clean[:4])   # limit raw RSS to 4 paragraphs
+        return "\n".join(clean)   # no truncation — article passed quality gate
 
     # Last resort: dek + short teaser
     dek    = (a.get("dek") or "").strip()
@@ -1411,24 +1708,44 @@ def _clean_body(a):
 
 
 def article_page(a):
+    # ── Thin content check: redirect to source for stub articles ──────────────
     body_raw = a.get("body_html","") or ""
+    body_wc  = len(re.sub(r"<[^>]+>", " ", body_raw).split())
+    has_struct = "<h2>" in body_raw or "<h3>" in body_raw
+    src_url_direct = a.get("source_url") or a.get("url") or a.get("link","")
+    
+    if body_wc < 200 and not has_struct and src_url_direct:
+        # Render a clean source-redirect article page (no thin content)
+        cat2   = a.get("category","featured")
+        ci2    = CAT.get(cat2, CAT["featured"])
+        title2 = e(a.get("title","Untitled"))
+        dt2    = d(a.get("published",""))
+        return f"""{head(title2+" | The Streamic", a.get("meta_description",title2), f"{BASE_URL}/articles/{a['slug']}.html", css="../style.css")}
+<body>
+{nav(ci2.get("page","featured.html"), base="../")}
+<main><div class="art-wrap" style="max-width:680px;padding:60px 24px 80px">
+  <a href="../{ci2.get('page','featured.html')}" style="font-size:13px;color:var(--blue);text-decoration:none">← {ci2.get('label','Featured')}</a>
+  <h1 style="font-family:var(--serif);font-size:clamp(22px,3.5vw,36px);line-height:1.25;letter-spacing:-.03em;margin:20px 0 12px">{title2}</h1>
+  <p style="font-size:13px;color:var(--ink4);margin-bottom:32px">By The Streamic Editorial Team · {dt2}</p>
+  <div style="background:var(--bg);border-radius:14px;padding:28px 32px;border-left:4px solid var(--blue)">
+    <p style="font-size:15px;color:var(--ink2);line-height:1.7;margin:0 0 20px">This is an industry news item tracked by The Streamic. Our editorial team has flagged it for upcoming analysis. For the complete story, read the original article from {e(a.get('source_domain','the source').replace('https://','').replace('www.','').split('/')[0])}.</p>
+    <a href="{e(src_url_direct)}" target="_blank" rel="noopener noreferrer nofollow"
+      style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;background:var(--blue);color:#fff;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none">
+      Read Original Article →
+    </a>
+  </div>
+  <p style="font-size:12px;color:var(--ink4);margin-top:24px">The Streamic publishes original broadcast technology analysis on our <a href="../featured.html" style="color:var(--blue)">Featured</a> and <a href="../posts.html" style="color:var(--blue)">All Articles</a> pages.</p>
+</div></main>
+{footer()}
+{_cookie_banner()}
+</body></html>"""
+
     cat   = a.get("category","featured")
     cinfo = CAT.get(cat, CAT["featured"])
     slug  = a["slug"]
     url   = f"{BASE_URL}/articles/{slug}.html"
     title = a.get("title","")
     dek   = a.get("dek") or a.get("meta_description","")
-    # AdSense: meta description must differ from title
-    if not dek or dek.strip().lower() == title.strip().lower():
-        # Extract first ~150 chars from body as description
-        body_text = re.sub(r"<[^>]+>", " ", a.get("body_html","") or "")
-        body_text = re.sub(r"\s+", " ", body_text).strip()
-        if len(body_text) > 155:
-            dek = body_text[:152].rsplit(" ", 1)[0] + "..."
-        elif body_text:
-            dek = body_text
-        else:
-            dek = f"Expert analysis on {title} by The Streamic."
     img   = a.get("image_url","")
     dt    = d(a.get("published",""))
     src_url  = a.get("source_url","")
@@ -1451,22 +1768,44 @@ def article_page(a):
     }, indent=2)
 
     source_credit = ""
-    if src_url and src_dom and not is_ed:
-        source_credit = f"""<div class="art-source-credit">
-  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
-    <div>
-      <span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--blue);display:block;margin-bottom:4px">Original Source</span>
-      <strong style="font-size:14px;color:var(--ink)">{e(src_dom)}</strong>
-    </div>
-    <a href="{e(src_url)}" target="_blank" rel="noopener noreferrer nofollow"
-       style="display:inline-flex;align-items:center;gap:6px;padding:10px 20px;
-              background:var(--blue);color:#fff;border-radius:8px;font-size:13px;
-              font-weight:600;text-decoration:none;">
-      View Original Article &rarr;
-    </a>
-  </div>
-  <p style="margin:10px 0 0;font-size:12px;color:var(--ink4)">
-    The analysis above is original editorial commentary by The Streamic. The news is reported by {e(src_dom)}.
+    source_banner = ""
+    # Derive source domain from URL if field is missing
+    if not src_dom and src_url:
+        src_dom = src_url.replace("https://","").replace("http://","").replace("www.","").split("/")[0]
+    # Show source attribution for ALL articles with a source_url,
+    # EXCEPT truly hand-written editorials (gpt_manual_editorial).
+    # rewrite_feed_local articles have is_editorial=True but ARE sourced from news.
+    _is_original = a.get("generated_by") == "gpt_manual_editorial"
+    if src_url and not _is_original:
+        _src_name = e(src_dom) if src_dom else "Original Source"
+        _pub_date = a.get("published","")
+        _pub_month = ""
+        if _pub_date:
+            try:
+                from datetime import datetime as _dt
+                _pub_month = _dt.strptime(_pub_date, "%Y-%m-%d").strftime("%B %Y")
+            except Exception:
+                _pub_month = _pub_date
+
+        # ── TOP: Source attribution banner ──
+        source_banner = f"""<div style="background:#f0f4ff;border:1px solid #d0daf0;border-radius:10px;padding:16px 20px;margin-bottom:28px;font-size:13.5px;color:var(--ink2);line-height:1.6">
+  <span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--blue);display:block;margin-bottom:6px">Source Attribution</span>
+  This analysis is based on publicly available reporting from:
+  <strong style="color:var(--ink)"><a href="{e(src_url)}" target="_blank" rel="noopener noreferrer nofollow" style="color:var(--blue);text-decoration:none">{_src_name}</a></strong>{f" ({_pub_month})" if _pub_month else ""}.
+  <br>This article provides independent technical interpretation by The Streamic.
+</div>"""
+
+        # ── BOTTOM: Sources & Further Reading ──
+        source_credit = f"""<div style="background:var(--bg);border-radius:12px;padding:22px 24px;margin-top:36px;border-top:3px solid var(--blue)">
+  <h4 style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--blue);margin:0 0 14px">Sources &amp; Further Reading</h4>
+  <ul style="margin:0;padding-left:18px;list-style:disc">
+    <li style="font-size:13.5px;color:var(--ink2);line-height:1.6;margin-bottom:6px">
+      <strong style="color:var(--ink)">{_src_name}</strong> &mdash;
+      <a href="{e(src_url)}" target="_blank" rel="noopener noreferrer nofollow" style="color:var(--blue);text-decoration:none">Read the original article &rarr;</a>
+    </li>
+  </ul>
+  <p style="margin:12px 0 0;font-size:12px;color:var(--ink4);line-height:1.5">
+    The Streamic provides independent editorial commentary. All source material is credited and linked above. External links carry <code style="font-size:11px;background:#e8e8ed;padding:1px 5px;border-radius:3px">rel="nofollow noopener"</code>.
   </p>
 </div>"""
 
@@ -1531,7 +1870,7 @@ def article_page(a):
 <main>
   <div class="art-wrap">
     <div class="art-breadcrumb">
-      <a href="/">Home</a>
+      <a href="../featured.html">Home</a>
       <span>›</span>
       <a href="../{cinfo_page}" style="color:{cinfo_color}">{cinfo_lbl}</a>
     </div>
@@ -1541,19 +1880,20 @@ def article_page(a):
     <div class="art-byline">
       <strong>{AUTHOR}</strong>
       <time datetime="{a.get("published","")}" style="color:var(--ink4);font-size:13px">{dt}</time>
+      <span>{wc:,} words · {rm(wc)}</span>
       {analysis_badge}
     </div>
     <figure>
       <img src="{eu(img)}" alt="{e(title)}" loading="eager">
       <figcaption>{e(a.get("image_credit","Photo via Unsplash &#8212; free to use under the Unsplash License"))} &#8212; <a href="{lic_url}" rel="nofollow noopener" target="_blank" style="color:var(--ink4)">{lic_label}</a></figcaption>
     </figure>
-    <div class="art-body">{body}{editors_note}</div>
+    <div class="art-body">{source_banner}{body}{editors_note}</div>
     {source_credit}
     {author_box}
     <div class="art-more">
       <h3>Continue Reading</h3>
       <a href="../{CAT_PAGE.get(cat,cat+'.html')}">{cinfo['icon']} All {cinfo['label']} Coverage</a>
-      <a href="/">⭐ Featured Stories</a>
+      <a href="../featured.html">⭐ Featured Stories</a>
     </div>
   </div>
 </main>
@@ -1568,7 +1908,7 @@ def about_page():
     return f"""{head("About The Streamic — Prerak K Mehta","Independent broadcast and streaming technology journalism from Dublin, Ireland.",f"{BASE_URL}/about.html")}
 <body>
 {nav()}
-<main><div class="w" style="padding:52px 0 80px;max-width:780px">
+<main><div class="w" style="padding:52px 24px 80px;max-width:780px">
 <h1 style="font-family:var(--serif);font-size:clamp(28px,4vw,44px);margin-bottom:16px;letter-spacing:-.5px">About The Streamic</h1>
 <p style="font-size:17px;color:var(--ink2);line-height:1.65;margin-bottom:20px">The Streamic is an independent broadcast and streaming technology publication covering the tools, standards, and workflows that shape modern media production and delivery.</p>
 <p style="font-size:15px;color:var(--ink3);line-height:1.7;margin-bottom:20px">We publish original editorial analysis on topics including IP infrastructure (SMPTE ST 2110, NMOS), cloud-native production, operational AI, real-time graphics, playout automation, and newsroom technology. Our readership includes broadcast engineers, operations managers, technology directors, and media industry professionals.</p>
@@ -1611,7 +1951,7 @@ def contact_page():
     return f"""{head("Contact — The Streamic","Get in touch with The Streamic editorial team in Dublin, Ireland.",f"{BASE_URL}/contact.html")}
 <body>
 {nav()}
-<main><div class="w" style="padding:52px 0 80px;max-width:680px">
+<main><div class="w" style="padding:52px 24px 80px;max-width:680px">
 <h1 style="font-family:var(--serif);font-size:clamp(28px,4vw,40px);margin-bottom:8px">Contact</h1>
 <p style="font-size:15px;color:var(--ink3);line-height:1.7;margin-bottom:32px">We welcome editorial feedback, tips, corrections, and partnership enquiries.</p>
 <div style="background:var(--bg);border-radius:14px;padding:24px 28px;margin-bottom:32px">
@@ -1626,11 +1966,11 @@ def contact_page():
   <p style="font-size:14px;color:var(--ink3)"><strong style="color:var(--ink)">Advertising:</strong> Include &#34;Advertising&#34; in your subject line</p>
 </div>
 <h2 style="font-family:var(--serif);font-size:22px;margin-bottom:20px">Send us a message</h2>
-
-<div id="formSuccess" style="display:none;margin-bottom:16px;padding:12px 14px;border-radius:10px;background:rgba(52,199,89,.10);border:1px solid rgba(52,199,89,.22);color:#1f6f3d;font-size:14px;line-height:1.5"></div>
-<div id="formError" style="display:none;margin-bottom:16px;padding:12px 14px;border-radius:10px;background:rgba(255,59,48,.08);border:1px solid rgba(255,59,48,.18);color:#9f2d27;font-size:14px;line-height:1.5"></div>
-
-<form id="contactForm" style="display:flex;flex-direction:column;gap:16px">
+<form action="https://formsubmit.co/technodate3@gmail.com" method="POST" style="display:flex;flex-direction:column;gap:16px">
+  <input type="hidden" name="_subject" value="New contact form enquiry from The Streamic">
+  <input type="hidden" name="_template" value="table">
+  <input type="hidden" name="_next" value="https://www.thestreamic.in/thank-you.html">
+  <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
   <div>
     <label for="cf-name" style="display:block;font-size:13px;font-weight:600;color:var(--ink);margin-bottom:6px">Your Name</label>
     <input id="cf-name" type="text" name="name" required placeholder="Jane Smith"
@@ -1651,81 +1991,15 @@ def contact_page():
     <textarea id="cf-message" name="message" required rows="5" placeholder="Your message..."
       style="width:100%;padding:10px 14px;border:1px solid var(--line);border-radius:8px;font-size:14px;color:var(--ink);background:#fff;box-sizing:border-box;resize:vertical"></textarea>
   </div>
-
-  <input type="text" id="cf-company" name="company" tabindex="-1" autocomplete="off" style="display:none">
-
-  <button id="cf-submit" type="submit"
+  <button type="submit"
     style="align-self:flex-start;padding:11px 28px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:background .15s ease">
     Send Message
   </button>
 </form>
-
-<p style="font-size:12px;color:var(--ink4);margin-top:14px;line-height:1.6">Messages are sent securely through our contact form provider and delivered to our inbox.</p>
+<p style="font-size:12px;color:var(--ink4);margin-top:14px;line-height:1.6">On first use, FormSubmit sends a one-time activation email to <strong>technodate3@gmail.com</strong>. After you confirm it once, future submissions go directly to your inbox.</p>
 </div></main>
 {footer()}
 {_cookie_banner()}
-<script src="main.js" defer></script>
-<script>
-document.addEventListener("DOMContentLoaded", function () {{
-  var form = document.getElementById("contactForm");
-  var submitBtn = document.getElementById("cf-submit");
-  var successBox = document.getElementById("formSuccess");
-  var errorBox = document.getElementById("formError");
-
-  if (!form) return;
-
-  form.addEventListener("submit", async function (e) {{
-    e.preventDefault();
-
-    successBox.style.display = "none";
-    errorBox.style.display = "none";
-    successBox.textContent = "";
-    errorBox.textContent = "";
-
-    var honey = document.getElementById("cf-company");
-    if (honey && honey.value.trim() !== "") {{
-      errorBox.textContent = "Submission blocked.";
-      errorBox.style.display = "block";
-      return;
-    }}
-
-    submitBtn.disabled = true;
-    submitBtn.textContent = "Sending...";
-
-    var formData = new FormData(form);
-    formData.append("_subject", "New contact form enquiry from The Streamic");
-    formData.append("_source", "https://www.thestreamic.in/contact.html");
-
-    try {{
-      var response = await fetch("https://formspree.io/f/xdapdday", {{
-        method: "POST",
-        body: formData,
-        headers: {{ "Accept": "application/json" }}
-      }});
-
-      if (response.ok) {{
-        form.reset();
-        successBox.textContent = "Thanks — your message has been sent successfully.";
-        successBox.style.display = "block";
-      }} else {{
-        var data = await response.json().catch(function(){{ return {{}}; }});
-        if (data && data.errors && data.errors.length) {{
-          errorBox.textContent = data.errors.map(function(err){{ return err.message; }}).join(" ");
-        }} else {{
-          errorBox.textContent = "Sorry, your message could not be sent right now. Please try again.";
-        }}
-        errorBox.style.display = "block";
-      }}
-    }} catch (err) {{
-      errorBox.textContent = "Network error. Please try again in a moment.";
-      errorBox.style.display = "block";
-    }} finally {{
-      submitBtn.disabled = false;
-      submitBtn.textContent = "Send Message";
-    }}
-  }});
-}});
-</script>
 </body></html>"""
 
 def privacy_page():
@@ -1733,7 +2007,7 @@ def privacy_page():
     return f"""{head("Privacy Policy — The Streamic","Privacy Policy for thestreamic.in",f"{BASE_URL}/privacy.html")}
 <body>
 {nav()}
-<main><div class="w" style="padding:52px 0 80px;max-width:760px">
+<main><div class="w" style="padding:52px 24px 80px;max-width:760px">
 <h1 style="font-family:var(--serif);font-size:clamp(24px,4vw,38px);margin-bottom:20px">Privacy Policy</h1>
 <p style="font-size:12px;color:var(--ink4);margin-bottom:28px">Last updated: March 2026</p>
 <div style="font-size:15px;color:var(--ink3);line-height:1.75">
@@ -1756,7 +2030,7 @@ def terms_page():
     return f"""{head("Terms of Use — The Streamic","Terms of Use for thestreamic.in",f"{BASE_URL}/terms.html")}
 <body>
 {nav()}
-<main><div class="w" style="padding:52px 0 80px;max-width:760px">
+<main><div class="w" style="padding:52px 24px 80px;max-width:760px">
 <h1 style="font-family:var(--serif);font-size:clamp(24px,4vw,38px);margin-bottom:20px">Terms of Use</h1>
 <p style="font-size:12px;color:var(--ink4);margin-bottom:28px">Last updated: March 2026</p>
 <div style="font-size:15px;color:var(--ink3);line-height:1.75">
@@ -1778,7 +2052,7 @@ def editorial_policy_page():
     return f"""{head("Editorial Policy — The Streamic","How The Streamic produces, reviews, and attributes broadcast technology content.",f"{BASE_URL}/editorial-policy.html")}
 <body>
 {nav()}
-<main><div class="w" style="padding:52px 0 80px;max-width:780px">
+<main><div class="w" style="padding:52px 24px 80px;max-width:780px">
 <h1 style="font-family:var(--serif);font-size:clamp(26px,4vw,42px);margin-bottom:16px;letter-spacing:-.5px">Editorial Policy</h1>
 <p style="font-size:13px;color:var(--ink4);margin-bottom:32px">Last updated: {yr}</p>
 
@@ -1872,6 +2146,20 @@ def howto_page():
             "tag": "Vizrt · iNEWS · MOS",
             "time": "14 min",
         },
+        {
+            "title": "Upgrade to Windows 11",
+            "desc": "Step-by-step upgrade guide for broadcast workstations and edit suites. Compatibility checks, driver verification, and rollback procedure.",
+            "href": "articles/guide-windows11-upgrade.html",
+            "tag": "IT · Windows",
+            "time": "5 min",
+        },
+        {
+            "title": "Upgrade to macOS Sequoia",
+            "desc": "How to safely upgrade a post-production Mac. Pre-upgrade checklist, NLE compatibility matrix, and what to do if your plugins break.",
+            "href": "articles/guide-macos-upgrade.html",
+            "tag": "IT · macOS",
+            "time": "5 min",
+        },
     ]
 
     cards = "".join(f''' <div class="howto-card">
@@ -1904,67 +2192,7 @@ def vlog_page():
     return f"""{head("Editor's Desk — The Streamic","Notes, commentary and perspective from the Streamic editorial team.",f"{BASE_URL}/vlog.html")}
 <body>
 {nav("vlog.html")}
-<main><div class="w" style="padding:52px 0 80px;max-width:760px">
-<div class="cat-hdr">
-  <h1>Editor's Desk</h1>
-  <p>Commentary, perspective, and notes from the editorial team at The Streamic.</p>
-</div>
-<p style="font-size:15px;color:var(--ink3);line-height:1.7;margin-bottom:24px">The Streamic covers broadcast and streaming technology with a focus on what matters operationally to engineers and technology leaders. This is where we share perspective beyond the news cycle.</p>
-<div style="background:var(--bg);border-radius:14px;padding:28px;font-size:14px;color:var(--ink3);line-height:1.7">
-  <strong style="color:var(--ink);display:block;margin-bottom:8px">What we're watching in 2026</strong>
-  The ST 2110 adoption curve in small-market broadcasters. The economics of cloud production post-Paris 2024. How C2PA is changing newsroom verification workflows. The quiet revolution of operational AI inside MAM systems.
-</div>
-</div></main>
-{footer()}
-{_cookie_banner()}
-</body></html>"""
-
-def insights_page():
-    # UNHIDE: change robots="noindex,nofollow" to robots="index,follow" when ready to go live
-    return f"""{head("The Streamic Insights: Conversations with Media Veterans",
-                      "In-depth Q&amp;A interviews with broadcast and post-production pioneers. Expert perspectives on AI, DI workflows, and the future of media technology.",
-                      f"{BASE_URL}/insights.html",
-                      og_img="https://www.thestreamic.in/assets/neil-sadwelkar.jpg",
-                      robots="noindex,nofollow")}
-<body>
-{nav("insights.html")}
-<main>
-  <div class="w" style="max-width:860px;padding-bottom:80px">
-
-    <div style="padding:52px 0 40px;border-bottom:1px solid var(--line);margin-bottom:44px">
-      <div style="display:inline-flex;align-items:center;gap:6px;background:#fff8ee;border:1px solid #e8d09a;color:var(--gold);font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:5px 14px;border-radius:999px;margin-bottom:20px">&#10022; The Veteran&#8217;s Lens</div>
-      <h1 style="font-family:var(--serif);font-size:clamp(26px,3.5vw,42px);letter-spacing:-.04em;line-height:1.1;margin:0 0 12px">The Streamic Insights</h1>
-      <p style="font-size:16px;color:var(--ink3);line-height:1.7;max-width:600px;margin:0">Conversations with media veterans. In-depth Q&amp;A with the broadcast engineers, colourists, and post-production pioneers shaping the future of our industry.</p>
-    </div>
-
-    <a style="display:grid;grid-template-columns:1fr 300px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--white);margin-bottom:24px;transition:box-shadow .2s;text-decoration:none;color:inherit" href="articles/Expertinsight1.html"
-       onmouseover="this.style.boxShadow='0 4px 24px rgba(0,0,0,.09)'"
-       onmouseout="this.style.boxShadow='none'">
-      <div style="padding:32px 36px;display:flex;flex-direction:column;justify-content:center">
-        <span style="display:inline-block;background:var(--gold);color:#fff;font-size:11px;font-weight:800;padding:3px 11px;border-radius:4px;letter-spacing:.3px;margin-bottom:16px;width:fit-content">Expert Q&amp;A</span>
-        <div style="font-size:clamp(16px,1.8vw,20px);font-weight:700;color:var(--ink);line-height:1.3;margin:0 0 8px;letter-spacing:-.01em">Neil Sadwelkar on AI and the Future of Digital Imaging</div>
-        <p style="font-size:14px;color:var(--ink3);line-height:1.6;margin:0 0 16px">From negative cutting to AI-assisted colour grading &mdash; a candid conversation with one of India&#8217;s foremost DI pioneers.</p>
-        <div style="font-size:12px;color:var(--ink4);margin-bottom:16px">By The Streamic Editorial Team &middot; April 2, 2026 &middot; 9 min read</div>
-        <span style="display:inline-flex;align-items:center;gap:4px;font-size:14px;font-weight:500;color:var(--ink);border:1.5px solid var(--line);border-radius:6px;padding:8px 16px;width:fit-content">Read Interview &rsaquo;</span>
-      </div>
-      <div style="overflow:hidden">
-        <img src="assets/neil-sadwelkar.jpg" alt="Neil B. Sadwelkar" loading="lazy"
-             style="width:100%;height:100%;object-fit:cover;display:block"
-             onerror="this.onerror=null;this.src='assets/fallback.jpg'">
-      </div>
-    </a>
-
-  </div>
-</main>
-{footer()}
-{_cookie_banner()}
-</body></html>"""
-
-def vlog_page():
-    return f"""{head("Editor's Desk — The Streamic","Notes, commentary and perspective from the Streamic editorial team.",f"{BASE_URL}/vlog.html")}
-<body>
-{nav("vlog.html")}
-<main><div class="w" style="padding:52px 0 80px;max-width:760px">
+<main><div class="w" style="padding:52px 24px 80px;max-width:760px">
 <div class="cat-hdr">
   <h1>Editor's Desk</h1>
   <p>Commentary, perspective, and notes from the editorial team at The Streamic.</p>
@@ -1982,68 +2210,22 @@ def vlog_page():
 # ── SITEMAP
 def sitemap(arts):
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    # ── Core pages (no duplicates — featured.html = index.html, skip it)
     statics = [
-        ("index.html",                   "daily",   "1.0"),
-        ("posts.html",                   "daily",   "0.85"),
-        ("ai-post-production.html",      "daily",   "0.9"),
-        ("howto.html",                   "weekly",  "0.85"),
-        ("post-production-workflows.html","weekly",  "0.80"),
-        # UNHIDE: uncomment next line to add Insights to sitemap
-        # ("insights.html",                "weekly",  "0.85"),
-        ("about.html",                   "monthly", "0.6"),
-        ("contact.html",                 "monthly", "0.5"),
-        ("editorial-policy.html",        "monthly", "0.6"),
-        ("privacy.html",                 "yearly",  "0.3"),
-        ("terms.html",                   "yearly",  "0.3"),
+        ("index.html","daily","1.0"),("featured.html","daily","0.98"),
+        ("ai-post-production.html","daily","0.9"),
+        ("howto.html","weekly","0.85"),("post-production-workflows.html","weekly","0.90"),
+        ("about.html","monthly","0.6"),("contact.html","monthly","0.5"),
+        ("editorial-policy.html","monthly","0.6"),
+        ("privacy.html","yearly","0.3"),("terms.html","yearly","0.3"),
     ]
-    # ── How-to guides (not in generated_articles.json but high-value)
-    guide_slugs = [
-        "guide-premiere-to-avid",
-        "guide-vantage-nas-transcode",
-        "guide-vantage-aws-transcode",
-        "guide-avid-media-central-health-check",
-        "guide-audio-conform-avid-protools",
-        "guide-avid-strawberry",
-        "guide-media-central-cache",
-        "guide-vizrt-avid-integration",
-    ]
-    # ── Orphan editorial pages (not in JSON, but quality content)
-    orphan_editorials = [
-        "beyond-chatbot-invisible-ai-newsroom-2026",
-        "c2pa-digital-provenance-deepfake-news-credibility",
-        "green-broadcast-cloud-carbon-footprint-analysis",
-        "paris-2024-cloud-production-legacy-global-events-2026",
-        "st2110-small-market-hybrid-ip-transition",
-        "studio-di-pipeline-workflow-2026",
-        "quic-http3-video-delivery-streaming-2026",
-    ]
-
     lines = ['<?xml version="1.0" encoding="UTF-8"?>',
              '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
-    # Static pages — use canonical_url to normalize
-    for pg, fr, pr in statics:
-        loc = canonical_url(f"/{pg}")
-        lines.append(f'  <url><loc>{loc}</loc><lastmod>{today}</lastmod><changefreq>{fr}</changefreq><priority>{pr}</priority></url>')
-    # How-to guides — high value, stable content
-    for slug in guide_slugs:
-        if os.path.exists(os.path.join(ARTS_D, f"{slug}.html")):
-            lines.append(f'  <url><loc>{BASE_URL}/articles/{slug}.html</loc><lastmod>{today}</lastmod><changefreq>monthly</changefreq><priority>0.80</priority></url>')
-    # Orphan editorial pages
-    for slug in orphan_editorials:
-        if os.path.exists(os.path.join(ARTS_D, f"{slug}.html")):
-            lines.append(f'  <url><loc>{BASE_URL}/articles/{slug}.html</loc><lastmod>{today}</lastmod><changefreq>monthly</changefreq><priority>0.80</priority></url>')
-    # JSON articles — editorial gets higher priority
-    seen = set(guide_slugs + orphan_editorials)
+    for pg,fr,pr in statics:
+        lines.append(f'  <url><loc>{BASE_URL}/{pg}</loc><lastmod>{today}</lastmod><changefreq>{fr}</changefreq><priority>{pr}</priority></url>')
     for a in arts:
         slug_ = a.get('slug', '')
-        if not slug_ or slug_ in seen:
-            continue
-        seen.add(slug_)
-        pub_ = (a.get('published', '') or today)[:10]
-        is_ed = a.get("is_editorial") or a.get("editorial")
-        pri = "0.85" if is_ed else "0.75"
-        lines.append(f'  <url><loc>{BASE_URL}/articles/{slug_}.html</loc><lastmod>{pub_}</lastmod><changefreq>monthly</changefreq><priority>{pri}</priority></url>')
+        pub_ = a.get('published', '')
+        lines.append(f'  <url><loc>{BASE_URL}/articles/{slug_}.html</loc><lastmod>{pub_}</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>')
     lines.append('</urlset>')
     return "\n".join(lines)
 
@@ -2076,27 +2258,90 @@ def main():
             if fallback:
                 a["body_html"] = f"<p>{fallback}</p>"
 
-    print(f"  Total articles loaded: {len(arts)}")
+    # ── QUALITY GATE — TWO-TIER SYSTEM ─────────────────────────────────────
+    #
+    # Tier 1 (page exists, internal link works): 400+ words + 2 broadcast terms
+    #   → article HTML page is generated, used by Intelligence section, etc.
+    #   → gets noindex,nofollow (not visible to Google)
+    #
+    # Tier 2 (SEO-visible, fully indexed): 800+ words OR gpt_manual_editorial
+    #   → gets index,follow — the high-quality articles Google sees
+    #
+    # HOMEPAGE PROTECTION: articles hardcoded into the homepage layout
+    # (hero, Latest Insights, Professional Media Systems Guide) always survive.
+    # ─────────────────────────────────────────────────────────────────────────
 
-    # ── AdSense quality gate: remove thin non-editorial articles ──────────
-    # Editorial articles always kept (curated, homepage-referenced).
-    # RSS articles must have 500+ words to be published.
-    MIN_ARTICLE_WORDS = 500
-    before = len(arts)
-    quality_arts = []
+    MIN_FEED_WORDS = 400   # minimum for article page to exist at all
+
+    HOMEPAGE_PROTECTED_SLUGS = {
+        # Hero
+        "ai-reducing-broadcast-operational-costs-2026",
+        # Professional Media Systems Guide
+        "broadcast-automation-systems-guide-2026",
+        "ip-broadcasting-smpte-st2110-engineering-guide-2026",
+        "cloud-broadcast-workflows-remote-production-2026",
+        "media-asset-management-ai-era-monetisation-2026",
+        # Latest Insights
+        "beyond-the-chatbot-operational-ai-newsroom-2026",
+        "st-2110-small-market-hybrid-ip-broadcasters-2026",
+        "paris-2024-cloud-production-legacy-global-events-2026",
+        "c2pa-deepfake-news-credibility-digital-provenance-2026",
+        # Flagship / pillar articles
+        "studio-grade-video-workflow-post-production-2026",
+        "green-broadcast-cloud-carbon-footprint-sustainability-2026",
+    }
+
+    quality_pass, quality_fail = [], []
     for a in arts:
-        is_ed = a.get("is_editorial") or a.get("editorial")
-        if is_ed:
-            quality_arts.append(a)
+        slug = a.get("slug", "")
+
+        # Homepage-protected articles always pass
+        if slug in HOMEPAGE_PROTECTED_SLUGS:
+            quality_pass.append(a)
             continue
+
+        # Manual editorials: 400-word floor (they're hand-curated)
+        is_manual = a.get("generated_by") == "gpt_manual_editorial"
         body = a.get("body_html", "") or ""
-        wc = len(re.sub(r"<[^>]+>", " ", body).split())
-        if wc >= MIN_ARTICLE_WORDS:
-            quality_arts.append(a)
-    removed = before - len(quality_arts)
-    if removed:
-        print(f"  Removed {removed} thin articles (<{MIN_ARTICLE_WORDS}w)")
-    arts = quality_arts
+        plain = re.sub(r"<[^>]+>", " ", body)
+        plain = re.sub(r"\s+", " ", plain).strip()
+        wc = len(plain.split())
+
+        if is_manual and wc < MIN_FEED_WORDS:
+            quality_fail.append((slug, f"editorial too short ({wc}w, need {MIN_FEED_WORDS})"))
+            continue
+
+        # Auto-generated: need MIN_FEED_WORDS (400) to get a page at all
+        if not is_manual and wc < MIN_FEED_WORDS:
+            quality_fail.append((slug, f"too short ({wc}w, need {MIN_FEED_WORDS})"))
+            continue
+
+        # Broadcast relevance: need 2+ matching terms
+        search_text = (a.get("title", "") + " " + plain).lower()
+        matched = set()
+        for term in BROADCAST_TERMS:
+            if term in search_text:
+                matched.add(term)
+            if len(matched) >= 2:
+                break
+        if len(matched) < 2:
+            quality_fail.append((slug, f"low relevance ({len(matched)} terms)"))
+            continue
+
+        quality_pass.append(a)
+
+    if quality_fail:
+        print(f"  Quality gate: {len(quality_pass)} pass, {len(quality_fail)} rejected")
+        for slug, reason in quality_fail[:10]:
+            print(f"    ✗ {slug[:60]}  — {reason}")
+        if len(quality_fail) > 10:
+            print(f"    … and {len(quality_fail)-10} more")
+    arts = quality_pass
+
+    print(f"  Total articles after quality gate: {len(arts)}")
+
+    # ── Fix images: replace typewriters/newspapers with broadcast visuals ──
+    _fix_article_images(arts)
 
     # ── Select top MAX_ARTICLES by quality — editorial always first ───────
     # SAFE DESIGN: AdSense quality affects index/noindex status, NOT visibility.
@@ -2106,102 +2351,124 @@ def main():
     ed_arts  = [a for a in arts if a.get("is_editorial") or a.get("editorial")]
     rss_pool = [a for a in arts if not a.get("is_editorial") and not a.get("editorial")]
 
-    # AdSense-safe: ALL remaining articles are 500+ words (thin content
-    # was removed by adsense_cleanup.py). Index everything.
+    # Score all RSS articles — high scorers get indexed, others get noindex
+    # but are still rendered on category pages (never blank)
     rss_pool.sort(key=lambda a: -_score_art(a))
 
-    visible_list  = (ed_arts + rss_pool)[:MAX_ARTICLES]
+    # Top RSS by score — these get index,follow
+    # Use a per-category quota to ensure diversity: 3 per cat max
+    cat_quota = {}
+    rss_indexed = []
+    for a in rss_pool:
+        cat = a.get("category", "featured")
+        if cat_quota.get(cat, 0) < 3:
+            rss_indexed.append(a)
+            cat_quota[cat] = cat_quota.get(cat, 0) + 1
+        if len(rss_indexed) >= 22:   # max 22 industry briefing indexed slots
+            break
+
+    visible_list  = (ed_arts + rss_indexed)[:MAX_ARTICLES]
     visible_slugs = {a["slug"] for a in visible_list}
 
     # Diagnostic
-    print(f"  All {len(visible_slugs)} articles indexed (index,follow)")
+    rss_indexed_count = len(rss_indexed)
+    rss_noindex_count = len(rss_pool) - rss_indexed_count
+    print(f"  Visible (indexed): {len(visible_slugs)} | Hidden (noindex): {len(arts)-len(visible_slugs)}")
+    print(f"  RSS: {rss_indexed_count} indexed + {rss_noindex_count} noindex (appear on pages, not in search)")
 
     os.makedirs(ARTS_D, exist_ok=True)
 
-    # ── Clean stale article files (prevents junk from previous builds) ────
-    # Preserve guide files and known quality orphan editorials
-    PROTECTED_PREFIXES = ("guide-", "Expertinsight",)
-    PROTECTED_NAMES = {
-        "beyond-chatbot-invisible-ai-newsroom-2026.html",
-        "c2pa-digital-provenance-deepfake-news-credibility.html",
-        "green-broadcast-cloud-carbon-footprint-analysis.html",
-        "paris-2024-cloud-production-legacy-global-events-2026.html",
-        "paris-2024-legacy-cloud-production-2026.html",
-        "st2110-small-market-hybrid-ip-transition.html",
-        "studio-di-pipeline-workflow-2026.html",
-        "quic-http3-video-delivery-streaming-2026.html",
-        "Expertinsight1.html",
-    }
-    valid_filenames = {f"{a['slug']}.html" for a in arts}
-    stale_count = 0
-    for fname in os.listdir(ARTS_D):
-        if not fname.endswith(".html"):
-            continue
-        if fname in valid_filenames or fname in PROTECTED_NAMES:
-            continue
-        if any(fname.startswith(p) for p in PROTECTED_PREFIXES):
-            continue
-        os.remove(os.path.join(ARTS_D, fname))
-        stale_count += 1
-    if stale_count:
-        print(f"  Cleaned {stale_count} stale article files")
-
-    # Also clean stale pagination pages from docs/
-    for fname in os.listdir(DOCS):
-        if re.match(r'.+-p\d+\.html$', fname):
-            os.remove(os.path.join(DOCS, fname))
-
-    # ── Article pages — all indexed (quality-gated by cleanup) ──────────
+    # ── Article pages — visible indexed, rest noindex ─────────────────────
+    # Any article file containing <!-- HAND_AUTHORED --> is never overwritten.
+    # Add that comment to any article you edit manually to protect it permanently.
     written = 0
     for a in arts:
         slug_ = a.get("slug","")
         leg   = a.get("legacy_slug")
         dest  = os.path.join(ARTS_D, f"{slug_}.html")
+
+        # Skip if file exists and is hand-authored
+        if os.path.exists(dest):
+            with open(dest, encoding="utf-8") as _fh:
+                if "<!-- HAND_AUTHORED -->" in _fh.read():
+                    written += 1
+                    continue
+
         html  = article_page(a)
+        if a["slug"] not in visible_slugs:
+            html = html.replace(
+                '<meta name="robots" content="index,follow">',
+                '<meta name="robots" content="noindex,nofollow">'
+            )
         w(dest, html)
         written += 1
         if leg and leg != slug_:
-            w(os.path.join(ARTS_D, f"{leg}.html"), html)
-            written += 1
-    print(f"  &#10003; {written} article files (all indexed)")
+            leg_dest = os.path.join(ARTS_D, f"{leg}.html")
+            if not (os.path.exists(leg_dest) and "<!-- HAND_AUTHORED -->" in open(leg_dest, encoding="utf-8").read()):
+                w(leg_dest, html)
+                written += 1
+    print(f"  &#10003; {written} article files ({len(visible_slugs)} indexed, {written-len(visible_slugs)} noindex)")
 
     # ── Category pages ────────────────────────────────────────────────────
-    # All category pages are indexed — quality is ensured by adsense_cleanup.py
+    # ALL category pages now show REAL articles (never blank "coming soon").
+    # Only the robots meta tag differs: VISIBLE_CAT is indexed, others are noindex.
+    # This means cloud.html, streaming.html etc always have content for visitors
+    # and for AdSense crawlers — they just don't appear in Google search results
+    # until we're ready to index them.
     by_cat = {}
     for a in arts:
         by_cat.setdefault(a["category"], []).append(a)
 
     cat_page_counts = {}
     for cat, ca in by_cat.items():
+        # All articles for this category, sorted by date
         ca_sorted = sorted(ca, key=lambda a: a.get("published", ""), reverse=True)
 
-        # Pin relevant deep-dives to ai-post-production if applicable
-        if cat == "ai-post-production":
+        if cat == VISIBLE_CAT:
+            # ai-post-production: indexed, pin relevant deep-dives
+            cat_vis = ca_sorted[:]
             PINNED_TO_AI_POST = {
                 "ai-video-post-production-editing-vfx-automation-2026",
                 "media-asset-management-ai-era-monetisation-2026",
                 "future-of-ai-in-broadcast-deployment-2026",
             }
-            pinned_slugs = {a["slug"] for a in ca_sorted}
+            pinned_slugs = {a["slug"] for a in cat_vis}
             for a in arts:
                 if a["slug"] in PINNED_TO_AI_POST and a["slug"] not in pinned_slugs:
-                    ca_sorted.append(a)
-            ca_sorted.sort(key=lambda a: a.get("published", ""), reverse=True)
+                    cat_vis.append(a)
+            cat_vis.sort(key=lambda a: a.get("published", ""), reverse=True)
+            pages = category_page(cat, cat_vis)
+            for pg, html in pages:
+                if pg > 0:
+                    html = html.replace(
+                        '<meta name="robots" content="index,follow">',
+                        '<meta name="robots" content="noindex,follow">'
+                    )
+                fname = f"{cat}.html" if pg == 0 else f"{cat}-p{pg+1}.html"
+                w(os.path.join(DOCS, fname), html)
+            cat_page_counts[cat] = len(cat_vis)
 
-        cat_articles = ca_sorted if ca_sorted else arts[:10]
-        pages = category_page(cat, cat_articles)
-        for pg, html in pages:
-            # Only noindex page 2+ (pagination) — page 1 is always indexed
-            if pg > 0:
+        else:
+            # All other categories: noindex BUT show real articles (not placeholder)
+            # Fallback: if somehow empty, use top articles from any category
+            cat_articles = ca_sorted if ca_sorted else arts[:10]
+            if not cat_articles:
+                cat_articles = arts[:10]
+
+            pages = category_page(cat, cat_articles)
+            for pg, html in pages:
+                # Force noindex on all pages for non-VISIBLE_CAT categories
                 html = html.replace(
                     '<meta name="robots" content="index,follow">',
                     '<meta name="robots" content="noindex,follow">'
                 )
-            fname = f"{cat}.html" if pg == 0 else f"{cat}-p{pg+1}.html"
-            w(os.path.join(DOCS, fname), html)
-        cat_page_counts[cat] = len(cat_articles)
+                fname = f"{cat}.html" if pg == 0 else f"{cat}-p{pg+1}.html"
+                w(os.path.join(DOCS, fname), html)
+            cat_page_counts[cat] = len(cat_articles)
 
-    print(f"  &#10003; {len(cat_page_counts)} category pages indexed")
+    indexed_cats  = [c for c in cat_page_counts if c == VISIBLE_CAT]
+    noindex_cats  = [c for c in cat_page_counts if c != VISIBLE_CAT]
+    print(f"  &#10003; {VISIBLE_CAT} indexed | {len(noindex_cats)} other categories noindex (with real articles)")
     for cat, n in sorted(cat_page_counts.items()):
         print(f"      {cat}: {n} articles")
 
@@ -2211,13 +2478,18 @@ def main():
     w(os.path.join(DOCS,"featured.html"), fp)
     w(os.path.join(DOCS,"index.html"),    fp)
     w(os.path.join(ROOT,"index.html"),    fp)   # Also at root — fixes 404 when Pages serves from branch root
+    w(os.path.join(ROOT,"featured.html"), fp)  # Mirror at root so /featured.html resolves everywhere
     print("  &#10003; featured.html + index.html")
 
-    # ── posts.html — indexed (all articles are quality after cleanup) ────
+    # ── posts.html — noindex (preserve links, hide from Google) ──────────
     ap = all_articles_page(feat_arts)
+    ap = ap.replace(
+        '<meta name="robots" content="index,follow">',
+        '<meta name="robots" content="noindex,follow">'
+    )
     w(os.path.join(DOCS,"posts.html"), ap)
     w(os.path.join(ROOT,"posts.html"), ap)
-    print("  &#10003; posts.html (indexed)")
+    print("  &#10003; posts.html (noindex)")
 
     # ── Static pages ──────────────────────────────────────────────────────
     w(os.path.join(DOCS,"about.html"),            about_page())
@@ -2226,15 +2498,18 @@ def main():
     w(os.path.join(DOCS,"terms.html"),            terms_page())
     w(os.path.join(DOCS,"editorial-policy.html"), editorial_policy_page())
     w(os.path.join(DOCS,"howto.html"),            howto_page())
-    w(os.path.join(DOCS,"how-to.html"),           howto_page())
+    # how-to.html → redirect to canonical howto.html (avoid duplicate content)
+    w(os.path.join(DOCS,"how-to.html"),
+      '<!doctype html><html><head><meta http-equiv="refresh" content="0; url=howto.html">'
+      '<link rel="canonical" href="https://www.thestreamic.in/howto.html"></head>'
+      '<body><p>Redirecting to <a href="howto.html">How-To Guides</a>.</p></body></html>')
     w(os.path.join(DOCS,"vlog.html"),             vlog_page())
-    w(os.path.join(DOCS,"insights.html"),         insights_page())
     print("  &#10003; static pages")
 
     # ── Sitemap — only visible articles + core pages ──────────────────────
     w(os.path.join(DOCS,"sitemap.xml"), sitemap([a for a in arts if a["slug"] in visible_slugs]))
     w(os.path.join(DOCS,"robots.txt"),
-      f"User-agent: *\nAllow: /\nDisallow: /featured.html\n\nSitemap: {BASE_URL}/sitemap.xml\n")
+      f"User-agent: *\nAllow: /\nDisallow: /posts.html\n\nSitemap: {BASE_URL}/sitemap.xml\n")
 
     # ── Assets ────────────────────────────────────────────────────────────
     for f_name in ("style.css","main.js"):
@@ -2259,6 +2534,23 @@ def main():
     for fn in howto_guides:
         shutil.copy2(os.path.join(ARTS_D,fn), os.path.join(root_arts,fn))
     print(f"  &#10003; {len(howto_guides)} how-to guides mirrored to root/articles/")
+
+    # ── Copy root-level hand-authored articles to docs/articles/ ──────────
+    # These are manually created articles that live at repo root and must
+    # also be served from docs/articles/ for GitHub Pages to find them.
+    _root_html_articles = [
+        "studio-grade-video-workflow-post-production-2026.html",
+    ]
+    for _fn in _root_html_articles:
+        _src_path = os.path.join(ROOT, _fn)
+        _dst_path = os.path.join(ARTS_D, _fn)
+        if os.path.isfile(_src_path) and not os.path.exists(_dst_path):
+            shutil.copy2(_src_path, _dst_path)
+            print(f"  &#10003; {_fn} copied to docs/articles/")
+        elif os.path.isfile(_src_path):
+            # Always update — root is the source of truth for hand-authored articles
+            shutil.copy2(_src_path, _dst_path)
+            print(f"  &#10003; {_fn} synced to docs/articles/")
 
     # ── docs/data/ for client-side JS — only visible articles ────────────
     docs_data_dir = os.path.join(DOCS, "data")
