@@ -1,0 +1,47 @@
+<!-- HAND_AUTHORED -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ST 2110-7 Seamless Protection: The Redundancy Math Every IP Broadcaster Gets Wrong | The Streamic</title>
+<meta name="description" content="SMPTE ST 2110-7 hitless protection promises zero-frame failover for IP broadcast. But the network math, PTP boundary clock placement, and the unspoken Red/Blue VLAN cost are where most 2026 IP migrations still fail.">
+<link rel="canonical" href="https://www.thestreamic.in/articles/st-2110-7-seamless-protection-redundancy-math-2026.html">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<article class="article-body">
+<header>
+<p class="cat">INFRASTRUCTURE</p>
+<h1>ST 2110-7 Seamless Protection: The Redundancy Math Every IP Broadcaster Gets Wrong</h1>
+<p class="dek">Hitless failover is the headline promise of SMPTE ST 2110-7. The production network math underneath it is the part vendors don't put in the datasheet — and it's where most 2026 IP migrations are quietly over budget.</p>
+<p class="byline">The Streamic Editorial · April 2026</p>
+</header>
+
+<h2>What ST 2110-7 Actually Guarantees</h2>
+<p>ST 2110-7 defines a mechanism for transmitting two identical copies of an essence flow — video, audio, or ancillary data — over two independent IP paths, with a receiver that merges them at the packet level using RTP sequence numbers and timestamps. When one path drops packets, the receiver pulls the missing packets from the other path with zero visible impact. No frame freeze, no audio click, no chyron glitch.</p>
+<p>That last sentence is the only part most engineering reviews read before signing off on a single-fabric deployment. The rest of this article is about why that reading is wrong.</p>
+
+<h2>The Two-Network Cost Nobody Costs</h2>
+<p>Seamless protection requires two <em>fully independent</em> fabrics — what SMPTE calls Red and Blue networks. Independent means separate switches, separate cabling, separate power feeds, separate PTP grandmasters, and separate spine-leaf topology. A single Arista 7280R3 spine handling both Red and Blue VLANs is not a 2110-7 deployment; it's a single point of failure wearing a high-viz jacket.</p>
+<p>For a mid-sized PCR supporting, say, 24 UHD cameras at ST 2110-20 uncompressed (~12 Gb/s per camera), you are provisioning 288 Gb/s per fabric, twice. That's before audio (2110-30), ancillary data (2110-40), multiviewer feeds, replay server traffic, and NMOS IS-04/IS-05 control plane overhead. Real-world PCR deployments consistently land at 400–600 Gb/s per fabric once all essence, multiviewer, and control traffic is accounted for.</p>
+<p>The CapEx mistake is treating the Blue network as a "50% discount" redundant path. It isn't. Because the receiver pulls missing packets from either path at any time, <strong>both networks must carry 100% of production traffic continuously</strong>. You cannot run Red at full load and Blue at half. The headline cost of a 2110-7 fabric is 2× the compute, 2× the optics, 2× the PTP grandmaster licenses, 2× the rack units, and 2× the cooling.</p>
+
+<h2>PTP Boundary Clock Placement Is the Silent Killer</h2>
+<p>The part of 2110-7 that fails in production first is rarely the network itself — it's time. ST 2110 depends on PTP (Precision Time Protocol, IEEE 1588-2008 profile) locked to sub-microsecond accuracy for the receiver to correlate packets across Red and Blue streams. If the two fabrics drift by more than a packet time, the receiver starts dropping "valid" packets as duplicates, and your seamless protection silently becomes lossy protection.</p>
+<p>The recommended pattern is a boundary clock (BC) at every leaf switch, with grandmasters distributed across both fabrics and synchronized via GNSS. Most 2026 migrations we've reviewed skip the leaf-level BC and rely on transparent clocks instead — cheaper, faster to deploy, and correct for ST 2022-6 or NDI, but insufficient for 2110-7's packet-level merge. The symptom is intermittent audio clicks on replay that engineering teams spend three months blaming on the replay server before someone pulls a Wireshark capture.</p>
+
+<h2>Where NMOS IS-07 Fits — and Where It Doesn't</h2>
+<p>NMOS IS-07 event-based tally and GPIO-over-IP is often bundled into 2110-7 conversations because it shares the same "we're replacing an analog failure mode with a distributed one" vibe. It doesn't protect essence flows. It's a control plane protocol. If your automation system is issuing IS-05 connection patches over a management VLAN that rides on Red only, a Red-fabric outage kills your ability to re-patch sources even though the essence flows survived on Blue. The control plane needs its own redundancy story, and NMOS spec maturity on that topic is still catching up to the essence plane.</p>
+
+<h2>The Honest Migration Path for 2026</h2>
+<p>For broadcasters who haven't yet committed to full Red/Blue 2110-7, the realistic 2026 architecture is usually a <strong>hybrid</strong>: single-fabric 2110 for the majority of camera and audio flows, with 2110-7 seamless protection reserved for the master program outputs, the MCR-to-transmission handoff, and the primary multiviewer feeds. That gives you transmission-path redundancy without doubling every leaf switch in the camera hall.</p>
+<p>The vendors pushing full Red/Blue everywhere are usually the ones selling switches. The consultants pushing single-fabric 2110-only are usually the ones who've watched a PTP storm take down a live broadcast and want the customer to see the calculus before the invoice. Both are right about different parts of the plant.</p>
+
+<h2>The Watch-For List</h2>
+<p>If you're reviewing a 2110-7 proposal in the next six months, three questions separate serious designs from marketing:</p>
+<p>Does the design show <em>physically</em> separate PTP grandmasters with independent GNSS feeds, not just logically separate instances on the same hardware? What is the documented Red/Blue drift budget in microseconds, and how is it monitored continuously during production? And does the NMOS IS-04/IS-05 registry run on both fabrics with automatic failover, or is it single-homed on a management network that nobody's tested failing over?</p>
+<p>If any of those three answers is vague, the seamless in "seamless protection" is doing a lot of work the architecture can't back up.</p>
+</article>
+</body>
+</html>

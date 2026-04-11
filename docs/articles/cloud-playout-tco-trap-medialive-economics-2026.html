@@ -1,0 +1,43 @@
+<!-- HAND_AUTHORED -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Cloud Playout TCO Trap: Why AWS MediaLive Looks Cheap Until It Isn't | The Streamic</title>
+<meta name="description" content="Cloud playout pricing models look linear on the slide deck and exponential on the invoice. The real cost curve for AWS MediaLive, Elemental, and Azure Media Services in 2026 — and where the break-even with on-prem Grass Valley Ignite actually sits.">
+<link rel="canonical" href="https://www.thestreamic.in/articles/cloud-playout-tco-trap-medialive-economics-2026.html">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<article class="article-body">
+<header>
+<p class="cat">CLOUD PRODUCTION</p>
+<h1>The Cloud Playout TCO Trap: Why AWS MediaLive Looks Cheap Until It Isn't</h1>
+<p class="dek">Cloud playout proposals in 2026 still open with the same math: "pay only for what you use." For 24/7 linear channels, that's a promise nobody should sign without the egress calculator open in a second tab.</p>
+<p class="byline">The Streamic Editorial · April 2026</p>
+</header>
+
+<h2>The Slide Deck vs. The Invoice</h2>
+<p>Every cloud playout pitch we've reviewed in the last twelve months opens the same way. A per-hour price for the encoder. A per-GB price for egress. A per-channel price for the packager. A reassuring note that storage is "negligible." The slide looks like a linear function; the invoice three months later looks nothing like one.</p>
+<p>The math most broadcasters get wrong is the 24/7 assumption. A linear HD channel at 8 Mb/s multicast-to-unicast for, say, 5 million concurrent peak viewers in an Indian OTT context generates egress in the petabyte range per month. At AWS CloudFront's standard India egress pricing, that one line item can run $30,000–$80,000 per month depending on commit tier. The encoder compute — the number everyone focuses on — is often under $4,000 per month for the same channel.</p>
+<p>Egress is the actual unit economics of cloud playout. Encoder cost is a rounding error.</p>
+
+<h2>Where MediaLive + MediaPackage Actually Wins</h2>
+<p>This isn't an argument against cloud playout. It's an argument for costing it correctly. AWS MediaLive paired with MediaPackage is genuinely the right architecture for three specific workloads, and the wrong architecture for a fourth that keeps getting proposed.</p>
+<p>It wins for <strong>event playout</strong>: IPL matches, elections, concerts, one-off sports tournaments. Spin up, run for 6 weeks, shut down. The per-hour encoder pricing is exactly the shape of the workload. It wins for <strong>DR and burst capacity</strong>: primary playout stays on a Grass Valley Ignite or Imagine Versio on-prem, and MediaLive runs as a hot standby that only meters traffic when traffic actually flows to it. And it wins for <strong>niche-language FAST channels</strong>: 200 thin linear channels each with a few thousand concurrents where provisioning 200 on-prem playout chains makes no sense.</p>
+<p>Where it consistently loses on TCO is the case it's most often pitched for: <strong>a flagship 24/7 entertainment channel with stable viewership</strong>. For that workload, the on-prem playout chain was already amortised, the egress runs through a negotiated peering agreement or a CDN commit, and the cloud per-hour meter never stops spinning. The break-even in our client work consistently lands around 18–22 months — after which the cloud option is 2–3× more expensive per month than maintaining the existing Grass Valley or Imagine chain.</p>
+
+<h2>The Hidden Line Items</h2>
+<p>Three cost categories never appear in the initial proposal but always appear on the invoice.</p>
+<p><strong>Inter-AZ traffic.</strong> If your MediaLive encoder is in ap-south-1a and your MediaPackage endpoint is in ap-south-1b (which happens automatically for HA), every packet crosses an Availability Zone boundary at $0.01/GB. On a high-bitrate 4K feed, that's another $2,000–$4,000 per month per channel that wasn't on the quote.</p>
+<p><strong>Ad insertion compute.</strong> Server-side ad insertion via MediaTailor is metered per ad decision. For a FAST channel running 15-minute ad pods every hour across 10 million monthly uniques, MediaTailor billing can exceed the MediaLive encoder line item. This almost never appears on initial TCO models because the broadcaster's ad ops team is on a different org chart than the engineering team running the proof-of-concept.</p>
+<p><strong>Origin shield and cache miss economics.</strong> CloudFront's origin shield layer is a line item separate from edge egress. For popular live events, 95%+ of requests hit the edge cache and never touch origin. For long-tail FAST content, cache-hit ratios drop below 50% and origin fetches dominate the bill. The same CDN architecture has radically different economics depending on content shape, and the pitch deck never models both.</p>
+
+<h2>What the Right 2026 Architecture Looks Like</h2>
+<p>For a major Indian broadcaster running 8–12 flagship channels, the honest 2026 blueprint is neither "all on-prem" nor "all cloud." It's a <strong>hybrid with clearly-drawn boundaries</strong>: flagship channels stay on Grass Valley Ignite or Imagine Versio with a primary+backup air chain, traditional SDI handoff to the transmission network, and Akamai or Jio CDN for distribution under a committed-use contract. Event channels, FAST channels, and burst capacity run on MediaLive with MediaPackage fronted by CloudFront, metered per-event and shut down between events.</p>
+<p>The Avid MediaCentral and iNEWS newsroom stays on-prem because the frame-accurate editorial workflow tolerates exactly zero network jitter. Graphics rendering on Vizrt Engine stays on-prem for the same reason. Archive sits in S3 Glacier or Azure Archive because that's where per-TB-per-month economics genuinely flip in favor of cloud — typically by a factor of 10× against LTO-9 including operational staff costs.</p>
+<p>The mistake isn't choosing cloud or on-prem. The mistake is letting the vendor who profits from one model write the TCO spreadsheet that compares it to the other.</p>
+</article>
+</body>
+</html>

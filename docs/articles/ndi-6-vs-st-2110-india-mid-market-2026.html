@@ -1,0 +1,43 @@
+<!-- HAND_AUTHORED -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NDI 6 vs ST 2110 for India's Mid-Market Broadcasters: The Pragmatic Read | The Streamic</title>
+<meta name="description" content="ST 2110 is the standard. NDI 6 is the one most Indian regional broadcasters can actually afford to deploy. The honest engineering comparison — latency, compression, network cost, and where each protocol earns its place in a 2026 Indian broadcast plant.">
+<link rel="canonical" href="https://www.thestreamic.in/articles/ndi-6-vs-st-2110-india-mid-market-2026.html">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<article class="article-body">
+<header>
+<p class="cat">INFRASTRUCTURE</p>
+<h1>NDI 6 vs ST 2110 for India's Mid-Market Broadcasters: The Pragmatic Read</h1>
+<p class="dek">SMPTE ST 2110 is the standard the global tier-1 broadcasters are migrating to. NDI 6 is the protocol that most Indian regional and OTT broadcasters will actually deploy in 2026. Both answers are correct for different plants.</p>
+<p class="byline">The Streamic Editorial · April 2026</p>
+</header>
+
+<h2>The Protocols Aren't Competing — The Use Cases Are</h2>
+<p>The NDI-versus-2110 debate in the trade press treats these as alternatives for the same job. They aren't. ST 2110 carries uncompressed video at ~12 Gb/s per UHD flow over managed 25/100 GbE fabrics with PTP timing and NMOS control. NDI 6 carries lightly-compressed video (SpeedHQ, roughly 100–250 Mb/s per UHD flow) over standard Ethernet with mDNS discovery and no external timing requirement. The engineering trade-offs only look parallel until you cost the network.</p>
+<p>A fully-specified ST 2110 production plant — spine-leaf 100 GbE, redundant PTP grandmasters, Red/Blue fabric, NMOS IS-04/IS-05 registry, and the orchestration tooling to manage it — typically runs ₹8–15 crore in hardware and licenses alone for a mid-size PCR. An equivalent-capability NDI 6 plant runs on commodity 10 GbE switches, often re-uses existing office-grade network gear, and typically lands at ₹1.5–3 crore total. For an Indian regional broadcaster running three to five studios on a budget that doesn't accommodate an 8-figure infrastructure refresh, that isn't a trade-off — it's a gate.</p>
+
+<h2>What NDI 6 Actually Gives Up</h2>
+<p>Honest engineering means being clear about the compromises. NDI's SpeedHQ codec is visually lossless for almost all broadcast use cases, but "almost all" excludes the handful where it matters most: chroma key pulls for VFX compositing, DI color grading reference feeds, and any workflow where the source will be re-encoded four or more times downstream. The generation-loss math on light compression catches up eventually, and ST 2110's uncompressed path avoids that class of problem entirely.</p>
+<p>NDI's latency is typically 1–2 frames end-to-end versus ST 2110's sub-frame. For local PCR work and single-venue production, nobody notices. For a remote production with multiple camera feeds being cut live across a wide-area network, the 1-frame floor starts to matter when the director is calling shots and the cut needs to land on the beat. This is why the IPL remote production infrastructure uses ST 2110 between venues even when individual studio plants use NDI internally.</p>
+<p>The real weakness of NDI isn't technical — it's <strong>ecosystem control</strong>. NDI is owned by Vizrt. The protocol is free to implement, but the reference libraries and the certification program are not open-governance the way SMPTE's standardisation of 2110 is. For a tier-1 broadcaster that's committing 20-year CapEx, betting the entire plant on a protocol owned by a single vendor is a governance risk that has nothing to do with engineering. For a regional broadcaster with a 5-year refresh cycle, it's a non-issue.</p>
+
+<h2>The Hybrid Pattern That's Actually Winning in India</h2>
+<p>Across the deployments we've reviewed in the past eighteen months — and this covers Hindi GEC, Tamil regional, Marathi news, Telugu movie channels, and two OTT-only operations — the same architectural pattern keeps emerging. ST 2110 is reserved for the <strong>master router and the transmission path</strong>: the MCR output bus, the playout-to-transmission handoff, and the primary multiviewer feeds. Everything upstream — camera-to-switcher, graphics-to-switcher, audio-to-embedder, intercom, tally — runs on NDI over 10 GbE.</p>
+<p>The logic is operational, not technical. The master router and transmission path is the part of the plant where a single frame of glitch costs revenue and regulatory exposure. Everything upstream has human operators who can retake, recompose, or re-route in real time. Spending ST 2110 money on the camera hall is a luxury when NDI works for 98% of the production day; spending ST 2110 money on the transmission path is insurance against the 2% of days that matter most.</p>
+
+<h2>Vendor Reality Check</h2>
+<p>Grass Valley, EVS, and Ross are all shipping hybrid switchers that accept both protocols on the same frame in 2026 — the GV LDX 150 takes NDI directly on an optional card, as do Ross's Ultrix routers. That vendor movement is the clearest signal of where the market is actually landing: not protocol wars, but protocol coexistence inside the same chassis.</p>
+<p>For a new-build Indian broadcast facility in 2026, the honest recommendation is to start with NDI 6 end-to-end, provision the transmission path with ST 2110 capability from day one, and leave the camera hall alone until the economics of 100 GbE switching come down another generation — which, based on Broadcom's Tomahawk 5 pricing trajectory, happens around 2027. Deploying full ST 2110 in the camera hall today for an Indian regional plant is an engineering decision driven by trade-show envy, not by workflow need.</p>
+
+<h2>What to Watch</h2>
+<p>The NDI 6 release late in 2025 added HDR metadata passthrough, improved bandwidth management under packet loss, and a new low-latency profile targeting remote production. The gap to ST 2110 narrows with each release. Meanwhile, SMPTE's work on JPEG XS carriage over 2110 (ST 2110-22) is making the uncompressed-vs-compressed debate increasingly meaningless at the protocol level. By 2027, the practical distinction between "2110 plant" and "NDI plant" may be a difference in control plane conventions more than a difference in essence transport.</p>
+<p>The broadcasters who'll win the next five years are the ones who stop arguing about protocols and start costing workflows.</p>
+</article>
+</body>
+</html>
