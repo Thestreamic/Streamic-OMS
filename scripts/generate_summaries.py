@@ -47,7 +47,7 @@ REPROCESS_THRESHOLD = int(os.environ.get("REPROCESS_THRESHOLD", "700"))
 REQUIRE_HEADINGS    = os.environ.get("REQUIRE_HEADINGS", "true").lower() in {"1", "true", "yes", "y"}
 
 # ↓ 3–5 per run: free-tier safe, quality-first
-MAX_PER_RUN = int(os.environ.get("MAX_PER_RUN", "5"))
+MAX_PER_RUN = int(os.environ.get("MAX_PER_RUN", "25"))
 
 REQUEST_TIMEOUT = int(os.environ.get("GROQ_TIMEOUT", "90"))
 # Raised for 800–1000 word target

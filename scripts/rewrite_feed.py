@@ -368,12 +368,20 @@ def main():
         topic_type         = _classify_topic(title, teaser)
         technical_keywords = _extract_technical_keywords(title, teaser)
         priority_for_insights = _set_priority(item, topic_type)
-        # needs_gemini: high-priority AND not already editorial
+        # needs_gemini: high-priority AND not already upgraded by a real AI model.
+        # BUG FIX: the old check `already_editorial = is_editorial or editorial`
+        # was self-reinforcing — rewrite_feed itself sets is_editorial=True on
+        # every RSS scaffold, so on the second run every article looked
+        # "already editorial" and needs_gemini collapsed to 0. Correct signal:
+        # "already upgraded" = a real AI model produced this body. Anything
+        # still tagged rewrite_feed_local (or empty) is a scaffold that still
+        # needs upgrading by Groq/Llama-3.3-70b or Gemini.
         old = existing_by_slug.get(slug, {})
-        already_editorial = bool(old.get("is_editorial") or old.get("editorial"))
+        old_gen_by = (old.get("generated_by") or "").lower()
+        already_upgraded = old_gen_by not in ("", "rewrite_feed_local", "rewrite_feed")
         needs_gemini = (
             priority_for_insights
-            and not already_editorial
+            and not already_upgraded
             and len(teaser.split()) > 8
         )
 
