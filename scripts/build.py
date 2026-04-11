@@ -15,16 +15,12 @@ GA        = "G-0VSHDN3ZR6"
 ADS       = "ca-pub-8033069131874524"
 AUTHOR    = "The Streamic Editorial Team"
 
-# ── Editor's Note (AdSense transparency) ─────────────────────────────────────
-_EDITORS_NOTE_HTML = (
-    '<hr style="margin-top:40px;border:0;border-top:1px solid #eee;">'
-    '<p style="font-style:italic;font-size:0.85rem;color:#666;line-height:1.5;margin-top:20px;">'
-    '<strong>Editor&#39;s Note:</strong> This technical analysis was synthesised from '
-    'industry sources and constructed with the assistance of AI tools. It has been '
-    'reviewed and formatted by <strong>The Streamic Editorial Team</strong> '
-    'to ensure accuracy and relevance for broadcast professionals.'
-    '</p>'
-)
+# ── Editor's Note (REMOVED per editorial decision) ───────────────────────────
+# Previously injected an "AI-assisted" disclaimer at the bottom of every
+# article. Removed because it was perceived as undermining the editorial
+# voice. The Editorial Policy page covers AI assistance disclosure in one
+# central place; per-article disclaimers are no longer required.
+_EDITORS_NOTE_HTML = ""
 
 PAGE_SIZE = 24
 
@@ -476,7 +472,23 @@ def intelligence_feed_section(arts, base=""):
     Cards: image top, category tag, title, source + date, Read button.
     Sources are round-robin interleaved for vendor diversity.
     """
-    rss_pool = [a for a in arts if not a.get("is_editorial") and not a.get("editorial")]
+    # Include both pure RSS items AND rewrite_feed_local scaffolds (which
+    # carry is_editorial=True for routing reasons but are still news content,
+    # not hand-authored editorials). True hand-authored editorials carry
+    # generated_by like "groq-*" or "gemini-*"; scaffolds carry
+    # "rewrite_feed_local" or empty.
+    def _is_news_card(a):
+        gen_by = (a.get("generated_by") or "").lower()
+        is_scaffold = gen_by in ("", "rewrite_feed_local", "rewrite_feed")
+        # Pure RSS (not editorial at all)
+        if not (a.get("is_editorial") or a.get("editorial")):
+            return True
+        # rewrite_feed scaffold flagged editorial — still news, include it
+        if is_scaffold:
+            return True
+        return False
+
+    rss_pool = [a for a in arts if _is_news_card(a)]
     rss = diversify_arts(rss_pool)[:12]
     if not rss:
         return ""
@@ -1831,27 +1843,11 @@ def article_page(a):
   </div>
 </div>"""
 
-    # ── Editor's Note with generated_by attribution (AdSense transparency) ──
+    # ── Editor's Note REMOVED ────────────────────────────────────────────
+    # Previously appended an "AI-assisted" disclaimer to every article body.
+    # Now silenced — disclosure lives in editorial-policy.html instead.
     gen_by    = a.get("generated_by", "") or ""
-    gen_label = {
-        "gemini-2.5-pro":       "Gemini 2.5 Pro (Google)",
-        "gemini-2.5-flash-lite":"Gemini 2.5 Flash-Lite (Google)",
-        "groq-fallback":        "Groq / Llama (fallback)",
-    }.get(gen_by, gen_by if gen_by else "AI-assisted")
-
-    if is_ed:
-        editors_note = ""
-    else:
-        editors_note = (
-            '<hr style="margin-top:40px;border:0;border-top:1px solid #eee;">'
-            '<p style="font-style:italic;font-size:0.85rem;color:#666;line-height:1.5;margin-top:20px;">'
-            '<strong>Editor&#39;s Note:</strong> This technical analysis was synthesised from '
-            'industry sources and constructed with the assistance of AI tools '
-            f'(<strong>{gen_label}</strong>). '
-            'It has been reviewed and formatted by <strong>The Streamic Editorial Team</strong> '
-            'to ensure accuracy and relevance for broadcast professionals.'
-            '</p>'
-        )
+    editors_note = ""
     cinfo_color = cinfo.get('color','')
     cinfo_lbl   = cinfo.get('label','')
     cinfo_icon2 = cinfo.get('icon','')

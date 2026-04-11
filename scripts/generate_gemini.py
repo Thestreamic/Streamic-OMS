@@ -189,10 +189,7 @@ _DOMAIN_CONTEXT = {
     }
 }
 
-_MANDATORY_FOOTER = '''<hr style="margin-top:40px;border:0;border-top:1px solid #eee;">
-<p style="font-style:italic;color:#666;font-size:0.85rem;line-height:1.6;margin-top:16px">
-<strong style="font-style:normal">Editor's Note:</strong> This technical analysis was synthesized from industry RSS feeds and constructed with the assistance of AI tools. It has been reviewed and formatted by <strong style="font-style:normal">The Streamic Editorial Team</strong> to ensure accuracy and relevance for broadcast professionals.
-</p>'''
+_MANDATORY_FOOTER = ''  # REMOVED — no per-article AI disclaimer (see editorial-policy.html)
 
 def is_broadcast_relevant(title: str, teaser: str = "") -> bool:
     text = (title + " " + teaser).lower()
@@ -740,23 +737,8 @@ def main():
                 vis_data = json.load(vf)
             for a in vis_data.get("featured_priority", []) + vis_data.get("items", []):
                 sl = a.get("slug")
-                if not sl:
-                    continue
-                # rewrite_feed.py flags RSS-sourced articles with is_editorial=True
-                # so they route through the editorial pipeline, but they ARE scaffold
-                # stubs that still need Gemini upgrade. The correct "skip me, I'm
-                # hand-authored" signal is generated_by: Groq/Gemini editorials carry
-                # values like "groq-*" or "gemini-2.5-*"; rewrite_feed scaffolds carry
-                # "rewrite_feed_local". Only skip true hand-authored editorials.
-                gen_by = (a.get("generated_by") or "").lower()
-                is_scaffold = gen_by in ("", "rewrite_feed_local", "rewrite_feed")
-                is_hand_editorial = (
-                    (a.get("is_editorial") or a.get("editorial"))
-                    and not is_scaffold
-                )
-                if is_hand_editorial:
-                    continue
-                visible_slugs.add(sl)
+                if sl and not (a.get("is_editorial") or a.get("editorial")):
+                    visible_slugs.add(sl)
             print(f"  Visible RSS slugs (site output): {len(visible_slugs)}")
         except Exception as ex:
             print(f"  ⚠ Could not load visible slugs: {ex} -- processing all RSS articles")
