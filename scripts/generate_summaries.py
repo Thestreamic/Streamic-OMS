@@ -257,23 +257,40 @@ Begin the article now:
 # ── Helpers (unchanged from v1) ───────────────────────────────────────────────
 
 def needs_reprocessing(article: dict[str, Any]) -> bool:
-    """Return True if this article needs Groq enrichment."""
-    # Must be flagged by rewrite_feed.py
-    if not article.get("needs_gemini"):
-        return False
-    # rewrite_feed.py flags RSS-sourced scaffolds with is_editorial=True so they
-    # route through the editorial pipeline, but they are still scaffold stubs
-    # that need upgrade. The correct "already hand-authored, skip me" signal is
-    # generated_by: real editorials from generate_editorial.py carry "groq-*"
-    # or "gemini-*"; scaffolds carry "rewrite_feed_local" or empty.
+    """Return True if this article needs Groq enrichment.
+
+    Detects scaffolds by generated_by directly, NOT by the needs_gemini flag.
+    The flag depended on rewrite_feed.py having run correctly, which creates
+    a fragile dependency: if rewrite_feed hasn't run (e.g. in build.yml's
+    6-hour cycle, which only runs summaries + build), the flag is stale and
+    all scaffolds get skipped forever. Direct detection on generated_by is
+    self-healing: every build sees every scaffold and upgrades it.
+    """
     gen_by = (article.get("generated_by") or "").lower()
     is_scaffold = gen_by in ("", "rewrite_feed_local", "rewrite_feed")
-    if (article.get("is_editorial") or article.get("editorial")) and not is_scaffold:
-        return False
+
+    # Only skip if this is a real AI-upgraded editorial (not a scaffold).
+    if not is_scaffold:
+        # Already upgraded by Groq/Gemini — skip.
+        if (article.get("is_editorial") or article.get("editorial")):
+            return False
 
     body = article.get("body_html", "") or ""
     wc   = int(article.get("word_count", 0) or 0)
 
+    # Scaffold? Always reprocess if thin.
+    if is_scaffold:
+        if not body or len(body.strip()) < 100:
+            return True
+        if wc < REPROCESS_THRESHOLD:
+            return True
+        if REQUIRE_HEADINGS and "<h2" not in body.lower():
+            return True
+        return False
+
+    # Non-scaffold path (for backward compatibility with needs_gemini flag)
+    if not article.get("needs_gemini"):
+        return False
     if not body or len(body.strip()) < 100:
         return True
     if wc < REPROCESS_THRESHOLD:
