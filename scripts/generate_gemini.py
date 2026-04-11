@@ -740,8 +740,25 @@ def main():
                 vis_data = json.load(vf)
             for a in vis_data.get("featured_priority", []) + vis_data.get("items", []):
                 sl = a.get("slug")
-                if sl and not (a.get("is_editorial") or a.get("editorial")):
-                    visible_slugs.add(sl)
+                if not sl:
+                    continue
+                # rewrite_feed.py flags RSS-sourced articles with is_editorial=True
+                # so they route through the editorial pipeline, but they ARE scaffold
+                # stubs that still need Gemini upgrade. The correct test for
+                # "hand-authored, skip me" is generated_by: the Groq/Gemini editorials
+                # carry generated_by like "groq-*" or "gemini-2.5-*"; rewrite_feed
+                # scaffolds carry "rewrite_feed_local". Only skip true hand-authored
+                # editorials, not news-sourced scaffolds.
+                gen_by = (a.get("generated_by") or "").lower()
+                is_scaffold = gen_by in ("rewrite_feed_local", "", "rewrite_feed")
+                is_hand_editorial = (
+                    (a.get("is_editorial") or a.get("editorial"))
+                    and not is_scaffold
+                    and gen_by not in ("", "rewrite_feed_local", "rewrite_feed")
+                )
+                if is_hand_editorial:
+                    continue
+                visible_slugs.add(sl)
             print(f"  Visible RSS slugs (site output): {len(visible_slugs)}")
         except Exception as ex:
             print(f"  ⚠ Could not load visible slugs: {ex} -- processing all RSS articles")
