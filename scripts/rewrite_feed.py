@@ -416,8 +416,10 @@ def main():
             "needs_gemini":           needs_gemini,
         }
 
-        # Preserve existing higher-quality editorial overrides
-        if already_editorial:
+        # Preserve existing higher-quality editorial overrides.
+        # An article is "already upgraded" when generated_by is a real AI model
+        # (groq-*, gemini-*) rather than rewrite_feed_local or empty.
+        if already_upgraded:
             article.update({k: old[k] for k in old.keys() if k not in {"story_rank"}})
         elif old:
             for k in ["card_summary", "body_html", "word_count", "generated_by",

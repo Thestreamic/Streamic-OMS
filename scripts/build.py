@@ -1486,7 +1486,7 @@ def featured_page(arts):
       </div>
       <aside class="hp-sidebar" aria-label="Sidebar">
         <div class="hp-sb-section hp-sb-featured">
-          <div class="hp-sb-hdr">Editor&#8217;s Picks <a href="vlog.html" class="hp-sb-hdr-link">View page &#8594;</a></div>
+          <div class="hp-sb-hdr">Editor&#8217;s Picks <a href="editorsdesk.html" class="hp-sb-hdr-link">View page &#8594;</a></div>
           {picks_html}
         </div>
         <div class="hp-sb-section">
@@ -2188,9 +2188,23 @@ def howto_page():
 {_cookie_banner()}
 </body></html>"""
 
-def vlog_page():
-    # Curated editorial index. Cards reference hand-authored articles that
-    # live under docs/articles/ and are protected by <!-- HAND_AUTHORED -->.
+def editorsdesk_page():
+    """Editor's Desk landing page.
+
+    Safety rules (this function must NEVER break the live site):
+      1. CSS is injected INSIDE <head> by splitting head()'s output at </head>,
+         so styles land in the right place and cascade AFTER style.css.
+      2. All class names are prefixed `strmc-ed-` to guarantee zero collision
+         with existing CSS in style.css.
+      3. Explicit hex colors are used (not CSS variables) so cards render
+         even if style.css hasn't loaded or var(--ink) is undefined.
+      4. Each card's target article file is checked on disk BEFORE the card
+         is rendered. Missing articles produce no card — never a broken link.
+      5. If zero cards survive the existence check, we fall back to the old
+         simple "what we're watching" layout so the page is never empty.
+      6. nav() and footer() are always included so the page has the site
+         header and footer regardless of content state.
+    """
     editorial_cards = [
         ("INFRASTRUCTURE", "st-2110-7-seamless-protection-redundancy-math-2026",
          "ST 2110-7 Seamless Protection: The Redundancy Math Every IP Broadcaster Gets Wrong",
@@ -2212,57 +2226,92 @@ def vlog_page():
          "The interesting AI in newsrooms isn't the one writing copy. It's the one routing video, tagging rushes, and quietly replacing three roles in the ingest workflow."),
         ("EDITORIAL", "green-broadcast-cloud-carbon-footprint-sustainability-2026",
          "Green Broadcast: The Cloud Carbon Footprint Conversation Nobody's Having Honestly",
-         "The industry's sustainability numbers are almost all scope-1 and scope-2. Scope-3 — cloud compute, CDN egress, AI inference — is where the real emissions hide."),
+         "The industry's sustainability numbers are almost all scope-1 and scope-2. Scope-3 is where the real emissions hide."),
         ("EDITORIAL", "ai-reducing-broadcast-operational-costs-2026",
          "AI as an OpEx Lever: Where the Savings Are Real and Where They're Theatre",
-         "Vendors are selling AI as cost reduction. Some claims are real. Some are creative accounting. Here's how to tell which is which before signing a multi-year contract."),
+         "Vendors are selling AI as cost reduction. Some claims are real. Some are creative accounting. Here's how to tell which is which."),
     ]
-    cards_html = "".join(
-        f'''<article class="ed-card">
-<p class="cat">{cat}</p>
-<h2><a href="articles/{slug}.html">{title}</a></h2>
-<p class="dek">{dek}</p>
-<a href="articles/{slug}.html" class="read">Read the analysis →</a>
-</article>''' for (cat, slug, title, dek) in editorial_cards
-    )
-    extra_css = """<style>
-.editor-hero{max-width:920px;margin:40px auto 20px;padding:0 24px}
-.editor-hero h1{font-family:'DM Serif Display',serif;font-size:48px;margin:0 0 8px;color:var(--ink)}
-.editor-hero .dek{font-size:18px;color:var(--ink3);line-height:1.55;max-width:680px}
-.watching{max-width:920px;margin:26px auto;padding:22px 26px;background:var(--bg);border-left:4px solid #D4AF37;border-radius:6px}
-.watching strong{display:block;font-family:'DM Serif Display',serif;font-size:20px;color:var(--ink);margin-bottom:8px}
-.watching p{margin:0;font-size:15px;color:var(--ink3);line-height:1.65}
-.editorial-grid{max-width:1100px;margin:36px auto 80px;padding:0 24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:26px}
-.ed-card{background:#fff;border:1px solid #e8e4d9;border-radius:8px;padding:24px;transition:border-color .2s,transform .2s,box-shadow .2s}
-.ed-card:hover{border-color:#D4AF37;transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.06)}
-.ed-card .cat{font-size:11px;letter-spacing:1.4px;color:#D4AF37;font-weight:700;text-transform:uppercase;margin:0 0 10px}
-.ed-card h2{font-family:'DM Serif Display',serif;font-size:22px;line-height:1.25;margin:0 0 12px}
-.ed-card h2 a{color:var(--ink);text-decoration:none}
-.ed-card h2 a:hover{color:#D4AF37}
-.ed-card .dek{font-size:14px;color:var(--ink3);line-height:1.6;margin:0 0 16px}
-.ed-card .read{font-size:13px;color:#D4AF37;font-weight:600;text-decoration:none}
-.ed-card .read:hover{text-decoration:underline}
-</style>"""
-    return f"""{head("Editor's Desk — The Streamic","Commentary, perspective, and engineering analysis from the editorial team at The Streamic.",f"{BASE_URL}/vlog.html")}
-{extra_css}
-<body>
-{nav("vlog.html")}
-<main>
-<section class="editor-hero">
+
+    # Only render cards whose target article actually exists on disk.
+    rendered = []
+    for cat, slug, title, dek in editorial_cards:
+        if os.path.exists(os.path.join(DOCS, "articles", f"{slug}.html")):
+            rendered.append((cat, slug, title, dek))
+
+    # Build CSS block — scoped, explicit colors, !important on critical props
+    # so nothing in style.css can hide the title or link.
+    extra_css = """
+<style>
+.strmc-ed-hero{max-width:920px;margin:40px auto 16px;padding:0 24px}
+.strmc-ed-hero h1{font-family:'DM Serif Display',Georgia,serif;font-size:48px;line-height:1.1;margin:0 0 10px;color:#111 !important}
+.strmc-ed-hero p.lede{font-size:18px;color:#555;line-height:1.55;max-width:700px;margin:0}
+.strmc-ed-watching{max-width:920px;margin:24px auto 32px;padding:22px 26px;background:#f6f3ec;border-left:4px solid #D4AF37;border-radius:6px}
+.strmc-ed-watching strong{display:block;font-family:'DM Serif Display',Georgia,serif;font-size:20px;color:#111 !important;margin-bottom:8px;font-weight:normal}
+.strmc-ed-watching p{margin:0;font-size:15px;color:#555;line-height:1.65}
+.strmc-ed-grid{max-width:1100px;margin:0 auto 72px;padding:0 24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:24px}
+.strmc-ed-card{display:block;background:#fff;border:1px solid #e5e0d1;border-radius:8px;padding:26px 24px;text-decoration:none !important;transition:border-color .2s,transform .2s,box-shadow .2s}
+.strmc-ed-card:hover{border-color:#D4AF37;transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.06)}
+.strmc-ed-card .cat{display:block;font-size:11px;letter-spacing:1.4px;color:#D4AF37 !important;font-weight:700;text-transform:uppercase;margin:0 0 12px}
+.strmc-ed-card .title{display:block;font-family:'DM Serif Display',Georgia,serif;font-size:22px;line-height:1.28;color:#111 !important;margin:0 0 12px;font-weight:normal}
+.strmc-ed-card:hover .title{color:#D4AF37 !important}
+.strmc-ed-card .dek{display:block;font-size:14px;color:#555 !important;line-height:1.6;margin:0 0 14px}
+.strmc-ed-card .read{display:inline-block;font-size:13px;color:#D4AF37 !important;font-weight:600}
+</style>
+"""
+    # Inject the style block INSIDE <head>, right before </head>, so it
+    # cascades after style.css and wins on specificity ties.
+    raw_head = head("Editor's Desk — The Streamic",
+                    "Commentary, perspective, and engineering analysis from the editorial team at The Streamic.",
+                    f"{BASE_URL}/editorsdesk.html")
+    head_with_css = raw_head.replace("</head>", extra_css + "</head>")
+
+    if rendered:
+        cards_html = "".join(
+            f'''<a class="strmc-ed-card" href="articles/{slug}.html">
+<span class="cat">{cat}</span>
+<span class="title">{title}</span>
+<span class="dek">{dek}</span>
+<span class="read">Read the analysis &rarr;</span>
+</a>''' for (cat, slug, title, dek) in rendered
+        )
+        main_html = f"""<main>
+<section class="strmc-ed-hero">
   <h1>Editor's Desk</h1>
-  <p class="dek">Commentary, perspective, and engineering analysis from the editorial team at The Streamic. This is where we share technical reads that go beyond the news cycle — honest trade-off analysis for the broadcast engineers, CTOs, and media IT architects who actually have to deploy this stuff.</p>
+  <p class="lede">Commentary, perspective, and engineering analysis from the editorial team at The Streamic. Technical reads that go beyond the news cycle &mdash; honest trade-off analysis for broadcast engineers, CTOs, and media IT architects who actually have to deploy this stuff.</p>
 </section>
-<div class="watching">
+<section class="strmc-ed-watching">
   <strong>What we're watching in 2026</strong>
-  <p>The ST 2110 adoption curve in small-market broadcasters. The real TCO of cloud playout post-NAB 2026. How C2PA is quietly becoming a newsroom compliance surface. The gap between AI-tagged MAMs in demos and AI-tagged MAMs in production. And the increasingly blurred line between NDI 6 and ST 2110 as hybrid switchers become the norm.</p>
-</div>
-<section class="editorial-grid">
+  <p>The ST 2110 adoption curve in small-market broadcasters. The real TCO of cloud playout post-NAB 2026. How C2PA is quietly becoming a newsroom compliance surface. The gap between AI-tagged MAMs in demos and AI-tagged MAMs in production.</p>
+</section>
+<section class="strmc-ed-grid">
 {cards_html}
 </section>
-</main>
+</main>"""
+    else:
+        # Fallback: no hand-authored articles on disk yet. Show the old
+        # simple layout so the page is never blank and has zero broken links.
+        main_html = """<main><div class="w" style="padding:52px 24px 80px;max-width:760px">
+<div class="cat-hdr">
+  <h1>Editor's Desk</h1>
+  <p>Commentary, perspective, and notes from the editorial team at The Streamic.</p>
+</div>
+<p style="font-size:15px;color:#555;line-height:1.7;margin-bottom:24px">The Streamic covers broadcast and streaming technology with a focus on what matters operationally to engineers and technology leaders. This is where we share perspective beyond the news cycle.</p>
+<div style="background:#f6f3ec;border-radius:14px;padding:28px;font-size:14px;color:#555;line-height:1.7">
+  <strong style="color:#111;display:block;margin-bottom:8px">What we're watching in 2026</strong>
+  The ST 2110 adoption curve in small-market broadcasters. The economics of cloud production post-NAB 2026. How C2PA is changing newsroom verification workflows. The quiet revolution of operational AI inside MAM systems.
+</div>
+</div></main>"""
+
+    return f"""{head_with_css}
+<body>
+{nav("editorsdesk.html")}
+{main_html}
 {footer()}
 {_cookie_banner()}
 </body></html>"""
+
+# Backwards-compatibility alias — in case any other call site still calls vlog_page().
+vlog_page = editorsdesk_page
 
 # ── SITEMAP
 def sitemap(arts):
@@ -2329,9 +2378,7 @@ def main():
     # ─────────────────────────────────────────────────────────────────────────
 
     MIN_FEED_WORDS = 700   # minimum for article page to exist at all
-                           # (was 400; raised after Groq/Llama-3.3-70b upgrade
-                           # floor of 800w — anything below 700 is a failed
-                           # scaffold that shouldn't be shipped)
+                           # raised from 400 after Groq upgrade floor of 800w
 
     HOMEPAGE_PROTECTED_SLUGS = {
         # Hero
@@ -2563,7 +2610,23 @@ def main():
       '<!doctype html><html><head><meta http-equiv="refresh" content="0; url=howto.html">'
       '<link rel="canonical" href="https://www.thestreamic.in/howto.html"></head>'
       '<body><p>Redirecting to <a href="howto.html">How-To Guides</a>.</p></body></html>')
-    w(os.path.join(DOCS,"vlog.html"),             vlog_page())
+    # Write Editor's Desk to editorsdesk.html (new canonical name).
+    w(os.path.join(DOCS, "editorsdesk.html"), editorsdesk_page())
+    # Redirect stub: preserves any pre-existing inbound links to /vlog.html
+    # by auto-forwarding them to /editorsdesk.html (client-side + canonical).
+    _vlog_redirect = (
+        '<!DOCTYPE html><html lang="en"><head>'
+        '<meta charset="UTF-8">'
+        '<title>Editor\'s Desk &mdash; The Streamic</title>'
+        '<meta http-equiv="refresh" content="0; url=/editorsdesk.html">'
+        '<link rel="canonical" href="' + BASE_URL + '/editorsdesk.html">'
+        '<meta name="robots" content="noindex,follow">'
+        '</head><body>'
+        '<p>This page has moved to <a href="/editorsdesk.html">Editor&#8217;s Desk</a>.</p>'
+        '<script>window.location.replace("/editorsdesk.html");</script>'
+        '</body></html>'
+    )
+    w(os.path.join(DOCS, "vlog.html"), _vlog_redirect)
     print("  &#10003; static pages")
 
     # ── Sitemap — only visible articles + core pages ──────────────────────
