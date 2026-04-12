@@ -15,16 +15,8 @@ GA        = "G-0VSHDN3ZR6"
 ADS       = "ca-pub-8033069131874524"
 AUTHOR    = "The Streamic Editorial Team"
 
-# ── Editor's Note (AdSense transparency) ─────────────────────────────────────
-_EDITORS_NOTE_HTML = (
-    '<hr style="margin-top:40px;border:0;border-top:1px solid #eee;">'
-    '<p style="font-style:italic;font-size:0.85rem;color:#666;line-height:1.5;margin-top:20px;">'
-    '<strong>Editor&#39;s Note:</strong> This technical analysis was synthesised from '
-    'industry sources and constructed with the assistance of AI tools. It has been '
-    'reviewed and formatted by <strong>The Streamic Editorial Team</strong> '
-    'to ensure accuracy and relevance for broadcast professionals.'
-    '</p>'
-)
+# ── Editor's Note (REMOVED — disclosure lives in editorial-policy.html) ─────
+_EDITORS_NOTE_HTML = ""
 
 PAGE_SIZE = 24
 
@@ -245,7 +237,8 @@ def nav(active="", base=""):
         ("ai-post-production.html",        "AI in Broadcasting"),
         ("howto.html",                     "How-To Guides"),
         ("post-production-workflows.html", "Post Production Workflows"),
-        ("insights.html",                  "Insights"),
+        ("insights.html",                  "Expert Insights"),
+        ("editorsdesk.html",               "Editorial Insights"),
     ]
     def _nav_li(h, lbl, base=base, active=active):
         cls = ' class="active"' if h == active else ''
@@ -313,7 +306,8 @@ def footer(base=""):
       <a href="{base}ai-post-production.html">AI in Broadcasting</a>
       <a href="{base}howto.html">How-To Guides</a>
       <a href="{base}post-production-workflows.html">Post Production Workflows</a>
-      <a href="{base}insights.html">Insights</a>
+      <a href="{base}insights.html">Expert Insights</a>
+      <a href="{base}editorsdesk.html">Editorial Insights</a>
     </div>
     <div class="footer-col">
       <h4>Site</h4>
@@ -473,10 +467,18 @@ def hero_block(a, base=""):
 def intelligence_feed_section(arts, base=""):
     """
     Apple Newsroom-style card grid with images and diversity.
-    Cards: image top, category tag, title, source + date, Read button.
-    Sources are round-robin interleaved for vendor diversity.
+    Includes both pure RSS items and rewrite_feed_local scaffolds.
     """
-    rss_pool = [a for a in arts if not a.get("is_editorial") and not a.get("editorial")]
+    def _is_news_card(a):
+        gen_by = (a.get("generated_by") or "").lower()
+        is_scaffold = gen_by in ("", "rewrite_feed_local", "rewrite_feed")
+        if not (a.get("is_editorial") or a.get("editorial")):
+            return True
+        if is_scaffold:
+            return True
+        return False
+
+    rss_pool = [a for a in arts if _is_news_card(a)]
     rss = diversify_arts(rss_pool)[:12]
     if not rss:
         return ""
@@ -1031,7 +1033,20 @@ def _fix_article_images(arts):
 
     replaced_non_pool = 0
     replaced_duplicate = 0
+    taxonomy_applied = 0
     for a in arts:
+        # PRIORITY 1: local taxonomy image from assign_images.py if present.
+        # These are deterministic, copyright-safe local files matched to
+        # the article's topic by the Streamic visual taxonomy.
+        taxonomy_img = a.get("image") or ""
+        if taxonomy_img and taxonomy_img.startswith("/assets/images/"):
+            a["image_url"] = taxonomy_img
+            a["image_credit"] = "The Streamic"
+            a["image_license"] = "Site License"
+            a["image_license_url"] = ""
+            taxonomy_applied += 1
+            continue
+
         img = a.get("image_url", "") or ""
 
         if not _image_is_from_pool(img):
@@ -1169,7 +1184,11 @@ def load_homepage_feed(arts, limit=14):
             'published': item.get('pubDate') or item.get('published') or merged.get('published',''),
             'source_url': url or merged.get('source_url',''),
             'url': url or merged.get('url',''),
-            'image_url': item.get('image') or merged.get('image_url') or '',
+            # COPYRIGHT FIX: prefer the article's pool-normalized image_url
+            # over the raw RSS thumbnail in news.json. The previous order
+            # shipped copyrighted vendor PR photos into Breaking News,
+            # bypassing _fix_article_images() entirely.
+            'image_url': merged.get('image_url') or item.get('image') or '',
             'slug': art['slug'],
         })
         key = merged['slug']
@@ -1486,7 +1505,7 @@ def featured_page(arts):
       </div>
       <aside class="hp-sidebar" aria-label="Sidebar">
         <div class="hp-sb-section hp-sb-featured">
-          <div class="hp-sb-hdr">Editor&#8217;s Picks <a href="vlog.html" class="hp-sb-hdr-link">View page &#8594;</a></div>
+          <div class="hp-sb-hdr">Editor&#8217;s Picks <a href="editorsdesk.html" class="hp-sb-hdr-link">View page &#8594;</a></div>
           {picks_html}
         </div>
         <div class="hp-sb-section">
@@ -2188,24 +2207,130 @@ def howto_page():
 {_cookie_banner()}
 </body></html>"""
 
-def vlog_page():
-    return f"""{head("Editor's Desk — The Streamic","Notes, commentary and perspective from the Streamic editorial team.",f"{BASE_URL}/vlog.html")}
-<body>
-{nav("vlog.html")}
-<main><div class="w" style="padding:52px 24px 80px;max-width:760px">
+def editorsdesk_page():
+    """Editor's Desk landing page.
+
+    Safety rules (this function must NEVER break the live site):
+      1. CSS is injected INSIDE <head> by splitting head()'s output at </head>,
+         so styles land in the right place and cascade AFTER style.css.
+      2. All class names are prefixed `strmc-ed-` to guarantee zero collision
+         with existing CSS in style.css.
+      3. Explicit hex colors are used (not CSS variables) so cards render
+         even if style.css hasn't loaded or var(--ink) is undefined.
+      4. Each card's target article file is checked on disk BEFORE the card
+         is rendered. Missing articles produce no card — never a broken link.
+      5. If zero cards survive the existence check, we fall back to the old
+         simple "what we're watching" layout so the page is never empty.
+      6. nav() and footer() are always included so the page has the site
+         header and footer regardless of content state.
+    """
+    editorial_cards = [
+        ("INFRASTRUCTURE", "st-2110-7-seamless-protection-redundancy-math-2026",
+         "ST 2110-7 Seamless Protection: The Redundancy Math Every IP Broadcaster Gets Wrong",
+         "Hitless failover is the headline promise of ST 2110-7. The Red/Blue network math, PTP boundary clock placement, and the control plane gap are where 2026 IP migrations quietly fail."),
+        ("CLOUD PRODUCTION", "cloud-playout-tco-trap-medialive-economics-2026",
+         "The Cloud Playout TCO Trap: Why AWS MediaLive Looks Cheap Until It Isn't",
+         "Cloud playout pricing looks linear on the slide deck and exponential on the invoice. The real cost curve for MediaLive + MediaPackage, and where the break-even with Grass Valley Ignite actually sits."),
+        ("AI IN BROADCASTING", "ai-metadata-mam-accuracy-broadcast-2026",
+         "AI Metadata in the MAM: Why 95% Accuracy Is Still a Failing Grade",
+         "Every MAM vendor ships AI auto-tagging in 2026. The accuracy numbers describe benchmarks editors never hit. The gap between '95% correct' and 'useful for an editor on deadline' is where these systems still fail."),
+        ("INFRASTRUCTURE", "ndi-6-vs-st-2110-india-mid-market-2026",
+         "NDI 6 vs ST 2110 for India's Mid-Market Broadcasters: The Pragmatic Read",
+         "ST 2110 is the standard. NDI 6 is what most Indian regional broadcasters will actually deploy. The honest engineering comparison — latency, compression, network cost, and where each earns its place."),
+        ("AI IN BROADCASTING", "c2pa-provenance-newsroom-broadcast-mandate-2027",
+         "C2PA in the Newsroom: The Provenance Standard Nobody Can Afford to Ignore by 2027",
+         "C2PA content provenance has been a compliance side-project since 2023. Synthetic media incidents and EU regulation mean 2026 is the last year it stays a side-project."),
+        ("EDITORIAL", "beyond-the-chatbot-operational-ai-newsroom-2026",
+         "Beyond the Chatbot: Operational AI in the Newsroom",
+         "The interesting AI in newsrooms isn't the one writing copy. It's the one routing video, tagging rushes, and quietly replacing three roles in the ingest workflow."),
+        ("EDITORIAL", "green-broadcast-cloud-carbon-footprint-sustainability-2026",
+         "Green Broadcast: The Cloud Carbon Footprint Conversation Nobody's Having Honestly",
+         "The industry's sustainability numbers are almost all scope-1 and scope-2. Scope-3 is where the real emissions hide."),
+        ("EDITORIAL", "ai-reducing-broadcast-operational-costs-2026",
+         "AI as an OpEx Lever: Where the Savings Are Real and Where They're Theatre",
+         "Vendors are selling AI as cost reduction. Some claims are real. Some are creative accounting. Here's how to tell which is which."),
+    ]
+
+    # Only render cards whose target article actually exists on disk.
+    rendered = []
+    for cat, slug, title, dek in editorial_cards:
+        if os.path.exists(os.path.join(DOCS, "articles", f"{slug}.html")):
+            rendered.append((cat, slug, title, dek))
+
+    # Build CSS block — scoped, explicit colors, !important on critical props
+    # so nothing in style.css can hide the title or link.
+    extra_css = """
+<style>
+.strmc-ed-hero{max-width:920px;margin:40px auto 16px;padding:0 24px}
+.strmc-ed-hero h1{font-family:'DM Serif Display',Georgia,serif;font-size:48px;line-height:1.1;margin:0 0 10px;color:#111 !important}
+.strmc-ed-hero p.lede{font-size:18px;color:#555;line-height:1.55;max-width:700px;margin:0}
+.strmc-ed-watching{max-width:920px;margin:24px auto 32px;padding:22px 26px;background:#f6f3ec;border-left:4px solid #D4AF37;border-radius:6px}
+.strmc-ed-watching strong{display:block;font-family:'DM Serif Display',Georgia,serif;font-size:20px;color:#111 !important;margin-bottom:8px;font-weight:normal}
+.strmc-ed-watching p{margin:0;font-size:15px;color:#555;line-height:1.65}
+.strmc-ed-grid{max-width:1100px;margin:0 auto 72px;padding:0 24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:24px}
+.strmc-ed-card{display:block;background:#fff;border:1px solid #e5e0d1;border-radius:8px;padding:26px 24px;text-decoration:none !important;transition:border-color .2s,transform .2s,box-shadow .2s}
+.strmc-ed-card:hover{border-color:#D4AF37;transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.06)}
+.strmc-ed-card .cat{display:block;font-size:11px;letter-spacing:1.4px;color:#D4AF37 !important;font-weight:700;text-transform:uppercase;margin:0 0 12px}
+.strmc-ed-card .title{display:block;font-family:'DM Serif Display',Georgia,serif;font-size:22px;line-height:1.28;color:#111 !important;margin:0 0 12px;font-weight:normal}
+.strmc-ed-card:hover .title{color:#D4AF37 !important}
+.strmc-ed-card .dek{display:block;font-size:14px;color:#555 !important;line-height:1.6;margin:0 0 14px}
+.strmc-ed-card .read{display:inline-block;font-size:13px;color:#D4AF37 !important;font-weight:600}
+</style>
+"""
+    # Inject the style block INSIDE <head>, right before </head>, so it
+    # cascades after style.css and wins on specificity ties.
+    raw_head = head("Editor's Desk — The Streamic",
+                    "Commentary, perspective, and engineering analysis from the editorial team at The Streamic.",
+                    f"{BASE_URL}/editorsdesk.html")
+    head_with_css = raw_head.replace("</head>", extra_css + "</head>")
+
+    if rendered:
+        cards_html = "".join(
+            f'''<a class="strmc-ed-card" href="articles/{slug}.html">
+<span class="cat">{cat}</span>
+<span class="title">{title}</span>
+<span class="dek">{dek}</span>
+<span class="read">Read the analysis &rarr;</span>
+</a>''' for (cat, slug, title, dek) in rendered
+        )
+        main_html = f"""<main>
+<section class="strmc-ed-hero">
+  <h1>Editor's Desk</h1>
+  <p class="lede">Commentary, perspective, and engineering analysis from the editorial team at The Streamic. Technical reads that go beyond the news cycle &mdash; honest trade-off analysis for broadcast engineers, CTOs, and media IT architects who actually have to deploy this stuff.</p>
+</section>
+<section class="strmc-ed-watching">
+  <strong>What we're watching in 2026</strong>
+  <p>The ST 2110 adoption curve in small-market broadcasters. The real TCO of cloud playout post-NAB 2026. How C2PA is quietly becoming a newsroom compliance surface. The gap between AI-tagged MAMs in demos and AI-tagged MAMs in production.</p>
+</section>
+<section class="strmc-ed-grid">
+{cards_html}
+</section>
+</main>"""
+    else:
+        # Fallback: no hand-authored articles on disk yet. Show the old
+        # simple layout so the page is never blank and has zero broken links.
+        main_html = """<main><div class="w" style="padding:52px 24px 80px;max-width:760px">
 <div class="cat-hdr">
   <h1>Editor's Desk</h1>
   <p>Commentary, perspective, and notes from the editorial team at The Streamic.</p>
 </div>
-<p style="font-size:15px;color:var(--ink3);line-height:1.7;margin-bottom:24px">The Streamic covers broadcast and streaming technology with a focus on what matters operationally to engineers and technology leaders. This is where we share perspective beyond the news cycle.</p>
-<div style="background:var(--bg);border-radius:14px;padding:28px;font-size:14px;color:var(--ink3);line-height:1.7">
-  <strong style="color:var(--ink);display:block;margin-bottom:8px">What we're watching in 2026</strong>
-  The ST 2110 adoption curve in small-market broadcasters. The economics of cloud production post-Paris 2024. How C2PA is changing newsroom verification workflows. The quiet revolution of operational AI inside MAM systems.
+<p style="font-size:15px;color:#555;line-height:1.7;margin-bottom:24px">The Streamic covers broadcast and streaming technology with a focus on what matters operationally to engineers and technology leaders. This is where we share perspective beyond the news cycle.</p>
+<div style="background:#f6f3ec;border-radius:14px;padding:28px;font-size:14px;color:#555;line-height:1.7">
+  <strong style="color:#111;display:block;margin-bottom:8px">What we're watching in 2026</strong>
+  The ST 2110 adoption curve in small-market broadcasters. The economics of cloud production post-NAB 2026. How C2PA is changing newsroom verification workflows. The quiet revolution of operational AI inside MAM systems.
 </div>
-</div></main>
+</div></main>"""
+
+    return f"""{head_with_css}
+<body>
+{nav("editorsdesk.html")}
+{main_html}
 {footer()}
 {_cookie_banner()}
 </body></html>"""
+
+# Backwards-compatibility alias — in case any other call site still calls vlog_page().
+vlog_page = editorsdesk_page
 
 # ── SITEMAP
 def sitemap(arts):
@@ -2214,6 +2339,8 @@ def sitemap(arts):
         ("index.html","daily","1.0"),("featured.html","daily","0.98"),
         ("ai-post-production.html","daily","0.9"),
         ("howto.html","weekly","0.85"),("post-production-workflows.html","weekly","0.90"),
+        ("insights.html","weekly","0.88"),
+        ("editorsdesk.html","weekly","0.88"),
         ("about.html","monthly","0.6"),("contact.html","monthly","0.5"),
         ("editorial-policy.html","monthly","0.6"),
         ("privacy.html","yearly","0.3"),("terms.html","yearly","0.3"),
@@ -2241,7 +2368,92 @@ def main():
             seen_slugs.add(a["slug"])
             deduped.append(a)
     arts = deduped
-    print(f"  After dedup: {len(arts)} unique articles")
+    print(f"  After slug dedup: {len(arts)} unique articles")
+
+    # ── Jaccard near-duplicate cleanup (retroactive) ──────────────────────
+    # Catches cross-feed story re-runs that slipped through rewrite_feed.py
+    # before the 3-pass dedup was introduced. E.g. "Bitcentral to Showcase
+    # Connected Media Workflows" and "Bitcentral To Feature Connected
+    # Media Workflows" both about the same NAB press release.
+    #
+    # For each group of near-duplicates (>=70% token overlap), we keep:
+    #   1. HAND_AUTHORED articles first (immutable protection)
+    #   2. Then longest body (best content wins)
+    #   3. Then newest published date as tiebreaker
+    import re as _dd_re
+    def _dd_tokens(title):
+        if not title: return set()
+        t = _dd_re.sub(r"[^a-zA-Z0-9\s]", " ", title.lower())
+        return {w for w in t.split() if len(w) >= 4 and w not in {
+            "with","from","that","this","will","show","2026","2025","2024",
+            "announced","launches","introduces","unveils","debuts","nabs",
+            "nab","ibc","new","the","and","for","are","into",
+            "showcase","showcases","showcased","feature","features","featured",
+            "to","at","on","in","by","of","a","an","is","its",
+            # Broadcast-industry boilerplate that inflates false-positive splits:
+            "intelligent","automation","solution","solutions","platform","technology",
+            "workflow","workflows","system","systems","broadcast","media",
+            "company","companies","announces","announcing",
+        }}
+    def _is_hand_authored(a):
+        # Look up the file on disk; presence of <!-- HAND_AUTHORED --> wins.
+        slug = a.get("slug", "")
+        if not slug: return False
+        try:
+            fp = os.path.join(DOCS, "articles", slug + ".html")
+            if os.path.exists(fp):
+                with open(fp, "r", encoding="utf-8", errors="ignore") as fh:
+                    head = fh.read(400)
+                return "HAND_AUTHORED" in head
+        except Exception:
+            pass
+        return False
+
+    JACCARD_THRESHOLD = 0.70
+    kept = []
+    dropped_near_dup = 0
+    for candidate in arts:
+        cand_tokens = _dd_tokens(candidate.get("title", ""))
+        if not cand_tokens or len(cand_tokens) < 2:
+            kept.append(candidate)
+            continue
+        merged = False
+        for idx, existing in enumerate(kept):
+            ex_tokens = _dd_tokens(existing.get("title", ""))
+            if not ex_tokens: continue
+            union = len(cand_tokens | ex_tokens)
+            if union == 0: continue
+            similarity = len(cand_tokens & ex_tokens) / union
+            if similarity >= JACCARD_THRESHOLD:
+                # Found a near-duplicate. Decide which to keep.
+                cand_hand = _is_hand_authored(candidate)
+                ex_hand   = _is_hand_authored(existing)
+                cand_len  = len((candidate.get("body_html") or candidate.get("body") or "") or "")
+                ex_len    = len((existing.get("body_html") or existing.get("body") or "") or "")
+                # Tiebreak: hand-authored > longer body > newer
+                if cand_hand and not ex_hand:
+                    winner = candidate
+                elif ex_hand and not cand_hand:
+                    winner = existing
+                elif cand_len > ex_len * 1.10:
+                    winner = candidate
+                elif ex_len > cand_len * 1.10:
+                    winner = existing
+                else:
+                    winner = candidate if (candidate.get("date", "") > existing.get("date", "")) else existing
+                loser = existing if winner is candidate else candidate
+                print(f"  [DEDUP] '{loser.get('title','')[:55]}' "
+                      f"≈ '{winner.get('title','')[:55]}' ({similarity:.0%}) — keeping winner")
+                if winner is candidate:
+                    kept[idx] = candidate
+                dropped_near_dup += 1
+                merged = True
+                break
+        if not merged:
+            kept.append(candidate)
+    arts = kept
+    print(f"  After near-dup dedup: {len(arts)} unique articles "
+          f"(removed {dropped_near_dup} near-duplicates)")
 
     # ── Ensure all articles have a slug ──────────────────────────────────
     def _slugify(title):
@@ -2271,7 +2483,15 @@ def main():
     # (hero, Latest Insights, Professional Media Systems Guide) always survive.
     # ─────────────────────────────────────────────────────────────────────────
 
-    MIN_FEED_WORDS = 400   # minimum for article page to exist at all
+    MIN_FEED_WORDS = 400   # Word-count floor only.
+                           # Kept at 400 because Groq TPM rate limits cause
+                           # scaffold upgrades to lag — raising the gate
+                           # before upgrades complete strips ~120 articles
+                           # from the visible site (verified in pipeline log
+                           # 2026-04-11 13:22 UTC: 62 pass / 122 rejected).
+                           # The 180-term BROADCAST_TERMS relevance gate
+                           # below is unchanged and remains the primary
+                           # quality protection.
 
     HOMEPAGE_PROTECTED_SLUGS = {
         # Hero
@@ -2503,7 +2723,19 @@ def main():
       '<!doctype html><html><head><meta http-equiv="refresh" content="0; url=howto.html">'
       '<link rel="canonical" href="https://www.thestreamic.in/howto.html"></head>'
       '<body><p>Redirecting to <a href="howto.html">How-To Guides</a>.</p></body></html>')
-    w(os.path.join(DOCS,"vlog.html"),             vlog_page())
+    # Write Editor's Desk to editorsdesk.html (new canonical name).
+    w(os.path.join(DOCS, "editorsdesk.html"), editorsdesk_page())
+    # vlog.html removal: previously a redirect stub was written here. Now we
+    # explicitly DELETE the file from docs/ if present, so /vlog.html returns
+    # a clean 404 instead of a soft-redirect or noindex page. Cleaner for
+    # Google Search Console and AdSense — no soft-404 risk, no link-juice
+    # leakage debate, no stale page in the index.
+    _stale_vlog = os.path.join(DOCS, "vlog.html")
+    if os.path.exists(_stale_vlog):
+        try:
+            os.remove(_stale_vlog)
+        except Exception:
+            pass
     print("  &#10003; static pages")
 
     # ── Sitemap — only visible articles + core pages ──────────────────────
