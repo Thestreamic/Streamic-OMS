@@ -218,40 +218,52 @@
 .hp-insights-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 14px;
+  gap: 22px;
 }
+/* ── PREMIUM APPLE/AWWWARDS-STYLE CARD ──────────────────────────────
+   Clean editorial magazine feel. Tight tracking on titles,
+   wide tracking on metadata, Smart Labels, flex-grow bottom
+   alignment so all card footers line up across the grid row. */
 .hp-insight-card {
-  padding: 18px 16px 16px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  background: var(--white);
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  height: 100%;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 14px;
+  overflow: hidden;
   text-decoration: none;
   color: inherit;
+  transition: transform 0.35s cubic-bezier(.2,.8,.2,1),
+              box-shadow 0.35s cubic-bezier(.2,.8,.2,1),
+              border-color 0.35s ease;
 }
 .hp-insight-card:hover {
-  border-color: #c0c0c5;
-  box-shadow: var(--shadow-sm);
+  transform: translateY(-3px);
+  border-color: rgba(0, 0, 0, 0.12);
+  box-shadow: 0 14px 40px -12px rgba(0, 0, 0, 0.14),
+              0 4px 12px -4px rgba(0, 0, 0, 0.06);
 }
 .hp-insight-tag {
-  font-size: 9.5px;
-  font-weight: 800;
+  font-size: 10px;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: .8px;
+  letter-spacing: 1.4px;
   color: var(--blue);
 }
 .hp-insight-hl {
+  /* Tight Apple-style tracking on serif titles */
   font-family: var(--serif);
-  font-size: 14.5px;
-  line-height: 1.3;
+  font-size: 19px;
+  line-height: 1.22;
+  letter-spacing: -0.015em;
+  font-weight: 400;
   color: var(--ink);
-  flex: 1;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  transition: color 0.25s ease;
 }
 .hp-insight-card:hover .hp-insight-hl {
   color: var(--blue);
@@ -262,46 +274,81 @@
   color: var(--blue);
   display: inline-flex;
   align-items: center;
-  gap: 3px;
-  margin-top: auto;
+  gap: 4px;
+  letter-spacing: 0.01em;
 }
 
-
-
-.hp-insight-card {
-  padding: 0;
-  overflow: hidden;
-}
 .hp-insight-media {
   display: block;
   aspect-ratio: 16 / 9;
-  background: var(--bg);
+  background: linear-gradient(180deg, #f6f6f8 0%, #ececf0 100%);
+  overflow: hidden;
 }
 .hp-insight-media img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
+  transition: transform 0.6s cubic-bezier(.2,.8,.2,1);
+}
+.hp-insight-card:hover .hp-insight-media img {
+  transform: scale(1.04);
+}
+
+/* Body — flex column so the metadata row can be pushed to bottom */
+.hp-insight-body {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  padding: 22px 22px 20px;
+  gap: 10px;
 }
 .hp-insight-card .hp-insight-tag,
 .hp-insight-card .hp-insight-hl,
 .hp-insight-card .hp-insight-dek,
+.hp-insight-card .hp-insight-meta,
 .hp-insight-card .hp-insight-read {
-  margin-left: 16px;
-  margin-right: 16px;
+  margin-left: 0;
+  margin-right: 0;
 }
-.hp-insight-card .hp-insight-tag { margin-top: 14px; }
 .hp-insight-dek {
-  font-size: 12.5px;
-  line-height: 1.5;
+  font-size: 13.5px;
+  line-height: 1.55;
   color: var(--ink3);
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  margin-bottom: 6px;
+  letter-spacing: -0.005em;
 }
-.hp-insight-card .hp-insight-read { margin-bottom: 16px; }
+/* Metadata row — pushes to bottom so dates align across grid */
+.hp-insight-meta {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.9px;
+  text-transform: uppercase;
+  color: var(--ink4);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.hp-insight-date {
+  color: var(--ink4);
+}
+.hp-insight-dot {
+  color: var(--ink5, #c8c8cd);
+  font-size: 10px;
+}
+.hp-insight-depth {
+  color: var(--blue);
+  font-weight: 700;
+}
+.hp-insight-card .hp-insight-read {
+  padding-top: 4px;
+}
 
 /* ── hp-section-intro ───────────────────────────────────────────── */
 .hp-section-intro {
@@ -1413,52 +1460,4 @@ body[data-category="featured"] .nav {
 }
 .hp-insight-reveal {
   animation: insightReveal 0.35s cubic-bezier(.4,0,.2,1) both;
-}
-
-/* ── DUAL-LINK CARD REFINEMENTS ──────────────────────────────────── */
-/* News title is now <a> instead of <span> — remove underline */
-a.hp-news-title,
-a.hp-sb-news-title {
-  text-decoration: none;
-  color: var(--ink);
-}
-a.hp-news-title:hover { color: var(--blue); }
-a.hp-sb-news-title:hover { color: var(--blue); }
-
-/* Summary line in Intelligence cards */
-.hp-news-dek {
-  font-size: 12px;
-  line-height: 1.45;
-  color: var(--ink3);
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  margin: 1px 0;
-}
-
-/* Source link in Intelligence cards */
-.hp-news-src-link {
-  font-size: 10.5px;
-  font-weight: 500;
-  color: var(--ink4);
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  margin-top: 4px;
-  padding-top: 5px;
-  border-top: 1px solid var(--bg);
-  transition: color .15s;
-}
-.hp-news-src-link:hover {
-  color: var(--blue);
-}
-
-/* Analysis link styling */
-a.hp-news-read {
-  text-decoration: none;
-}
-a.hp-news-read:hover {
-  text-decoration: underline;
 }
