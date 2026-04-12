@@ -47,6 +47,7 @@ env:
   # Shared secrets — declared once here to avoid duplicate step-level env keys
   GEMINI_API_KEY:  ${{ secrets.GEMINI_API_KEY }}
   GROQ_API_KEY:    ${{ secrets.GROQ_API_KEY }}
+  DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
 
 jobs:
   generate-and-build:
@@ -135,34 +136,50 @@ jobs:
       # MANUAL FULL: Set run_mode=vendor_hub to run up to MAX_CALLS_PER_RUN=25
       # IDEMPOTENT:  data/vendor_hub.json caches all generated briefs —
       #              re-running only processes uncached or stale vendors
-      - name: "Stage 4b: Broadcast Systems Hub (weekly +5 vendors)"
-        if: steps.mode.outputs.mode == 'vendor_hub'
+      # ── STAGE 4b: Broadcast Systems Hub — DISABLED ────────────────────────
+      # Previously ran on Saturday at 08:30 UTC to generate vendor hub pages.
+      # Disabled per product decision — re-enable by changing `if: false` to
+      # `if: steps.mode.outputs.mode == 'vendor_hub'` when needed.
+      - name: "Stage 4b: Broadcast Systems Hub (DISABLED)"
+        if: false
         env:
-          # weekly = add WEEKLY_NEW new + refresh stale (safe on quota)
-          # full   = process up to MAX_CALLS_PER_RUN (manual cold-cache run)
           VENDOR_HUB_MODE: ${{ github.event.inputs.run_mode == 'vendor_hub' && 'full' || 'weekly' }}
         run: |
           echo "🏭 Vendor Hub — Mode: $VENDOR_HUB_MODE"
           python3 scripts/generate_vendor_hub.py || echo "⚠ Vendor hub incomplete — cached vendors preserved"
 
       # ── STAGE 5: Gemini (PRIMARY AI) — full + gemini_only ─────────────────
-      # Runs at 08:10 UTC when daily quota has just reset.
-      # Processes up to 220 articles × 2 calls × 5s = ~37 minutes.
-      - name: "Stage 5: Gemini AI articles (PRIMARY — 08:10 UTC run)"
+      # Gemini-first priority: processes all eligible articles before Groq.
+      # ENABLE_GEMINI_PREMIUM=true is now the default — set GEMINI_API_KEY
+      # in repo secrets to activate.
+      - name: "Stage 5: Gemini AI articles (PRIMARY — tier-1)"
         if: steps.mode.outputs.mode == 'full' || steps.mode.outputs.mode == 'gemini_only'
         env:
-          ENABLE_GEMINI_PREMIUM: ${{ github.event.inputs.run_mode == 'gemini_only' && 'true' || 'false' }}
-          GEMINI_MAX_PER_RUN: "2"
+          ENABLE_GEMINI_PREMIUM: "true"
+          GEMINI_MAX_PER_RUN: "6"
         run: python3 scripts/generate_gemini.py || echo "Gemini step skipped"
 
-      # ── STAGE 5b: Groq card summaries (SECONDARY) — full + groq_only ──────
+      # ── STAGE 5b: Groq card summaries (SECONDARY — tier-2) ────────────────
       # Fills gaps Gemini missed. Also runs at 20:00 UTC for top-up.
-      - name: "Stage 5b: Groq card summaries (secondary + 20:00 top-up)"
+      - name: "Stage 5b: Groq card summaries (tier-2 fallback)"
         if: steps.mode.outputs.mode == 'full' || steps.mode.outputs.mode == 'groq_only'
         env:
           GROQ_PREMIUM_ONLY: "true"
-          GROQ_MAX_PER_RUN: "4"
+          MAX_PER_RUN: "8"
         run: python3 ./scripts/generate_summaries.py || echo "Groq step skipped"
+
+      # ── STAGE 5c: DeepSeek-R1 Reasoner (TERTIARY — tier-3) ────────────────
+      # Last-resort fallback for articles Gemini + Groq could not process.
+      # R1 uses chain-of-thought reasoning for maximum factual accuracy.
+      # Requires DEEPSEEK_API_KEY repo secret (free tier at platform.deepseek.com).
+      - name: "Stage 5c: DeepSeek-R1 Reasoner (tier-3 fallback)"
+        if: steps.mode.outputs.mode == 'full' || steps.mode.outputs.mode == 'groq_only'
+        env:
+          DEEPSEEK_MAX_PER_RUN: "5"
+          DEEPSEEK_TEMPERATURE: "0.1"
+          DEEPSEEK_TOP_P: "0.95"
+          DEEPSEEK_PRESENCE_PENALTY: "0.1"
+        run: python3 ./scripts/generate_deepseek.py || echo "DeepSeek step skipped"
 
       # ── STAGE 6: Build static site (always) ───────────────────────────────
       - name: "Stage 6: Build static site"
