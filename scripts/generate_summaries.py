@@ -317,9 +317,8 @@ def needs_reprocessing(article: dict[str, Any]) -> bool:
     if gen_by.startswith("gemini"):
         return False
 
-    # DeepSeek-generated articles are also protected (tier-3 is higher
-    # quality than Groq because R1 reasons before writing).
-    if "deepseek" in gen_by:
+    # DeepSeek/OpenRouter-generated articles are also protected.
+    if "deepseek" in gen_by or "openrouter" in gen_by:
         return False
 
     is_scaffold = gen_by in ("", "rewrite_feed_local", "rewrite_feed")
