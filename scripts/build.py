@@ -237,7 +237,7 @@ def nav(active="", base=""):
         ("ai-post-production.html",        "AI in Broadcasting"),
         ("howto.html",                     "How-To Guides"),
         ("post-production-workflows.html", "Post Production Workflows"),
-        ("insights.html",                  "Insights"),
+        ("insights.html",                  "Expert Insights"),
         ("editorsdesk.html",               "Editorial Insights"),
     ]
     def _nav_li(h, lbl, base=base, active=active):
@@ -306,7 +306,7 @@ def footer(base=""):
       <a href="{base}ai-post-production.html">AI in Broadcasting</a>
       <a href="{base}howto.html">How-To Guides</a>
       <a href="{base}post-production-workflows.html">Post Production Workflows</a>
-      <a href="{base}insights.html">Insights</a>
+      <a href="{base}insights.html">Expert Insights</a>
       <a href="{base}editorsdesk.html">Editorial Insights</a>
     </div>
     <div class="footer-col">
@@ -2339,6 +2339,7 @@ def sitemap(arts):
         ("index.html","daily","1.0"),("featured.html","daily","0.98"),
         ("ai-post-production.html","daily","0.9"),
         ("howto.html","weekly","0.85"),("post-production-workflows.html","weekly","0.90"),
+        ("insights.html","weekly","0.88"),
         ("editorsdesk.html","weekly","0.88"),
         ("about.html","monthly","0.6"),("contact.html","monthly","0.5"),
         ("editorial-policy.html","monthly","0.6"),
