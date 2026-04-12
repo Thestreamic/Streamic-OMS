@@ -1106,13 +1106,16 @@ def _hp_insight_card(a):
     title = e(a.get("title", ""))
     dek = e((a.get("dek") or a.get("meta_description") or a.get("card_summary") or "")[:150])
     dt = d(a.get("published", ""))
+    # Smart label: DEEP DIVE for >700 words, else TECHNICAL BRIEFING
+    wc = int(a.get("word_count", 0) or 0)
+    depth_label = "Deep Dive" if wc > 700 else "Technical Briefing"
     return f'''<a href="{href}" class="hp-insight-card">
   <div class="hp-insight-media"><img src="{_hp_img(a)}" alt="{title}" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-insight-body">
     <span class="hp-insight-tag">{e(_hp_tag(a))}</span>
     <span class="hp-insight-hl">{title}</span>
     <span class="hp-insight-dek">{dek}</span>
-    <span class="hp-insight-meta">{dt}</span>
+    <span class="hp-insight-meta"><span class="hp-insight-date">{dt}</span><span class="hp-insight-dot">&bull;</span><span class="hp-insight-depth">{depth_label}</span></span>
     <span class="hp-insight-read">Read analysis &#8594;</span>
   </div>
 </a>'''
@@ -2368,7 +2371,92 @@ def main():
             seen_slugs.add(a["slug"])
             deduped.append(a)
     arts = deduped
-    print(f"  After dedup: {len(arts)} unique articles")
+    print(f"  After slug dedup: {len(arts)} unique articles")
+
+    # ── Jaccard near-duplicate cleanup (retroactive) ──────────────────────
+    # Catches cross-feed story re-runs that slipped through rewrite_feed.py
+    # before the 3-pass dedup was introduced. E.g. "Bitcentral to Showcase
+    # Connected Media Workflows" and "Bitcentral To Feature Connected
+    # Media Workflows" both about the same NAB press release.
+    #
+    # For each group of near-duplicates (>=70% token overlap), we keep:
+    #   1. HAND_AUTHORED articles first (immutable protection)
+    #   2. Then longest body (best content wins)
+    #   3. Then newest published date as tiebreaker
+    import re as _dd_re
+    def _dd_tokens(title):
+        if not title: return set()
+        t = _dd_re.sub(r"[^a-zA-Z0-9\s]", " ", title.lower())
+        return {w for w in t.split() if len(w) >= 4 and w not in {
+            "with","from","that","this","will","show","2026","2025","2024",
+            "announced","launches","introduces","unveils","debuts","nabs",
+            "nab","ibc","new","the","and","for","are","into",
+            "showcase","showcases","showcased","feature","features","featured",
+            "to","at","on","in","by","of","a","an","is","its",
+            # Broadcast-industry boilerplate that inflates false-positive splits:
+            "intelligent","automation","solution","solutions","platform","technology",
+            "workflow","workflows","system","systems","broadcast","media",
+            "company","companies","announces","announcing",
+        }}
+    def _is_hand_authored(a):
+        # Look up the file on disk; presence of <!-- HAND_AUTHORED --> wins.
+        slug = a.get("slug", "")
+        if not slug: return False
+        try:
+            fp = os.path.join(DOCS, "articles", slug + ".html")
+            if os.path.exists(fp):
+                with open(fp, "r", encoding="utf-8", errors="ignore") as fh:
+                    head = fh.read(400)
+                return "HAND_AUTHORED" in head
+        except Exception:
+            pass
+        return False
+
+    JACCARD_THRESHOLD = 0.70
+    kept = []
+    dropped_near_dup = 0
+    for candidate in arts:
+        cand_tokens = _dd_tokens(candidate.get("title", ""))
+        if not cand_tokens or len(cand_tokens) < 2:
+            kept.append(candidate)
+            continue
+        merged = False
+        for idx, existing in enumerate(kept):
+            ex_tokens = _dd_tokens(existing.get("title", ""))
+            if not ex_tokens: continue
+            union = len(cand_tokens | ex_tokens)
+            if union == 0: continue
+            similarity = len(cand_tokens & ex_tokens) / union
+            if similarity >= JACCARD_THRESHOLD:
+                # Found a near-duplicate. Decide which to keep.
+                cand_hand = _is_hand_authored(candidate)
+                ex_hand   = _is_hand_authored(existing)
+                cand_len  = len((candidate.get("body_html") or candidate.get("body") or "") or "")
+                ex_len    = len((existing.get("body_html") or existing.get("body") or "") or "")
+                # Tiebreak: hand-authored > longer body > newer
+                if cand_hand and not ex_hand:
+                    winner = candidate
+                elif ex_hand and not cand_hand:
+                    winner = existing
+                elif cand_len > ex_len * 1.10:
+                    winner = candidate
+                elif ex_len > cand_len * 1.10:
+                    winner = existing
+                else:
+                    winner = candidate if (candidate.get("date", "") > existing.get("date", "")) else existing
+                loser = existing if winner is candidate else candidate
+                print(f"  [DEDUP] '{loser.get('title','')[:55]}' "
+                      f"≈ '{winner.get('title','')[:55]}' ({similarity:.0%}) — keeping winner")
+                if winner is candidate:
+                    kept[idx] = candidate
+                dropped_near_dup += 1
+                merged = True
+                break
+        if not merged:
+            kept.append(candidate)
+    arts = kept
+    print(f"  After near-dup dedup: {len(arts)} unique articles "
+          f"(removed {dropped_near_dup} near-duplicates)")
 
     # ── Ensure all articles have a slug ──────────────────────────────────
     def _slugify(title):
