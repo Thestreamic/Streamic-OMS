@@ -456,7 +456,22 @@ def call_groq(
         if m and m not in models_to_try:
             models_to_try.append(m)
 
+    # Payload-size guard: the 8B fallback has a 6000 TPM limit.
+    # Our NotebookLM safety block (~2000 tokens) plus source text plus
+    # output budget (1400 tokens) routinely pushes past this. Estimate
+    # total tokens = (system_prompt_chars + source_chars) / 3.5 + max_tokens.
+    # If it would exceed 5800 tokens, skip the fallback entirely.
+    FALLBACK_TPM_LIMIT = 5800
+    est_prompt_tokens = (len(SYSTEM_PROMPT) + len(source_text) + 500) // 3
+    est_total_tokens = est_prompt_tokens + MAX_TOKENS
+    skip_fallback = est_total_tokens > FALLBACK_TPM_LIMIT
+
     for model_index, model in enumerate(models_to_try, start=1):
+        # Skip fallback model if payload is too large for its TPM limit
+        if model_index > 1 and skip_fallback:
+            print(f"  [SKIP] Fallback model {model} would exceed TPM "
+                  f"(est {est_total_tokens} tok > {FALLBACK_TPM_LIMIT}) — article stays scaffold")
+            return None
         for attempt in range(1, 3):
             try:
                 if attempt > 1:
