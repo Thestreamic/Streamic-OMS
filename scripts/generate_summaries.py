@@ -305,12 +305,32 @@ Begin the article now:
 def needs_reprocessing(article: dict[str, Any]) -> bool:
     """Return True if this article needs Groq enrichment.
 
+    GEMINI-FIRST PRIORITY: If generated_by starts with 'gemini', skip —
+    Gemini is the preferred model. Groq only fills the gaps Gemini missed
+    (typically because Gemini hit its daily quota cap).
+
     SELF-HEALING: detects scaffolds by generated_by, NOT by needs_gemini flag.
-    The flag is unreliable — rewrite_feed.py has a self-reinforcing bug
-    where it writes needs_gemini=False on every subsequent run.
     """
     gen_by = (article.get("generated_by") or "").lower()
+
+    # Gemini-first: never overwrite a Gemini-generated article with Groq.
+    if gen_by.startswith("gemini"):
+        return False
+
+    # DeepSeek-generated articles are also protected (tier-3 is higher
+    # quality than Groq because R1 reasons before writing).
+    if "deepseek" in gen_by:
+        return False
+
     is_scaffold = gen_by in ("", "rewrite_feed_local", "rewrite_feed")
+
+    # Editorial content is protected across all tiers.
+    if article.get("is_editorial") or article.get("editorial"):
+        if not is_scaffold:
+            return False
+        # Even scaffolds marked editorial are protected — these are
+        # typically hand-authored stubs awaiting manual expansion.
+        return False
 
     if not is_scaffold:
         if (article.get("is_editorial") or article.get("editorial")):
