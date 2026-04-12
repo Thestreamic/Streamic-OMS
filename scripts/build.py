@@ -1038,8 +1038,22 @@ def _fix_article_images(arts):
         # PRIORITY 1: local taxonomy image from assign_images.py if present.
         # These are deterministic, copyright-safe local files matched to
         # the article's topic by the Streamic visual taxonomy.
+        #
+        # CRITICAL: only use the taxonomy image if the file actually exists
+        # on disk AND is not the fallback sentinel. Otherwise we'd overwrite
+        # a perfectly good Unsplash URL with a 404.
         taxonomy_img = a.get("image") or ""
+        use_taxonomy = False
         if taxonomy_img and taxonomy_img.startswith("/assets/images/"):
+            # Reject the fallback sentinel — it means assign_images.py
+            # couldn't find a bucket folder, so we should fall through
+            # to the Unsplash pool instead.
+            if "_fallback" not in taxonomy_img and "fallback" not in taxonomy_img.lower():
+                # Check the actual file exists on disk before trusting it
+                disk_path = os.path.join(DOCS, taxonomy_img.lstrip("/"))
+                if os.path.exists(disk_path):
+                    use_taxonomy = True
+        if use_taxonomy:
             a["image_url"] = taxonomy_img
             a["image_credit"] = "The Streamic"
             a["image_license"] = "Site License"
