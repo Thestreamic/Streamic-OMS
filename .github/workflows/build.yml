@@ -56,8 +56,11 @@ jobs:
       - name: Groq AI summaries (if key available)
         env:
           GROQ_PREMIUM_ONLY: "true"
-          GROQ_MAX_PER_RUN: "4"
+          MAX_PER_RUN: "8"
         run: python ./scripts/generate_summaries.py || echo "Groq step skipped"
+
+      - name: Assign taxonomy images (before build)
+        run: python scripts/assign_images.py || echo "Image assigner skipped"
 
       - name: Build site
         run: python scripts/build.py
