@@ -65,6 +65,11 @@ jobs:
       - name: Build site
         run: python scripts/build.py
 
+      - name: SEO audit + auto-fix canonicals
+        env:
+          ADSENSE_PUB_ID: "ca-pub-8033069131874524"
+        run: python scripts/seo_audit.py || echo "SEO audit skipped"
+
       - name: Verify build
         run: |
           test -f docs/index.html     || exit 1
