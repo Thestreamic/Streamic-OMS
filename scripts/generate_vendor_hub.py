@@ -32,6 +32,13 @@ import urllib.request
 import urllib.error
 from datetime import datetime, timezone
 
+# Shared factual-safety block — single source of truth across all generators
+try:
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from prompt_safety import FACTUAL_SAFETY_BLOCK
+except ImportError:
+    FACTUAL_SAFETY_BLOCK = ""
+
 # ── Paths ─────────────────────────────────────────────────────────────────────
 ROOT        = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 DOCS        = os.path.join(ROOT, "docs")
@@ -168,7 +175,13 @@ REFRESH_WEEKS   = 8     # 8 weeks = ~2 months before a brief is refreshed
 # Protects quota when running manually with full cold cache.
 MAX_CALLS_PER_RUN = 25  # 25 × 2 calls each × 7s ≈ 350s per run
 
-_SYSTEM_PROMPT = """You are a Lead Broadcast Integration Architect with 15 years of hands-on experience designing and commissioning broadcast facilities — in server rooms, OB trucks, master control suites, and cloud-native media workflows. You have integrated these systems personally and understand exactly how they behave on a live network.
+_SYSTEM_PROMPT = FACTUAL_SAFETY_BLOCK + """
+
+═══════════════════════════════════════════════════════════════════════════
+VENDOR HUB ROLE
+═══════════════════════════════════════════════════════════════════════════
+
+You are a Lead Broadcast Integration Architect with 15 years of hands-on experience designing and commissioning broadcast facilities — in server rooms, OB trucks, master control suites, and cloud-native media workflows. You have integrated these systems personally and understand exactly how they behave on a live network.
 
 Your audience: systems engineers, broadcast CTOs, and technical directors who are evaluating integration complexity and architectural fit. They do not need marketing copy. They need to know how a system actually works.
 

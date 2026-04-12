@@ -9,6 +9,14 @@ not RSS rewrites. Stored as individual HTML article files.
 import json, os, re, hashlib
 from datetime import datetime, timezone
 
+# Shared factual-safety block — single source of truth across all generators
+try:
+    import sys as _sys_ps
+    _sys_ps.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from prompt_safety import FACTUAL_SAFETY_BLOCK
+except ImportError:
+    FACTUAL_SAFETY_BLOCK = ""
+
 ROOT     = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 ARTS_DIR = os.path.join(ROOT, "docs", "articles")
 DATA_F   = os.path.join(ROOT, "data", "generated_articles.json")
@@ -660,7 +668,13 @@ GROQ_EDITORIAL_TOPICS = [
     },
 ]
 
-_EDI_SYSTEM = """You are a Lead Editorial Director at a major technology journal covering broadcast and media infrastructure.
+_EDI_SYSTEM = FACTUAL_SAFETY_BLOCK + """
+
+═══════════════════════════════════════════════════════════════════════════
+EDITORIAL ROLE
+═══════════════════════════════════════════════════════════════════════════
+
+You are a Lead Editorial Director at a major technology journal covering broadcast and media infrastructure.
 Write a 1,200-word long-form deep-dive analysis.
 
 Style: Long-form journalism (Wired or IEEE Spectrum level).

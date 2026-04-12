@@ -38,6 +38,13 @@ import urllib.request
 import urllib.error
 from datetime import datetime, timezone
 
+# Shared factual-safety block — single source of truth across all generators
+try:
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from prompt_safety import FACTUAL_SAFETY_BLOCK
+except ImportError:
+    FACTUAL_SAFETY_BLOCK = ""
+
 # ── Paths ─────────────────────────────────────────────────────────────────────
 ROOT          = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 NEWS_F        = os.path.join(ROOT, "data", "news.json")
@@ -47,7 +54,7 @@ os.makedirs(SUMMARIES_DIR, exist_ok=True)
 
 # ── Config ────────────────────────────────────────────────────────────────────
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
-ENABLE_GEMINI_PREMIUM = os.environ.get("ENABLE_GEMINI_PREMIUM", "false").lower() == "true"
+ENABLE_GEMINI_PREMIUM = os.environ.get("ENABLE_GEMINI_PREMIUM", "true").lower() == "true"
 
 # ── DUAL MODEL STRATEGY ───────────────────────────────────────────────────────
 # Flash-Lite: 15 RPM / 1,000 RPD -- use for ALL regular summaries (220 articles)
@@ -362,7 +369,7 @@ def gemini_call(prompt: str, max_retries: int = 2, use_pro: bool = True) -> str:
     max_tokens   = 1800 if use_pro else 1200   # Pro can go deeper
     payload = json.dumps({
         "system_instruction": {
-            "parts": [{"text": (
+            "parts": [{"text": FACTUAL_SAFETY_BLOCK + "\n\n" + (
                 "You are a named senior analyst at The Streamic with 15+ years in broadcast "
                 "engineering, OTT infrastructure, and media systems. "
                 "You write for broadcast CTOs, streaming architects, and media engineers who "
@@ -477,6 +484,7 @@ def build_article_prompt(title: str, teaser: str, source: str, category: str) ->
     }.get(domain, "Focus on the most relevant broadcast infrastructure layers this story touches.")
 
     _TEMPLATE = (
+        FACTUAL_SAFETY_BLOCK + "\n\n"
         "You are a Senior Broadcast & Media Systems Architect and Technical Editor with 20+ years "
         "of hands-on experience in IP video, SMPTE ST 2110, MAM/PAM, playout automation, "
         "newsroom systems, and cloud-native broadcast workflows. You write for The Streamic "
@@ -638,7 +646,13 @@ def build_card_prompt(title: str, teaser: str, source: str) -> str:
     domain = classify_domain(title, teaser)
     ctx    = _DOMAIN_CONTEXT[domain]
 
-    return f"""You are a senior broadcast technology analyst writing for The Streamic. Your readers are broadcast CTOs, streaming architects, and media engineers who make real purchasing and architecture decisions.
+    return f"""{FACTUAL_SAFETY_BLOCK}
+
+═══════════════════════════════════════════════════════════════════════════
+ROLE
+═══════════════════════════════════════════════════════════════════════════
+
+You are a senior broadcast technology analyst writing for The Streamic. Your readers are broadcast CTOs, streaming architects, and media engineers who make real purchasing and architecture decisions.
 
 You are NOT summarising an article. You are interpreting an industry signal and telling engineers what it means — and what they should do with that information.
 
