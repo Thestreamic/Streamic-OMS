@@ -130,10 +130,7 @@
     "technical_keywords": [
       "nab"
     ],
-    "needs_gemini": false,
-    "image": "/assets/images/_fallback/streamic-default.jpg",
-    "image_category": "broadcast_infrastructure",
-    "image_alt": "Broadcast IP network infrastructure and SMPTE ST 2110 fabric — illustrating: NAB Show Launches Content Creator VIP Program"
+    "needs_gemini": false
   },
   {
     "category": "newsroom",
@@ -1529,10 +1526,7 @@
     "topic_type": "broadcast_infrastructure",
     "priority_for_insights": true,
     "technical_keywords": [],
-    "needs_gemini": false,
-    "image": "/assets/images/_fallback/streamic-default.jpg",
-    "image_category": "broadcast_infrastructure",
-    "image_alt": "Broadcast IP network infrastructure and SMPTE ST 2110 fabric — illustrating: Telestream and Mimir: The Modern News Workflow"
+    "needs_gemini": false
   },
   {
     "category": "newsroom",
@@ -2862,10 +2856,7 @@
     "topic_type": "streaming_delivery",
     "priority_for_insights": true,
     "technical_keywords": [],
-    "needs_gemini": false,
-    "image": "/assets/images/_fallback/streamic-default.jpg",
-    "image_category": "cloud_production",
-    "image_alt": "Cloud-based broadcast production and remote workflow — illustrating: Live streaming localization and accessibility using AWS Media Services"
+    "needs_gemini": false
   },
   {
     "category": "newsroom",
@@ -3326,10 +3317,7 @@
     "technical_keywords": [
       "ott"
     ],
-    "needs_gemini": false,
-    "image": "/assets/images/_fallback/streamic-default.jpg",
-    "image_category": "streaming_ott",
-    "image_alt": "OTT streaming platform and content delivery analytics — illustrating: Rethinking Review: Eliminating Proxy Bottlenecks in Media Workflows"
+    "needs_gemini": false
   },
   {
     "category": "streaming",
@@ -3468,10 +3456,7 @@
     "topic_type": "broadcast_infrastructure",
     "priority_for_insights": true,
     "technical_keywords": [],
-    "needs_gemini": false,
-    "image": "/assets/images/_fallback/streamic-default.jpg",
-    "image_category": "broadcast_infrastructure",
-    "image_alt": "Broadcast IP network infrastructure and SMPTE ST 2110 fabric — illustrating: How Mobile Video Transmitters are Enhancing Sports Broadcasts"
+    "needs_gemini": false
   },
   {
     "category": "newsroom",
@@ -4374,10 +4359,7 @@
     "technical_keywords": [
       "ai"
     ],
-    "needs_gemini": false,
-    "image": "/assets/images/_fallback/streamic-default.jpg",
-    "image_category": "broadcast_infrastructure",
-    "image_alt": "Broadcast IP network infrastructure and SMPTE ST 2110 fabric — illustrating: Why We Chose a Credit-Based Model for VideoAI"
+    "needs_gemini": false
   },
   {
     "category": "newsroom",
@@ -4943,10 +4925,7 @@
     "technical_keywords": [
       "cloud"
     ],
-    "needs_gemini": false,
-    "image": "/assets/images/_fallback/streamic-default.jpg",
-    "image_category": "cloud_production",
-    "image_alt": "Cloud-based broadcast production and remote workflow — illustrating: Cloud-Native Revolution: Harmonic VOS and Red Hat OpenShift Mastering Video Delivery, Cost, and Scale"
+    "needs_gemini": false
   },
   {
     "category": "infrastructure",
@@ -5005,10 +4984,7 @@
     "technical_keywords": [
       "ai"
     ],
-    "needs_gemini": false,
-    "image": "/assets/images/_fallback/streamic-default.jpg",
-    "image_category": "cloud_production",
-    "image_alt": "Cloud-based broadcast production and remote workflow — illustrating: How AWS powers Dramaze AI-enhanced streaming platform"
+    "needs_gemini": false
   },
   {
     "category": "cloud",
@@ -5038,10 +5014,7 @@
     "technical_keywords": [
       "ai"
     ],
-    "needs_gemini": false,
-    "image": "/assets/images/_fallback/streamic-default.jpg",
-    "image_category": "cloud_production",
-    "image_alt": "Cloud-based broadcast production and remote workflow — illustrating: Building intelligent media supply chain automation using Amazon Bedrock AgentCore"
+    "needs_gemini": false
   },
   {
     "category": "cloud",
@@ -5156,10 +5129,7 @@
     "topic_type": "streaming_delivery",
     "priority_for_insights": true,
     "technical_keywords": [],
-    "needs_gemini": false,
-    "image": "/assets/images/_fallback/streamic-default.jpg",
-    "image_category": "broadcast_infrastructure",
-    "image_alt": "Broadcast IP network infrastructure and SMPTE ST 2110 fabric — illustrating: The Economics of Hybrid Streaming Architectures"
+    "needs_gemini": false
   },
   {
     "category": "playout",
@@ -5189,10 +5159,7 @@
     "technical_keywords": [
       "nab"
     ],
-    "needs_gemini": false,
-    "image": "/assets/images/_fallback/streamic-default.jpg",
-    "image_category": "streaming_ott",
-    "image_alt": "OTT streaming platform and content delivery analytics — illustrating: The Everything Era: What NAB 2025 Really Told Us About Streaming’s Future"
+    "needs_gemini": false
   },
   {
     "category": "newsroom",
