@@ -25,6 +25,23 @@ const https       = require('https');
 const http        = require('http');
 const { URL }     = require('url');
 
+// Shared factual-safety block — loaded from scripts/factual_safety.txt
+// so all generators (Python + Node) enforce identical rules.
+let FACTUAL_SAFETY_BLOCK = '';
+try {
+  const _safetyPath = path.join(__dirname, 'factual_safety.txt');
+  FACTUAL_SAFETY_BLOCK = fs.readFileSync(_safetyPath, 'utf8').trim();
+} catch (_e) {
+  FACTUAL_SAFETY_BLOCK = (
+    'STRICT FACTUAL SAFETY: Never guess what a product does. Never assign '
+    + 'a product category unless the source explicitly states it. Never '
+    + 'invent standards support (ST 2110, NMOS, SCTE-35, etc.) unless the '
+    + 'source names them. Never add competitor names not in the source. '
+    + 'Mediagenix is scheduling/rights/BMS — NOT playout. If the source '
+    + 'is vague, stay vague. Accuracy over impressiveness.'
+  );
+}
+
 // ── CONFIG ────────────────────────────────────────────────────────────────
 // Reads GROQ_API_KEY first, falls back to HF_API_KEY (same key, different name)
 const HF_API_KEY  = process.env.GROQ_API_KEY || process.env.HF_API_KEY || '';
@@ -178,7 +195,13 @@ function buildPrompt(title, content, category, sourceName) {
   // Structured to produce exactly the HTML sections we need.
   // max_new_tokens is set to 2000 to ensure 1200-1500 word output.
   // ════════════════════════════════════════════════════════════════════
-  return `You are a senior broadcast technology journalist at The Streamic — a professional publication read by broadcast engineers, production technologists, and media CTOs worldwide.
+  return `${FACTUAL_SAFETY_BLOCK}
+
+═══════════════════════════════════════════════════════════════════════════
+ROLE
+═══════════════════════════════════════════════════════════════════════════
+
+You are a senior broadcast technology journalist at The Streamic — a professional publication read by broadcast engineers, production technologists, and media CTOs worldwide.
 
 Write a detailed, SEO-optimized article of exactly 1200–1500 words based on the source content below.
 
@@ -273,6 +296,7 @@ async function callHuggingFace(prompt) {
       {
         role:    'system',
         content: (
+          FACTUAL_SAFETY_BLOCK + '\n\n' +
           'You are a senior broadcast technology editor at The Streamic — ' +
           'a professional publication for broadcast engineers and media CTOs. ' +
           'Write detailed, original, expert-level articles. ' +
