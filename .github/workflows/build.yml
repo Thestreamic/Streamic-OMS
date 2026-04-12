@@ -20,7 +20,7 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
   GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
   GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-  DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+  OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
 
 jobs:
   build:
@@ -67,13 +67,13 @@ jobs:
           MAX_PER_RUN: "8"
         run: python ./scripts/generate_summaries.py || echo "Groq step skipped"
 
-      - name: DeepSeek-R1 Reasoner (tier-3 — articles Gemini+Groq did not upgrade)
+      - name: OpenRouter reasoning models (tier-3 — free DeepSeek-R1 + fallbacks)
         env:
-          DEEPSEEK_MAX_PER_RUN: "5"
-          DEEPSEEK_TEMPERATURE: "0.1"
-          DEEPSEEK_TOP_P: "0.95"
-          DEEPSEEK_PRESENCE_PENALTY: "0.1"
-        run: python ./scripts/generate_deepseek.py || echo "DeepSeek step skipped"
+          OPENROUTER_MAX_PER_RUN: "5"
+          OPENROUTER_TEMPERATURE: "0.1"
+          OPENROUTER_TOP_P: "0.95"
+          OPENROUTER_PRESENCE_PENALTY: "0.1"
+        run: python ./scripts/generate_openrouter.py || echo "OpenRouter step skipped"
 
       - name: Assign taxonomy images (before build)
         run: python scripts/assign_images.py || echo "Image assigner skipped"
