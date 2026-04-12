@@ -257,17 +257,38 @@ Begin the article now:
 # ── Helpers (unchanged from v1) ───────────────────────────────────────────────
 
 def needs_reprocessing(article: dict[str, Any]) -> bool:
-    """Return True if this article needs Groq enrichment."""
-    # Must be flagged by rewrite_feed.py
-    if not article.get("needs_gemini"):
-        return False
-    # Must not already be editorial-quality
-    if article.get("is_editorial") or article.get("editorial"):
-        return False
+    """Return True if this article needs Groq enrichment.
+
+    SELF-HEALING: detects scaffolds by generated_by directly, NOT by the
+    needs_gemini flag. The flag is unreliable because rewrite_feed.py has
+    a self-reinforcing bug where it writes needs_gemini=False on every
+    subsequent run. Detecting on generated_by is self-healing: every build
+    sees every scaffold and upgrades it, no dependency on rewrite_feed.
+    """
+    gen_by = (article.get("generated_by") or "").lower()
+    is_scaffold = gen_by in ("", "rewrite_feed_local", "rewrite_feed")
+
+    # Already upgraded by a real AI model (groq-*/gemini-*) — skip.
+    if not is_scaffold:
+        if (article.get("is_editorial") or article.get("editorial")):
+            return False
 
     body = article.get("body_html", "") or ""
     wc   = int(article.get("word_count", 0) or 0)
 
+    # Scaffold path: always reprocess if the body fails quality.
+    if is_scaffold:
+        if not body or len(body.strip()) < 100:
+            return True
+        if wc < REPROCESS_THRESHOLD:
+            return True
+        if REQUIRE_HEADINGS and "<h2" not in body.lower():
+            return True
+        return False
+
+    # Backward-compat: non-scaffold with needs_gemini flag set
+    if not article.get("needs_gemini"):
+        return False
     if not body or len(body.strip()) < 100:
         return True
     if wc < REPROCESS_THRESHOLD:

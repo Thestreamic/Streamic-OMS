@@ -1033,7 +1033,20 @@ def _fix_article_images(arts):
 
     replaced_non_pool = 0
     replaced_duplicate = 0
+    taxonomy_applied = 0
     for a in arts:
+        # PRIORITY 1: local taxonomy image from assign_images.py if present.
+        # These are deterministic, copyright-safe local files matched to
+        # the article's topic by the Streamic visual taxonomy.
+        taxonomy_img = a.get("image") or ""
+        if taxonomy_img and taxonomy_img.startswith("/assets/images/"):
+            a["image_url"] = taxonomy_img
+            a["image_credit"] = "The Streamic"
+            a["image_license"] = "Site License"
+            a["image_license_url"] = ""
+            taxonomy_applied += 1
+            continue
+
         img = a.get("image_url", "") or ""
 
         if not _image_is_from_pool(img):
