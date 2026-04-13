@@ -286,6 +286,12 @@ def needs_gemini_processing(slug: str) -> tuple:
     word_count = s.get("word_count", 0)
     gen_by     = s.get("generated_by", "")
 
+    # Tier-1 Mistral output: sacred — do not reprocess.
+    # Mistral runs first in the cascade with NotebookLM protocol + live
+    # source-page grounding, so its output is tier-1 quality.
+    if gen_by.startswith("mistral") and word_count >= 400:
+        return False, f"protected_mistral_{word_count}w"
+
     # Missing body -- definitely needs processing
     if not body_html.strip():
         return True, "no_body_html"

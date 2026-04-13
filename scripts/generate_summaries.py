@@ -314,6 +314,10 @@ def needs_reprocessing(article: dict[str, Any]) -> bool:
     gen_by = (article.get("generated_by") or "").lower()
 
     # Gemini-first: never overwrite a Gemini-generated article with Groq.
+    # Tier-1 Mistral output: sacred.
+    if gen_by.startswith("mistral"):
+        return False
+
     if gen_by.startswith("gemini"):
         return False
 

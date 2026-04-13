@@ -63,9 +63,14 @@ OPENROUTER_API_URL = os.environ.get(
 
 # Free model cascade — tried in order until one succeeds for a given article.
 _DEFAULT_MODELS = [
-    "deepseek/deepseek-r1:free",
-    "deepseek/deepseek-chat:free",
-    "google/gemini-2.0-flash-exp:free",
+    # April 2026 verified free models on OpenRouter. DeepSeek R1 and
+    # Gemini 2.0 Flash Exp moved off free tier in Q1 2026. Current
+    # strongest free reasoning models, tried in order:
+    "openrouter/free",                              # auto-router: best available
+    "nvidia/nemotron-3-super-120b-a12b:free",       # 120B MoE, reasoning
+    "openai/gpt-oss-120b:free",                     # 117B MoE, configurable reasoning
+    "meta-llama/llama-3.3-70b-instruct:free",       # proven workhorse
+    "qwen/qwen3-next-80b-a3b-instruct:free",        # 80B, instruction-tuned
 ]
 OPENROUTER_MODELS = [
     m.strip() for m in
@@ -104,6 +109,10 @@ def needs_openrouter(article: dict[str, Any]) -> bool:
     higher-tier content from being overwritten.
     """
     gen_by = (article.get("generated_by") or "").lower()
+
+    # Tier-1 Mistral output: sacred.
+    if gen_by.startswith("mistral"):
+        return False
 
     # Tier-1 (Gemini) output: sacred.
     if gen_by.startswith("gemini"):
