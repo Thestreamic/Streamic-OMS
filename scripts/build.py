@@ -1385,8 +1385,10 @@ def featured_page(arts):
 
     guide_subs = ["2026 Engineering Edition", "Complete Technical Reference", "Distributed Production Playbook", "Metadata, Search & Monetisation"]
     guides_html = ''.join(_hp_guide_card(a, guide_subs[i] if i < len(guide_subs) else "Technical Guide") for i, a in enumerate(guide_arts))
-    # First 6 visible, rest hidden — revealed by Load More button
-    INSIGHT_INITIAL = 20
+    # First 30 visible, rest hidden — revealed by Load More button.
+    # 30 is enough to show all recent Mistral/Groq-upgraded quality articles
+    # (typically 2 weeks of daily content) without overwhelming scroll length.
+    INSIGHT_INITIAL = 30
     _insight_cards = []
     for i, a in enumerate(insight_arts):
         card_html = _hp_insight_card(a)
