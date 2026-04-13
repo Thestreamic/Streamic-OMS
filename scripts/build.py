@@ -1152,76 +1152,97 @@ def _source_name(val):
     return (val or '').replace('https://','').replace('http://','').replace('www.','').split('/')[0]
 
 def load_homepage_feed(arts, limit=14):
-    """Use fresh data/news.json for homepage and map to internal articles.
-    
-    Only returns items that map to an internal article (has slug) so all
-    homepage links go to our own analysis pages, never to external sources.
-    Prefers articles with more body content (longer = higher quality).
+    """Load homepage feed items, newest-first, from generated_articles.json.
+
+    Previous behavior: source from news.json (raw RSS dump), map to articles.
+    Problem: news.json only holds items from the most recent RSS sweep, so
+    newly-generated articles (from today's Mistral/Groq tier-1 upgrades)
+    were missing from The Streamic Intelligence section on the homepage.
+
+    New behavior: source directly from arts (generated_articles.json),
+    filter to non-editorial RSS-derived articles, sort newest-first by
+    published date (tiebreaker: word count). Optionally enrich with
+    source metadata from news.json if a match exists, but never gate on
+    news.json membership.
+
+    All links go to internal article pages (never external sources).
     """
-    by_url, by_title = {}, {}
-    for a in arts:
-        for key in (a.get('source_url'), a.get('url'), a.get('link')):
-            if key:
-                by_url[key] = a
-        title = (a.get('title') or '').strip().lower()
-        if title:
-            by_title[title] = a
-
-    feed_items = []
+    # Build news.json lookup for optional source metadata enrichment
+    news_by_url, news_by_title = {}, {}
     if os.path.exists(NEWS_F):
-        with open(NEWS_F, 'r', encoding='utf-8') as f:
-            raw = json.load(f)
-        if isinstance(raw, dict) and 'items' in raw:
-            feed_items = (raw.get('featured_priority') or []) + (raw.get('items') or [])
-        elif isinstance(raw, list):
-            feed_items = raw
-        else:
-            flat = []
-            for cat, lst in (raw or {}).items():
-                for it in (lst or []):
-                    if isinstance(it, dict):
-                        item = dict(it)
-                        item.setdefault('category', cat)
-                        flat.append(item)
-            feed_items = sorted(flat, key=lambda x: x.get('pubDate',''), reverse=True)
+        try:
+            with open(NEWS_F, 'r', encoding='utf-8') as f:
+                raw = json.load(f)
+            if isinstance(raw, dict) and 'items' in raw:
+                news_items = (raw.get('featured_priority') or []) + (raw.get('items') or [])
+            elif isinstance(raw, list):
+                news_items = raw
+            else:
+                news_items = []
+            for item in news_items:
+                url = item.get('link') or item.get('url') or item.get('guid')
+                if url:
+                    news_by_url[url] = item
+                title_key = (item.get('title') or '').strip().lower()
+                if title_key:
+                    news_by_title[title_key] = item
+        except Exception:
+            pass  # news.json is optional enrichment only
 
-    mapped = []
-    seen = set()
-    for item in feed_items:
-        url = item.get('link') or item.get('url') or item.get('guid')
-        title_key = (item.get('title') or '').strip().lower()
-        art = by_url.get(url) or by_title.get(title_key)
-        if not art or not art.get('slug'):
-            continue  # skip items without internal article — no external links
-        merged = dict(art)
-        merged.update({
-            'title': item.get('title') or merged.get('title',''),
-            'category': item.get('category') or merged.get('category','featured'),
-            'source_domain': item.get('source') or item.get('source_domain') or _source_name(url) or merged.get('source_domain',''),
-            'published': item.get('pubDate') or item.get('published') or merged.get('published',''),
-            'source_url': url or merged.get('source_url',''),
-            'url': url or merged.get('url',''),
-            # COPYRIGHT FIX: prefer the article's pool-normalized image_url
-            # over the raw RSS thumbnail in news.json. The previous order
-            # shipped copyrighted vendor PR photos into Breaking News,
-            # bypassing _fix_article_images() entirely.
-            'image_url': merged.get('image_url') or item.get('image') or '',
-            'slug': art['slug'],
-        })
-        key = merged['slug']
-        if key not in seen:
-            seen.add(key)
-            mapped.append(merged)
+    # PRIMARY SOURCE: generated_articles.json
+    # Include all articles EXCEPT hand-authored editorials (which get hero
+    # and Latest Insights premium slots). Mistral/Groq/Gemini-upgraded
+    # articles carry is_editorial=True as a tier-protection flag, not as
+    # a "this is a hand-authored editorial" signal — they belong here.
+    def _is_hand_authored_editorial(a):
+        gb = (a.get('generated_by') or '').lower()
+        return gb == 'gpt_manual_editorial'
+    pool = [a for a in arts if not _is_hand_authored_editorial(a) and a.get('slug')]
 
-    # Sort: newest first, then by body length (prefer longer articles)
-    def _feed_sort(a):
+    # Sort newest-first by published date, tiebreaker = body length
+    def _sort_key(a):
         body = a.get('body_html','') or ''
         wc = len(re.sub(r'<[^>]+>',' ',body).split())
         return (a.get('published',''), wc)
-    mapped.sort(key=_feed_sort, reverse=True)
+    pool.sort(key=_sort_key, reverse=True)
 
-    if not mapped:
-        mapped = sorted([a for a in arts if not a.get('is_editorial') and not a.get('editorial')], key=lambda a: a.get('published',''), reverse=True)[:limit]
+    # Enrich each article with source metadata from news.json if available
+    mapped = []
+    seen = set()
+    for art in pool:
+        slug = art.get('slug')
+        if not slug or slug in seen:
+            continue
+        seen.add(slug)
+
+        # Try to find matching news.json item for source info
+        url = art.get('source_url') or art.get('url') or art.get('link') or ''
+        title_key = (art.get('title') or '').strip().lower()
+        news_item = news_by_url.get(url) or news_by_title.get(title_key) or {}
+
+        merged = dict(art)
+        if news_item:
+            # Prefer news.json source metadata when available
+            merged['source_domain'] = (
+                news_item.get('source') or news_item.get('source_domain')
+                or _source_name(url) or merged.get('source_domain','')
+            )
+            # NOTE: do NOT overwrite `published` from news.json — the article's
+            # own published date is canonical and consistent (YYYY-MM-DD). Mixing
+            # ISO timestamps and date-only strings breaks the downstream sort.
+        else:
+            merged['source_domain'] = merged.get('source_domain') or _source_name(url) or ''
+
+        # COPYRIGHT: always use pool-normalized image_url (never raw RSS thumb)
+        merged['image_url'] = merged.get('image_url') or ''
+        merged['source_url'] = url or merged.get('source_url','')
+        merged['url'] = url or merged.get('url','')
+        mapped.append(merged)
+        if len(mapped) >= limit * 2:
+            break  # enough candidates; sort by _feed_sort below re-orders anyway
+
+    # Final re-sort after enrichment (in case news.json pubDate refined ordering)
+    mapped.sort(key=_sort_key, reverse=True)
     return mapped[:limit]
 
 def _item_href(a):
