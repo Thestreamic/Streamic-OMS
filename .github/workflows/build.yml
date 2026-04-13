@@ -20,6 +20,7 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
   GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
   GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+  MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
   OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
 
 jobs:
@@ -55,7 +56,14 @@ jobs:
         if: github.event.inputs.summaries_only != 'true'
         run: python scripts/generate_editorial.py
 
-      - name: Gemini AI analysis (primary — if key available)
+      - name: Mistral AI analysis (tier-1 PRIMARY — 1B tokens/mo free)
+        env:
+          MISTRAL_MAX_PER_RUN: "15"
+          MISTRAL_TEMPERATURE: "0.1"
+          MISTRAL_FETCH_SOURCE: "true"
+        run: python ./scripts/generate_mistral.py || echo "Mistral step skipped"
+
+      - name: Gemini AI analysis (tier-2 — if Mistral did not upgrade)
         env:
           ENABLE_GEMINI_PREMIUM: "true"
           GEMINI_MAX_PER_RUN: "6"
