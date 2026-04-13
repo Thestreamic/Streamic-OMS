@@ -1,5 +1,65 @@
 [
   {
+    "category": "newsroom",
+    "cat_label": "Newsroom",
+    "cat_icon": "📰",
+    "cat_color": "#D4AF37",
+    "cat_page": "newsroom.html",
+    "title": "Camera Corps at NAB 2026: Showcasing Advanced Specialty Camera Systems and Full-Scale Technical Support Services",
+    "slug": "2026-04-13-newsroom-camera-corps-at-nab-2026-showcasing-advanced-",
+    "dek": "Camera Corps at NAB 2026: Showcasing Advanced Specialty Camera Systems and Full-Scale Technical Support Services",
+    "meta_description": "Camera Corps at NAB 2026: Showcasing Advanced Specialty Camera Systems and Full-Scale Technical Support Services",
+    "card_summary": "Camera Corps at NAB 2026: Showcasing Advanced Specialty Camera Systems and Full-Scale Technical Support Services",
+    "body_html": "<p><strong>Camera Corps at NAB 2026: Showcasing Advanced Specialty Camera Systems and Full-Scale Technical Support Services.</strong> </p>\n<p>At infrastructure level, this touches signal routing and transport — the ST 2110 or SDI fabric connecting cameras, production switchers, graphics engines, and distribution paths, where timing, redundancy, and IP routing behaviour all matter.</p>\n<p>The practical question for engineering leads: does this change cost, throughput, reliability, or editorial speed in a measurable way? Map it against real workflows before treating any vendor claim as production-ready.</p>",
+    "word_count": 80,
+    "source_url": "https://www.broadcastbeat.com/camera-corps-at-nab-2026-showcasing-advanced-specialty-camera-systems-and-full-scale-technical-support-services/",
+    "source_domain": "BroadcastBeat",
+    "published": "2026-04-13",
+    "story_rank": 71.85300000000001,
+    "analysis_level": "scaffold",
+    "generated_by": "rewrite_feed_local",
+    "image_url": "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=1200&auto=format&fit=crop&q=80",
+    "image_credit": "Photo: Unsplash — free to use under the Unsplash License",
+    "image_license": "Unsplash License",
+    "image_license_url": "https://unsplash.com/license",
+    "topic_type": "broadcast_infrastructure",
+    "priority_for_insights": true,
+    "technical_keywords": [
+      "nab"
+    ],
+    "needs_gemini": false
+  },
+  {
+    "category": "newsroom",
+    "cat_label": "Newsroom",
+    "cat_icon": "📰",
+    "cat_color": "#D4AF37",
+    "cat_page": "newsroom.html",
+    "title": "Mediaproxy adds AI toolset to LogServer for brand and advertisement tracking",
+    "slug": "2026-04-13-newsroom-mediaproxy-adds-ai-toolset-to-logserver-for-b",
+    "dek": "Mediaproxy adds AI toolset to LogServer for brand and advertisement tracking",
+    "meta_description": "Mediaproxy adds AI toolset to LogServer for brand and advertisement tracking",
+    "card_summary": "Mediaproxy adds AI toolset to LogServer for brand and advertisement tracking",
+    "body_html": "<p><strong>Mediaproxy adds AI toolset to LogServer for brand and advertisement tracking.</strong> </p>\n<p>This applies across newsroom pipelines where AI-assisted metadata, auto-tagging, and speech-to-text reduce manual logging time and improve archive searchability inside MAM systems such as Avid MediaCentral or Dalet.</p>\n<p>The practical question for engineering leads: does this change cost, throughput, reliability, or editorial speed in a measurable way? Map it against real workflows before treating any vendor claim as production-ready.</p>",
+    "word_count": 70,
+    "source_url": "https://www.broadcastbeat.com/mediaproxy-adds-ai-toolset-to-logserver-for-brand-and-advertisement-tracking/",
+    "source_domain": "BroadcastBeat",
+    "published": "2026-04-13",
+    "story_rank": 68.81000000000002,
+    "analysis_level": "scaffold",
+    "generated_by": "rewrite_feed_local",
+    "image_url": "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1200&auto=format&fit=crop&q=80",
+    "image_credit": "Photo: Unsplash — free to use under the Unsplash License",
+    "image_license": "Unsplash License",
+    "image_license_url": "https://unsplash.com/license",
+    "topic_type": "ai_metadata",
+    "priority_for_insights": true,
+    "technical_keywords": [
+      "ai"
+    ],
+    "needs_gemini": false
+  },
+  {
     "category": "cloud",
     "cat_label": "Cloud Production",
     "cat_icon": "☁️",
@@ -130,10 +190,7 @@
     "technical_keywords": [
       "nab"
     ],
-    "needs_gemini": false,
-    "image": "/assets/images/_fallback/streamic-default.jpg",
-    "image_category": "broadcast_infrastructure",
-    "image_alt": "Broadcast IP network infrastructure and SMPTE ST 2110 fabric — illustrating: NAB Show Launches Content Creator VIP Program"
+    "needs_gemini": false
   },
   {
     "category": "newsroom",
@@ -1529,10 +1586,7 @@
     "topic_type": "broadcast_infrastructure",
     "priority_for_insights": true,
     "technical_keywords": [],
-    "needs_gemini": false,
-    "image": "/assets/images/_fallback/streamic-default.jpg",
-    "image_category": "broadcast_infrastructure",
-    "image_alt": "Broadcast IP network infrastructure and SMPTE ST 2110 fabric — illustrating: Telestream and Mimir: The Modern News Workflow"
+    "needs_gemini": false
   },
   {
     "category": "newsroom",
@@ -3475,10 +3529,7 @@
     "topic_type": "broadcast_infrastructure",
     "priority_for_insights": true,
     "technical_keywords": [],
-    "needs_gemini": false,
-    "image": "/assets/images/_fallback/streamic-default.jpg",
-    "image_category": "broadcast_infrastructure",
-    "image_alt": "Broadcast IP network infrastructure and SMPTE ST 2110 fabric — illustrating: How Mobile Video Transmitters are Enhancing Sports Broadcasts"
+    "needs_gemini": false
   },
   {
     "category": "newsroom",
@@ -4391,10 +4442,7 @@
     "technical_keywords": [
       "ai"
     ],
-    "needs_gemini": false,
-    "image": "/assets/images/_fallback/streamic-default.jpg",
-    "image_category": "broadcast_infrastructure",
-    "image_alt": "Broadcast IP network infrastructure and SMPTE ST 2110 fabric — illustrating: Why We Chose a Credit-Based Model for VideoAI"
+    "needs_gemini": false
   },
   {
     "category": "newsroom",
@@ -4960,10 +5008,7 @@
     "technical_keywords": [
       "cloud"
     ],
-    "needs_gemini": false,
-    "image": "/assets/images/_fallback/streamic-default.jpg",
-    "image_category": "cloud_production",
-    "image_alt": "Cloud-based broadcast production and remote workflow — illustrating: Cloud-Native Revolution: Harmonic VOS and Red Hat OpenShift Mastering Video Delivery, Cost, and Scale"
+    "needs_gemini": false
   },
   {
     "category": "infrastructure",
@@ -5022,10 +5067,7 @@
     "technical_keywords": [
       "ai"
     ],
-    "needs_gemini": false,
-    "image": "/assets/images/_fallback/streamic-default.jpg",
-    "image_category": "cloud_production",
-    "image_alt": "Cloud-based broadcast production and remote workflow — illustrating: How AWS powers Dramaze AI-enhanced streaming platform"
+    "needs_gemini": false
   },
   {
     "category": "cloud",
@@ -5055,10 +5097,7 @@
     "technical_keywords": [
       "ai"
     ],
-    "needs_gemini": false,
-    "image": "/assets/images/_fallback/streamic-default.jpg",
-    "image_category": "cloud_production",
-    "image_alt": "Cloud-based broadcast production and remote workflow — illustrating: Building intelligent media supply chain automation using Amazon Bedrock AgentCore"
+    "needs_gemini": false
   },
   {
     "category": "cloud",
@@ -5173,10 +5212,7 @@
     "topic_type": "streaming_delivery",
     "priority_for_insights": true,
     "technical_keywords": [],
-    "needs_gemini": false,
-    "image": "/assets/images/_fallback/streamic-default.jpg",
-    "image_category": "broadcast_infrastructure",
-    "image_alt": "Broadcast IP network infrastructure and SMPTE ST 2110 fabric — illustrating: The Economics of Hybrid Streaming Architectures"
+    "needs_gemini": false
   },
   {
     "category": "playout",
@@ -5206,10 +5242,7 @@
     "technical_keywords": [
       "nab"
     ],
-    "needs_gemini": false,
-    "image": "/assets/images/_fallback/streamic-default.jpg",
-    "image_category": "streaming_ott",
-    "image_alt": "OTT streaming platform and content delivery analytics — illustrating: The Everything Era: What NAB 2025 Really Told Us About Streaming’s Future"
+    "needs_gemini": false
   },
   {
     "category": "newsroom",
