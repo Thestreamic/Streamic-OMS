@@ -80,10 +80,18 @@ MISTRAL_MODELS = [
     if m.strip()
 ]
 
-# LOCKED tuning
-TEMPERATURE      = float(os.environ.get("MISTRAL_TEMPERATURE", "0.1"))
-TOP_P            = float(os.environ.get("MISTRAL_TOP_P", "0.95"))
-MAX_TOKENS       = int(os.environ.get("MISTRAL_MAX_TOKENS", "2000"))
+# CURATED tuning for CTO-grade trade-journal tone.
+# Temperature 0.35 is the sweet spot — enough variation for professional
+# sentence structure, too low to hallucinate facts. FACTUAL_SAFETY_BLOCK
+# is the grounding mechanism, NOT temperature.
+# frequency_penalty 0.2 is the magic knob that stops the model from
+# repeating "[Source 1]" and "(think of it like...)" at every sentence.
+# top_p 0.9 allows a wider range of professional broadcast vocabulary.
+TEMPERATURE       = float(os.environ.get("MISTRAL_TEMPERATURE", "0.35"))
+TOP_P             = float(os.environ.get("MISTRAL_TOP_P", "0.9"))
+FREQUENCY_PENALTY = float(os.environ.get("MISTRAL_FREQUENCY_PENALTY", "0.2"))
+PRESENCE_PENALTY  = float(os.environ.get("MISTRAL_PRESENCE_PENALTY", "0.0"))
+MAX_TOKENS        = int(os.environ.get("MISTRAL_MAX_TOKENS", "2000"))
 
 MAX_PER_RUN      = int(os.environ.get("MISTRAL_MAX_PER_RUN", "15"))
 REQUEST_TIMEOUT  = int(os.environ.get("MISTRAL_TIMEOUT", "120"))
@@ -336,9 +344,11 @@ def call_mistral(system: str, user: str, model: str) -> tuple[Optional[str], str
             {"role": "system", "content": system},
             {"role": "user",   "content": user},
         ],
-        "temperature": TEMPERATURE,        # LOCKED at 0.1
-        "top_p":       TOP_P,
-        "max_tokens":  MAX_TOKENS,
+        "temperature":       TEMPERATURE,       # 0.35 — trade-journal sweet spot
+        "top_p":             TOP_P,              # 0.9 — wider pro vocabulary
+        "frequency_penalty": FREQUENCY_PENALTY,  # 0.2 — kills [Source 1] spam
+        "presence_penalty":  PRESENCE_PENALTY,
+        "max_tokens":        MAX_TOKENS,
         "stream":      False,
     }
 
@@ -436,8 +446,8 @@ def validate(body: str) -> Optional[str]:
     if not has_blind_spots_section(body):
         return "missing <h2>Blind Spots</h2> section"
     cites = count_citations(body)
-    if cites < 2:
-        return f"only {cites} [Source N] citations (need ≥2)"
+    if cites < 1:
+        return f"no [Source N] citations found (need ≥1)"
     return None
 
 

@@ -60,7 +60,9 @@ MAX_PER_RUN = int(os.environ.get("MAX_PER_RUN", "8"))
 REQUEST_TIMEOUT = int(os.environ.get("GROQ_TIMEOUT", "90"))
 # Raised for 800–1000 word target
 MAX_TOKENS  = int(os.environ.get("GROQ_MAX_TOKENS", "1400"))
-TEMPERATURE = float(os.environ.get("GROQ_TEMPERATURE", "0.55"))
+TEMPERATURE = float(os.environ.get("GROQ_TEMPERATURE", "0.35"))
+TOP_P              = float(os.environ.get("GROQ_TOP_P", "0.9"))
+FREQUENCY_PENALTY  = float(os.environ.get("GROQ_FREQUENCY_PENALTY", "0.2"))
 
 SUMMARIES_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -430,6 +432,8 @@ def post_chat_completion(
         ],
         "max_tokens": MAX_TOKENS,
         "temperature": TEMPERATURE,
+        "top_p": TOP_P,
+        "frequency_penalty": FREQUENCY_PENALTY,
         "n": 1,
     }
     headers = {

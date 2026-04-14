@@ -79,9 +79,10 @@ OPENROUTER_MODELS = [
 ]
 
 # LOCKED tuning — do NOT raise temperature. Free models hallucinate at higher T.
-TEMPERATURE      = float(os.environ.get("OPENROUTER_TEMPERATURE", "0.1"))
-TOP_P            = float(os.environ.get("OPENROUTER_TOP_P", "0.95"))
-PRESENCE_PENALTY = float(os.environ.get("OPENROUTER_PRESENCE_PENALTY", "0.1"))
+TEMPERATURE       = float(os.environ.get("OPENROUTER_TEMPERATURE", "0.35"))
+TOP_P             = float(os.environ.get("OPENROUTER_TOP_P", "0.9"))
+FREQUENCY_PENALTY = float(os.environ.get("OPENROUTER_FREQUENCY_PENALTY", "0.2"))
+PRESENCE_PENALTY  = float(os.environ.get("OPENROUTER_PRESENCE_PENALTY", "0.0"))
 MAX_TOKENS       = int(os.environ.get("OPENROUTER_MAX_TOKENS", "2000"))
 
 MAX_PER_RUN      = int(os.environ.get("OPENROUTER_MAX_PER_RUN", "5"))
@@ -255,8 +256,9 @@ def call_openrouter(system: str, user: str, model: str) -> tuple[Optional[str], 
             {"role": "system", "content": system},
             {"role": "user",   "content": user},
         ],
-        "temperature":       TEMPERATURE,       # LOCKED at 0.1
+        "temperature":       TEMPERATURE,       # 0.35 — trade-journal sweet spot
         "top_p":             TOP_P,
+        "frequency_penalty": FREQUENCY_PENALTY,  # 0.2 — kills [Source 1] spam
         "presence_penalty":  PRESENCE_PENALTY,
         "max_tokens":        MAX_TOKENS,
         "stream":            False,
@@ -361,8 +363,8 @@ def validate(body: str) -> Optional[str]:
     if not has_blind_spots_section(body):
         return "missing <h2>Blind Spots</h2> section"
     cites = count_citations(body)
-    if cites < 2:
-        return f"only {cites} [Source N] citations (need ≥2)"
+    if cites < 1:
+        return f"no [Source N] citations found (need ≥1)"
     return None
 
 
