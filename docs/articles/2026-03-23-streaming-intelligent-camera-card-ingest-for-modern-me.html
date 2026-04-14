@@ -61,7 +61,7 @@
     <div class="art-byline">
       <strong>The Streamic Editorial Team</strong>
       <time datetime="2026-03-23" style="color:var(--ink4);font-size:13px">March 23, 2026</time>
-      <span>595 words · 3 min read</span>
+      <span>565 words · 3 min read</span>
       <span style="background:var(--blue);color:#fff;padding:3px 9px;border-radius:5px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.8px">Analysis</span>
     </div>
     <figure>
@@ -78,22 +78,22 @@
 
 <h2>What Happened</h2>
 <ul>
-  <li>Telestream rolled out an <strong>intelligent camera card ingest</strong> that hooks into live production workflows using the <strong>SMPTE ST 2110</strong> standard <em>(think of it like a universal language for live video over IP)</em>, slashing latency by 30% (<a href="https://blog.telestream.com/2026/03/intelligent-camera-card-ingest-for-modern-media-production/" target="_blank" rel="noopener noreferrer nofollow" style="color:var(--blue);text-decoration:none">Telestream</a>).</li>
-  <li>The tech reduces live-signal latency to as low as 1–2 milliseconds—down from 100–200 ms with traditional satellite or fiber methods—by eliminating redundant signal conversions (Telestream).</li>
-  <li>It’s built to plug into existing broadcast IT stacks, supporting <strong>ST 2110</strong>, <strong>NDI</strong> <em>(think of it like a lightweight video-over-IP protocol for local networks)</em>, <strong>SRT</strong> <em>(think of it like a secure, low-latency video tunnel over the internet)</em>, and <strong>AES67</strong> <em>(think of it like a universal audio-over-IP standard)</em> for secure, standards-based transport (Telestream).</li>
+  <li>Telestream rolled out an <strong>intelligent camera card ingest</strong> that hooks into live production workflows using the <strong>SMPTE ST 2110</strong> standard <em>(think of it like a universal language for live video over IP)</em>, slashing latency by 30%.</li>
+  <li>The tech reduces live-signal latency to as low as 1–2 milliseconds—down from 100–200 ms with traditional satellite or fiber methods—by eliminating redundant signal conversions.</li>
+  <li>It’s built to plug into existing broadcast IT stacks, supporting <strong>ST 2110</strong>, <strong>NDI</strong> <em>(think of it like a lightweight video-over-IP protocol for local networks)</em>, <strong>SRT</strong> <em>(think of it like a secure, low-latency video tunnel over the internet)</em>, and <strong>AES67</strong> <em>(think of it like a universal audio-over-IP standard)</em> for secure, standards-based transport.</li>
 </ul>
 
 <h2>The Tech Spec</h2>
-<p>At its core, Telestream’s ingest tech replaces legacy signal chains with a direct IP pipeline. Instead of converting camera signals from SDI to IP and back—adding latency and complexity—the system streams video straight from the camera card over <strong>SMPTE ST 2110</strong> (Telestream). This cuts out the middleman, reducing both lag and hardware footprint in the rack.</p>
+<p>At its core, Telestream’s ingest tech replaces legacy signal chains with a direct IP pipeline. Instead of converting camera signals from SDI to IP and back—adding latency and complexity—the system streams video straight from the camera card over <strong>SMPTE ST 2110</strong>. This cuts out the middleman, reducing both lag and hardware footprint in the rack.</p>
 
-<p>The system leans on <strong>JPEG XS compression</strong> <em>(think of it like a lightweight codec that squeezes video just enough to fit over IP without adding noticeable delay)</em> to keep bandwidth in check while maintaining signal integrity. For deployment, engineers need a <strong>10GbE network</strong> <em>(think of it like a high-speed data highway)</em> to handle the raw bitrate, and compatibility with <strong>NMOS IS-04</strong> <em>(think of it like a phonebook for IP devices in a broadcast network)</em> for device discovery (Telestream).</p>
+<p>The system leans on <strong>JPEG XS compression</strong> <em>(think of it like a lightweight codec that squeezes video just enough to fit over IP without adding noticeable delay)</em> to keep bandwidth in check while maintaining signal integrity. For deployment, engineers need a <strong>10GbE network</strong> <em>(think of it like a high-speed data highway)</em> to handle the raw bitrate, and compatibility with <strong>NMOS IS-04</strong> <em>(think of it like a phonebook for IP devices in a broadcast network)</em> for device discovery.</p>
 
-<p>Security isn’t an afterthought: the tech aligns with <strong>SMPTE ST 2110-20</strong> and supports <strong>RIST</strong> <em>(think of it like a secure, encrypted wrapper for video streams)</em> and <strong>AES67</strong> for audio, ensuring signals stay locked down during transport (Telestream). Cloud integration is also on the table, thanks to <strong>S3-compatible APIs</strong> <em>(think of it like a universal file-transfer protocol for cloud storage)</em>.</p>
+<p>Security isn’t an afterthought: the tech aligns with <strong>SMPTE ST 2110-20</strong> and supports <strong>RIST</strong> <em>(think of it like a secure, encrypted wrapper for video streams)</em> and <strong>AES67</strong> for audio, ensuring signals stay locked down during transport. Cloud integration is also on the table, thanks to <strong>S3-compatible APIs</strong> <em>(think of it like a universal file-transfer protocol for cloud storage)</em>.</p>
 
 <h2>So What? (The Human Impact)</h2>
-<p>For broadcast engineers, this means fewer headaches during live productions. The 30% latency cut translates to tighter sync between cameras and graphics, especially critical in fast-paced events like sports or breaking news. Less latency also means fewer redundant signal paths—so you can ditch some of that expensive satellite or fiber capacity and still hit your air deadlines (Telestream).</p>
+<p>For broadcast engineers, this means fewer headaches during live productions. The 30% latency cut translates to tighter sync between cameras and graphics, especially critical in fast-paced events like sports or breaking news. Less latency also means fewer redundant signal paths—so you can ditch some of that expensive satellite or fiber capacity and still hit your air deadlines.</p>
 
-<p>Operations teams gain a smaller hardware footprint, since the tech eliminates the need for multiple conversion steps. That’s less rack space, lower power bills, and fewer points of failure. And because it’s built on open standards like <strong>ST 2110</strong> and <strong>NMOS</strong>, it won’t lock you into a proprietary ecosystem—making future upgrades or integrations smoother (Telestream).</p>
+<p>Operations teams gain a smaller hardware footprint, since the tech eliminates the need for multiple conversion steps. That’s less rack space, lower power bills, and fewer points of failure. And because it’s built on open standards like <strong>ST 2110</strong> and <strong>NMOS</strong>, it won’t lock you into a proprietary ecosystem—making future upgrades or integrations smoother.</p>
 
 <h2>Blind Spots</h2>
 <ul>
@@ -102,12 +102,7 @@
   <li>The source doesn’t detail how the tech handles error correction or packet loss in unstable network conditions (e.g., public internet vs. dedicated fiber).</li>
   <li>The source doesn’t clarify if the 30% latency reduction is measured end-to-end (camera to playout) or just at the ingest stage.</li>
   <li>The source doesn’t mention whether existing Telestream customers get the upgrade for free or at a discount.</li>
-</ul>
-
-<h3>Sources</h3>
-<ol>
-  <li> (Telestream): Telestream — Intelligent Camera Card Ingest for Modern Media Production (2026-03-23)</li>
-</ol></div>
+</ul></div>
     <div style="background:var(--bg);border-radius:12px;padding:22px 24px;margin-top:36px;border-top:3px solid var(--blue)">
   <h4 style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--blue);margin:0 0 14px">Sources &amp; Further Reading</h4>
   <ul style="margin:0;padding-left:18px;list-style:disc">
@@ -154,7 +149,7 @@
     }
   },
   "mainEntityOfPage": "https://www.thestreamic.in/articles/2026-03-23-streaming-intelligent-camera-card-ingest-for-modern-me.html",
-  "wordCount": 595
+  "wordCount": 565
 }</script>
 <footer class="footer">
   <div class="footer-gold" aria-hidden="true"></div>

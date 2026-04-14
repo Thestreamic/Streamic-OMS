@@ -61,7 +61,7 @@
     <div class="art-byline">
       <strong>The Streamic Editorial Team</strong>
       <time datetime="2026-04-14" style="color:var(--ink4);font-size:13px">April 14, 2026</time>
-      <span>559 words · 3 min read</span>
+      <span>514 words · 3 min read</span>
       <span style="background:var(--blue);color:#fff;padding:3px 9px;border-radius:5px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.8px">Analysis</span>
     </div>
     <figure>
@@ -74,29 +74,29 @@
   <strong style="color:var(--ink)"><a href="https://www.broadcastbeat.com/nab-2026-vubiquity-and-eluvio-showcase-streaming-solution-that-significantly-reduces-distribution-costs-and-time-to-market/" target="_blank" rel="noopener noreferrer nofollow" style="color:var(--blue);text-decoration:none">BroadcastBeat</a></strong> (April 2026).
   <br>This article provides independent technical interpretation by The Streamic.
 </div><h2>The Quick Hit</h2>
-<p>Vubiquity and Eluvio unveiled a joint streaming solution at NAB 2026 designed to cut distribution costs and accelerate time-to-market for OTT delivery. For broadcast engineering teams, the integration targets the origin-to-edge pipeline, where cost, throughput, and latency trade-offs directly impact P&L (<a href="https://www.broadcastbeat.com/nab-2026-vubiquity-and-eluvio-showcase-streaming-solution-that-significantly-reduces-distribution-costs-and-time-to-market/" target="_blank" rel="noopener noreferrer nofollow" style="color:var(--blue);text-decoration:none">BroadcastBeat</a>).</p>
+<p>Vubiquity and Eluvio unveiled a joint streaming solution at NAB 2026 designed to cut distribution costs and accelerate time-to-market for OTT delivery. For broadcast engineering teams, the integration targets the origin-to-edge pipeline, where cost, throughput, and latency trade-offs directly impact P&L.</p>
 
 <h2>What Happened</h2>
 <ul>
-  <li>Vubiquity and Eluvio demonstrated a combined streaming platform at NAB 2026, focusing on reducing distribution expenses and shortening deployment timelines (BroadcastBeat).</li>
-  <li>The solution addresses the full ABR delivery chain, from origin encoding through CDN edge distribution to end-user players (BroadcastBeat).</li>
-  <li>Key workflow components in scope include ABR ladder design, CMAF chunked delivery, LL-HLS latency optimization, DRM packaging, and SSAI insertion points (BroadcastBeat).</li>
+  <li>Vubiquity and Eluvio demonstrated a combined streaming platform at NAB 2026, focusing on reducing distribution expenses and shortening deployment timelines.</li>
+  <li>The solution addresses the full ABR delivery chain, from origin encoding through CDN edge distribution to end-user players.</li>
+  <li>Key workflow components in scope include ABR ladder design, CMAF chunked delivery, LL-HLS latency optimization, DRM packaging, and SSAI insertion points.</li>
 </ul>
 
 <h2>The Tech Spec</h2>
 <p>The platform federates Vubiquity’s content management and monetization layer with Eluvio’s blockchain-based media distribution fabric. The integration normalizes:</p>
 <ul>
-  <li><strong>ABR ladder design:</strong> The source doesn’t specify codec profiles (H.264, HEVC, AV1) or bitrate tiers, but the solution orchestrates multi-resolution encoding for adaptive streaming (BroadcastBeat).</li>
-  <li><strong>CMAF chunked delivery:</strong> Common Media Application Format (CMAF) is used to unify HLS and DASH packaging, reducing storage redundancy and egress costs (BroadcastBeat).</li>
-  <li><strong>LL-HLS latency:</strong> Low-latency HLS is supported, though the source doesn’t detail target glass-to-glass delays (e.g., sub-3s, sub-500ms) (BroadcastBeat).</li>
-  <li><strong>DRM packaging:</strong> The solution includes digital rights management, but the source doesn’t specify supported schemes (Widevine, FairPlay, PlayReady) (BroadcastBeat).</li>
-  <li><strong>SSAI insertion points:</strong> Server-side ad insertion is integrated, though the source doesn’t clarify whether this supports dynamic ad replacement or pre-stitched ad breaks (BroadcastBeat).</li>
+  <li><strong>ABR ladder design:</strong> The source doesn’t specify codec profiles (H.264, HEVC, AV1) or bitrate tiers, but the solution orchestrates multi-resolution encoding for adaptive streaming.</li>
+  <li><strong>CMAF chunked delivery:</strong> Common Media Application Format (CMAF) is used to unify HLS and DASH packaging, reducing storage redundancy and egress costs.</li>
+  <li><strong>LL-HLS latency:</strong> Low-latency HLS is supported, though the source doesn’t detail target glass-to-glass delays (e.g., sub-3s, sub-500ms).</li>
+  <li><strong>DRM packaging:</strong> The solution includes digital rights management, but the source doesn’t specify supported schemes (Widevine, FairPlay, PlayReady).</li>
+  <li><strong>SSAI insertion points:</strong> Server-side ad insertion is integrated, though the source doesn’t clarify whether this supports dynamic ad replacement or pre-stitched ad breaks.</li>
 </ul>
-<p>The architecture is positioned to traverse existing CDN infrastructure, but the source doesn’t confirm compatibility with specific providers (Akamai, Cloudflare, Fastly) or edge caching strategies (BroadcastBeat).</p>
+<p>The architecture is positioned to traverse existing CDN infrastructure, but the source doesn’t confirm compatibility with specific providers (Akamai, Cloudflare, Fastly) or edge caching strategies.</p>
 
 <h2>So What?</h2>
-<p>For broadcast operations teams, the integration aims to compress the editorial-to-delivery window by eliminating redundant encoding and packaging steps. By unifying ABR ladder design and CMAF packaging, the solution reduces storage overhead and egress costs—critical for high-volume OTT workflows where cloud egress fees can exceed encoding costs (BroadcastBeat).</p>
-<p>Latency-sensitive use cases (live sports, breaking news) benefit from LL-HLS support, though engineering leads must validate whether the solution meets their specific glass-to-glass requirements. The inclusion of SSAI and DRM in the same pipeline simplifies ad-supported monetization, but the source doesn’t quantify potential revenue uplift or ad-fill rate improvements (BroadcastBeat).</p>
+<p>For broadcast operations teams, the integration aims to compress the editorial-to-delivery window by eliminating redundant encoding and packaging steps. By unifying ABR ladder design and CMAF packaging, the solution reduces storage overhead and egress costs—critical for high-volume OTT workflows where cloud egress fees can exceed encoding costs.</p>
+<p>Latency-sensitive use cases (live sports, breaking news) benefit from LL-HLS support, though engineering leads must validate whether the solution meets their specific glass-to-glass requirements. The inclusion of SSAI and DRM in the same pipeline simplifies ad-supported monetization, but the source doesn’t quantify potential revenue uplift or ad-fill rate improvements.</p>
 
 <h2>Blind Spots</h2>
 <ul>
@@ -106,12 +106,7 @@
   <li><strong>DRM and SSAI specifics:</strong> No clarity on supported DRM schemes (Widevine, FairPlay, PlayReady) or SSAI features (dynamic ad replacement, pre-stitched ads, VAST/VPAID compliance).</li>
   <li><strong>Deployment model:</strong> The source doesn’t disclose whether the solution is cloud-native, on-premises, or hybrid. No details on licensing (per-stream, per-hour, or flat-rate pricing).</li>
   <li><strong>Integration matrix:</strong> No mention of compatibility with existing broadcast tools (e.g., playout systems, NRCS, MAMs) or APIs for third-party integrations.</li>
-</ul>
-
-<h3>Sources</h3>
-<ol>
-  <li> (BroadcastBeat): Vubiquity and Eluvio — NAB 2026: Vubiquity and Eluvio Showcase Streaming Solution that Significantly Reduces Distribution Costs and Time to Market (2026-04-14)</li>
-</ol></div>
+</ul></div>
     <div style="background:var(--bg);border-radius:12px;padding:22px 24px;margin-top:36px;border-top:3px solid var(--blue)">
   <h4 style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--blue);margin:0 0 14px">Sources &amp; Further Reading</h4>
   <ul style="margin:0;padding-left:18px;list-style:disc">
@@ -158,7 +153,7 @@
     }
   },
   "mainEntityOfPage": "https://www.thestreamic.in/articles/2026-04-14-newsroom-nab-2026-vubiquity-and-eluvio-showcase-stream.html",
-  "wordCount": 559
+  "wordCount": 514
 }</script>
 <footer class="footer">
   <div class="footer-gold" aria-hidden="true"></div>

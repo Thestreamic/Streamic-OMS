@@ -61,7 +61,7 @@
     <div class="art-byline">
       <strong>The Streamic Editorial Team</strong>
       <time datetime="2026-04-13" style="color:var(--ink4);font-size:13px">April 13, 2026</time>
-      <span>1,027 words · 5 min read</span>
+      <span>948 words · 5 min read</span>
       <span style="background:var(--blue);color:#fff;padding:3px 9px;border-radius:5px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.8px">Analysis</span>
     </div>
     <figure>
@@ -78,49 +78,44 @@
 
 <h2>What Happened</h2>
 <ul>
-  <li>VFX studio EYELINE released a technical breakdown of its post-production pipeline for *Stranger Things* Season 5, highlighting workflows built around <strong>Avid Media Composer</strong> <em>(think of it like the industry-standard editing software for film/TV)</em> with <strong>Avid Nexis shared storage</strong> <em>(a high-speed shared drive for video files, like a team Dropbox for editors)</em> and <strong>Blackmagic Design Resolve</strong> <em>(another editing/compositing tool, often used for color grading and VFX)</em> with SAN-attached media (<a href="https://beforesandafters.com/2026/04/14/see-eyelines-vfx-breakdown-for-stranger-things-5/" target="_blank" rel="noopener noreferrer nofollow" style="color:var(--blue);text-decoration:none">Befores & Afters</a>).</li>
-  <li>The breakdown focuses on four pain points where AI-driven optimizations could make a measurable difference: ingest throughput, proxy workflow design, audio conformance (including <strong>AES67</strong> <em>(an IP-based audio standard, like a universal language for audio devices to talk over networks)</em> and loudness compliance), and export-to-delivery speed (Befores & Afters).</li>
-  <li>The source frames this as a practical challenge for engineering leads: before adopting any vendor’s AI claims, teams should map the tools against their existing workflows to verify improvements in cost, throughput, reliability, or editorial speed (Befores & Afters).</li>
+  <li>VFX studio EYELINE released a technical breakdown of its post-production pipeline for *Stranger Things* Season 5, highlighting workflows built around <strong>Avid Media Composer</strong> <em>(think of it like the industry-standard editing software for film/TV)</em> with <strong>Avid Nexis shared storage</strong> <em>(a high-speed shared drive for video files, like a team Dropbox for editors)</em> and <strong>Blackmagic Design Resolve</strong> <em>(another editing/compositing tool, often used for color grading and VFX)</em> with SAN-attached media.</li>
+  <li>The breakdown focuses on four pain points where AI-driven optimizations could make a measurable difference: ingest throughput, proxy workflow design, audio conformance (including <strong>AES67</strong> <em>(an IP-based audio standard, like a universal language for audio devices to talk over networks)</em> and loudness compliance), and export-to-delivery speed.</li>
+  <li>The source frames this as a practical challenge for engineering leads: before adopting any vendor’s AI claims, teams should map the tools against their existing workflows to verify improvements in cost, throughput, reliability, or editorial speed.</li>
 </ul>
 
 <h2>The Tech Spec</h2>
 <p>The *Stranger Things* 5 VFX pipeline centers on two core editing ecosystems:</p>
 <ul>
-  <li><strong>Avid Media Composer + Nexis</strong>: The studio uses Avid’s non-linear editor (NLE) paired with Nexis shared storage, a setup common in high-volume post houses. Nexis acts as a centralized repository for media files, allowing multiple editors to access and work on the same assets simultaneously—critical for a show with heavy VFX turnover (Befores & Afters). The source doesn’t specify whether this is on-premises or cloud-based Nexis, but the emphasis on "ingest throughput" suggests a focus on local network performance.</li>
-  <li><strong>Blackmagic Design Resolve + SAN</strong>: For tasks like color grading and compositing, the pipeline incorporates Resolve with storage area network (SAN) attachments. SANs are high-speed, block-level storage networks designed for large media files, offering lower latency than traditional file-based storage for tasks like real-time playback of high-resolution VFX shots (Befores & Afters).</li>
+  <li><strong>Avid Media Composer + Nexis</strong>: The studio uses Avid’s non-linear editor (NLE) paired with Nexis shared storage, a setup common in high-volume post houses. Nexis acts as a centralized repository for media files, allowing multiple editors to access and work on the same assets simultaneously—critical for a show with heavy VFX turnover. The source doesn’t specify whether this is on-premises or cloud-based Nexis, but the emphasis on "ingest throughput" suggests a focus on local network performance.</li>
+  <li><strong>Blackmagic Design Resolve + SAN</strong>: For tasks like color grading and compositing, the pipeline incorporates Resolve with storage area network (SAN) attachments. SANs are high-speed, block-level storage networks designed for large media files, offering lower latency than traditional file-based storage for tasks like real-time playback of high-resolution VFX shots.</li>
 </ul>
 
 <p>The breakdown zeroes in on four areas where AI tools are being tested to streamline workflows:</p>
 <ul>
-  <li><strong>Ingest throughput</strong> <em>(the speed at which raw footage is imported and prepped for editing)</em>: AI could automate tasks like metadata tagging, file transcoding, or even pre-sorting shots by scene, reducing manual labor during the initial data dump (Befores & Afters).</li>
-  <li><strong>Proxy workflow design</strong> <em>(low-resolution copies of high-res files used for editing to save processing power)</em>: AI might dynamically generate proxies based on editorial needs (e.g., prioritizing VFX-heavy shots for higher-quality proxies) or even predict which shots will require VFX work, pre-allocating resources (Befores & Afters).</li>
-  <li><strong>Audio conformance</strong>: The pipeline must handle <strong>AES67</strong> audio streams (a standard for IP-based audio routing) and ensure loudness compliance (e.g., meeting broadcast standards like EBU R128 or ATSC A/85). AI could automate loudness normalization or sync audio tracks with conformed video edits, reducing manual QC passes (Befores & Afters).</li>
-  <li><strong>Export-to-delivery speed</strong>: AI-driven tools might optimize render queues, prioritize shots based on delivery deadlines, or even pre-render elements likely to be reused (e.g., recurring VFX assets like the Upside Down’s environments) (Befores & Afters).</li>
+  <li><strong>Ingest throughput</strong> <em>(the speed at which raw footage is imported and prepped for editing)</em>: AI could automate tasks like metadata tagging, file transcoding, or even pre-sorting shots by scene, reducing manual labor during the initial data dump.</li>
+  <li><strong>Proxy workflow design</strong> <em>(low-resolution copies of high-res files used for editing to save processing power)</em>: AI might dynamically generate proxies based on editorial needs (e.g., prioritizing VFX-heavy shots for higher-quality proxies) or even predict which shots will require VFX work, pre-allocating resources.</li>
+  <li><strong>Audio conformance</strong>: The pipeline must handle <strong>AES67</strong> audio streams (a standard for IP-based audio routing) and ensure loudness compliance (e.g., meeting broadcast standards like EBU R128 or ATSC A/85). AI could automate loudness normalization or sync audio tracks with conformed video edits, reducing manual QC passes.</li>
+  <li><strong>Export-to-delivery speed</strong>: AI-driven tools might optimize render queues, prioritize shots based on delivery deadlines, or even pre-render elements likely to be reused (e.g., recurring VFX assets like the Upside Down’s environments).</li>
 </ul>
-<p>The source doesn’t name specific AI tools or vendors, nor does it detail the measurable improvements achieved. Instead, it positions this as a cautionary tale: engineering teams should benchmark AI-driven optimizations against their existing workflows before assuming gains in cost, speed, or reliability (Befores & Afters).</p>
+<p>The source doesn’t name specific AI tools or vendors, nor does it detail the measurable improvements achieved. Instead, it positions this as a cautionary tale: engineering teams should benchmark AI-driven optimizations against their existing workflows before assuming gains in cost, speed, or reliability.</p>
 
 <h2>So What? (The Human Impact)</h2>
 <p>For broadcast engineers and post-production leads, the *Stranger Things* breakdown is a reminder that AI in post isn’t a plug-and-play solution—it’s a workflow-specific tool that requires rigorous testing. If your team runs Avid or Resolve pipelines, the four focus areas (ingest, proxies, audio, export) are likely bottlenecks where AI could help—or where poorly implemented tools could create new headaches. For example:</p>
 <ul>
-  <li><strong>Throughput vs. reliability</strong>: AI-driven ingest might speed up file imports, but if it mis-tags metadata or corrupts proxies, it could create more work downstream. The source doesn’t specify error rates or failure modes, so teams will need to stress-test tools under real-world conditions (Befores & Afters).</li>
-  <li><strong>Cost trade-offs</strong>: The source doesn’t quantify whether AI tools reduce labor hours or cloud storage costs. For instance, if AI-generated proxies require more storage than manual workflows, the savings in editorial time might be offset by higher infrastructure costs. Engineering leads will need to model these trade-offs before greenlighting adoption (Befores & Afters).</li>
-  <li><strong>Editorial speed</strong>: The biggest promise of AI in post is faster turnaround, but the source doesn’t clarify whether the tools are designed for offline editing (e.g., rough cuts) or final conform. If AI tools only speed up early-stage editing but slow down final exports (due to render bottlenecks), the net gain might be negligible (Befores & Afters).</li>
+  <li><strong>Throughput vs. reliability</strong>: AI-driven ingest might speed up file imports, but if it mis-tags metadata or corrupts proxies, it could create more work downstream. The source doesn’t specify error rates or failure modes, so teams will need to stress-test tools under real-world conditions.</li>
+  <li><strong>Cost trade-offs</strong>: The source doesn’t quantify whether AI tools reduce labor hours or cloud storage costs. For instance, if AI-generated proxies require more storage than manual workflows, the savings in editorial time might be offset by higher infrastructure costs. Engineering leads will need to model these trade-offs before greenlighting adoption.</li>
+  <li><strong>Editorial speed</strong>: The biggest promise of AI in post is faster turnaround, but the source doesn’t clarify whether the tools are designed for offline editing (e.g., rough cuts) or final conform. If AI tools only speed up early-stage editing but slow down final exports (due to render bottlenecks), the net gain might be negligible.</li>
 </ul>
 <p>The takeaway? Treat AI in post like any other infrastructure upgrade: map it to your specific workflow, measure the impact, and don’t assume vendor claims will translate to real-world gains without testing.</p>
 
 <h2>Blind Spots</h2>
 <ul>
-  <li><strong>No specific AI tools named</strong>: The source doesn’t identify which AI vendors or products EYELINE used for the *Stranger Things* pipeline, leaving engineers without a starting point for evaluation (Befores & Afters).</li>
-  <li><strong>Missing performance metrics</strong>: There’s no data on how much faster ingest, proxy generation, or exports became with AI tools—or whether reliability improved. Without benchmarks, it’s impossible to assess ROI (Befores & Afters).</li>
-  <li><strong>No cost breakdown</strong>: The source doesn’t disclose whether AI tools reduced labor costs, storage costs, or cloud egress fees, or if they introduced new expenses (e.g., licensing, training) (Befores & Afters).</li>
-  <li><strong>Undefined "production-ready"</strong>: The source warns against treating vendor claims as "production-ready" but doesn’t define what that means in practice (e.g., uptime SLAs, error rates, or compatibility with existing tools) (Befores & Afters).</li>
-  <li><strong>No cloud vs. on-prem details</strong>: The breakdown mentions Nexis and SAN storage but doesn’t clarify whether the pipeline is hybrid, fully on-prem, or cloud-based—critical for teams evaluating AI tools in their own environments (Befores & Afters).</li>
-</ul>
-
-<h3>Sources</h3>
-<ol>
-  <li> (Befores & Afters): The Streamic — See EYELINE’s VFX breakdown for ‘Stranger Things’ 5 (2026-04-13)</li>
-</ol></div>
+  <li><strong>No specific AI tools named</strong>: The source doesn’t identify which AI vendors or products EYELINE used for the *Stranger Things* pipeline, leaving engineers without a starting point for evaluation.</li>
+  <li><strong>Missing performance metrics</strong>: There’s no data on how much faster ingest, proxy generation, or exports became with AI tools—or whether reliability improved. Without benchmarks, it’s impossible to assess ROI.</li>
+  <li><strong>No cost breakdown</strong>: The source doesn’t disclose whether AI tools reduced labor costs, storage costs, or cloud egress fees, or if they introduced new expenses (e.g., licensing, training).</li>
+  <li><strong>Undefined "production-ready"</strong>: The source warns against treating vendor claims as "production-ready" but doesn’t define what that means in practice (e.g., uptime SLAs, error rates, or compatibility with existing tools).</li>
+  <li><strong>No cloud vs. on-prem details</strong>: The breakdown mentions Nexis and SAN storage but doesn’t clarify whether the pipeline is hybrid, fully on-prem, or cloud-based—critical for teams evaluating AI tools in their own environments.</li>
+</ul></div>
     <div style="background:var(--bg);border-radius:12px;padding:22px 24px;margin-top:36px;border-top:3px solid var(--blue)">
   <h4 style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--blue);margin:0 0 14px">Sources &amp; Further Reading</h4>
   <ul style="margin:0;padding-left:18px;list-style:disc">
@@ -167,7 +162,7 @@
     }
   },
   "mainEntityOfPage": "https://www.thestreamic.in/articles/2026-04-13-ai-post-prod-see-eyelines-vfx-breakdown-for-stranger-t.html",
-  "wordCount": 1027
+  "wordCount": 948
 }</script>
 <footer class="footer">
   <div class="footer-gold" aria-hidden="true"></div>

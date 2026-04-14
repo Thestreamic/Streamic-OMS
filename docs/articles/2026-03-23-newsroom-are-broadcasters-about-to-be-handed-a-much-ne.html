@@ -61,7 +61,7 @@
     <div class="art-byline">
       <strong>The Streamic Editorial Team</strong>
       <time datetime="2026-03-23" style="color:var(--ink4);font-size:13px">March 23, 2026</time>
-      <span>540 words · 3 min read</span>
+      <span>495 words · 2 min read</span>
       <span style="background:var(--blue);color:#fff;padding:3px 9px;border-radius:5px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.8px">Analysis</span>
     </div>
     <figure>
@@ -78,22 +78,22 @@ The BBC just cracked the code on sending live TV over the internet with near-zer
 
 <h2>What Happened</h2>
 <ul>
-  <li>BBC Research & Development (R&D) announced a breakthrough in low-latency IP transmission using <strong>JPEG XS</strong> compression, achieving as little as 1-2 ms of delay (<a href="https://www.tvtechnology.com/platform/satellite/are-broadcasters-about-to-be-handed-a-much-needed-investment-to-upgrade-their-distribution-infrastructure" target="_blank" rel="noopener noreferrer nofollow" style="color:var(--blue);text-decoration:none">TV Technology</a>).</li>
-  <li>The technology is built on the <strong>SMPTE ST 2110</strong> standard for professional media over managed IP networks, making it compatible with existing broadcast infrastructure (TV Technology).</li>
-  <li>JPEG XS reduces bandwidth requirements compared to uncompressed video, cutting transmission costs and hardware needs for live signal transport (TV Technology).</li>
+  <li>BBC Research & Development (R&D) announced a breakthrough in low-latency IP transmission using <strong>JPEG XS</strong> compression, achieving as little as 1-2 ms of delay.</li>
+  <li>The technology is built on the <strong>SMPTE ST 2110</strong> standard for professional media over managed IP networks, making it compatible with existing broadcast infrastructure.</li>
+  <li>JPEG XS reduces bandwidth requirements compared to uncompressed video, cutting transmission costs and hardware needs for live signal transport.</li>
 </ul>
 
 <h2>The Tech Spec</h2>
-<p>BBC R&D’s breakthrough centers on <strong>JPEG XS</strong> <em>(think of it like a super-efficient ZIP file for video—shrinking the size without losing quality)</em>, a lightweight compression standard designed for real-time IP workflows. Unlike traditional methods that rely on uncompressed video (which guzzles bandwidth), JPEG XS slashes data rates while keeping latency under 2 milliseconds (TV Technology).</p>
+<p>BBC R&D’s breakthrough centers on <strong>JPEG XS</strong> <em>(think of it like a super-efficient ZIP file for video—shrinking the size without losing quality)</em>, a lightweight compression standard designed for real-time IP workflows. Unlike traditional methods that rely on uncompressed video (which guzzles bandwidth), JPEG XS slashes data rates while keeping latency under 2 milliseconds.</p>
 
-<p>The system is anchored in <strong>SMPTE ST 2110</strong> <em>(imagine a universal language for broadcast signals over IP, letting cameras, switchers, and servers talk to each other without proprietary hardware)</em>, specifically the ST 2110-22 variant for compressed video. To deploy it, broadcasters need a 1 GbE network and compatible hardware—like FPGAs or ASICs—to handle the low-latency processing (TV Technology).</p>
+<p>The system is anchored in <strong>SMPTE ST 2110</strong> <em>(imagine a universal language for broadcast signals over IP, letting cameras, switchers, and servers talk to each other without proprietary hardware)</em>, specifically the ST 2110-22 variant for compressed video. To deploy it, broadcasters need a 1 GbE network and compatible hardware—like FPGAs or ASICs—to handle the low-latency processing.</p>
 
-<p>For security and integration, the solution leans on <strong>AES67</strong> <em>(a standard for syncing audio over IP, like a conductor keeping an orchestra in time)</em> and <strong>NMOS IS-04</strong> <em>(a protocol for discovering and connecting devices on a network, like a phonebook for broadcast gear)</em>. The <strong>RIST protocol</strong> <em>(a safety net for unreliable internet connections, ensuring packets don’t get lost in transit)</em> adds an extra layer of reliability for live transmissions (TV Technology).</p>
+<p>For security and integration, the solution leans on <strong>AES67</strong> <em>(a standard for syncing audio over IP, like a conductor keeping an orchestra in time)</em> and <strong>NMOS IS-04</strong> <em>(a protocol for discovering and connecting devices on a network, like a phonebook for broadcast gear)</em>. The <strong>RIST protocol</strong> <em>(a safety net for unreliable internet connections, ensuring packets don’t get lost in transit)</em> adds an extra layer of reliability for live transmissions.</p>
 
 <h2>So What? (The Human Impact)</h2>
-<p>For broadcast engineers, this means ditching expensive satellite or fiber links for live contribution and distribution. JPEG XS lets you send high-quality video over standard IP networks with minimal delay, reducing both capital costs (fewer racks of hardware) and operational expenses (lower bandwidth bills) (TV Technology). The shift also simplifies workflows—no more juggling proprietary codecs or wrestling with uncompressed video’s bandwidth demands.</p>
+<p>For broadcast engineers, this means ditching expensive satellite or fiber links for live contribution and distribution. JPEG XS lets you send high-quality video over standard IP networks with minimal delay, reducing both capital costs (fewer racks of hardware) and operational expenses (lower bandwidth bills). The shift also simplifies workflows—no more juggling proprietary codecs or wrestling with uncompressed video’s bandwidth demands.</p>
 
-<p>For CTOs, the ROI is clear: faster deployment of IP-based workflows, easier scalability for live events, and future-proofing as the industry moves away from SDI. The catch? You’ll need to audit your network for 1 GbE+ capacity and invest in compatible hardware, but the long-term savings on transmission and maintenance could justify the upfront spend (TV Technology).</p>
+<p>For CTOs, the ROI is clear: faster deployment of IP-based workflows, easier scalability for live events, and future-proofing as the industry moves away from SDI. The catch? You’ll need to audit your network for 1 GbE+ capacity and invest in compatible hardware, but the long-term savings on transmission and maintenance could justify the upfront spend.</p>
 
 <h2>Blind Spots</h2>
 <ul>
@@ -102,12 +102,7 @@ The BBC just cracked the code on sending live TV over the internet with near-zer
   <li>The source doesn’t name real-world broadcasters or live events already using this technology in production.</li>
   <li>The source doesn’t clarify whether JPEG XS is backward-compatible with older ST 2110 gear or requires a full hardware refresh.</li>
   <li>The source doesn’t address potential latency trade-offs when combining JPEG XS with other compression formats (e.g., HEVC for final distribution).</li>
-</ul>
-
-<h3>Sources</h3>
-<ol>
-  <li> (TV Technology): BBC R&D — Technical Analysis: BBC R&D Announces Breakthrough in Low-Latency IP Transmission Using JPEG XS (2026-03-23)</li>
-</ol></div>
+</ul></div>
     <div style="background:var(--bg);border-radius:12px;padding:22px 24px;margin-top:36px;border-top:3px solid var(--blue)">
   <h4 style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--blue);margin:0 0 14px">Sources &amp; Further Reading</h4>
   <ul style="margin:0;padding-left:18px;list-style:disc">
@@ -154,7 +149,7 @@ The BBC just cracked the code on sending live TV over the internet with near-zer
     }
   },
   "mainEntityOfPage": "https://www.thestreamic.in/articles/2026-03-23-newsroom-are-broadcasters-about-to-be-handed-a-much-ne.html",
-  "wordCount": 540
+  "wordCount": 495
 }</script>
 <footer class="footer">
   <div class="footer-gold" aria-hidden="true"></div>
