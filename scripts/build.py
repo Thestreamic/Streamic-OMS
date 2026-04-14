@@ -2,7 +2,7 @@
 scripts/build.py &#8212; The Streamic site builder
 Apple Newsroom-style static site generator
 """
-import json, os, re, shutil
+import hashlib, json, os, re, shutil
 from datetime import datetime, timezone
 
 ROOT      = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -1098,27 +1098,86 @@ def _fix_article_images(arts):
               f"({replaced_non_pool} non-pool/RSS, {replaced_duplicate} duplicates)")
 
 
+_FALLBACK_POOLS = {
+    "newsroom": [
+        "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1200&auto=format&fit=crop&q=80",  # newsroom
+        "https://images.unsplash.com/photo-1495020689067-958852a7765e?w=1200&auto=format&fit=crop&q=80",  # newspapers
+        "https://images.unsplash.com/photo-1589998059171-988d887df646?w=1200&auto=format&fit=crop&q=80",  # control room
+        "https://images.unsplash.com/photo-1485579149621-3123dd979885?w=1200&auto=format&fit=crop&q=80",  # monitors wall
+        "https://images.unsplash.com/photo-1557992260-ec58e38d363c?w=1200&auto=format&fit=crop&q=80",  # anchor desk
+        "https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=1200&auto=format&fit=crop&q=80",  # camera studio
+    ],
+    "infrastructure": [
+        "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1200&auto=format&fit=crop&q=80",  # network cables
+        "https://images.unsplash.com/photo-1545987796-200677ee1011?w=1200&auto=format&fit=crop&q=80",  # rack
+        "https://images.unsplash.com/photo-1604754742629-3e5728249d73?w=1200&auto=format&fit=crop&q=80",  # fiber
+        "https://images.unsplash.com/photo-1562408590-e32931084e23?w=1200&auto=format&fit=crop&q=80",  # switch
+        "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=1200&auto=format&fit=crop&q=80",  # server room blue
+    ],
+    "cloud": [
+        "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=1200&auto=format&fit=crop&q=80",  # data center
+        "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1200&auto=format&fit=crop&q=80",  # cloud abstract
+        "https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?w=1200&auto=format&fit=crop&q=80",  # code cloud
+        "https://images.unsplash.com/photo-1614624532983-4ce03382d63d?w=1200&auto=format&fit=crop&q=80",  # cloud network
+        "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=1200&auto=format&fit=crop&q=80",  # server room
+    ],
+    "cloud-production": [
+        "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=1200&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1200&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?w=1200&auto=format&fit=crop&q=80",
+    ],
+    "streaming": [
+        "https://images.unsplash.com/photo-1522869635100-9f4c5e86aa37?w=1200&auto=format&fit=crop&q=80",  # streaming screen
+        "https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=1200&auto=format&fit=crop&q=80",  # netflix-style
+        "https://images.unsplash.com/photo-1593784991095-a205069470b6?w=1200&auto=format&fit=crop&q=80",  # remote content
+        "https://images.unsplash.com/photo-1598550476439-6847785fcea6?w=1200&auto=format&fit=crop&q=80",  # streaming devices
+    ],
+    "playout": [
+        "https://images.unsplash.com/photo-1486572788966-cfd3df1f5b42?w=1200&auto=format&fit=crop&q=80",  # TV wall
+        "https://images.unsplash.com/photo-1518133683791-0b9de5a055f0?w=1200&auto=format&fit=crop&q=80",  # broadcast wall
+        "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=1200&auto=format&fit=crop&q=80",  # mixing desk
+        "https://images.unsplash.com/photo-1551817958-c5b51e7b4a33?w=1200&auto=format&fit=crop&q=80",  # control panel
+    ],
+    "graphics": [
+        "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=1200&auto=format&fit=crop&q=80",  # motion graphics
+        "https://images.unsplash.com/photo-1547658719-da2b51169166?w=1200&auto=format&fit=crop&q=80",  # design
+        "https://images.unsplash.com/photo-1626785774573-4b799315345d?w=1200&auto=format&fit=crop&q=80",  # creative
+        "https://images.unsplash.com/photo-1561736778-92e52a7769ef?w=1200&auto=format&fit=crop&q=80",  # abstract color
+    ],
+    "ai-post-production": [
+        "https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=1200&auto=format&fit=crop&q=80",  # AI abstract
+        "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=1200&auto=format&fit=crop&q=80",  # AI brain
+        "https://images.unsplash.com/photo-1506765515384-028b60a970df?w=1200&auto=format&fit=crop&q=80",  # editing suite
+        "https://images.unsplash.com/photo-1559028012-481c04fa702d?w=1200&auto=format&fit=crop&q=80",  # post-prod
+        "https://images.unsplash.com/photo-1492619375914-88005aa9e8fb?w=1200&auto=format&fit=crop&q=80",  # film editing
+    ],
+    "featured": [
+        "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1200&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1485579149621-3123dd979885?w=1200&auto=format&fit=crop&q=80",
+    ],
+}
+
+
 def _hp_img(a, base=""):
     img = eu(a.get("image_url", "") or a.get("image", ""))
     # AdSense/UX fix: if image is the Mistral generic Streamic fallback, ignore it
-    # and use the colorful category fallback instead. Dark logo placeholders make
-    # every article card look identical and broken.
+    # and use a category-specific Unsplash fallback rotated per-slug so we don't
+    # get 123 identical guitar-studio cards on the homepage.
     if img and "_fallback/streamic-default" in img:
         img = ""
     if img:
         return img
+
     cat = (a.get("category") or "featured").lower()
-    fallbacks = {
-        "featured": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&auto=format&fit=crop&q=80",
-        "newsroom": "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=1200&auto=format&fit=crop&q=80",
-        "cloud": "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=1200&auto=format&fit=crop&q=80",
-        "infrastructure": "https://images.unsplash.com/photo-1545987796-200677ee1011?w=1200&auto=format&fit=crop&q=80",
-        "graphics": "https://images.unsplash.com/photo-1547658719-da2b51169166?w=1200&auto=format&fit=crop&q=80",
-        "streaming": "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=1200&auto=format&fit=crop&q=80",
-        "ai-post-production": "https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=1200&auto=format&fit=crop&q=80",
-        "playout": "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1200&auto=format&fit=crop&q=80",
-    }
-    return fallbacks.get(cat, fallbacks["featured"])
+    pool = _FALLBACK_POOLS.get(cat, _FALLBACK_POOLS["featured"])
+
+    # Deterministic per-slug rotation — same article always gets same image
+    # (so no Search Console churn), but different slugs in the same category
+    # get different images across the homepage grid.
+    slug = a.get("slug", "") or a.get("title", "") or cat
+    idx = int(hashlib.sha1(slug.encode("utf-8")).hexdigest(), 16) % len(pool)
+    return pool[idx]
 
 def _hp_tag(a):
     cinfo = CAT.get(a.get("category", "featured"), CAT["featured"])
@@ -1681,25 +1740,31 @@ def _clean_body(a):
     src_name = src_dom.replace("https://", "").replace("http://", "").replace("www.", "").split("/")[0] if src_dom else ""
 
     def _replace_source_placeholders(html: str) -> str:
-        """Replace all [Source N] placeholders with a real link to source_url.
+        """Clean up Mistral's source artifacts to avoid duplicate/spammy attribution.
 
-        First occurrence becomes a hyperlink; subsequent become plain "TV Technology"
-        text to avoid spammy repeated link patterns. If no src_url available, the
-        placeholder is silently removed.
+        Mistral's prompt injects two artifacts we don't want rendered:
+          1. Inline [Source 1], [Source 2] placeholders throughout the body
+          2. A trailing <h3>Sources</h3> bibliography block at the end
+
+        Both are redundant because build.py renders its own 'Source Attribution'
+        banner (top) and 'Sources & Further Reading' block (bottom) for every
+        article. Two source citations on the same page is spammy to AdSense.
+
+        This function strips both artifacts so the final rendered article shows
+        ONE top banner + ONE bottom block, nothing in between.
         """
-        if not html or "[Source" not in html:
+        if not html:
             return html
-        if not src_url or not src_name:
-            # No real source — strip the placeholders entirely
-            return re.sub(r"\s*\[Source\s+\d+\]", "", html)
-
-        seen = {"first": True}
-        def _repl(m):
-            if seen["first"]:
-                seen["first"] = False
-                return f' (<a href="{src_url}" target="_blank" rel="noopener noreferrer nofollow" style="color:var(--blue);text-decoration:none">{src_name}</a>)'
-            return f' ({src_name})'
-        return re.sub(r"\s*\[Source\s+\d+\]", _repl, html)
+        # Strip trailing Sources/References block (Mistral's own bibliography)
+        html = re.sub(
+            r"\n*<h[23]>\s*(?:Sources?|References|Sources?\s*(?:&amp;|&|and)\s*Further\s+Reading)\s*</h[23]>\s*.*?$",
+            "",
+            html,
+            flags=re.IGNORECASE | re.DOTALL,
+        )
+        # Strip inline [Source N] placeholders
+        html = re.sub(r"\s*\[Source\s+\d+\]", "", html)
+        return html
 
     # ── Full editorial articles — always return complete body ─────────────
     if is_ed:
