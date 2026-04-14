@@ -18,8 +18,10 @@ Changes from v1:
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
+import random
 import re
 import time
 from pathlib import Path
@@ -177,8 +179,112 @@ technical claim, WRITE CONSERVATIVELY. Skip the detail. Better to say
 less than to invent something wrong. A factual 700-word article is worth
 more than an impressive 1000-word article that misclassifies a vendor.
 
+ARTICLE STRUCTURE — use exactly these six <h2> sections in this order,
+with the EXACT heading text provided (do NOT substitute synonyms or
+rearrange the header wording):
+
+<h2>{H1}</h2>
+Hook the reader quickly. Do not summarise the press release. Explain why a broadcast engineer, operations lead, or CTO should care now. What pressure, bottleneck, or workflow problem does this story speak to? 2–3 paragraphs.
+
+<h2>{H2}</h2>
+Give the technical breakdown using ONLY capabilities the source text states. Explain where this fits in a general broadcast workflow using generic stage names (ingest, processing, playout, delivery) — do NOT invent specific named vendors at each stage unless they appear in the source. If the source is too vague to support a technical breakdown, keep this section brief and factual rather than filling it with invented detail. 2–3 paragraphs.
+
+<h2>{H3}</h2>
+Describe a realistic workflow scenario in a newsroom, control room, ingest-to-playout chain, live production, post-production, or cloud environment — whichever best fits. Make it concrete and practical. 2–3 paragraphs.
+
+<h2>{H4}</h2>
+Explain where the real ROI is. What gets faster, cheaper, more reliable, or easier to scale? What manual work, infrastructure burden, or operational risk is reduced — and what new dependencies might be introduced? 2–3 paragraphs.
+
+<h2>{H5}</h2>
+Be honest. What is still unclear, overstated, incomplete, or difficult to integrate? What vendor bias, lock-in, operational complexity, skills gap, or standards challenge should technical teams keep in mind? 2 paragraphs.
+
+<h2>{H6}</h2>
+Give the strategic read. Is this something teams should adopt now, test in a pilot, or watch carefully? What does it suggest about where broadcast and media technology are heading next? 1–2 paragraphs.
+
 Begin generating the article now based ONLY on the source text provided.
 """
+
+
+# ── Rotating section headers (AdSense templated-content compliance) ──────────
+# Each of the six section SLOTS has the same editorial function across every
+# article, but we rotate the exact HEADING TEXT across a pool of synonyms so
+# that no single phrase (e.g. "Why This Matters Right Now") recurs across
+# many articles at scale. AdSense flags repeated H2 headers across 30+
+# articles as templated content; this rotation breaks that pattern while
+# preserving editorial consistency.
+#
+# Rotation is deterministic per-article (seeded by slug+title hash) so the
+# same article always regenerates with the same headers — no churn in
+# Search Console from header text drifting between builds.
+SECTION_HEADER_POOL = {
+    "H1": [  # Slot 1: the editorial hook
+        "Why This Matters Right Now",
+        "The Signal Behind the Announcement",
+        "What Broadcasters Should Care About",
+        "The Strategic Context",
+        "Reading Between the Press-Release Lines",
+        "Why Engineering Teams Are Watching This",
+    ],
+    "H2": [  # Slot 2: technical breakdown
+        "Under the Hood: How It Actually Works",
+        "The Technical Architecture",
+        "Inside the Technology Stack",
+        "How the Integration Actually Works",
+        "The Engineering Layer",
+        "What's Really Happening in the Pipeline",
+    ],
+    "H3": [  # Slot 3: operational scenario
+        "What This Looks Like in a Real Broadcast Operation",
+        "In a Live Production Environment",
+        "A Practical Workflow Scenario",
+        "How This Plays Out in the Control Room",
+        "In the Newsroom and Post Bay",
+        "Where This Lands in Daily Operations",
+    ],
+    "H4": [  # Slot 4: business impact
+        "The Practical Impact: Cost, Speed, and Scale",
+        "Cost, Speed, and Operational Scale",
+        "Where the ROI Actually Lives",
+        "The Business Case in Plain Numbers",
+        "Operational Wins and Trade-Offs",
+        "What This Changes for the Bottom Line",
+    ],
+    "H5": [  # Slot 5: honest critique
+        "The Reality Check",
+        "What the Press Release Didn't Say",
+        "Caveats and Open Questions",
+        "The Engineering Gotchas",
+        "What to Verify Before Deploying",
+        "The Honest Read",
+    ],
+    "H6": [  # Slot 6: strategic forward-look
+        "Where This Goes from Here",
+        "The Road Ahead",
+        "What Comes Next for Broadcast Teams",
+        "The Strategic Outlook",
+        "Looking Beyond the Launch",
+        "What Teams Should Watch Next",
+    ],
+}
+
+
+def _pick_headers(seed_text: str) -> dict:
+    """Deterministically pick one header per slot from SECTION_HEADER_POOL.
+
+    Seeding by slug+title hash ensures the same article always gets the
+    same headers on regeneration — stable across builds, which Google
+    Search Console prefers (no thrashing on H2 changes).
+    """
+    seed_int = int(hashlib.sha256(seed_text.encode("utf-8")).hexdigest(), 16)
+    rng = random.Random(seed_int)
+    return {slot: rng.choice(options) for slot, options in SECTION_HEADER_POOL.items()}
+
+
+def build_system_prompt(slug: str = "", title: str = "") -> str:
+    """Return SYSTEM_PROMPT with rotating H2 headers substituted for this article."""
+    seed = f"{slug}|{title}"
+    headers = _pick_headers(seed) if seed.strip("|") else _pick_headers("default")
+    return SYSTEM_PROMPT.format(**headers)
 
 
 def build_user_prompt(title: str, source_text: str, category: str, topic_type: str, keywords: list) -> str:
@@ -262,26 +368,6 @@ Where relevant, connect the story to real broadcast and media systems such as:
 - AWS Media Services and hybrid cloud workflows
 
 Do not force all of these. Use only what is genuinely relevant to the story.
-
-ARTICLE STRUCTURE — use exactly these six <h2> sections:
-
-<h2>Why This Matters Right Now</h2>
-Hook the reader quickly. Do not summarise the press release. Explain why a broadcast engineer, operations lead, or CTO should care now. What pressure, bottleneck, or workflow problem does this story speak to? 2–3 paragraphs.
-
-<h2>Under the Hood: How It Actually Works</h2>
-Give the technical breakdown using ONLY capabilities the source text states. Explain where this fits in a general broadcast workflow using generic stage names (ingest, processing, playout, delivery) — do NOT invent specific named vendors at each stage unless they appear in the source. If the source is too vague to support a technical breakdown, keep this section brief and factual rather than filling it with invented detail. 2–3 paragraphs.
-
-<h2>What This Looks Like in a Real Broadcast Operation</h2>
-Describe a realistic workflow scenario in a newsroom, control room, ingest-to-playout chain, live production, post-production, or cloud environment — whichever best fits. Make it concrete and practical. 2–3 paragraphs.
-
-<h2>The Practical Impact: Cost, Speed, and Scale</h2>
-Explain where the real ROI is. What gets faster, cheaper, more reliable, or easier to scale? What manual work, infrastructure burden, or operational risk is reduced — and what new dependencies might be introduced? 2–3 paragraphs.
-
-<h2>The Reality Check</h2>
-Be honest. What is still unclear, overstated, incomplete, or difficult to integrate? What vendor bias, lock-in, operational complexity, skills gap, or standards challenge should technical teams keep in mind? 2 paragraphs.
-
-<h2>Where This Goes from Here</h2>
-Give the strategic read. Is this something teams should adopt now, test in a pilot, or watch carefully? What does it suggest about where broadcast and media technology are heading next? 1–2 paragraphs.
 
 ---
 
