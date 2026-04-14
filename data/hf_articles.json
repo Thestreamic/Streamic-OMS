@@ -6,9 +6,11 @@
     "category": "cloud",
     "sourceName": "AWS Media Blog",
     "sourceUrl": "https://aws.amazon.com/blogs/media/unlocking-next-generation-audio-production-with-mpeg-h-on-aws/",
-    "image": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1200&auto=format&fit=crop&q=80",
+    "image": "/assets/images/_fallback/streamic-default.jpg",
     "published": "2026-04-14",
-    "wordCount": 1754
+    "wordCount": 1754,
+    "image_category": "cloud_production",
+    "image_alt": "Cloud-based broadcast production and remote workflow — illustrating: Unlocking next generation audio production with MPEG-H on AWS"
   },
   {
     "slug": "2026-04-10-digital-anarchy-announces-shotnotes-a-notepad-and-task-tracking-panel-",
