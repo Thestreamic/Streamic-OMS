@@ -1100,6 +1100,11 @@ def _fix_article_images(arts):
 
 def _hp_img(a, base=""):
     img = eu(a.get("image_url", "") or a.get("image", ""))
+    # AdSense/UX fix: if image is the Mistral generic Streamic fallback, ignore it
+    # and use the colorful category fallback instead. Dark logo placeholders make
+    # every article card look identical and broken.
+    if img and "_fallback/streamic-default" in img:
+        img = ""
     if img:
         return img
     cat = (a.get("category") or "featured").lower()
@@ -1663,19 +1668,52 @@ def _clean_body(a):
     - If body_html has <h2> OR word_count > 300 → return the FULL body_html untouched.
       Gemini-generated articles are complete. Truncating them strips the analysis.
     - Fallback: only strip/limit for raw RSS teasers with no AI enhancement.
+
+    Mistral [Source N] cleanup:
+    - Mistral's prompt instructs it to cite sources inline as [Source 1], [Source 2].
+      We replace these with a real source link to the article's source_url, so readers
+      see "TV Technology" or "BroadcastBeat" instead of "[Source 1]". Also satisfies
+      AdSense source-attribution requirements.
     """
     is_ed = a.get("is_editorial") or a.get("editorial")
+    src_url = a.get("source_url", "") or a.get("url", "")
+    src_dom = a.get("source_domain", "")
+    src_name = src_dom.replace("https://", "").replace("http://", "").replace("www.", "").split("/")[0] if src_dom else ""
+
+    def _replace_source_placeholders(html: str) -> str:
+        """Replace all [Source N] placeholders with a real link to source_url.
+
+        First occurrence becomes a hyperlink; subsequent become plain "TV Technology"
+        text to avoid spammy repeated link patterns. If no src_url available, the
+        placeholder is silently removed.
+        """
+        if not html or "[Source" not in html:
+            return html
+        if not src_url or not src_name:
+            # No real source — strip the placeholders entirely
+            return re.sub(r"\s*\[Source\s+\d+\]", "", html)
+
+        seen = {"first": True}
+        def _repl(m):
+            if seen["first"]:
+                seen["first"] = False
+                return f' (<a href="{src_url}" target="_blank" rel="noopener noreferrer nofollow" style="color:var(--blue);text-decoration:none">{src_name}</a>)'
+            return f' ({src_name})'
+        return re.sub(r"\s*\[Source\s+\d+\]", _repl, html)
 
     # ── Full editorial articles — always return complete body ─────────────
     if is_ed:
         body = a.get("body_html", "")
         if body and len(body) > 300:
-            return body
+            return _replace_source_placeholders(body)
 
     body_html  = a.get("body_html", "") or ""
     word_count = a.get("word_count", 0)
     # Also check actual body length — metadata word_count may be missing
     actual_wc  = len(re.sub(r"<[^>]+>", " ", body_html).split())
+
+    # Apply [Source N] cleanup to body_html before any further processing
+    body_html = _replace_source_placeholders(body_html)
 
     # ── AI-enhanced articles: has h2 structure OR substantial word count ──
     # Return the full body without ANY stripping — Gemini output is complete.
