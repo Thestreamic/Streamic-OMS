@@ -59,7 +59,9 @@ jobs:
       - name: Mistral AI analysis (tier-1 PRIMARY — 1B tokens/mo free)
         env:
           MISTRAL_MAX_PER_RUN: "15"
-          MISTRAL_TEMPERATURE: "0.1"
+          MISTRAL_TEMPERATURE: "0.35"
+          MISTRAL_TOP_P: "0.9"
+          MISTRAL_FREQUENCY_PENALTY: "0.2"
           MISTRAL_FETCH_SOURCE: "true"
         run: python ./scripts/generate_mistral.py || echo "Mistral step skipped"
 
@@ -73,14 +75,18 @@ jobs:
         env:
           GROQ_PREMIUM_ONLY: "true"
           MAX_PER_RUN: "8"
+          GROQ_TEMPERATURE: "0.35"
+          GROQ_TOP_P: "0.9"
+          GROQ_FREQUENCY_PENALTY: "0.2"
         run: python ./scripts/generate_summaries.py || echo "Groq step skipped"
 
-      - name: OpenRouter reasoning models (tier-3 — free DeepSeek-R1 + fallbacks)
+      - name: OpenRouter reasoning models (tier-3 fallback — free cascade)
         env:
           OPENROUTER_MAX_PER_RUN: "5"
-          OPENROUTER_TEMPERATURE: "0.1"
-          OPENROUTER_TOP_P: "0.95"
-          OPENROUTER_PRESENCE_PENALTY: "0.1"
+          OPENROUTER_TEMPERATURE: "0.35"
+          OPENROUTER_TOP_P: "0.9"
+          OPENROUTER_FREQUENCY_PENALTY: "0.2"
+          OPENROUTER_PRESENCE_PENALTY: "0.0"
         run: python ./scripts/generate_openrouter.py || echo "OpenRouter step skipped"
 
       - name: Assign taxonomy images (before build)
