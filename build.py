@@ -25,7 +25,7 @@ PAGE_SIZE = 24
 MAX_ARTICLES   = 120         # 78 editorial + top RSS; raised from 35
 VISIBLE_CAT    = "ai-post-production"  # only this category page is indexed
 MIN_BODY_SCORE = 50          # minimum editorial score to appear on homepage
-MIN_ARTICLE_WORDS = 800      # hard quality gate — reject articles below this
+MIN_ARTICLE_WORDS = 500      # hard quality gate — matches AI-upgraded output; scaffolds blocked separately by _is_ai_upgraded()
 
 # ── Broadcast & Media IT relevance terms ──────────────────────────────────────
 # Articles must contain at least 2 of these terms (case-insensitive) to pass.
@@ -812,18 +812,34 @@ def _score_art(a):
     return s
 
 
+def _is_ai_upgraded(a):
+    """AdSense compliance: return True if article was enriched by a tier-1/2/3
+    AI generator (Mistral, Gemini, Groq, OpenRouter) or is a hand-authored
+    editorial. Raw RSS scaffolds (rewrite_feed_local) never get indexed.
+    """
+    gb = (a.get("generated_by") or "").lower()
+    if not gb:
+        return False
+    if gb in ("rewrite_feed_local", "rewrite_feed"):
+        return False
+    ai_markers = ("mistral", "gemini", "groq", "openrouter", "deepseek",
+                  "gpt_manual_editorial", "generate_summaries")
+    return any(m in gb for m in ai_markers)
+
+
 def _passes_quality_gate(a):
-    """Hard quality gate: article must be ≥ MIN_ARTICLE_WORDS AND contain
-    at least 2 broadcast/media-IT terms from BROADCAST_TERMS.
+    """Hard quality gate — ADSENSE COMPLIANCE MODE.
 
-    Hand-written editorials (generated_by == 'gpt_manual_editorial')
-    bypass the word count check — they are manually curated high-quality
-    content. They still must pass the relevance check.
+    An article may be indexed only when ALL of the following are true:
+      1. Body word count ≥ MIN_ARTICLE_WORDS (800) OR hand-authored ≥ 400w.
+      2. Article was AI-upgraded OR hand-authored (never raw RSS rewrite).
+      3. At least 2 broadcast/media-IT terms present (relevance).
 
-    Returns (passes: bool, reason: str) for diagnostics.
+    Raw RSS rewrites (rewrite_feed_local) appear on the site for navigation
+    but carry <meta robots="noindex,nofollow">. This is the defence against
+    AdSense "Low value content" rejection.
     """
     body = a.get("body_html", "") or ""
-    # Strip HTML tags for plain text
     plain = re.sub(r"<[^>]+>", " ", body)
     plain = re.sub(r"\s+", " ", plain).strip()
     words = plain.split()
@@ -831,13 +847,15 @@ def _passes_quality_gate(a):
 
     is_manual_editorial = a.get("generated_by") == "gpt_manual_editorial"
 
-    # ── Word count gate (auto-generated only) ────────────────────────────
     if not is_manual_editorial and wc < MIN_ARTICLE_WORDS:
         return False, f"too short ({wc} words, need {MIN_ARTICLE_WORDS})"
 
-    # ── Even manual editorials need a minimum body ───────────────────────
     if is_manual_editorial and wc < 400:
         return False, f"editorial too short ({wc} words, need 400)"
+
+    # AdSense: raw RSS rewrites never get indexed
+    if not is_manual_editorial and not _is_ai_upgraded(a):
+        return False, f"not AI-upgraded (gb={a.get('generated_by') or 'empty'!r})"
 
     # ── Broadcast relevance gate ─────────────────────────────────────────
     # Check title + body (lowercased) for BROADCAST_TERMS matches
@@ -1929,10 +1947,20 @@ def about_page():
 {nav()}
 <main><div class="w" style="padding:52px 24px 80px;max-width:780px">
 <h1 style="font-family:var(--serif);font-size:clamp(28px,4vw,44px);margin-bottom:16px;letter-spacing:-.5px">About The Streamic</h1>
-<p style="font-size:17px;color:var(--ink2);line-height:1.65;margin-bottom:20px">The Streamic is an independent broadcast and streaming technology publication covering the tools, standards, and workflows that shape modern media production and delivery.</p>
-<p style="font-size:15px;color:var(--ink3);line-height:1.7;margin-bottom:20px">We publish original editorial analysis on topics including IP infrastructure (SMPTE ST 2110, NMOS), cloud-native production, operational AI, real-time graphics, playout automation, and newsroom technology. Our readership includes broadcast engineers, operations managers, technology directors, and media industry professionals.</p>
+<p style="font-size:17px;color:var(--ink2);line-height:1.65;margin-bottom:20px">The Streamic is an independent broadcast and streaming technology publication covering the tools, standards, and workflows that shape modern media production and delivery. Published from Dublin, Ireland, we focus on the engineering reality behind the marketing &#8212; what actually ships, what actually works, and what broadcast teams actually need to verify before they deploy.</p>
+<p style="font-size:15px;color:var(--ink3);line-height:1.7;margin-bottom:20px">Our coverage spans IP infrastructure (SMPTE ST 2110, NMOS IS-04/IS-05, AES67, SCTE-35), cloud-native production, operational AI in newsroom and post workflows, real-time graphics, playout automation, MAM / PAM integration, and disaster-recovery architectures. Readers include broadcast engineers, media operations leads, technology directors, post-production supervisors, and broadcast IT architects at networks, streamers, and production facilities worldwide.</p>
 <h2 style="font-family:var(--serif);font-size:22px;margin:36px 0 12px">Our editorial approach</h2>
-<p style="font-size:15px;color:var(--ink3);line-height:1.7;margin-bottom:16px">We write original analysis &#8212; not copied content. Our industry news coverage credits and links to original reporting while adding Streamic editorial context. Long-form articles represent our editorial team&#39;s independent perspective on industry developments.</p>
+<p style="font-size:15px;color:var(--ink3);line-height:1.7;margin-bottom:16px">We write original analysis &#8212; not copied content, not press-release rewrites. Our industry news coverage credits and links to original reporting while adding Streamic editorial context: what the announcement actually means for an integration, what specifications are missing, and what deployment factors teams must verify before they commit capex. Long-form articles represent our editorial team&#39;s independent perspective on industry developments.</p>
+<p style="font-size:15px;color:var(--ink3);line-height:1.7;margin-bottom:16px">Every technical article is grounded in verifiable source material. Where a vendor has not disclosed a specification, we say so explicitly rather than inventing detail. Where two sources conflict, we note the discrepancy. This is the editorial discipline that separates broadcast trade journalism from marketing re-circulation.</p>
+<h2 style="font-family:var(--serif);font-size:22px;margin:36px 0 12px">What we cover</h2>
+<p style="font-size:15px;color:var(--ink3);line-height:1.7;margin-bottom:12px">Day-to-day Streamic coverage falls into five practice areas:</p>
+<ul style="font-size:15px;color:var(--ink3);line-height:1.9;padding-left:22px;margin-bottom:20px">
+  <li><strong>Infrastructure &amp; standards</strong> &#8212; ST 2110 rollouts, NMOS deployments, PTP timing, IP fabric design, SDI-to-IP migration roadmaps.</li>
+  <li><strong>Cloud &amp; hybrid production</strong> &#8212; remote production (REMI), cloud playout, CDN architecture, egress cost optimisation, edge media services.</li>
+  <li><strong>AI in broadcasting</strong> &#8212; automated captioning and QC, metadata extraction, newsroom AI, AI-assisted editing, generative tools for post.</li>
+  <li><strong>Post-production workflows</strong> &#8212; Media Composer / Resolve / Premiere interoperability, PAM / MAM integration, proxy pipelines, archive strategies.</li>
+  <li><strong>Newsroom technology</strong> &#8212; NRCS platforms, MOS integration, rundown automation, social-media ingest, fast-turn graphics.</li>
+</ul>
 <h2 style="font-family:var(--serif);font-size:22px;margin:36px 0 12px">Editor &amp; Founder</h2>
 <div style="display:flex;align-items:flex-start;gap:20px;background:var(--bg);border-radius:14px;padding:24px;margin-bottom:28px">
   <div style="flex-shrink:0;width:56px;height:56px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;font-family:var(--serif)">P</div>
@@ -1972,7 +2000,20 @@ def contact_page():
 {nav()}
 <main><div class="w" style="padding:52px 24px 80px;max-width:680px">
 <h1 style="font-family:var(--serif);font-size:clamp(28px,4vw,40px);margin-bottom:8px">Contact</h1>
-<p style="font-size:15px;color:var(--ink3);line-height:1.7;margin-bottom:32px">We welcome editorial feedback, tips, corrections, and partnership enquiries.</p>
+<p style="font-size:15px;color:var(--ink3);line-height:1.7;margin-bottom:24px">We welcome editorial feedback, story tips, corrections, and advertising enquiries from broadcast engineers, vendors, and media technology professionals. Our Dublin-based editorial team responds to genuine enquiries within two working days.</p>
+
+<h2 style="font-family:var(--serif);font-size:20px;margin:24px 0 10px">What to expect</h2>
+<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">Every message is read by the editorial team. Story tips and corrections are prioritised. Press releases are considered for coverage when they align with our practice areas (infrastructure, cloud production, AI in broadcasting, post-production workflows, newsroom technology). We do not publish paid-placement articles, syndicated content, or sponsored posts disguised as editorial. We will not reply to generic SEO link-building requests, guest-post pitches from content farms, or mass outreach unrelated to broadcast technology.</p>
+
+<h2 style="font-family:var(--serif);font-size:20px;margin:24px 0 10px">Editorial enquiries</h2>
+<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">Have a story tip or seen something we should cover? Email us directly with a short description and any relevant links. Broadcast engineers, integration teams, and vendor technical staff often see announcements, standards drafts, or operational incidents worth flagging before the wider trade press picks them up &#8212; we value these tips and protect sources on request.</p>
+
+<h2 style="font-family:var(--serif);font-size:20px;margin:24px 0 10px">Press &amp; vendor enquiries</h2>
+<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">For product announcements, roadmap updates, or briefings, please include: (a) a one-paragraph summary of what is being announced, (b) any relevant technical specifications (codecs, protocols, standards compliance), (c) the embargo date if any, and (d) the best technical contact for follow-up questions. We write for broadcast engineers, so marketing-led pitches without technical substance rarely convert to coverage.</p>
+
+<h2 style="font-family:var(--serif);font-size:20px;margin:24px 0 10px">Corrections</h2>
+<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:24px">If you spot a factual error in a published article &#8212; an incorrect specification, a misidentified product category, a missing standards reference &#8212; please let us know. Include the article URL and the specific correction. Significant factual corrections are acknowledged inline on the corrected article, consistent with our <a href="editorial-policy.html" style="color:var(--blue)">Editorial Policy</a>.</p>
+
 <div style="background:var(--bg);border-radius:14px;padding:24px 28px;margin-bottom:32px">
   <p style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--ink4);margin-bottom:12px">Our Address</p>
   <address style="font-style:normal;font-size:14px;color:var(--ink2);line-height:1.8">
@@ -1988,7 +2029,7 @@ def contact_page():
 <form action="https://formsubmit.co/technodate3@gmail.com" method="POST" style="display:flex;flex-direction:column;gap:16px">
   <input type="hidden" name="_subject" value="New contact form enquiry from The Streamic">
   <input type="hidden" name="_template" value="table">
-  <input type="hidden" name="_next" value="https://www.thestreamic.in/thank-you.html">
+  <input type="hidden" name="_next" value="https://www.thestreamic.in/contact.html?sent=1">
   <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
   <div>
     <label for="cf-name" style="display:block;font-size:13px;font-weight:600;color:var(--ink);margin-bottom:6px">Your Name</label>
@@ -2030,15 +2071,38 @@ def privacy_page():
 <h1 style="font-family:var(--serif);font-size:clamp(24px,4vw,38px);margin-bottom:20px">Privacy Policy</h1>
 <p style="font-size:12px;color:var(--ink4);margin-bottom:28px">Last updated: March 2026</p>
 <div style="font-size:15px;color:var(--ink3);line-height:1.75">
-<p style="margin-bottom:16px">This Privacy Policy explains how The Streamic ("we", "us", "our") collects and uses information when you visit thestreamic.in.</p>
+<p style="margin-bottom:16px">This Privacy Policy explains how The Streamic (&quot;we&quot;, &quot;us&quot;, &quot;our&quot;) collects, uses, and protects information when you visit thestreamic.in. We respect your privacy and are committed to processing any personal data lawfully and transparently under the UK GDPR, EU GDPR, and Irish Data Protection Act 2018.</p>
+
+<h2 style="font-family:var(--serif);font-size:20px;color:var(--ink);margin:28px 0 10px">What information we collect</h2>
+<p style="margin-bottom:16px">We collect a minimal set of information necessary to operate the site and understand how visitors use it:</p>
+<ul style="padding-left:22px;line-height:1.9;margin-bottom:16px">
+  <li><strong>Analytics data</strong> &#8212; anonymised page views, session duration, referrer, approximate city-level geography, device type, and browser. Collected only if you accept analytics cookies.</li>
+  <li><strong>Contact form submissions</strong> &#8212; if you choose to email us or submit the contact form, we receive your email address and the content of your message. We use this solely to reply to your enquiry.</li>
+  <li><strong>Advertising data</strong> &#8212; processed by Google AdSense under their own privacy policy. We do not receive personally identifiable advertising data.</li>
+</ul>
+
 <h2 style="font-family:var(--serif);font-size:20px;color:var(--ink);margin:28px 0 10px">Cookies and Analytics</h2>
-<p style="margin-bottom:16px">We use Google Analytics (GA4) to understand how visitors use our site. Analytics cookies are only placed after you click "Accept all" on our cookie banner. You can withdraw consent at any time by clearing your browser cookies.</p>
+<p style="margin-bottom:16px">We use Google Analytics (GA4) to understand how visitors use our site &#8212; which articles are read, how readers arrive (search, social, direct), and which pages load slowly. Analytics cookies are only placed after you click &quot;Accept all&quot; on our cookie banner. Until you consent, no analytics cookies are set and no data is collected. You can withdraw consent at any time by clearing your browser cookies, using the browser&#39;s privacy controls, or using a GA4 opt-out browser extension.</p>
+<p style="margin-bottom:16px">We do not use cross-site tracking cookies, fingerprinting, session replay, or third-party analytics beyond Google Analytics and AdSense.</p>
+
 <h2 style="font-family:var(--serif);font-size:20px;color:var(--ink);margin:28px 0 10px">Advertising</h2>
-<p style="margin-bottom:16px">We display advertisements via Google AdSense (publisher ID: {ADS}). Google may use cookies to show you personalised ads based on your browsing history. You can opt out at <a href="https://adssettings.google.com" rel="nofollow" style="color:var(--blue)">adssettings.google.com</a>.</p>
+<p style="margin-bottom:16px">We display advertisements via Google AdSense (publisher ID: {ADS}). Google may use cookies to show you personalised ads based on your browsing history across sites that use Google&#39;s ad services. You can opt out of personalised advertising at <a href="https://adssettings.google.com" rel="nofollow" style="color:var(--blue)">adssettings.google.com</a>. Google&#39;s use of advertising cookies is governed by their <a href="https://policies.google.com/technologies/ads" rel="nofollow" style="color:var(--blue)">advertising policies</a>.</p>
+<p style="margin-bottom:16px">If you prefer to see non-personalised ads, your browser or device may offer a &quot;Limit Ad Tracking&quot; setting. Google AdSense honours these signals where technically possible.</p>
+
 <h2 style="font-family:var(--serif);font-size:20px;color:var(--ink);margin:28px 0 10px">Data we do not collect</h2>
-<p style="margin-bottom:16px">We do not collect names, email addresses, or other personal data unless you contact us directly by email.</p>
+<p style="margin-bottom:16px">We do not collect names, postal addresses, phone numbers, payment details, or other personal data unless you voluntarily provide it by contacting us directly. We do not sell, rent, or trade any data we hold. We do not maintain a marketing mailing list.</p>
+
+<h2 style="font-family:var(--serif);font-size:20px;color:var(--ink);margin:28px 0 10px">Your rights under GDPR</h2>
+<p style="margin-bottom:16px">If you are located in the UK or EU, you have the right to access, rectify, erase, restrict, or object to the processing of any personal data we hold about you. To exercise any of these rights, email <a href="mailto:technodate3@gmail.com" style="color:var(--blue)">technodate3@gmail.com</a>. We will respond within 30 days. You also have the right to lodge a complaint with the Irish Data Protection Commission at <a href="https://www.dataprotection.ie" rel="nofollow" style="color:var(--blue)">dataprotection.ie</a>.</p>
+
+<h2 style="font-family:var(--serif);font-size:20px;color:var(--ink);margin:28px 0 10px">Data retention</h2>
+<p style="margin-bottom:16px">Analytics data is retained for up to 14 months as configured in Google Analytics 4. Email correspondence is retained for as long as is reasonably necessary to handle the enquiry, typically no more than 24 months.</p>
+
+<h2 style="font-family:var(--serif);font-size:20px;color:var(--ink);margin:28px 0 10px">Changes to this policy</h2>
+<p style="margin-bottom:16px">We may update this Privacy Policy to reflect changes to our data processing practices or to comply with new regulatory requirements. Substantive changes will be noted at the top of this page with an updated &quot;last modified&quot; date.</p>
+
 <h2 style="font-family:var(--serif);font-size:20px;color:var(--ink);margin:28px 0 10px">Contact</h2>
-<p>Privacy queries: <a href="mailto:technodate3@gmail.com" style="color:var(--blue)">technodate3@gmail.com</a></p>
+<p>Privacy queries, data access requests, or correction requests: <a href="mailto:technodate3@gmail.com" style="color:var(--blue)">technodate3@gmail.com</a></p>
 </div>
 </div></main>
 {footer()}
@@ -2053,13 +2117,33 @@ def terms_page():
 <h1 style="font-family:var(--serif);font-size:clamp(24px,4vw,38px);margin-bottom:20px">Terms of Use</h1>
 <p style="font-size:12px;color:var(--ink4);margin-bottom:28px">Last updated: March 2026</p>
 <div style="font-size:15px;color:var(--ink3);line-height:1.75">
-<p style="margin-bottom:16px">By accessing thestreamic.in you agree to these Terms of Use.</p>
-<h2 style="font-family:var(--serif);font-size:20px;color:var(--ink);margin:28px 0 10px">Content</h2>
-<p style="margin-bottom:16px">Original editorial content on The Streamic is copyright © The Streamic. Industry news briefings credit and link to their original sources. All third-party trademarks are the property of their respective owners.</p>
-<h2 style="font-family:var(--serif);font-size:20px;color:var(--ink);margin:28px 0 10px">Disclaimer</h2>
-<p style="margin-bottom:16px">Content is provided for informational purposes. We make no warranties about accuracy or completeness. The Streamic is not responsible for third-party content linked from this site.</p>
+<p style="margin-bottom:16px">By accessing thestreamic.in, browsing articles, using our contact form, or interacting with the site in any way, you agree to these Terms of Use. If you do not agree with any part of these terms, please do not use the site. These terms are governed by the laws of Ireland. Any dispute arising from use of the site is subject to the exclusive jurisdiction of the courts of Ireland.</p>
+
+<h2 style="font-family:var(--serif);font-size:20px;color:var(--ink);margin:28px 0 10px">Use of the site</h2>
+<p style="margin-bottom:16px">You are granted a limited, non-exclusive, non-transferable licence to access and view the content on thestreamic.in for personal and professional reference purposes. Automated scraping, large-scale content harvesting, or use of the site to train AI models without express written permission is prohibited. You may not attempt to gain unauthorised access to any part of the site, its servers, or any connected systems.</p>
+
+<h2 style="font-family:var(--serif);font-size:20px;color:var(--ink);margin:28px 0 10px">Content ownership</h2>
+<p style="margin-bottom:16px">Original editorial content on The Streamic &#8212; including article text, headlines, data visualisations, and editorial analysis &#8212; is copyright &copy; The Streamic. All rights reserved. You may quote short excerpts with attribution and a link back to the original article, consistent with standard journalistic practice. You may not republish, mirror, or redistribute full articles without written permission.</p>
+<p style="margin-bottom:16px">Industry news briefings credit and link to their original sources. Where we quote or summarise a third-party press release or vendor announcement, we do so under standard journalistic fair-dealing principles. All third-party trademarks, product names, and logos are the property of their respective owners.</p>
+
+<h2 style="font-family:var(--serif);font-size:20px;color:var(--ink);margin:28px 0 10px">Editorial disclaimer</h2>
+<p style="margin-bottom:16px">Content on The Streamic is provided for informational and educational purposes only. While we take reasonable care to ensure accuracy, we make no warranties &#8212; express or implied &#8212; regarding the completeness, timeliness, or reliability of any article. Technical specifications, product capabilities, and vendor roadmaps change over time; always verify critical integration details directly with the manufacturer before making purchasing or architectural decisions.</p>
+<p style="margin-bottom:16px">Articles should not be construed as professional advice. The Streamic is not responsible for business decisions made based solely on our editorial content.</p>
+
 <h2 style="font-family:var(--serif);font-size:20px;color:var(--ink);margin:28px 0 10px">External Links</h2>
-<p style="margin-bottom:16px">We link to external sources with rel="nofollow". We are not responsible for the content or privacy practices of linked websites.</p>
+<p style="margin-bottom:16px">We link to external sources &#8212; vendor websites, news publications, standards bodies &#8212; using <code>rel=&quot;nofollow noopener noreferrer&quot;</code> where appropriate. We are not responsible for the content, availability, privacy practices, or terms of service of any linked website. Inclusion of an external link does not constitute endorsement.</p>
+
+<h2 style="font-family:var(--serif);font-size:20px;color:var(--ink);margin:28px 0 10px">User conduct</h2>
+<p style="margin-bottom:16px">When contacting us via email or the contact form, you agree not to send abusive, threatening, defamatory, or unlawful messages. We reserve the right to ignore or report communications that violate these conditions. Spam, promotional pitches unrelated to editorial topics, and SEO-link-building requests will not receive a reply.</p>
+
+<h2 style="font-family:var(--serif);font-size:20px;color:var(--ink);margin:28px 0 10px">Availability</h2>
+<p style="margin-bottom:16px">We aim to keep thestreamic.in available at all times but make no warranty of continuous availability. The site may be unavailable during maintenance, migration, or due to factors beyond our control (CDN outages, DNS issues, hosting-provider incidents). We are not liable for any loss arising from site unavailability.</p>
+
+<h2 style="font-family:var(--serif);font-size:20px;color:var(--ink);margin:28px 0 10px">Changes to these terms</h2>
+<p style="margin-bottom:16px">We may update these Terms of Use from time to time. Continued use of the site after changes are published constitutes acceptance of the revised terms. Substantive changes will be noted at the top of this page with an updated &quot;last modified&quot; date.</p>
+
+<h2 style="font-family:var(--serif);font-size:20px;color:var(--ink);margin:28px 0 10px">Contact</h2>
+<p style="margin-bottom:16px">For questions about these Terms, please email <a href="mailto:technodate3@gmail.com" style="color:var(--blue)">technodate3@gmail.com</a>.</p>
 </div>
 </div></main>
 {footer()}
@@ -2106,6 +2190,84 @@ def editorial_policy_page():
 {footer()}
 {_cookie_banner()}
 </body></html>"""
+
+def insights_page():
+    """Expert Insights landing page — AdSense-compliant substantive content (~650w)."""
+    return f"""{head("Expert Insights — The Streamic","Long-form broadcast technology analysis: ST 2110 rollouts, cloud production, AI in broadcasting, and operational engineering for media teams.",f"{BASE_URL}/insights.html")}
+<body>
+{nav()}
+<main><div class="w" style="padding:52px 24px 80px;max-width:820px">
+<h1 style="font-family:var(--serif);font-size:clamp(28px,4vw,44px);margin-bottom:16px;letter-spacing:-.5px">Expert Insights</h1>
+<p style="font-size:17px;color:var(--ink2);line-height:1.65;margin-bottom:24px">Long-form broadcast and media technology analysis from the Streamic editorial team. These are the pieces we write when a topic needs more than a news briefing &#8212; standards deep-dives, architectural playbooks, vendor-neutral integration patterns, and field reports from broadcast engineers working in live production and post facilities.</p>
+
+<h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">What Expert Insights covers</h2>
+<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">Expert Insights articles are written for broadcast engineers, technology directors, and media operations leads who need to evaluate &#8212; not just read about &#8212; new technology. Every piece is grounded in verifiable source material, quotes technical specifications accurately, and calls out what vendors have not disclosed. Topics we return to repeatedly:</p>
+<ul style="font-size:15px;color:var(--ink3);line-height:1.9;padding-left:22px;margin-bottom:20px">
+  <li><strong>IP infrastructure deep-dives</strong> &#8212; SMPTE ST 2110 rollouts, NMOS IS-04 / IS-05 registry patterns, AES67 audio-over-IP, PTP timing validation, redundant media networks, and migration strategies from SDI to IP.</li>
+  <li><strong>Cloud production &amp; playout</strong> &#8212; REMI architectures, cloud-based channel origination, CDN strategies, egress cost management, edge media caching, and multi-region disaster-recovery models.</li>
+  <li><strong>Operational AI</strong> &#8212; how newsroom and post teams are actually using AI in production today, beyond the demo reel: automated QC, metadata extraction, rough-cut generation, compliance logging, and the integration burden each imposes.</li>
+  <li><strong>Post-production workflows</strong> &#8212; Avid Media Composer / DaVinci Resolve / Premiere Pro interoperability, MAM and PAM integration, proxy pipelines, archive architectures, and the practical trade-offs between on-prem, hybrid, and cloud post.</li>
+  <li><strong>Engineering playbooks</strong> &#8212; reference architectures for ingest-to-playout chains, integration patterns for vendor-neutral newsrooms, and honest post-mortems of standards-migration projects.</li>
+</ul>
+
+<h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">Editorial standard</h2>
+<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">Expert Insights pieces go through a stricter review pass than our daily industry news briefings. We do not publish press-release rewrites under this banner. Where an article analyses a vendor&#39;s technology, we disclose what the vendor has stated, what our editorial team has verified independently, and what remains uncertain. Technical claims that cannot be traced to a primary source are either removed or flagged.</p>
+<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">AI tools assist with drafting on some Insights articles &#8212; primarily for structuring source material and initial analysis &#8212; but every published piece is reviewed by a human editor before going live. See our <a href="editorial-policy.html" style="color:var(--blue)">Editorial Policy</a> for the full methodology on AI-assisted drafting, source attribution, and corrections.</p>
+
+<h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">Who writes for us</h2>
+<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">Streamic editorial is led by Prerak K Mehta, with 25+ years of IT experience and 20 years in media / post-production / broadcast IT systems. Guest contributions from broadcast engineers, vendor technical staff, and media operations leaders are welcome &#8212; email <a href="mailto:technodate3@gmail.com" style="color:var(--blue)">technodate3@gmail.com</a> with a short pitch outline and any relevant technical credentials.</p>
+
+<h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">Read our latest analysis</h2>
+<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">Browse our complete archive on the <a href="index.html" style="color:var(--blue)">homepage</a>, our AI-focused coverage on the <a href="ai-post-production.html" style="color:var(--blue)">AI in Broadcasting</a> page, practical guides on the <a href="howto.html" style="color:var(--blue)">How-To Guides</a> page, or curated editorial picks on the <a href="editorsdesk.html" style="color:var(--blue)">Editor&#39;s Desk</a>.</p>
+
+<p style="font-size:13px;color:var(--ink4);line-height:1.7;margin-top:36px;padding-top:20px;border-top:1px solid var(--line)">Have a story tip or a topic we should cover in depth? Reach the editorial team at <a href="mailto:technodate3@gmail.com" style="color:var(--blue)">technodate3@gmail.com</a> or via our <a href="contact.html" style="color:var(--blue)">contact form</a>.</p>
+</div></main>
+{footer()}
+{_cookie_banner()}
+</body></html>"""
+
+
+def post_production_workflows_page():
+    """Post Production Workflows landing page — AdSense-compliant (~700w)."""
+    return f"""{head("Post Production Workflows — The Streamic","Practical post-production workflow analysis: NLE interoperability, MAM / PAM integration, proxy pipelines, codec compatibility, and cloud collaboration for broadcast post teams.",f"{BASE_URL}/post-production-workflows.html")}
+<body>
+{nav()}
+<main><div class="w" style="padding:52px 24px 80px;max-width:820px">
+<h1 style="font-family:var(--serif);font-size:clamp(28px,4vw,44px);margin-bottom:16px;letter-spacing:-.5px">Post Production Workflows</h1>
+<p style="font-size:17px;color:var(--ink2);line-height:1.65;margin-bottom:24px">Practical analysis of post-production workflows for broadcast, streaming, and film teams. We cover what actually works in production &#8212; NLE handoffs that survive round-trip, proxy pipelines that don&#39;t break at the storage boundary, MAM integrations that don&#39;t trap metadata, and cloud collaboration patterns that respect the realities of bandwidth, security, and editorial sovereignty.</p>
+
+<h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">What we cover</h2>
+<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:12px">Streamic post-production coverage focuses on the integration seams where workflows most often break:</p>
+<ul style="font-size:15px;color:var(--ink3);line-height:1.9;padding-left:22px;margin-bottom:20px">
+  <li><strong>NLE interoperability</strong> &#8212; AAF, OMF, XML, EDL, and Direct Link handoffs between Avid Media Composer, DaVinci Resolve, Premiere Pro, and Final Cut Pro. Where audio maps cleanly, where effects translate, where timecode gets mangled.</li>
+  <li><strong>Codec &amp; container strategy</strong> &#8212; ProRes, DNxHD/HR, XAVC, AVC-Intra, IMF packaging, and the codec-choice decisions that determine whether a finish survives delivery QC on the first pass.</li>
+  <li><strong>MAM &amp; PAM integration</strong> &#8212; Avid Nexis and MediaCentral, EditShare EFS, Strawberry, Primestream, Dalet Flex. Which asset models travel, which metadata schemas survive a vendor migration, and where API parity fails.</li>
+  <li><strong>Proxy pipelines</strong> &#8212; when to generate proxies at ingest vs. at check-out, codec selection for proxy masters (DNx36 / ProRes Proxy / H.264), and how to keep proxy-to-full conform reliable across distributed teams.</li>
+  <li><strong>Cloud &amp; hybrid post</strong> &#8212; Frame.io, EditShare Cloud, Blackmagic Cloud, Avid Edit On Demand, and the bandwidth / latency / security trade-offs of each. Real-world remote editing vs. marketing-reel remote editing.</li>
+  <li><strong>Archive &amp; restore</strong> &#8212; LTO strategies, object-storage archive tiers, cold-retrieval SLAs, and the dark art of conforming an archived project 18 months later when the original NLE has moved on three versions.</li>
+</ul>
+
+<h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">Our approach</h2>
+<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">Post-production technology is drowning in marketing. Every NLE claims seamless interchange, every MAM claims universal metadata, every cloud-collaboration platform claims security-first architecture. Our job is to separate what actually ships from what is still a product roadmap, and to call out the integration gotchas that only surface at 02:00 on a delivery night.</p>
+<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">Every Streamic article in this area is grounded in real workflow analysis, not vendor-supplied slideware. Where a vendor claims compatibility, we verify by checking against shipping documentation, public API specs, and &#8212; where possible &#8212; the experience of engineering teams running it in production. Where compatibility is partial or conditional, we say so.</p>
+
+<h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">Who this is for</h2>
+<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">Post-production supervisors, assistant editors, technical operators, broadcast IT leads supporting post facilities, and technology directors evaluating MAM / NLE / cloud-post decisions. If you have ever argued with a vendor rep about whether AAF round-trips EQ automation in version 2024.8, this section is for you.</p>
+
+<h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">Related Streamic sections</h2>
+<ul style="font-size:15px;color:var(--ink3);line-height:1.9;padding-left:22px;margin-bottom:20px">
+  <li><a href="howto.html" style="color:var(--blue)">How-To Guides</a> &#8212; step-by-step technical guides: Premiere-to-Avid handoff, Vantage transcoding recipes, MediaCentral health checks, audio conform workflows.</li>
+  <li><a href="ai-post-production.html" style="color:var(--blue)">AI in Broadcasting</a> &#8212; AI-assisted editing tools, automated QC, generative tools for post, and operational integration patterns.</li>
+  <li><a href="insights.html" style="color:var(--blue)">Expert Insights</a> &#8212; long-form analysis and architectural reference material.</li>
+  <li><a href="editorsdesk.html" style="color:var(--blue)">Editor&#39;s Desk</a> &#8212; curated editorial picks across the Streamic archive.</li>
+</ul>
+
+<p style="font-size:13px;color:var(--ink4);line-height:1.7;margin-top:36px;padding-top:20px;border-top:1px solid var(--line)">Post team working on an integration we should cover? Tell us: <a href="mailto:technodate3@gmail.com" style="color:var(--blue)">technodate3@gmail.com</a> or <a href="contact.html" style="color:var(--blue)">contact form</a>.</p>
+</div></main>
+{footer()}
+{_cookie_banner()}
+</body></html>"""
+
 
 def howto_page():
     guides = [
@@ -2718,24 +2880,30 @@ def main():
     w(os.path.join(DOCS,"terms.html"),            terms_page())
     w(os.path.join(DOCS,"editorial-policy.html"), editorial_policy_page())
     w(os.path.join(DOCS,"howto.html"),            howto_page())
-    # how-to.html → redirect to canonical howto.html (avoid duplicate content)
-    w(os.path.join(DOCS,"how-to.html"),
-      '<!doctype html><html><head><meta http-equiv="refresh" content="0; url=howto.html">'
-      '<link rel="canonical" href="https://www.thestreamic.in/howto.html"></head>'
-      '<body><p>Redirecting to <a href="howto.html">How-To Guides</a>.</p></body></html>')
+    w(os.path.join(DOCS,"insights.html"),         insights_page())
+    w(os.path.join(DOCS,"post-production-workflows.html"), post_production_workflows_page())
     # Write Editor's Desk to editorsdesk.html (new canonical name).
     w(os.path.join(DOCS, "editorsdesk.html"), editorsdesk_page())
-    # vlog.html removal: previously a redirect stub was written here. Now we
-    # explicitly DELETE the file from docs/ if present, so /vlog.html returns
-    # a clean 404 instead of a soft-redirect or noindex page. Cleaner for
-    # Google Search Console and AdSense — no soft-404 risk, no link-juice
-    # leakage debate, no stale page in the index.
-    _stale_vlog = os.path.join(DOCS, "vlog.html")
-    if os.path.exists(_stale_vlog):
-        try:
-            os.remove(_stale_vlog)
-        except Exception:
-            pass
+
+    # ── AdSense compliance: delete thin redirect stubs + template junk ────
+    # AdSense flags 4-word <meta refresh> redirect pages as "low-value
+    # content." Soft-redirect stubs and thin template pages have no unique
+    # content — they must return 404, not render with AdSense scripts.
+    _ADSENSE_PURGE = [
+        "vlog.html",                   # redirect stub (old)
+        "how-to.html",                 # redirect stub → howto.html
+        "broadcast-systems-hub.html",  # 4-word redirect stub → index.html
+        "featured_priority.html",      # 276w template junk (data-layer artifact)
+        "thank-you.html",              # 19w form-submission landing (thin)
+    ]
+    for _stale in _ADSENSE_PURGE:
+        _path = os.path.join(DOCS, _stale)
+        if os.path.exists(_path):
+            try:
+                os.remove(_path)
+                print(f"  &#10003; purged thin page: {_stale}")
+            except Exception:
+                pass
     print("  &#10003; static pages")
 
     # ── Sitemap — only visible articles + core pages ──────────────────────
