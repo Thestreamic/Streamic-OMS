@@ -1,40 +1,49 @@
-name: The Streamic — Full Content Pipeline
+name: The Streamic — RSS Pipeline (Auto-AI Disabled)
 
 # ═══════════════════════════════════════════════════════════════════════════
-# DAILY SCHEDULE (all times UTC):
+# AUTOMATIC AI GENERATION IS DISABLED
+# ═══════════════════════════════════════════════════════════════════════════
+# As of Stage 2 of AdSense compliance work (April 2026), all auto-AI
+# generation has been disabled to:
+#   1. Stop wasting Gemini/Mistral/Groq/OpenRouter free tokens on articles
+#      that get 410-purged at build time anyway (Stage 1 keep rule).
+#   2. Move all article generation to MANUAL via the admin dashboard:
+#      https://www.thestreamic.in/admin.html
 #
-#  08:10  Full AI Run     — Gemini (220 articles, 37min) + Groq backup + build
-#  12:00  RSS Refresh     — Fetch new RSS + build (no heavy AI, stays fast)
-#  16:00  RSS Refresh     — Fetch new RSS + build
-#  20:00  Groq Top-up     — Groq card summaries for any gaps + build
+# WHAT STILL RUNS AUTOMATICALLY:
+#   - fetch_rss.py     → keeps data/news.json fresh for the admin dashboard
+#   - rewrite_feed.py  → enriches data/generated_articles.json metadata
+#                        (no AI call — just structural rewrite)
+#   - generate_editorial.py → 5 hand-templated long-form editorials
+#                             (uses local templates, no API calls)
+#   - build.py         → renders the static site
 #
-# Gemini free tier: 1,500 req/day resets at midnight Pacific (08:00 UTC) → run at 08:10
-# Groq free tier: 100k tokens/day resets independently → run at 00:05 + 18:00
+# WHAT IS DISABLED (kept for re-enabling later):
+#   - generate.js (Groq long-form Node.js) — STAGE 1
+#   - generate_mistral.py (Mistral tier-1)  — STAGE 5
+#   - generate_gemini.py  (Gemini tier-2)   — STAGE 5b-Gemini
+#   - generate_summaries.py (Groq tier-2b)  — STAGE 5b-Groq
+#   - generate_openrouter.py (OpenRouter)   — STAGE 5c
+#
+# TO RE-ENABLE:  flip `if: false` to the original mode condition.
 # ═══════════════════════════════════════════════════════════════════════════
 
 on:
   schedule:
-    - cron: "10 8 * * *"   # 08:10 UTC daily  — Full AI run (Gemini resets at midnight Pacific = 08:00 UTC)
-    - cron: "0 12 * * *"   # 12:00 UTC daily  — RSS refresh only
-    - cron: "0 16 * * *"   # 16:00 UTC daily  — RSS refresh only
-    - cron: "0 20 * * *"   # 20:00 UTC daily  — Groq top-up + RSS
-    - cron: "30 8 * * 6"   # 08:30 UTC Saturday — Vendor Hub weekly automation
-    #                         (runs after Gemini daily quota resets at 08:00 UTC)
-    #                         IST equivalent: 14:00 IST Saturday
+    # Reduced from 4× to 2× daily — RSS doesn't need that often
+    - cron: "0 8 * * *"   # 08:00 UTC daily — RSS refresh + editorial + build
+    - cron: "0 20 * * *"  # 20:00 UTC daily — RSS refresh + editorial + build
   workflow_dispatch:
     inputs:
       run_mode:
         description: "What to run"
         required: false
-        default: "full"
+        default: "rss_only"
         type: choice
         options:
-          - "full"          # Full AI + RSS + build
-          - "rss_only"      # RSS fetch + build (no AI)
-          - "groq_only"     # Groq summaries + build (no Gemini)
-          - "gemini_only"   # Gemini + build
-          - "build_only"    # Build only (no fetch, no AI)
-          - "vendor_hub"    # Generate broadcast systems hub page only
+          - "rss_only"      # RSS fetch + rewrite + editorial + build (DEFAULT)
+          - "build_only"    # Build only — no RSS fetch
+          - "full"          # ⚠ Re-enables all AI steps (use sparingly)
 
 permissions:
   contents: write
@@ -44,7 +53,6 @@ env:
   NODE_VERSION:    "24"
   PYTHON_VERSION:  "3.11"
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
-  # Shared secrets — declared once here to avoid duplicate step-level env keys
   MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
   GEMINI_API_KEY:  ${{ secrets.GEMINI_API_KEY }}
   GROQ_API_KEY:    ${{ secrets.GROQ_API_KEY }}
@@ -52,9 +60,9 @@ env:
 
 jobs:
   generate-and-build:
-    name: Generate Articles & Build Site
+    name: RSS Refresh & Build Site
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 20
 
     steps:
       - name: Checkout repository
@@ -79,68 +87,47 @@ jobs:
       - name: Install Python dependencies
         run: pip install feedparser beautifulsoup4 python-slugify requests
 
-      # ── Determine which mode to run ────────────────────────────────────────
-      # Scheduled runs: detect by hour (UTC)
-      # Manual runs: use run_mode input
+      # ── Determine run mode ─────────────────────────────────────────────────
       - name: Set run mode
         id: mode
         run: |
-          HOUR=$(date -u +%H)
-          DOW=$(date -u +%u)   # 1=Mon … 6=Sat … 7=Sun
           INPUT="${{ github.event.inputs.run_mode }}"
-
-          if [ -n "$INPUT" ]; then
-            MODE="$INPUT"
-          elif [ "$HOUR" = "08" ] && [ "$DOW" = "6" ]; then
-            MODE="vendor_hub"  # 08:30 UTC Saturday — weekly vendor hub
-          elif [ "$HOUR" = "08" ]; then
-            MODE="full"        # 08:10 UTC weekdays — full AI run
-          elif [ "$HOUR" = "20" ]; then
-            MODE="groq_only"   # 20:00 UTC — Groq top-up
-          else
-            MODE="rss_only"    # 12:00, 16:00 — RSS refresh
-          fi
-
+          MODE="${INPUT:-rss_only}"
           echo "mode=$MODE" >> $GITHUB_OUTPUT
-          echo "🕐 Hour: $HOUR | Day: $DOW | Mode: $MODE"
+          echo "🕐 Mode: $MODE"
 
-      # ── STAGE 1: Groq long-form articles (Node.js) — full + groq_only ──────
-      - name: "Stage 1: Groq long-form articles (Node.js)"
-        if: steps.mode.outputs.mode == 'full' || steps.mode.outputs.mode == 'groq_only'
+      # ═══════════════════════════════════════════════════════════════════════
+      # DISABLED: Stage 1 — Groq long-form articles (Node.js)
+      # ═══════════════════════════════════════════════════════════════════════
+      - name: "Stage 1: Groq long-form articles (DISABLED — use admin.html)"
+        if: false  # was: steps.mode.outputs.mode == 'full' || steps.mode.outputs.mode == 'groq_only'
         env:
           HF_API_KEY: ${{ secrets.GROQ_API_KEY }}
         run: |
           echo "🤖 Groq long-form generation (llama-3.3-70b-versatile)..."
           node scripts/generate.js || echo "⚠ Groq Node step failed — continuing"
 
-      # ── STAGE 2: RSS fetch — full + rss_only + groq_only ──────────────────
+      # ── STAGE 2: RSS fetch (always — feeds admin dashboard) ───────────────
       - name: "Stage 2: Fetch RSS feeds"
-        if: steps.mode.outputs.mode != 'build_only' && steps.mode.outputs.mode != 'gemini_only'
+        if: steps.mode.outputs.mode != 'build_only'
         run: |
           python3 scripts/fetch_rss.py
           echo "✓ RSS fetch complete"
 
-      # ── STAGE 3: Rewrite RSS → article cards ──────────────────────────────
+      # ── STAGE 3: Rewrite RSS → article cards (no AI calls) ────────────────
       - name: "Stage 3: Rewrite RSS to article cards"
-        if: steps.mode.outputs.mode != 'build_only' && steps.mode.outputs.mode != 'gemini_only'
+        if: steps.mode.outputs.mode != 'build_only'
         run: |
           python3 scripts/rewrite_feed.py
           echo "✓ RSS rewrite complete"
 
-      # ── STAGE 4: Editorial deep-dives (always) ────────────────────────────
+      # ── STAGE 4: Editorial deep-dives (always — local templates, no API) ──
       - name: "Stage 4: Generate editorial articles"
         run: python3 scripts/generate_editorial.py
 
-      # ── STAGE 4b: Vendor Hub weekly automation ───────────────────────────
-      # SCHEDULE: Every Saturday at 08:30 UTC (after Gemini quota resets at 08:00 UTC)
-      # WEEKLY MODE: Generates WEEKLY_NEW=5 new vendors + refreshes 2 stale ones
-      # MANUAL FULL: Set run_mode=vendor_hub to run up to MAX_CALLS_PER_RUN=25
-      # IDEMPOTENT:  data/vendor_hub.json caches all generated briefs —
-      #              re-running only processes uncached or stale vendors
-      # ── STAGE 4b: Broadcast Systems Hub — DISABLED ────────────────────────
-      # Previously ran on Saturday at 08:30 UTC to generate vendor hub pages.
-      # Disabled per product decision — re-enable by changing `if: false` to
-      # `if: steps.mode.outputs.mode == 'vendor_hub'` when needed.
+      # ═══════════════════════════════════════════════════════════════════════
+      # DISABLED: Stage 4b — Vendor Hub
+      # ═══════════════════════════════════════════════════════════════════════
       - name: "Stage 4b: Broadcast Systems Hub (DISABLED)"
         if: false
         env:
@@ -149,53 +136,49 @@ jobs:
           echo "🏭 Vendor Hub — Mode: $VENDOR_HUB_MODE"
           python3 scripts/generate_vendor_hub.py || echo "⚠ Vendor hub incomplete — cached vendors preserved"
 
-      # ── STAGE 5: Mistral AI (PRIMARY — tier-1) ─────────────────────────────
-      # Free tier: 1 billion tokens/month per model, no daily cap.
-      # Uses live source-page fetch for 100% factual grounding.
-      # Set MISTRAL_API_KEY in repo secrets to activate.
-      - name: "Stage 5: Mistral AI articles (PRIMARY — tier-1)"
-        if: steps.mode.outputs.mode == 'full' || steps.mode.outputs.mode == 'mistral_only'
+      # ═══════════════════════════════════════════════════════════════════════
+      # DISABLED: Stage 5 — Mistral AI (PRIMARY)
+      # Was burning ~15 articles/run that immediately got 410-purged.
+      # Re-enable by flipping `if: false` → original condition.
+      # ═══════════════════════════════════════════════════════════════════════
+      - name: "Stage 5: Mistral AI articles (DISABLED — use admin.html)"
+        if: false
         env:
           MISTRAL_MAX_PER_RUN: "15"
-          MISTRAL_TEMPERATURE: "0.35"
-          MISTRAL_TOP_P: "0.9"
-          MISTRAL_FREQUENCY_PENALTY: "0.2"
+          MISTRAL_TEMPERATURE: "0.1"
           MISTRAL_FETCH_SOURCE: "true"
         run: python3 scripts/generate_mistral.py || echo "Mistral step skipped"
 
-      # ── STAGE 5b: Gemini (tier-2) — full + gemini_only ─────────────────────
-      # Processes articles Mistral did not reach. Tight free-tier quota.
-      - name: "Stage 5b: Gemini AI articles (tier-2)"
-        if: steps.mode.outputs.mode == 'full' || steps.mode.outputs.mode == 'gemini_only'
+      # ═══════════════════════════════════════════════════════════════════════
+      # DISABLED: Stage 5b — Gemini (tier-2)
+      # ═══════════════════════════════════════════════════════════════════════
+      - name: "Stage 5b: Gemini AI articles (DISABLED — use admin.html)"
+        if: false
         env:
           ENABLE_GEMINI_PREMIUM: "true"
           GEMINI_MAX_PER_RUN: "6"
         run: python3 scripts/generate_gemini.py || echo "Gemini step skipped"
 
-      # ── STAGE 5b: Groq card summaries (SECONDARY — tier-2) ────────────────
-      # Fills gaps Gemini missed. Also runs at 20:00 UTC for top-up.
-      - name: "Stage 5b: Groq card summaries (tier-2 fallback)"
-        if: steps.mode.outputs.mode == 'full' || steps.mode.outputs.mode == 'groq_only'
+      # ═══════════════════════════════════════════════════════════════════════
+      # DISABLED: Stage 5b — Groq card summaries (tier-2 fallback)
+      # ═══════════════════════════════════════════════════════════════════════
+      - name: "Stage 5b: Groq card summaries (DISABLED — use admin.html)"
+        if: false
         env:
           GROQ_PREMIUM_ONLY: "true"
           MAX_PER_RUN: "8"
-          GROQ_TEMPERATURE: "0.35"
-          GROQ_TOP_P: "0.9"
-          GROQ_FREQUENCY_PENALTY: "0.2"
         run: python3 ./scripts/generate_summaries.py || echo "Groq step skipped"
 
-      # ── STAGE 5c: OpenRouter reasoning models (tier-3 fallback) ───────────
-      # Free cascade across 5 models — auto-router + Nemotron + gpt-oss +
-      # Llama 3.3 + Qwen3. Catches whatever Mistral/Gemini/Groq couldn't.
-      # Requires OPENROUTER_API_KEY repo secret (free at openrouter.ai/keys).
-      - name: "Stage 5c: OpenRouter reasoning models (tier-3 fallback)"
-        if: steps.mode.outputs.mode == 'full' || steps.mode.outputs.mode == 'groq_only'
+      # ═══════════════════════════════════════════════════════════════════════
+      # DISABLED: Stage 5c — OpenRouter reasoning models
+      # ═══════════════════════════════════════════════════════════════════════
+      - name: "Stage 5c: OpenRouter reasoning models (DISABLED — use admin.html)"
+        if: false
         env:
           OPENROUTER_MAX_PER_RUN: "5"
-          OPENROUTER_TEMPERATURE: "0.35"
-          OPENROUTER_TOP_P: "0.9"
-          OPENROUTER_FREQUENCY_PENALTY: "0.2"
-          OPENROUTER_PRESENCE_PENALTY: "0.0"
+          OPENROUTER_TEMPERATURE: "0.1"
+          OPENROUTER_TOP_P: "0.95"
+          OPENROUTER_PRESENCE_PENALTY: "0.1"
         run: python3 ./scripts/generate_openrouter.py || echo "OpenRouter step skipped"
 
       # ── STAGE 6: Build static site (always) ───────────────────────────────
@@ -206,7 +189,7 @@ jobs:
           echo "Pages:    $(find docs -maxdepth 1 -name '*.html' | wc -l)"
           echo "Articles: $(find docs/articles -name '*.html' 2>/dev/null | wc -l)"
 
-      # ── STAGE 7: Verify ────────────────────────────────────────────────────
+      # ── STAGE 7: Verify build output ──────────────────────────────────────
       - name: Verify build output
         run: |
           test -f docs/index.html    || (echo "❌ index.html missing"   && exit 1)
@@ -215,7 +198,7 @@ jobs:
           test -f docs/sitemap.xml   || (echo "❌ sitemap.xml missing"   && exit 1)
           echo "✅ All required files present"
 
-      # ── STAGE 8: Commit ────────────────────────────────────────────────────
+      # ── STAGE 8: Commit changes ───────────────────────────────────────────
       - name: Commit generated content
         run: |
           git config user.name  "Streamic Bot"
@@ -227,7 +210,7 @@ jobs:
           if git diff --cached --quiet; then
             echo "No changes to commit."
           else
-            git commit -m "build: auto-refresh [$(date -u +%H:%M) UTC] [skip ci]"
+            git commit -m "build: rss refresh + editorial [$(date -u +%H:%M) UTC] [skip ci]"
             git fetch origin main
             git merge origin/main --no-edit -s recursive -X ours 2>/dev/null || \
               git merge origin/main --no-edit || true
