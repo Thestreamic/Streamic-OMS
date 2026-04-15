@@ -27,6 +27,94 @@ VISIBLE_CAT    = "ai-post-production"  # only this category page is indexed
 MIN_BODY_SCORE = 50          # minimum editorial score to appear on homepage
 MIN_ARTICLE_WORDS = 500      # hard quality gate — matches AI-upgraded output; scaffolds blocked separately by _is_ai_upgraded()
 
+# ─────────────────────────────────────────────────────────────────────────────
+# ADSENSE STAGE 1 — DESTRUCTIVE PURGE OF NON-EDITORIAL CONTENT
+# ─────────────────────────────────────────────────────────────────────────────
+# When ADSENSE_STAGE1 = True, build.py will:
+#   1. RENDER HTML only for articles passing _stage1_should_publish()
+#   2. SERVE 410 Gone responses for all other previously-published article URLs
+#      (writes a tiny stub HTML with <meta name="robots" content="noindex">,
+#      <link rel="canonical"> pointing to homepage, and a clear "page removed"
+#      message so Google de-indexes the URL fast).
+#   3. EXCLUDE purged articles from sitemap.xml and homepage feeds entirely.
+#   4. Leave data/generated_articles.json + the RSS pipeline untouched so the
+#      content can be re-enabled later by flipping this flag back to False.
+#
+# KEEP rule (Stage 1):
+#   - Article category == 'ai-post-production' AND was AI-upgraded, OR
+#   - Article generated_by == 'gpt_manual_editorial'
+#   Everything else (raw RSS scaffolds, AI-upgraded non-ai-post-prod) → 410.
+ADSENSE_STAGE1 = True
+
+
+def _stage1_should_publish(a) -> bool:
+    """Return True if this article survives the Stage 1 keep rule.
+
+    Used by build.py to decide which articles get rendered as full HTML pages
+    vs. which get a 410 Gone stub. Has no effect when ADSENSE_STAGE1 = False.
+    """
+    if not ADSENSE_STAGE1:
+        return True  # back to normal quality-gate-only behaviour
+    gb = (a.get("generated_by") or "").lower()
+    # Keep all hand-written editorials regardless of category
+    if gb == "gpt_manual_editorial":
+        return True
+    # Keep ai-post-production articles only if AI-upgraded
+    if a.get("category") == "ai-post-production":
+        if not gb or gb in ("rewrite_feed_local", "rewrite_feed"):
+            return False
+        ai_markers = ("mistral", "gemini", "groq", "openrouter", "deepseek", "generate_summaries")
+        return any(m in gb for m in ai_markers)
+    return False
+
+
+def _stage1_gone_html(slug: str, title: str = "") -> str:
+    """Return the 410 Gone stub HTML for a purged article URL.
+
+    Includes:
+      - <meta name="robots" content="noindex,nofollow"> so Google drops it
+      - <link rel="canonical" href="{BASE_URL}/"> pointing to homepage
+      - HTTP 410 semantic via meta tag (GitHub Pages can't set real 410 status,
+        but the noindex + canonical + visible "page removed" message is what
+        actually drives de-indexing in practice)
+      - Minimal body explaining the removal so it's not a soft-404
+    """
+    safe_title = title.replace("<", "&lt;").replace(">", "&gt;") if title else "Removed Page"
+    return f"""<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex,nofollow">
+<meta name="googlebot" content="noindex,nofollow,noarchive">
+<link rel="canonical" href="{BASE_URL}/">
+<title>Page Removed &mdash; The Streamic</title>
+<meta http-equiv="status" content="410 Gone">
+<meta name="description" content="This page has been permanently removed from The Streamic.">
+<style>
+  body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:640px;margin:80px auto;padding:0 24px;color:#1a1a1a;line-height:1.6}}
+  h1{{font-size:28px;margin-bottom:16px;color:#0a0a0a}}
+  p{{font-size:16px;color:#444;margin-bottom:14px}}
+  a{{color:#0066cc;text-decoration:none;font-weight:500}}
+  a:hover{{text-decoration:underline}}
+  .meta{{font-size:13px;color:#888;margin-top:32px;padding-top:16px;border-top:1px solid #eee}}
+</style>
+</head>
+<body>
+  <h1>This page has been removed</h1>
+  <p>The article you are looking for is no longer available on The Streamic. We have streamlined our editorial archive to focus on long-form analysis and original commentary.</p>
+  <p>You may be looking for:</p>
+  <ul>
+    <li><a href="{BASE_URL}/">The Streamic homepage</a> &mdash; latest editorial coverage</li>
+    <li><a href="{BASE_URL}/ai-post-production.html">AI in Broadcasting</a> &mdash; our active focus area</li>
+    <li><a href="{BASE_URL}/insights.html">Expert Insights</a> &mdash; long-form analysis</li>
+    <li><a href="{BASE_URL}/howto.html">How-To Guides</a> &mdash; practical technical guides</li>
+  </ul>
+  <p class="meta">HTTP 410 Gone &middot; This URL is permanent and will not be reinstated.</p>
+</body>
+</html>"""
+
+
+
 # ── Broadcast & Media IT relevance terms ──────────────────────────────────────
 # Articles must contain at least 2 of these terms (case-insensitive) to pass.
 # This keeps the site focused on genuine broadcast engineering content.
@@ -838,7 +926,14 @@ def _passes_quality_gate(a):
     Raw RSS rewrites (rewrite_feed_local) appear on the site for navigation
     but carry <meta robots="noindex,nofollow">. This is the defence against
     AdSense "Low value content" rejection.
+
+    STAGE 1 (when ADSENSE_STAGE1=True): also enforces _stage1_should_publish()
+    so only ai-post-production AI-upgraded + hand-written editorials survive.
     """
+    # ── STAGE 1 keep-rule (highest priority, runs before all other gates) ──
+    if ADSENSE_STAGE1 and not _stage1_should_publish(a):
+        return False, f"stage1 purge (cat={a.get('category','?')}, gb={a.get('generated_by') or 'empty'!r})"
+
     body = a.get("body_html", "") or ""
     plain = re.sub(r"<[^>]+>", " ", body)
     plain = re.sub(r"\s+", " ", plain).strip()
@@ -2866,18 +2961,38 @@ def main():
     # ── Article pages — visible indexed, rest noindex ─────────────────────
     # Any article file containing <!-- HAND_AUTHORED --> is never overwritten.
     # Add that comment to any article you edit manually to protect it permanently.
+    #
+    # STAGE 1 ADSENSE PURGE: when ADSENSE_STAGE1=True, articles that fail
+    # _stage1_should_publish() get a 410 Gone stub instead of a full HTML page.
+    # The stub carries noindex + canonical→homepage so Google de-indexes fast.
     written = 0
+    purged_410 = 0
+    purged_slugs = set()
     for a in arts:
         slug_ = a.get("slug","")
         leg   = a.get("legacy_slug")
         dest  = os.path.join(ARTS_D, f"{slug_}.html")
 
-        # Skip if file exists and is hand-authored
+        # Skip if file exists and is hand-authored — never touch
         if os.path.exists(dest):
             with open(dest, encoding="utf-8") as _fh:
                 if "<!-- HAND_AUTHORED -->" in _fh.read():
                     written += 1
                     continue
+
+        # ── STAGE 1 purge: write 410 Gone stub instead of full article ──
+        if ADSENSE_STAGE1 and not _stage1_should_publish(a):
+            stub = _stage1_gone_html(slug_, a.get("title", ""))
+            w(dest, stub)
+            purged_410 += 1
+            purged_slugs.add(slug_)
+            if leg and leg != slug_:
+                leg_dest = os.path.join(ARTS_D, f"{leg}.html")
+                if not (os.path.exists(leg_dest) and "<!-- HAND_AUTHORED -->" in open(leg_dest, encoding="utf-8").read()):
+                    w(leg_dest, stub)
+                    purged_410 += 1
+                    purged_slugs.add(leg)
+            continue
 
         html  = article_page(a)
         if a["slug"] not in visible_slugs:
@@ -2892,7 +3007,36 @@ def main():
             if not (os.path.exists(leg_dest) and "<!-- HAND_AUTHORED -->" in open(leg_dest, encoding="utf-8").read()):
                 w(leg_dest, html)
                 written += 1
-    print(f"  &#10003; {written} article files ({len(visible_slugs)} indexed, {written-len(visible_slugs)} noindex)")
+    if ADSENSE_STAGE1:
+        print(f"  &#10003; {written} article files rendered ({len(visible_slugs)} indexed)")
+        print(f"  &#10003; {purged_410} article URLs serving 410 Gone stub (Stage 1 purge)")
+    else:
+        print(f"  &#10003; {written} article files ({len(visible_slugs)} indexed, {written-len(visible_slugs)} noindex)")
+
+    # ── STAGE 1: also handle orphan article HTML files on disk ──
+    # Files that exist in docs/articles/ but whose slugs are NOT in
+    # generated_articles.json should also become 410 stubs.
+    if ADSENSE_STAGE1 and os.path.isdir(ARTS_D):
+        all_data_slugs = {a.get("slug","") for a in arts} | {a.get("legacy_slug","") for a in arts if a.get("legacy_slug")}
+        orphan_410 = 0
+        for fname in os.listdir(ARTS_D):
+            if not fname.endswith(".html"):
+                continue
+            slug_from_file = fname[:-5]
+            if slug_from_file in all_data_slugs:
+                continue  # handled above
+            fpath = os.path.join(ARTS_D, fname)
+            with open(fpath, encoding="utf-8") as _fh:
+                content = _fh.read()
+            if "<!-- HAND_AUTHORED -->" in content:
+                continue  # never touch hand-authored
+            # Check if it's already a 410 stub (idempotent — don't rewrite)
+            if 'content="410 Gone"' in content:
+                continue
+            w(fpath, _stage1_gone_html(slug_from_file))
+            orphan_410 += 1
+        if orphan_410:
+            print(f"  &#10003; {orphan_410} orphan article files converted to 410 Gone stubs")
 
     # ── Category pages ────────────────────────────────────────────────────
     # ALL category pages now show REAL articles (never blank "coming soon").
