@@ -1,0 +1,909 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Streamic Admin · Article Workbench</title>
+<!-- TinyMCE 7 (free tier, GPL) -->
+<script src="https://cdn.jsdelivr.net/npm/tinymce@7.6.0/tinymce.min.js" referrerpolicy="origin"></script>
+<style>
+  :root {
+    --bg: #f5f6f8;
+    --panel: #ffffff;
+    --line: #e2e5ea;
+    --line2: #f1f3f6;
+    --ink: #1a1d24;
+    --ink2: #4a525e;
+    --ink3: #7a818d;
+    --blue: #0f62fe;
+    --blue-dark: #0043ce;
+    --red: #da1e28;
+    --green: #198038;
+    --amber: #b28600;
+    --serif: 'Lora', Georgia, serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0 }
+  html, body { height: 100% }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    overflow: hidden;
+    font-size: 14px;
+  }
+
+  /* ─── LOGIN OVERLAY ─── */
+  #login-overlay {
+    position: fixed; inset: 0;
+    background: linear-gradient(135deg, #0a0a0f 0%, #1a1d24 100%);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 9999;
+  }
+  #login-card {
+    background: white; padding: 40px 36px; border-radius: 12px;
+    width: 380px; box-shadow: 0 20px 60px rgba(0,0,0,.4);
+  }
+  #login-card h1 { font-size: 20px; margin-bottom: 8px }
+  #login-card p { font-size: 13px; color: var(--ink3); margin-bottom: 24px }
+  #login-card input[type="password"] {
+    width: 100%; padding: 12px 14px; border: 1px solid var(--line);
+    border-radius: 8px; font-size: 14px; margin-bottom: 16px;
+  }
+  #login-card button {
+    width: 100%; padding: 12px; background: var(--blue); color: white;
+    border: 0; border-radius: 8px; font-weight: 600; cursor: pointer;
+  }
+  #login-error { color: var(--red); font-size: 12px; margin-top: 12px; display: none }
+
+  /* ─── TOP BAR ─── */
+  .topbar {
+    display: flex; align-items: center; gap: 16px;
+    padding: 10px 18px; background: var(--ink);
+    color: white; height: 52px;
+    border-bottom: 1px solid #000;
+  }
+  .topbar .brand { font-family: var(--serif); font-size: 17px; font-weight: 600 }
+  .topbar .brand span { color: var(--blue); font-weight: 700 }
+  .topbar .divider { width: 1px; height: 24px; background: rgba(255,255,255,.15) }
+  .topbar label { font-size: 12px; text-transform: uppercase; letter-spacing: .5px; color: rgba(255,255,255,.6) }
+  .topbar select, .topbar input {
+    background: rgba(255,255,255,.08); color: white;
+    border: 1px solid rgba(255,255,255,.15); border-radius: 6px;
+    padding: 6px 10px; font-size: 13px;
+  }
+  .topbar select option { background: #1a1d24 }
+  .topbar .right { margin-left: auto; display: flex; align-items: center; gap: 12px }
+  .topbar .status {
+    font-size: 11px; padding: 4px 10px; border-radius: 12px;
+    background: rgba(255,255,255,.08); color: rgba(255,255,255,.7);
+  }
+  .topbar .status.ok { background: rgba(25,128,56,.25); color: #4ade80 }
+  .topbar .status.err { background: rgba(218,30,40,.25); color: #fca5a5 }
+  .topbar button.icon {
+    background: transparent; color: rgba(255,255,255,.6);
+    border: 1px solid rgba(255,255,255,.15); border-radius: 6px;
+    padding: 5px 10px; font-size: 11px; cursor: pointer;
+  }
+  .topbar button.icon:hover { color: white; border-color: white }
+
+  /* ─── 3-PANE LAYOUT ─── */
+  .layout {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    height: calc(100vh - 52px);
+  }
+  .sidebar {
+    background: var(--panel); border-right: 1px solid var(--line);
+    overflow-y: auto;
+  }
+  .sidebar-header {
+    padding: 14px 16px; border-bottom: 1px solid var(--line);
+    display: flex; justify-content: space-between; align-items: center;
+    position: sticky; top: 0; background: var(--panel); z-index: 5;
+  }
+  .sidebar-header h2 {
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .8px; color: var(--ink3);
+  }
+  .sidebar-filters {
+    padding: 10px 12px; border-bottom: 1px solid var(--line);
+    display: flex; flex-wrap: wrap; gap: 4px;
+    background: var(--line2);
+  }
+  .filter-pill {
+    font-size: 11px; padding: 3px 9px; border-radius: 10px;
+    background: white; border: 1px solid var(--line);
+    cursor: pointer; color: var(--ink2);
+  }
+  .filter-pill.active {
+    background: var(--blue); color: white; border-color: var(--blue);
+  }
+  .feed-item {
+    padding: 12px 16px; border-bottom: 1px solid var(--line2);
+    cursor: pointer;
+  }
+  .feed-item:hover { background: var(--line2) }
+  .feed-item.active {
+    background: #e8f0fe;
+    border-left: 3px solid var(--blue);
+    padding-left: 13px;
+  }
+  .feed-item .meta {
+    display: flex; gap: 8px; font-size: 10px;
+    text-transform: uppercase; letter-spacing: .5px;
+    color: var(--ink3); margin-bottom: 6px;
+  }
+  .feed-item .meta .src { color: var(--blue); font-weight: 600 }
+  .feed-item .title {
+    font-size: 13px; line-height: 1.4; color: var(--ink);
+    font-weight: 500;
+  }
+
+  /* ─── MAIN WORKSPACE ─── */
+  .workspace {
+    display: grid;
+    grid-template-rows: 1fr 1fr;
+    overflow: hidden;
+  }
+  .pane {
+    background: var(--panel); border-bottom: 1px solid var(--line);
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  .pane:last-child { border-bottom: 0 }
+  .pane-header {
+    padding: 10px 16px; background: var(--line2);
+    border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; gap: 12px;
+    height: 44px; flex-shrink: 0;
+  }
+  .pane-header h3 {
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .8px; color: var(--ink2);
+  }
+  .pane-header .pane-actions { margin-left: auto; display: flex; gap: 8px }
+  .pane-header button {
+    font-size: 12px; padding: 5px 12px; border-radius: 5px;
+    border: 1px solid var(--line); background: white;
+    color: var(--ink2); cursor: pointer; font-weight: 500;
+  }
+  .pane-header button:hover { background: var(--line2) }
+  .pane-header button.primary {
+    background: var(--blue); color: white; border-color: var(--blue);
+  }
+  .pane-header button.primary:hover { background: var(--blue-dark) }
+  .pane-header button.success {
+    background: var(--green); color: white; border-color: var(--green);
+  }
+  .pane-header button:disabled {
+    opacity: .5; cursor: not-allowed;
+  }
+  .pane-body { flex: 1; overflow: hidden; position: relative }
+  .pane-body iframe {
+    width: 100%; height: 100%; border: 0; background: white;
+  }
+  .pane-empty {
+    padding: 60px 24px; text-align: center; color: var(--ink3);
+  }
+  .pane-empty h4 { font-size: 16px; margin-bottom: 8px; color: var(--ink2) }
+  .pane-empty p { font-size: 13px; line-height: 1.5 }
+
+  /* ─── EDITOR ─── */
+  .editor-meta {
+    padding: 10px 16px; background: white; border-bottom: 1px solid var(--line);
+    display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px;
+    flex-shrink: 0;
+  }
+  .editor-meta label {
+    display: block; font-size: 10px; text-transform: uppercase;
+    letter-spacing: .5px; color: var(--ink3); margin-bottom: 4px;
+  }
+  .editor-meta input, .editor-meta select {
+    width: 100%; padding: 6px 8px; border: 1px solid var(--line);
+    border-radius: 4px; font-size: 12px; background: white;
+  }
+  #editor-area { flex: 1; overflow: hidden }
+  .tox-tinymce { border: 0 !important; border-radius: 0 !important }
+
+  /* ─── LOG / TOAST ─── */
+  #log {
+    position: fixed; bottom: 16px; right: 16px;
+    width: 360px; max-height: 240px; overflow-y: auto;
+    background: var(--ink); color: white;
+    border-radius: 8px; padding: 10px 14px;
+    font-family: ui-monospace, 'SF Mono', monospace;
+    font-size: 11px; line-height: 1.5;
+    box-shadow: 0 10px 30px rgba(0,0,0,.3);
+    z-index: 1000;
+  }
+  #log .entry { margin-bottom: 4px; opacity: .8 }
+  #log .entry.error { color: #fca5a5 }
+  #log .entry.ok { color: #4ade80 }
+  #log .entry.info { color: #93c5fd }
+
+  /* ─── SETTINGS MODAL ─── */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,.5);
+    display: none; align-items: center; justify-content: center;
+    z-index: 5000;
+  }
+  .modal-overlay.show { display: flex }
+  .modal {
+    background: white; border-radius: 10px; padding: 28px;
+    width: 480px; max-height: 90vh; overflow-y: auto;
+  }
+  .modal h2 { margin-bottom: 18px; font-size: 17px }
+  .modal label {
+    display: block; font-size: 11px; font-weight: 700;
+    text-transform: uppercase; color: var(--ink3);
+    margin-bottom: 4px; margin-top: 14px;
+  }
+  .modal input {
+    width: 100%; padding: 8px 10px; border: 1px solid var(--line);
+    border-radius: 5px; font-size: 13px;
+    font-family: ui-monospace, 'SF Mono', monospace;
+  }
+  .modal .help {
+    font-size: 11px; color: var(--ink3); margin-top: 4px; line-height: 1.4;
+  }
+  .modal-actions {
+    display: flex; gap: 10px; margin-top: 24px; justify-content: flex-end;
+  }
+  .modal-actions button {
+    padding: 8px 18px; border-radius: 6px; font-size: 13px;
+    border: 1px solid var(--line); background: white;
+    cursor: pointer; font-weight: 500;
+  }
+  .modal-actions button.primary {
+    background: var(--blue); color: white; border-color: var(--blue);
+  }
+</style>
+</head>
+<body>
+
+<!-- ─── LOGIN ─── -->
+<div id="login-overlay">
+  <div id="login-card">
+    <h1>Streamic Admin</h1>
+    <p>Article generation workbench. Local-only credentials.</p>
+    <input type="password" id="login-pass" placeholder="Passphrase" autofocus>
+    <button onclick="doLogin()">Unlock</button>
+    <div id="login-error">Wrong passphrase.</div>
+  </div>
+</div>
+
+<!-- ─── MAIN UI (hidden until login) ─── -->
+<div id="app" style="display:none">
+
+  <div class="topbar">
+    <div class="brand">The Streamic <span>·</span> Admin</div>
+    <div class="divider"></div>
+
+    <label for="model-select">AI Model:</label>
+    <select id="model-select">
+      <option value="groq" selected>Groq (Llama 3.3 70B) · free, fast</option>
+      <option value="mistral">Mistral Large · 1B tok/mo free</option>
+      <option value="gemini">Gemini 2.0 Flash · 1500 req/day</option>
+    </select>
+
+    <div class="divider"></div>
+
+    <label>Word target:</label>
+    <select id="wordcount-select">
+      <option value="600">600w (quick)</option>
+      <option value="800" selected>800w (standard)</option>
+      <option value="1200">1200w (deep)</option>
+    </select>
+
+    <div class="right">
+      <span class="status" id="status-pill">Ready</span>
+      <button class="icon" onclick="openSettings()">⚙ Settings</button>
+      <button class="icon" onclick="logout()">Logout</button>
+    </div>
+  </div>
+
+  <div class="layout">
+
+    <!-- ── SIDEBAR: RSS feeds ── -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h2>RSS Source Feed</h2>
+        <button class="icon" style="background:transparent;color:var(--ink3);border:1px solid var(--line);padding:3px 8px"
+                onclick="loadFeeds()">↻ Refresh</button>
+      </div>
+      <div class="sidebar-filters" id="category-filters">
+        <span class="filter-pill active" data-cat="all">all</span>
+      </div>
+      <div id="feed-list"></div>
+    </aside>
+
+    <!-- ── WORKSPACE ── -->
+    <div class="workspace">
+
+      <!-- TOP: Source iframe -->
+      <div class="pane">
+        <div class="pane-header">
+          <h3>📄 Source Article</h3>
+          <span id="source-meta" style="font-size:11px;color:var(--ink3)"></span>
+          <div class="pane-actions">
+            <button id="btn-open-source" onclick="openSourceInTab()" disabled>↗ Open in tab</button>
+            <button class="primary" id="btn-generate" onclick="generateArticle()" disabled>🤖 Generate Article</button>
+          </div>
+        </div>
+        <div class="pane-body" id="source-body">
+          <div class="pane-empty">
+            <h4>No source selected</h4>
+            <p>Pick an RSS item from the left sidebar to load the source article and generate Streamic editorial coverage.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOTTOM: AI editor -->
+      <div class="pane">
+        <div class="pane-header">
+          <h3>✏️ Streamic Editorial</h3>
+          <span id="editor-meta-info" style="font-size:11px;color:var(--ink3)"></span>
+          <div class="pane-actions">
+            <button onclick="loadDraft()">📂 Load Draft</button>
+            <button onclick="saveDraft()">💾 Save Draft</button>
+            <button class="success" id="btn-publish" onclick="publishArticle()" disabled>📤 Wrap &amp; Publish</button>
+          </div>
+        </div>
+
+        <div class="editor-meta">
+          <div>
+            <label>Slug</label>
+            <input type="text" id="meta-slug" placeholder="2026-04-15-newsroom-…">
+          </div>
+          <div>
+            <label>Category</label>
+            <select id="meta-category">
+              <option value="newsroom">newsroom</option>
+              <option value="ai-post-production">ai-post-production</option>
+              <option value="cloud">cloud</option>
+              <option value="infrastructure">infrastructure</option>
+              <option value="streaming">streaming</option>
+              <option value="playout">playout</option>
+              <option value="graphics">graphics</option>
+            </select>
+          </div>
+          <div>
+            <label>Title</label>
+            <input type="text" id="meta-title" placeholder="Headline">
+          </div>
+          <div>
+            <label>Source URL</label>
+            <input type="text" id="meta-source-url" placeholder="https://…">
+          </div>
+        </div>
+
+        <div id="editor-area">
+          <textarea id="editor"></textarea>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- ─── SETTINGS MODAL ─── -->
+<div class="modal-overlay" id="settings-modal">
+  <div class="modal">
+    <h2>Admin Settings</h2>
+    <p style="font-size:12px;color:var(--ink3);line-height:1.6">All keys are stored in <code>localStorage</code> on this browser only. Nothing is committed or transmitted except to the chosen API endpoint. Clear browser data to wipe.</p>
+
+    <label>GitHub Personal Access Token (workflow scope)</label>
+    <input type="password" id="set-gh-token" placeholder="ghp_…">
+    <p class="help">Needed to trigger the publish workflow. Create at github.com/settings/tokens — needs <code>workflow</code> + <code>repo</code> scope.</p>
+
+    <label>GitHub Repository (owner/repo)</label>
+    <input type="text" id="set-gh-repo" placeholder="Thestreamic/Streamic-OMS">
+
+    <label>Login Passphrase</label>
+    <input type="password" id="set-pass" placeholder="Set or change">
+    <p class="help">First-time setup: leave blank to disable login (open dashboard immediately).</p>
+
+    <div class="modal-actions">
+      <button onclick="closeSettings()">Cancel</button>
+      <button class="primary" onclick="saveSettings()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── LOG ─── -->
+<div id="log"><div class="entry info">Streamic Admin loaded.</div></div>
+
+<script>
+// ═════════════════════════════════════════════════════════════════════════════
+//  STATE
+// ═════════════════════════════════════════════════════════════════════════════
+const STATE = {
+  feeds: [],
+  selectedFeed: null,
+  generatedHtml: '',
+  category: 'all',
+};
+
+const LS = {
+  get: (k) => { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } },
+  set: (k, v) => localStorage.setItem(k, JSON.stringify(v)),
+  del: (k) => localStorage.removeItem(k),
+};
+
+// ═════════════════════════════════════════════════════════════════════════════
+//  LOGIN
+// ═════════════════════════════════════════════════════════════════════════════
+function doLogin() {
+  const pass = document.getElementById('login-pass').value;
+  const stored = LS.get('admin-pass');
+  if (!stored || pass === stored) {
+    document.getElementById('login-overlay').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    initApp();
+  } else {
+    document.getElementById('login-error').style.display = 'block';
+  }
+}
+document.getElementById('login-pass').addEventListener('keyup', e => {
+  if (e.key === 'Enter') doLogin();
+});
+
+function logout() {
+  location.reload();
+}
+
+// Auto-bypass if no passphrase set yet
+if (!LS.get('admin-pass')) {
+  document.getElementById('login-overlay').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  // initApp() runs after DOMContentLoaded below
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+//  SETTINGS
+// ═════════════════════════════════════════════════════════════════════════════
+function openSettings() {
+  document.getElementById('set-gh-token').value = LS.get('gh-token') || '';
+  document.getElementById('set-gh-repo').value = LS.get('gh-repo') || 'Thestreamic/Streamic-OMS';
+  document.getElementById('set-pass').value = '';
+  document.getElementById('settings-modal').classList.add('show');
+}
+function closeSettings() {
+  document.getElementById('settings-modal').classList.remove('show');
+}
+function saveSettings() {
+  LS.set('gh-token', document.getElementById('set-gh-token').value.trim());
+  LS.set('gh-repo', document.getElementById('set-gh-repo').value.trim() || 'Thestreamic/Streamic-OMS');
+  const newPass = document.getElementById('set-pass').value;
+  if (newPass) LS.set('admin-pass', newPass);
+  closeSettings();
+  log('Settings saved', 'ok');
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+//  LOG
+// ═════════════════════════════════════════════════════════════════════════════
+function log(msg, type = 'info') {
+  const el = document.getElementById('log');
+  const e = document.createElement('div');
+  e.className = 'entry ' + type;
+  e.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+  el.appendChild(e);
+  el.scrollTop = el.scrollHeight;
+  // keep last 30 entries
+  while (el.children.length > 30) el.removeChild(el.firstChild);
+}
+function setStatus(text, type = '') {
+  const pill = document.getElementById('status-pill');
+  pill.textContent = text;
+  pill.className = 'status ' + type;
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+//  RSS FEED LOADING (from data/news.json)
+// ═════════════════════════════════════════════════════════════════════════════
+async function loadFeeds() {
+  setStatus('Loading feeds…');
+  log('Fetching data/news.json…');
+  try {
+    const res = await fetch('data/news.json?_=' + Date.now());
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const items = await res.json();
+    STATE.feeds = items;
+    renderFilters();
+    renderFeedList();
+    setStatus(`${items.length} items loaded`, 'ok');
+    log(`Loaded ${items.length} RSS items`, 'ok');
+  } catch (e) {
+    setStatus('Feed load failed', 'err');
+    log('Failed to load news.json: ' + e.message, 'error');
+  }
+}
+
+function renderFilters() {
+  const cats = [...new Set(STATE.feeds.map(f => f.category))].sort();
+  const wrap = document.getElementById('category-filters');
+  wrap.innerHTML = `<span class="filter-pill ${STATE.category === 'all' ? 'active' : ''}" data-cat="all">all (${STATE.feeds.length})</span>`;
+  cats.forEach(c => {
+    const n = STATE.feeds.filter(f => f.category === c).length;
+    wrap.innerHTML += `<span class="filter-pill ${STATE.category === c ? 'active' : ''}" data-cat="${c}">${c} (${n})</span>`;
+  });
+  wrap.querySelectorAll('.filter-pill').forEach(p => {
+    p.onclick = () => {
+      STATE.category = p.dataset.cat;
+      renderFilters();
+      renderFeedList();
+    };
+  });
+}
+
+function renderFeedList() {
+  const list = document.getElementById('feed-list');
+  let items = STATE.feeds;
+  if (STATE.category !== 'all') items = items.filter(f => f.category === STATE.category);
+  if (!items.length) {
+    list.innerHTML = '<div style="padding:20px;color:var(--ink3);text-align:center;font-size:12px">No items in this category.</div>';
+    return;
+  }
+  list.innerHTML = items.map((f, i) => {
+    const date = new Date(f.timestamp * 1000).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+    return `<div class="feed-item ${STATE.selectedFeed === f ? 'active' : ''}" onclick="selectFeed(${STATE.feeds.indexOf(f)})">
+      <div class="meta">
+        <span class="src">${escapeHtml(f.source)}</span>
+        <span>·</span>
+        <span>${escapeHtml(f.category)}</span>
+        <span>·</span>
+        <span>${date}</span>
+      </div>
+      <div class="title">${escapeHtml(f.title)}</div>
+    </div>`;
+  }).join('');
+}
+
+function selectFeed(idx) {
+  STATE.selectedFeed = STATE.feeds[idx];
+  log(`Selected: ${STATE.selectedFeed.title.slice(0, 60)}…`);
+  renderFeedList();
+
+  // Load source iframe
+  const body = document.getElementById('source-body');
+  body.innerHTML = `<iframe src="${escapeAttr(STATE.selectedFeed.link)}" sandbox="allow-same-origin allow-scripts" referrerpolicy="no-referrer"></iframe>`;
+  document.getElementById('source-meta').textContent = `${STATE.selectedFeed.source} · ${STATE.selectedFeed.category}`;
+  document.getElementById('btn-open-source').disabled = false;
+  document.getElementById('btn-generate').disabled = false;
+
+  // Pre-fill editor meta
+  document.getElementById('meta-title').value = STATE.selectedFeed.title;
+  document.getElementById('meta-category').value = STATE.selectedFeed.category;
+  document.getElementById('meta-source-url').value = STATE.selectedFeed.link;
+  document.getElementById('meta-slug').value = generateSlug(STATE.selectedFeed);
+}
+
+function generateSlug(feed) {
+  const date = new Date(feed.timestamp * 1000).toISOString().slice(0, 10);
+  const titleSlug = feed.title.toLowerCase()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .slice(0, 60)
+    .replace(/-$/, '');
+  return `${date}-${feed.category}-${titleSlug}`;
+}
+
+function openSourceInTab() {
+  if (STATE.selectedFeed) window.open(STATE.selectedFeed.link, '_blank', 'noopener');
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+//  AI GENERATION (via GitHub Actions workflow_dispatch proxy)
+// ═════════════════════════════════════════════════════════════════════════════
+async function generateArticle() {
+  if (!STATE.selectedFeed) return;
+  const token = LS.get('gh-token');
+  const repo = LS.get('gh-repo') || 'Thestreamic/Streamic-OMS';
+  if (!token) {
+    log('No GitHub token configured — open Settings', 'error');
+    openSettings();
+    return;
+  }
+
+  const model = document.getElementById('model-select').value;
+  const wordTarget = document.getElementById('wordcount-select').value;
+
+  setStatus('Triggering AI generation…');
+  log(`Triggering ${model} generation via workflow_dispatch…`);
+  document.getElementById('btn-generate').disabled = true;
+
+  try {
+    // Step 1: Trigger workflow_dispatch
+    const dispatchRes = await fetch(
+      `https://api.github.com/repos/${repo}/actions/workflows/admin-dispatch.yml/dispatches`,
+      {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/vnd.github+json',
+          'Authorization': `Bearer ${token}`,
+          'X-GitHub-Api-Version': '2022-11-28',
+        },
+        body: JSON.stringify({
+          ref: 'main',
+          inputs: {
+            action: 'generate',
+            model: model,
+            source_url: STATE.selectedFeed.link,
+            source_title: STATE.selectedFeed.title,
+            category: STATE.selectedFeed.category,
+            word_target: wordTarget,
+          },
+        }),
+      }
+    );
+
+    if (!dispatchRes.ok) {
+      const err = await dispatchRes.text();
+      throw new Error(`Dispatch failed: ${dispatchRes.status} — ${err.slice(0, 200)}`);
+    }
+
+    log('Workflow dispatched. Polling for completion (60-120s)…', 'info');
+    setStatus('Generating (waiting for workflow)…');
+
+    // Step 2: Poll for the workflow run + its artifact
+    const runId = await pollForRun(repo, token, 'admin-dispatch.yml');
+    log(`Workflow run #${runId} started. Polling for completion…`);
+
+    const result = await pollForArtifact(repo, token, runId, 'generated-article');
+    log('Generation complete!', 'ok');
+
+    // Step 3: Populate editor with generated body_html
+    if (result.body_html) {
+      tinymce.activeEditor.setContent(result.body_html);
+      if (result.title) document.getElementById('meta-title').value = result.title;
+      if (result.slug) document.getElementById('meta-slug').value = result.slug;
+      document.getElementById('btn-publish').disabled = false;
+      document.getElementById('editor-meta-info').textContent = `${result.word_count || '?'} words · ${model}`;
+      setStatus('Generated — review & publish', 'ok');
+    } else {
+      throw new Error('Workflow returned no body_html');
+    }
+  } catch (e) {
+    log('Generation failed: ' + e.message, 'error');
+    setStatus('Generation failed', 'err');
+  } finally {
+    document.getElementById('btn-generate').disabled = false;
+  }
+}
+
+async function pollForRun(repo, token, workflowFile, maxAttempts = 20) {
+  // Wait for the most recent run of this workflow to appear
+  for (let i = 0; i < maxAttempts; i++) {
+    await sleep(3000);
+    const res = await fetch(
+      `https://api.github.com/repos/${repo}/actions/workflows/${workflowFile}/runs?per_page=1`,
+      { headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json' } }
+    );
+    if (res.ok) {
+      const data = await res.json();
+      if (data.workflow_runs && data.workflow_runs.length) {
+        const run = data.workflow_runs[0];
+        // Make sure it's recent (started in last 2 mins)
+        const age = Date.now() - new Date(run.created_at).getTime();
+        if (age < 120000) return run.id;
+      }
+    }
+  }
+  throw new Error('Workflow run did not appear within 60s');
+}
+
+async function pollForArtifact(repo, token, runId, artifactName, maxAttempts = 60) {
+  for (let i = 0; i < maxAttempts; i++) {
+    await sleep(5000);
+    // Check if run finished
+    const runRes = await fetch(
+      `https://api.github.com/repos/${repo}/actions/runs/${runId}`,
+      { headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json' } }
+    );
+    if (runRes.ok) {
+      const run = await runRes.json();
+      if (run.status === 'completed') {
+        if (run.conclusion !== 'success') {
+          throw new Error(`Workflow conclusion: ${run.conclusion}. Check Actions tab.`);
+        }
+        // Fetch artifact
+        const artRes = await fetch(
+          `https://api.github.com/repos/${repo}/actions/runs/${runId}/artifacts`,
+          { headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json' } }
+        );
+        if (!artRes.ok) throw new Error('Could not fetch artifacts');
+        const artData = await artRes.json();
+        const art = artData.artifacts.find(a => a.name === artifactName);
+        if (!art) throw new Error(`Artifact "${artifactName}" not found`);
+
+        // Download artifact (zipped)
+        const zipRes = await fetch(art.archive_download_url, {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+        if (!zipRes.ok) throw new Error('Could not download artifact');
+        const zipBuf = await zipRes.arrayBuffer();
+
+        // Unzip via JSZip (lazy load)
+        const JSZip = await loadJSZip();
+        const zip = await JSZip.loadAsync(zipBuf);
+        const jsonFile = Object.keys(zip.files).find(f => f.endsWith('.json'));
+        if (!jsonFile) throw new Error('No .json in artifact');
+        const content = await zip.files[jsonFile].async('string');
+        return JSON.parse(content);
+      }
+    }
+  }
+  throw new Error('Workflow did not finish within 5 minutes');
+}
+
+async function loadJSZip() {
+  if (window.JSZip) return window.JSZip;
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js';
+    s.onload = () => resolve(window.JSZip);
+    s.onerror = () => reject(new Error('Failed to load JSZip'));
+    document.head.appendChild(s);
+  });
+}
+
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+// ═════════════════════════════════════════════════════════════════════════════
+//  PUBLISH (workflow_dispatch with action=publish)
+// ═════════════════════════════════════════════════════════════════════════════
+async function publishArticle() {
+  const token = LS.get('gh-token');
+  const repo = LS.get('gh-repo') || 'Thestreamic/Streamic-OMS';
+  if (!token) { openSettings(); return; }
+
+  const slug = document.getElementById('meta-slug').value.trim();
+  const title = document.getElementById('meta-title').value.trim();
+  const category = document.getElementById('meta-category').value;
+  const sourceUrl = document.getElementById('meta-source-url').value.trim();
+  const bodyHtml = tinymce.activeEditor.getContent();
+
+  if (!slug || !title || !bodyHtml) {
+    log('Missing required field: slug, title, or body', 'error');
+    return;
+  }
+  if (!confirm(`Publish "${title.slice(0, 60)}…" as ${slug}.html?\n\nThis will commit to ${repo} and trigger a site rebuild.`)) {
+    return;
+  }
+
+  setStatus('Publishing…');
+  log(`Triggering publish workflow for ${slug}…`);
+  document.getElementById('btn-publish').disabled = true;
+
+  try {
+    // Use base64 to safely transport HTML through GitHub API inputs
+    const payload = btoa(unescape(encodeURIComponent(JSON.stringify({
+      slug, title, category,
+      source_url: sourceUrl,
+      source_domain: new URL(sourceUrl).hostname.replace(/^www\./, ''),
+      body_html: bodyHtml,
+      generated_by: 'admin-dashboard',
+      published: new Date().toISOString().slice(0, 10),
+    }))));
+
+    const res = await fetch(
+      `https://api.github.com/repos/${repo}/actions/workflows/admin-dispatch.yml/dispatches`,
+      {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/vnd.github+json',
+          'Authorization': `Bearer ${token}`,
+          'X-GitHub-Api-Version': '2022-11-28',
+        },
+        body: JSON.stringify({
+          ref: 'main',
+          inputs: {
+            action: 'publish',
+            article_payload: payload,
+          },
+        }),
+      }
+    );
+
+    if (!res.ok) throw new Error(`Publish dispatch failed: ${res.status} — ${(await res.text()).slice(0, 200)}`);
+
+    log('Publish workflow dispatched. The site will rebuild automatically.', 'ok');
+    setStatus('Published! Rebuilding site…', 'ok');
+
+    setTimeout(() => {
+      const url = `https://www.thestreamic.in/articles/${slug}.html`;
+      log(`Article will be live at: ${url}`, 'ok');
+    }, 1000);
+
+  } catch (e) {
+    log('Publish failed: ' + e.message, 'error');
+    setStatus('Publish failed', 'err');
+  } finally {
+    document.getElementById('btn-publish').disabled = false;
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+//  DRAFT MANAGEMENT (localStorage)
+// ═════════════════════════════════════════════════════════════════════════════
+function saveDraft() {
+  const draft = {
+    slug: document.getElementById('meta-slug').value,
+    title: document.getElementById('meta-title').value,
+    category: document.getElementById('meta-category').value,
+    source_url: document.getElementById('meta-source-url').value,
+    body_html: tinymce.activeEditor.getContent(),
+    saved: new Date().toISOString(),
+  };
+  const drafts = LS.get('drafts') || [];
+  // Replace existing or add
+  const idx = drafts.findIndex(d => d.slug === draft.slug);
+  if (idx >= 0) drafts[idx] = draft; else drafts.unshift(draft);
+  LS.set('drafts', drafts.slice(0, 20));
+  log(`Draft saved: ${draft.slug}`, 'ok');
+}
+function loadDraft() {
+  const drafts = LS.get('drafts') || [];
+  if (!drafts.length) { log('No saved drafts', 'info'); return; }
+  const choice = prompt(
+    'Saved drafts:\n\n' + drafts.map((d, i) => `${i + 1}. ${d.slug} (${d.saved.slice(0, 10)})`).join('\n') +
+    '\n\nEnter number to load:'
+  );
+  const idx = parseInt(choice) - 1;
+  if (isNaN(idx) || !drafts[idx]) return;
+  const d = drafts[idx];
+  document.getElementById('meta-slug').value = d.slug;
+  document.getElementById('meta-title').value = d.title;
+  document.getElementById('meta-category').value = d.category;
+  document.getElementById('meta-source-url').value = d.source_url;
+  tinymce.activeEditor.setContent(d.body_html);
+  document.getElementById('btn-publish').disabled = false;
+  log(`Loaded draft: ${d.slug}`, 'ok');
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+//  UTILITIES
+// ═════════════════════════════════════════════════════════════════════════════
+function escapeHtml(s) {
+  return String(s || '').replace(/[&<>"']/g, c =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+function escapeAttr(s) {
+  return String(s || '').replace(/"/g, '&quot;');
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+//  INIT
+// ═════════════════════════════════════════════════════════════════════════════
+function initApp() {
+  // Initialize TinyMCE
+  tinymce.init({
+    selector: '#editor',
+    height: '100%',
+    menubar: false,
+    statusbar: true,
+    branding: false,
+    promotion: false,
+    plugins: 'lists link code wordcount paste',
+    toolbar: 'undo redo | h2 h3 | bold italic | bullist numlist | link | code | wordcount',
+    content_style: `body{font-family:Lora,Georgia,serif;font-size:15px;line-height:1.7;color:#1a1a1a;padding:20px;max-width:760px;margin:0 auto}h2{font-family:-apple-system,sans-serif;font-size:22px;margin:24px 0 12px}h3{font-size:18px;margin:20px 0 10px}p{margin-bottom:14px}`,
+    paste_as_text: false,
+    paste_data_images: false,
+    skin: 'oxide',
+  });
+
+  loadFeeds();
+}
+
+if (document.getElementById('app').style.display === 'block') {
+  // Auto-bypass triggered earlier — still need to init
+  document.addEventListener('DOMContentLoaded', initApp);
+  if (document.readyState !== 'loading') initApp();
+}
+</script>
+
+</body>
+</html>
