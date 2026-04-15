@@ -1,263 +1,33 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <script>
-    window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
-    gtag('consent','default',{'analytics_storage':'denied','ad_storage':'denied',
-    'ad_user_data':'denied','ad_personalization':'denied','wait_for_update':500});
-  </script>
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-0VSHDN3ZR6"></script>
-  <script>gtag('js',new Date());gtag('config','G-0VSHDN3ZR6');</script>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>ST 2110-7 Seamless Protection: The Redundancy Math Every IP Broadcaster Gets Wrong | The Streamic</title>
-  <meta name="description" content="Hitless protection sounds straightforward. This Streamic analysis explains the actual Red/Blue network economics, PTP discipline, and design trade-offs behind SMPTE ST 2110-7 in live production environments.">
-  <meta name="robots" content="index,follow">
-  <meta name="author" content="The Streamic Editorial Team">
-  <link rel="canonical" href="https://www.thestreamic.in/articles/st-2110-7-seamless-protection-redundancy-math-2026.html">
-  <meta property="og:type" content="article">
-  <meta property="og:site_name" content="The Streamic">
-  <meta property="og:title" content="ST 2110-7 Seamless Protection: The Redundancy Math Every IP Broadcaster Gets Wrong | The Streamic">
-  <meta property="og:description" content="Hitless protection sounds straightforward. This Streamic analysis explains the actual Red/Blue network economics, PTP discipline, and design trade-offs behind SMPTE ST 2110-7 in live production environments.">
-  <meta property="og:url" content="https://www.thestreamic.in/articles/st-2110-7-seamless-protection-redundancy-math-2026.html">
-  <meta name="twitter:card" content="summary_large_image">
-  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../style.css">
+<meta charset="utf-8">
+<meta name="robots" content="noindex,nofollow">
+<meta name="googlebot" content="noindex,nofollow,noarchive">
+<link rel="canonical" href="https://www.thestreamic.in/">
+<title>Page Removed &mdash; The Streamic</title>
+<meta http-equiv="status" content="410 Gone">
+<meta name="description" content="This page has been permanently removed from The Streamic.">
+<style>
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:640px;margin:80px auto;padding:0 24px;color:#1a1a1a;line-height:1.6}
+  h1{font-size:28px;margin-bottom:16px;color:#0a0a0a}
+  p{font-size:16px;color:#444;margin-bottom:14px}
+  a{color:#0066cc;text-decoration:none;font-weight:500}
+  a:hover{text-decoration:underline}
+  .meta{font-size:13px;color:#888;margin-top:32px;padding-top:16px;border-top:1px solid #eee}
+</style>
   <meta name="google-adsense-account" content="ca-pub-8033069131874524">
 </head>
 <body>
-<nav class="nav">
-  <div class="nav-inner">
-    <a href="../" class="nav-logo">
-      <img src="../assets/logo.png" alt="" onerror="this.style.display='none'" aria-hidden="true">
-      <div class="nav-logo-text">
-        <span class="nav-logo-name">The Streamic</span>
-        <span class="nav-logo-tagline">Media &amp; Broadcast IT Analysis</span>
-      </div>
-    </a>
-    <div class="nav-divider" aria-hidden="true"></div>
-    <ul class="nav-links"><li><a href="/">Home</a></li><li><a href="../ai-post-production.html">AI in Broadcasting</a></li><li><a href="../howto.html">How-To Guides</a></li><li><a href="../post-production-workflows.html">Post Production Workflows</a></li><li><a href="../insights.html">Insights</a></li></ul>
-    <div class="nav-right">
-      <a href="../about.html" class="nav-desk">About</a>
-      <button class="nav-toggle" aria-label="Menu" type="button" onclick="(function(b,m){m.classList.toggle('open');b.setAttribute('aria-expanded',m.classList.contains('open'));document.body.classList.toggle('menu-open',m.classList.contains('open'));})(this,this.closest('nav').querySelector('.nav-mob'))">
-        <span></span><span></span><span></span>
-      </button>
-    </div>
-  </div>
-  <div class="nav-gold" aria-hidden="true"></div>
-  <div class="nav-mob"><a href="/">Home</a><a href="../ai-post-production.html">AI in Broadcasting</a><a href="../howto.html">How-To Guides</a><a href="../post-production-workflows.html">Post Production Workflows</a><a href="../insights.html">Insights</a><a href="../about.html">About</a><a href="../contact.html">Contact</a></div>
-</nav>
-<main>
-  <div class="art-wrap">
-    <div class="art-breadcrumb">
-      <a href="../index.html">Home</a>
-      <span>›</span>
-      <a href="../broadcast-systems-hub.html" style="color:#d97706">Professional Media Systems Guide</a>
-    </div>
-    <span class="art-tag" style="background:#d97706">🛡️ ST 2110</span>
-    <h1>ST 2110-7 Seamless Protection: The Redundancy Math Every IP Broadcaster Gets Wrong</h1>
-    <p class="art-dek">Seamless protection sounds like an automatic insurance policy for IP broadcast. In reality, it only works when the network, timing, and control plane are designed with much more discipline than many migration plans admit.</p>
-    <div class="art-byline">
-      <strong>The Streamic Editorial Team</strong>
-      <time datetime="2026-04-11" style="color:var(--ink4);font-size:13px">April 11, 2026</time>
-      <span>1515 words · 7 min read</span>
-      <span style="background:var(--blue);color:#fff;padding:3px 9px;border-radius:5px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.8px">Analysis</span>
-    </div>
-    <figure>
-      <svg viewBox="0 0 1200 675" role="img" aria-label="ST 2110-7 Seamless Protection: The Redundancy" style="width:100%;height:auto;display:block;border-radius:18px;background:linear-gradient(135deg,#f7f2e8 0%,#fff 55%,#eef4ff 100%)">
-      <defs>
-        <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stop-color="#d97706" stop-opacity="0.95"/>
-          <stop offset="100%" stop-color="#0f172a" stop-opacity="0.9"/>
-        </linearGradient>
-      </defs>
-      <rect x="0" y="0" width="1200" height="675" rx="24" fill="url(#g)"/>
-      <circle cx="960" cy="140" r="130" fill="#ffffff" opacity="0.08"/>
-      <circle cx="1030" cy="200" r="210" fill="#ffffff" opacity="0.04"/>
-      <rect x="70" y="70" width="530" height="50" rx="25" fill="#fff" opacity="0.14"/>
-      <text x="95" y="103" fill="#fff" font-size="19" font-family="DM Sans, Arial, sans-serif" font-weight="700" letter-spacing="2">THE STREAMIC · PREMIUM ANALYSIS</text>
-      <text x="80" y="250" fill="#fff" font-size="58" font-family="DM Serif Display, Georgia, serif" font-weight="700">ST 2110-7 Seamless Protection: The</text>
-      <text x="80" y="320" fill="#fff" font-size="58" font-family="DM Serif Display, Georgia, serif" font-weight="700"> Redundancy</text>
-      <text x="80" y="395" fill="#eef2ff" font-size="26" font-family="DM Sans, Arial, sans-serif">The network math behind hitless failover</text>
-      <g opacity="0.9">
-        <rect x="760" y="290" width="320" height="210" rx="20" fill="#fff" opacity="0.11"/>
-        <rect x="790" y="325" width="150" height="110" rx="16" fill="#fff" opacity="0.25"/>
-        <rect x="955" y="325" width="95" height="26" rx="13" fill="#fff" opacity="0.4"/>
-        <rect x="955" y="366" width="78" height="18" rx="9" fill="#fff" opacity="0.28"/>
-        <rect x="955" y="396" width="58" height="18" rx="9" fill="#fff" opacity="0.28"/>
-        <rect x="955" y="426" width="85" height="18" rx="9" fill="#fff" opacity="0.28"/>
-      </g>
-      <text x="80" y="590" fill="#fff" font-size="18" font-family="DM Sans, Arial, sans-serif" opacity="0.9">Broadcast systems strategy · workflow economics · operational reality</text>
-    </svg>
-      <figcaption>Original Streamic illustration showing Red/Blue network protection concepts for ST 2110-7.</figcaption>
-    </figure>
-    <div class="art-body">
-      <div style="background:#f0f4ff;border:1px solid #d0daf0;border-radius:10px;padding:16px 20px;margin-bottom:28px;font-size:13.5px;color:var(--ink2);line-height:1.6">
-        <span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--blue);display:block;margin-bottom:6px">Editorial Positioning</span>
-        This article is written in The Streamic's long-form analysis format: vendor-neutral, workflow-focused, and aimed at broadcast engineers, architects, newsroom technology leads, and media operations teams. The diagrams below are original Streamic illustrations and are safe for publication as site-owned visual elements.
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:0 0 30px">
-        <div style="background:#fff;border:1px solid #e6dfd2;border-radius:12px;padding:14px 14px 12px"><div style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--blue);margin-bottom:7px">Key takeaway</div><div style="font-size:13.5px;line-height:1.55;color:var(--ink2)">ST 2110-7 does not mean “some redundancy.” It means two genuinely independent paths carrying the full burden continuously.</div></div>
-<div style="background:#fff;border:1px solid #e6dfd2;border-radius:12px;padding:14px 14px 12px"><div style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--blue);margin-bottom:7px">Key takeaway</div><div style="font-size:13.5px;line-height:1.55;color:var(--ink2)">The hidden risk is often timing, not raw bandwidth. Weak PTP design quietly destroys the promise of hitless protection.</div></div>
-<div style="background:#fff;border:1px solid #e6dfd2;border-radius:12px;padding:14px 14px 12px"><div style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--blue);margin-bottom:7px">Key takeaway</div><div style="font-size:13.5px;line-height:1.55;color:var(--ink2)">The most realistic 2026 deployments reserve full seamless protection for the paths where failure has the highest business and editorial impact.</div></div>
-      </div>
-      
-<h2>The appeal of “seamless”</h2>
-<p>Any live production team will immediately understand why ST 2110-7 is attractive. The promise is simple and powerful: two copies of the same essence flow travel across two independent paths, and the receiver reconstructs a clean result even when one path drops packets. The word that sells the architecture is “seamless.” No visible freeze, no audible click, no disruption that viewers can detect.</p>
-<p>But in engineering terms, seamless protection is not a feature you lightly add on top. It is a design commitment. And many projects underestimate what that commitment means in fabric duplication, timing design, operational monitoring, and failure-domain discipline.</p>
-
-<h2>Why the Blue network is not a discounted backup</h2>
-<p>One of the most common budgeting errors is to think of the second fabric as a reserve path that can be cheaper, thinner, or more lightly engineered than the first. That is not how hitless protection works. The receiver must be able to merge packets from either side continuously. That means both networks must be capable of carrying the full production burden, not just a reduced emergency version of it.</p>
-<p>As soon as teams accept that point, the economics change. Optics, switching, cabling, power domains, rack allocation, monitoring, and timing infrastructure all effectively double. Not every part of the plant must be protected this way, but every path that claims true 2110-7 behavior must be designed honestly.</p>
-
-<h2>The role of timing in whether the promise survives</h2>
-<p>Bandwidth is only the visible part of the story. The more subtle part is time. Packet-level merge depends on a timing regime that remains stable enough for receivers to make correct decisions. If Red and Blue drift in ways the design cannot tolerate, then valid packets may be treated incorrectly, the merge buffer can misbehave, and the workflow that was supposed to be hitless becomes merely resilient in a looser, less deterministic sense.</p>
-<p>This is why PTP design is not a side note in 2110-7 discussions. Grandmaster independence, boundary clock strategy, monitoring discipline, and operational alarm thresholds all matter. Teams that design the network generously but the timing carelessly often spend months chasing symptoms in replay servers, multiviewers, or gateways when the real issue sits in the timing layer.</p>
-
-<h2>Control-plane resilience still matters</h2>
-<p>Another trap is assuming that protected essence automatically means protected operations. It does not. If your control systems, registries, orchestration, or patching logic are still dependent on a narrow management path, you can end up in a scenario where essence survives but the plant becomes difficult to steer under fault. A properly hardened design therefore treats control-plane behavior as part of the resilience conversation, not an afterthought.</p>
-<p>In practical terms, a plant can appear protected in a lab demo yet remain operationally awkward during a real incident if the team cannot rapidly see, switch, verify, or re-route the system under pressure. Protected video without operational clarity is not the same thing as a truly resilient production environment.</p>
-
-<h2>Where full protection is worth the cost</h2>
-<p>The strongest use of 2110-7 is usually selective. Program outputs, MCR-to-transmission paths, critical multiviewer feeds, and premium event chains are the places where a single visible hit is genuinely unacceptable. Those paths justify the cost and design effort. By contrast, extending full Red/Blue duplication to every corner of the plant may produce more architecture than the business case really needs.</p>
-<p>That is not a compromise in standards integrity. It is a recognition that resilience should be allocated according to consequence. Not every camera hall feed deserves the same protection profile as the transmission output or a high-value live event path.</p>
-
-<h2>How to read a proposal</h2>
-<p>A serious proposal should clearly show physical separation, timing strategy, monitoring logic, and fault domains. If “independence” exists only in diagram labels, or if Red and Blue quietly share too much hardware, power, or timing dependency, the architecture is not as safe as the language suggests. The correct question is not “does this support 2110-7?” It is “what exactly fails when this element fails, and how do we know?”</p>
-
-<h2>The Streamic view</h2>
-<p>ST 2110-7 is valuable precisely because it is demanding. It forces broadcasters to move from broad claims of redundancy to precise engineering of protection. Teams that apply it selectively and honestly can create very strong resilience where it matters most. Teams that under-cost it or over-market it will learn the hard way that “seamless” is a property of the whole system, not the checkbox on a product brief.</p>
-
-      <div style="margin:34px 0 10px">
-        <h2 style="margin-bottom:14px">Architecture Snapshot</h2>
-        <div style="background:#fff;border:1px solid #e6dfd2;border-radius:16px;padding:14px 14px 8px;box-shadow:0 10px 30px rgba(0,0,0,.04)">
-          <svg viewBox="0 0 1100 420" role="img" aria-label="Workflow diagram" style="width:100%;height:auto;display:block">
-      <rect x="0" y="0" width="1100" height="420" rx="22" fill="#fcfaf5"/>
-      <text x="45" y="58" fill="#111827" font-size="26" font-family="DM Serif Display, Georgia, serif">Workflow and decision path</text>
-      <text x="45" y="88" fill="#6b7280" font-size="14" font-family="DM Sans, Arial, sans-serif">Illustrative flow for engineering review and deployment planning</text>
-      <line x1="233" y1="175" x2="250" y2="175" stroke="#d97706" stroke-width="4"/><polygon points="250,175 236,167 236,183" fill="#d97706"/><line x1="448" y1="175" x2="465" y2="175" stroke="#d97706" stroke-width="4"/><polygon points="465,175 451,167 451,183" fill="#d97706"/><line x1="663" y1="175" x2="680" y2="175" stroke="#d97706" stroke-width="4"/><polygon points="680,175 666,167 666,183" fill="#d97706"/><line x1="878" y1="175" x2="895" y2="175" stroke="#d97706" stroke-width="4"/><polygon points="895,175 881,167 881,183" fill="#d97706"/>
-      <rect x="45" y="120" width="180" height="110" rx="18" fill="#fff" stroke="#d8cfbf"/><text x="63" y="162" fill="#111827" font-size="18" font-family="DM Sans, Arial, sans-serif" font-weight="700">Primary essence</text><text x="63" y="190" fill="#6b7280" font-size="13" font-family="DM Sans, Arial, sans-serif">video, audio, ANC</text><rect x="260" y="120" width="180" height="110" rx="18" fill="#fff" stroke="#d8cfbf"/><text x="278" y="162" fill="#111827" font-size="18" font-family="DM Sans, Arial, sans-serif" font-weight="700">Red fabric</text><text x="278" y="190" fill="#6b7280" font-size="13" font-family="DM Sans, Arial, sans-serif">independent path A</text><rect x="475" y="120" width="180" height="110" rx="18" fill="#fff" stroke="#d8cfbf"/><text x="493" y="162" fill="#111827" font-size="18" font-family="DM Sans, Arial, sans-serif" font-weight="700">Blue fabric</text><text x="493" y="190" fill="#6b7280" font-size="13" font-family="DM Sans, Arial, sans-serif">independent path B</text><rect x="690" y="120" width="180" height="110" rx="18" fill="#fff" stroke="#d8cfbf"/><text x="708" y="162" fill="#111827" font-size="18" font-family="DM Sans, Arial, sans-serif" font-weight="700">Timing discipline</text><text x="708" y="190" fill="#6b7280" font-size="13" font-family="DM Sans, Arial, sans-serif">PTP + monitoring</text><rect x="905" y="120" width="180" height="110" rx="18" fill="#fff" stroke="#d8cfbf"/><text x="923" y="162" fill="#111827" font-size="18" font-family="DM Sans, Arial, sans-serif" font-weight="700">Hitless receiver</text><text x="923" y="190" fill="#6b7280" font-size="13" font-family="DM Sans, Arial, sans-serif">merge without visible error</text>
-    </svg>
-        </div>
-        <p style="font-size:12px;color:var(--ink4);margin-top:10px">Original explanatory diagram created for this article by The Streamic.</p>
-      </div>
-    </div>
-    <div style="background:var(--bg);border-radius:12px;padding:22px 24px;margin-top:36px;border-top:3px solid var(--blue)">
-      <h4 style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--blue);margin:0 0 14px">Sources &amp; Further Reading</h4>
-      <ul style="margin:0;padding-left:18px;list-style:disc">
-        <li style="font-size:13.5px;color:var(--ink2);line-height:1.6;margin-bottom:6px"><strong style="color:var(--ink)">Recommended follow-up:</strong> SMPTE ST 2110-7 guidance, PTP deployment best practices, and vendor design notes for Red/Blue fabrics and protected receiver behavior.</li>
-      </ul>
-      <p style="margin:12px 0 0;font-size:12px;color:var(--ink4);line-height:1.5">
-        The Streamic provides independent editorial commentary. External links, where present, should carry <code style="font-size:11px;background:#e8e8ed;padding:1px 5px;border-radius:3px">rel="nofollow noopener"</code>.
-      </p>
-    </div>
-    <div class="art-author">
-      <strong>About this article</strong>
-      Original analysis and commentary by The Streamic Editorial Team. Independent broadcast technology journalism for engineers and media professionals.
-      <a href="/about.html" style="color:var(--blue);margin-left:6px;">About The Streamic &rarr;</a>
-    </div>
-    <div class="art-more">
-      <h3>Continue Reading</h3>
-      <a href="../broadcast-systems-hub.html">🛡️ ST 2110 More in Professional Media Systems Guide</a>
-      <a href="../insights.html">⭐ Streamic Insights</a>
-    </div>
-  </div>
-</main>
-<script type="application/ld+json">{
-  "@context": "https://schema.org",
-  "@type": "NewsArticle",
-  "headline": "ST 2110-7 Seamless Protection: The Redundancy Math Every IP Broadcaster Gets Wrong",
-  "description": "Hitless protection sounds straightforward. This Streamic analysis explains the actual Red/Blue network economics, PTP discipline, and design trade-offs behind SMPTE ST 2110-7 in live production environments.",
-  "datePublished": "2026-04-11",
-  "dateModified": "2026-04-11",
-  "author": {
-    "@type": "Organization",
-    "name": "The Streamic Editorial Team"
-  },
-  "publisher": {
-    "@type": "Organization",
-    "name": "The Streamic",
-    "url": "https://www.thestreamic.in",
-    "logo": {
-      "@type": "ImageObject",
-      "url": "https://www.thestreamic.in/assets/logo.png"
-    }
-  },
-  "mainEntityOfPage": "https://www.thestreamic.in/articles/st-2110-7-seamless-protection-redundancy-math-2026.html",
-  "wordCount": 1515
-}</script>
-<footer class="footer">
-  <div class="footer-gold" aria-hidden="true"></div>
-  <div class="footer-grid">
-    <div>
-      <div class="footer-brand">The Streamic</div>
-      <div class="footer-tagline">Media &amp; Broadcast IT Analysis</div>
-      <p class="footer-tag">Independent broadcast &amp; streaming technology journalism. Original analysis for engineers and media professionals.</p>
-      <div class="footer-social">
-        <a href="https://twitter.com/thestreamic" target="_blank" rel="noopener noreferrer" class="footer-social-link">
-          <svg width="14" height="14" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-          @thestreamic
-        </a>
-        <a href="https://www.linkedin.com/company/thestreamic" target="_blank" rel="noopener noreferrer" class="footer-social-link">
-          <svg width="14" height="14" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
-          TheStreamic
-        </a>
-      </div>
-    </div>
-    <div class="footer-col">
-      <h4>Coverage</h4>
-      <a href="../ai-post-production.html">AI in Broadcasting</a>
-      <a href="../howto.html">How-To Guides</a>
-      <a href="../post-production-workflows.html">Post Production Workflows</a>
-      <a href="../insights.html">Insights</a>
-    </div>
-    <div class="footer-col">
-      <h4>Site</h4>
-      <a href="../about.html">About</a>
-      <a href="../contact.html">Contact</a>
-      <a href="../editorial-policy.html">Editorial Policy</a>
-      <a href="../privacy.html">Privacy Policy</a>
-      <a href="../terms.html">Terms of Use</a>
-    </div>
-    <div class="footer-col">
-      <h4>Dublin, Ireland</h4>
-      <a href="mailto:technodate3@gmail.com" style="color:var(--blue)">technodate3@gmail.com</a>
-      <span style="font-size:12px;color:#bbb;display:block;margin-top:4px">Adamstown, Lucan</span>
-    </div>
-  </div>
-  <div class="footer-bottom">
-    <span>&copy; 2026 The Streamic &mdash; thestreamic.in</span>
-    <span>All trademarks belong to their respective owners.</span>
-  </div>
-</footer>
-<div id="ts-cookie">
-  <div class="cookie-in">
-    <div class="cookie-txt">
-      <strong>We use cookies</strong>
-      Analytics cookies help us understand site performance. Optional advertising cookies are disabled until future activation.
-      <a href="/privacy.html">Privacy Policy</a>
-    </div>
-    <div class="cookie-btns">
-      <button class="cookie-no" onclick="tsCC(false)">Reject optional</button>
-      <button class="cookie-ok" onclick="tsCC(true)">Accept all</button>
-    </div>
-  </div>
-</div>
-<script>
-(function(){
-  var K='ts_cc',s=localStorage.getItem(K),b=document.getElementById('ts-cookie');
-  if(!s&&b)b.style.display='block';
-  window.tsCC=function(ok){
-    localStorage.setItem(K,ok?'granted':'denied');
-    if(b)b.style.display='none';
-    if(typeof gtag!='undefined')gtag('consent','update',{
-      analytics_storage:ok?'granted':'denied',ad_storage:'denied',
-      ad_user_data:'denied',ad_personalization:'denied'});
-  };
-  if(s==='granted'&&typeof gtag!='undefined')gtag('consent','update',{
-    analytics_storage:'granted',ad_storage:'denied',
-    ad_user_data:'denied',ad_personalization:'denied'});
-})();
-</script>
+  <h1>This page has been removed</h1>
+  <p>The article you are looking for is no longer available on The Streamic. We have streamlined our editorial archive to focus on long-form analysis and original commentary.</p>
+  <p>You may be looking for:</p>
+  <ul>
+    <li><a href="https://www.thestreamic.in/">The Streamic homepage</a> &mdash; latest editorial coverage</li>
+    <li><a href="https://www.thestreamic.in/ai-post-production.html">AI in Broadcasting</a> &mdash; our active focus area</li>
+    <li><a href="https://www.thestreamic.in/insights.html">Expert Insights</a> &mdash; long-form analysis</li>
+    <li><a href="https://www.thestreamic.in/howto.html">How-To Guides</a> &mdash; practical technical guides</li>
+  </ul>
+  <p class="meta">HTTP 410 Gone &middot; This URL is permanent and will not be reinstated.</p>
 </body>
 </html>
