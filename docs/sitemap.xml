@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://www.thestreamic.in/index.html</loc><lastmod>2026-04-14</lastmod><changefreq>daily</changefreq><priority>1.0</priority></url>
-  <url><loc>https://www.thestreamic.in/featured.html</loc><lastmod>2026-04-14</lastmod><changefreq>daily</changefreq><priority>0.98</priority></url>
-  <url><loc>https://www.thestreamic.in/ai-post-production.html</loc><lastmod>2026-04-14</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://www.thestreamic.in/howto.html</loc><lastmod>2026-04-14</lastmod><changefreq>weekly</changefreq><priority>0.85</priority></url>
-  <url><loc>https://www.thestreamic.in/post-production-workflows.html</loc><lastmod>2026-04-14</lastmod><changefreq>weekly</changefreq><priority>0.90</priority></url>
-  <url><loc>https://www.thestreamic.in/insights.html</loc><lastmod>2026-04-14</lastmod><changefreq>weekly</changefreq><priority>0.88</priority></url>
-  <url><loc>https://www.thestreamic.in/editorsdesk.html</loc><lastmod>2026-04-14</lastmod><changefreq>weekly</changefreq><priority>0.88</priority></url>
-  <url><loc>https://www.thestreamic.in/about.html</loc><lastmod>2026-04-14</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://www.thestreamic.in/contact.html</loc><lastmod>2026-04-14</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://www.thestreamic.in/editorial-policy.html</loc><lastmod>2026-04-14</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://www.thestreamic.in/privacy.html</loc><lastmod>2026-04-14</lastmod><changefreq>yearly</changefreq><priority>0.3</priority></url>
-  <url><loc>https://www.thestreamic.in/terms.html</loc><lastmod>2026-04-14</lastmod><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://www.thestreamic.in/index.html</loc><lastmod>2026-04-15</lastmod><changefreq>daily</changefreq><priority>1.0</priority></url>
+  <url><loc>https://www.thestreamic.in/featured.html</loc><lastmod>2026-04-15</lastmod><changefreq>daily</changefreq><priority>0.98</priority></url>
+  <url><loc>https://www.thestreamic.in/ai-post-production.html</loc><lastmod>2026-04-15</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://www.thestreamic.in/howto.html</loc><lastmod>2026-04-15</lastmod><changefreq>weekly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://www.thestreamic.in/post-production-workflows.html</loc><lastmod>2026-04-15</lastmod><changefreq>weekly</changefreq><priority>0.90</priority></url>
+  <url><loc>https://www.thestreamic.in/insights.html</loc><lastmod>2026-04-15</lastmod><changefreq>weekly</changefreq><priority>0.88</priority></url>
+  <url><loc>https://www.thestreamic.in/editorsdesk.html</loc><lastmod>2026-04-15</lastmod><changefreq>weekly</changefreq><priority>0.88</priority></url>
+  <url><loc>https://www.thestreamic.in/about.html</loc><lastmod>2026-04-15</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://www.thestreamic.in/contact.html</loc><lastmod>2026-04-15</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://www.thestreamic.in/editorial-policy.html</loc><lastmod>2026-04-15</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://www.thestreamic.in/privacy.html</loc><lastmod>2026-04-15</lastmod><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://www.thestreamic.in/terms.html</loc><lastmod>2026-04-15</lastmod><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://www.thestreamic.in/articles/2026-04-15-newsroom-winter-olympics-super-bowl-power-nbcu-versant.html</loc><lastmod>2026-04-15</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
   <url><loc>https://www.thestreamic.in/articles/2026-04-14-newsroom-wowza-to-showcase-ai-powered-video-workflows-.html</loc><lastmod>2026-04-14</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
   <url><loc>https://www.thestreamic.in/articles/2026-04-14-newsroom-wave-central-evs-announce-smpte-st-2110-inter.html</loc><lastmod>2026-04-14</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
   <url><loc>https://www.thestreamic.in/articles/2026-04-14-newsroom-nab-blasts-cta-in-fcc-sports-probe-comments.html</loc><lastmod>2026-04-14</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
@@ -20,13 +21,14 @@
   <url><loc>https://www.thestreamic.in/articles/2026-04-14-newsroom-blackmagic-to-launch-camera-for-live-producti.html</loc><lastmod>2026-04-14</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
   <url><loc>https://www.thestreamic.in/articles/2026-04-14-newsroom-vinten-to-showcase-new-versine-240-fluid-head.html</loc><lastmod>2026-04-14</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
   <url><loc>https://www.thestreamic.in/articles/2026-04-14-newsroom-nab-show-liveu-to-showcase-lu900qs-quantum-le.html</loc><lastmod>2026-04-14</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
+  <url><loc>https://www.thestreamic.in/articles/2026-04-14-newsroom-nab-leadership-foundation-honors-outstanding-.html</loc><lastmod>2026-04-14</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
   <url><loc>https://www.thestreamic.in/articles/2026-04-14-newsroom-jba-spotlights-exhibitors-ahead-of-pre-nab-20.html</loc><lastmod>2026-04-14</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
   <url><loc>https://www.thestreamic.in/articles/2026-04-14-newsroom-haivision-launches-falkon-x4-5g-transmitters.html</loc><lastmod>2026-04-14</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
   <url><loc>https://www.thestreamic.in/articles/2026-04-14-newsroom-liveu-announces-expanded-collaboration-with-s.html</loc><lastmod>2026-04-14</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
   <url><loc>https://www.thestreamic.in/articles/2026-04-14-newsroom-appear-expands-x-platform-from-core-to-edge-a.html</loc><lastmod>2026-04-14</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
   <url><loc>https://www.thestreamic.in/articles/2026-04-14-streaming-a-year-later-examining-google-media-cdns-evo.html</loc><lastmod>2026-04-14</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
-  <url><loc>https://www.thestreamic.in/articles/2026-04-14-newsroom-wisycom-expands-mpr60-with-new-multichannel-i.html</loc><lastmod>2026-04-14</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
   <url><loc>https://www.thestreamic.in/articles/2026-04-14-newsroom-top-reason-for-subscribing-to-pay-tv-is-live-.html</loc><lastmod>2026-04-14</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
+  <url><loc>https://www.thestreamic.in/articles/2026-04-14-newsroom-wisycom-expands-mpr60-with-new-multichannel-i.html</loc><lastmod>2026-04-14</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
   <url><loc>https://www.thestreamic.in/articles/2026-04-14-cloud-distribute-ndi-content-from-aws-with-aws-element.html</loc><lastmod>2026-04-14</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
   <url><loc>https://www.thestreamic.in/articles/2026-04-14-graphics-geometric-animation-rexmaxstudio.html</loc><lastmod>2026-04-14</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
   <url><loc>https://www.thestreamic.in/articles/2026-04-13-cloud-sinclair-and-one-media-technologies-outline-next.html</loc><lastmod>2026-04-13</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
@@ -39,8 +41,8 @@
   <url><loc>https://www.thestreamic.in/articles/2026-04-13-newsroom-nab-show-ross-video-to-demonstrate-mxl-and-dy.html</loc><lastmod>2026-04-13</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
   <url><loc>https://www.thestreamic.in/articles/2026-04-13-newsroom-ai-and-next-generation-codecs-are-reshaping-e.html</loc><lastmod>2026-04-13</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
   <url><loc>https://www.thestreamic.in/articles/2026-04-13-newsroom-ross-video-and-highfield-ai-to-deliver-ai-ass.html</loc><lastmod>2026-04-13</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
-  <url><loc>https://www.thestreamic.in/articles/2026-04-13-streaming-vantage-enhances-iconik-connector-to-enable-.html</loc><lastmod>2026-04-13</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
   <url><loc>https://www.thestreamic.in/articles/2026-04-13-newsroom-camera-corps-at-nab-2026-showcasing-advanced-.html</loc><lastmod>2026-04-13</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
+  <url><loc>https://www.thestreamic.in/articles/2026-04-13-streaming-vantage-enhances-iconik-connector-to-enable-.html</loc><lastmod>2026-04-13</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
   <url><loc>https://www.thestreamic.in/articles/2026-04-13-newsroom-mediaproxy-adds-ai-toolset-to-logserver-for-b.html</loc><lastmod>2026-04-13</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
   <url><loc>https://www.thestreamic.in/articles/2026-04-13-newsroom-harvey-arnold-represents-the-best-of-broadcas.html</loc><lastmod>2026-04-13</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
   <url><loc>https://www.thestreamic.in/articles/2026-04-13-newsroom-gray-media-names-jim-hays-gm-of-wthi.html</loc><lastmod>2026-04-13</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
@@ -98,9 +100,9 @@
   <url><loc>https://www.thestreamic.in/articles/2026-04-06-newsroom-encompass-techex-to-feature-new-cloud-master-.html</loc><lastmod>2026-04-06</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
   <url><loc>https://www.thestreamic.in/articles/2026-04-06-newsroom-nab-show-leans-into-medias-forward-momentum.html</loc><lastmod>2026-04-06</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
   <url><loc>https://www.thestreamic.in/articles/2026-04-06-newsroom-a-new-lvcc-is-ready-to-engage-with-nab-show.html</loc><lastmod>2026-04-06</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
-  <url><loc>https://www.thestreamic.in/articles/2026-04-06-cloud-aws-brings-ai-powered-scale-to-storytellers-at-n.html</loc><lastmod>2026-04-06</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
   <url><loc>https://www.thestreamic.in/articles/2026-04-06-newsroom-saranyu-technologies-launches-match-multi-vie.html</loc><lastmod>2026-04-06</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
   <url><loc>https://www.thestreamic.in/articles/2026-04-06-newsroom-streaming-summit-gets-down-to-business.html</loc><lastmod>2026-04-06</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
+  <url><loc>https://www.thestreamic.in/articles/2026-04-06-cloud-aws-brings-ai-powered-scale-to-storytellers-at-n.html</loc><lastmod>2026-04-06</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
   <url><loc>https://www.thestreamic.in/articles/2026-04-06-newsroom-ktvj-completes-major-signal-upgrade.html</loc><lastmod>2026-04-06</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
   <url><loc>https://www.thestreamic.in/articles/2026-04-06-newsroom-helping-local-media-outsmart-the-algorithm.html</loc><lastmod>2026-04-06</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
   <url><loc>https://www.thestreamic.in/articles/2026-04-06-newsroom-grass-valley-launches-future-playmakers-progr.html</loc><lastmod>2026-04-06</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
@@ -130,6 +132,4 @@
   <url><loc>https://www.thestreamic.in/articles/2026-04-01-playout-harmonic-spectrum-x-plus-playout-economics.html</loc><lastmod>2026-04-01</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
   <url><loc>https://www.thestreamic.in/articles/2026-04-01-playout-pebble-future-ready-playout-nab-2026.html</loc><lastmod>2026-04-01</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
   <url><loc>https://www.thestreamic.in/articles/2026-04-01-newsroom-aveco-rundown-designer-no-nrcs-studio-automation.html</loc><lastmod>2026-04-01</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
-  <url><loc>https://www.thestreamic.in/articles/2026-04-01-infrastructure-smpte-st2110-ai-media-nab-2026.html</loc><lastmod>2026-04-01</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
-  <url><loc>https://www.thestreamic.in/articles/2026-04-01-newsroom-nab-show-tag-video-systems-oracle-cloud-infra.html</loc><lastmod>2026-04-01</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
 </urlset>
