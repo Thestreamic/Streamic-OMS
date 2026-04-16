@@ -238,10 +238,7 @@
     "technical_keywords": [
       "ai"
     ],
-    "needs_gemini": false,
-    "image": "/assets/images/_fallback/streamic-default.jpg",
-    "image_category": "newsroom_editorial",
-    "image_alt": "Modern broadcast newsroom and editorial operations — illustrating: swXtch.io Introduces the swXtch AI Router for Live Media Workflows"
+    "needs_gemini": false
   },
   {
     "category": "newsroom",
@@ -275,6 +272,34 @@
     "image": "/assets/images/_fallback/streamic-default.jpg",
     "image_category": "streaming_ott",
     "image_alt": "OTT streaming platform and content delivery analytics — illustrating: Quickplay Deploys Gray Media's New Streaming Platform"
+  },
+  {
+    "category": "newsroom",
+    "cat_label": "Newsroom",
+    "cat_icon": "📰",
+    "cat_color": "#D4AF37",
+    "cat_page": "newsroom.html",
+    "title": "Big Ten Network Expands Super Slo-Mo Replay to More Sports with TVU Networks",
+    "slug": "2026-04-16-newsroom-big-ten-network-expands-super-slo-mo-replay-t",
+    "dek": "Big Ten Network Expands Super Slo-Mo Replay to More Sports with TVU Networks",
+    "meta_description": "Big Ten Network Expands Super Slo-Mo Replay to More Sports with TVU Networks",
+    "card_summary": "Big Ten Network Expands Super Slo-Mo Replay to More Sports with TVU Networks",
+    "body_html": "<p><strong>Big Ten Network Expands Super Slo-Mo Replay to More Sports with TVU Networks.</strong> </p>\n<p>At infrastructure level, this touches signal routing and transport — the ST 2110 or SDI fabric connecting cameras, production switchers, graphics engines, and distribution paths, where timing, redundancy, and IP routing behaviour all matter.</p>\n<p>The practical question for engineering leads: does this change cost, throughput, reliability, or editorial speed in a measurable way? Map it against real workflows before treating any vendor claim as production-ready.</p>",
+    "word_count": 78,
+    "source_url": "https://www.tvtechnology.com/production/sports-production/big-ten-network-expands-super-slo-mo-replay-to-more-sports-with-tvu-networks",
+    "source_domain": "TV Technology",
+    "published": "2026-04-16",
+    "story_rank": 70.88600000000001,
+    "analysis_level": "scaffold",
+    "generated_by": "rewrite_feed_local",
+    "image_url": "https://images.unsplash.com/photo-1495020689067-958852a7765e?w=1200&auto=format&fit=crop&q=80",
+    "image_credit": "Photo: Unsplash — free to use under the Unsplash License",
+    "image_license": "Unsplash License",
+    "image_license_url": "https://unsplash.com/license",
+    "topic_type": "broadcast_infrastructure",
+    "priority_for_insights": true,
+    "technical_keywords": [],
+    "needs_gemini": false
   },
   {
     "category": "newsroom",
