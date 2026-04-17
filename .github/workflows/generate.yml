@@ -1,68 +1,51 @@
-name: The Streamic — RSS Pipeline (Auto-AI Disabled)
+name: The Streamic — Manual Build (RSS & AI disabled)
 
 # ═══════════════════════════════════════════════════════════════════════════
-# AUTOMATIC AI GENERATION IS DISABLED
+# FULLY MANUAL MODE — ALL AUTOMATIC CONTENT GENERATION REMOVED
 # ═══════════════════════════════════════════════════════════════════════════
-# As of Stage 2 of AdSense compliance work (April 2026), all auto-AI
-# generation has been disabled to:
-#   1. Stop wasting Gemini/Mistral/Groq/OpenRouter free tokens on articles
-#      that get 410-purged at build time anyway (Stage 1 keep rule).
-#   2. Move all article generation to MANUAL via the admin dashboard:
-#      https://www.thestreamic.in/admin.html
+# As of April 2026, this site is 100% manually curated.
+#   • RSS fetch/rewrite: REMOVED (was Stages 2–3)
+#   • Local-template editorial generator: REMOVED (was Stage 4)
+#   • All AI providers (Groq/Mistral/Gemini/OpenRouter): REMOVED (was Stages 1, 5, 5b, 5c)
 #
-# WHAT STILL RUNS AUTOMATICALLY:
-#   - fetch_rss.py     → keeps data/news.json fresh for the admin dashboard
-#   - rewrite_feed.py  → enriches data/generated_articles.json metadata
-#                        (no AI call — just structural rewrite)
-#   - generate_editorial.py → 5 hand-templated long-form editorials
-#                             (uses local templates, no API calls)
-#   - build.py         → renders the static site
+# WHAT STILL RUNS:
+#   • build.py — renders docs/ from data/generated_articles.json
+#   • sitemap.xml is regenerated automatically inside build.py
 #
-# WHAT IS DISABLED (kept for re-enabling later):
-#   - generate.js (Groq long-form Node.js) — STAGE 1
-#   - generate_mistral.py (Mistral tier-1)  — STAGE 5
-#   - generate_gemini.py  (Gemini tier-2)   — STAGE 5b-Gemini
-#   - generate_summaries.py (Groq tier-2b)  — STAGE 5b-Groq
-#   - generate_openrouter.py (OpenRouter)   — STAGE 5c
+# HOW TO ADD CONTENT:
+#   1. Edit data/generated_articles.json directly (or via the admin dashboard
+#      at /admin.html, which commits to the same file).
+#   2. Push to main → this workflow runs → site rebuilds.
 #
-# TO RE-ENABLE:  flip `if: false` to the original mode condition.
+# HOW TO RE-ENABLE AUTOMATION (DON'T unless you mean it):
+#   Restore the Stage 2/3/4 steps from a pre-cleanup commit, and put back
+#   fetch_rss.py, rewrite_feed.py, generate_editorial.py under scripts/.
 # ═══════════════════════════════════════════════════════════════════════════
 
 on:
-  schedule:
-    # Reduced from 4× to 2× daily — RSS doesn't need that often
-    - cron: "0 8 * * *"   # 08:00 UTC daily — RSS refresh + editorial + build
-    - cron: "0 20 * * *"  # 20:00 UTC daily — RSS refresh + editorial + build
+  push:
+    branches: [main]
+    paths:
+      - 'data/generated_articles.json'
+      - 'articles/**'
+      - 'scripts/build.py'
+      - 'build.py'
+      - 'docs/**.html'
+      - '.github/workflows/generate.yml'
   workflow_dispatch:
-    inputs:
-      run_mode:
-        description: "What to run"
-        required: false
-        default: "rss_only"
-        type: choice
-        options:
-          - "rss_only"      # RSS fetch + rewrite + editorial + build (DEFAULT)
-          - "build_only"    # Build only — no RSS fetch
-          - "full"          # ⚠ Re-enables all AI steps (use sparingly)
 
 permissions:
   contents: write
 
 env:
-  SITE_BASE_URL:   "https://www.thestreamic.in"
-  NODE_VERSION:    "24"
-  PYTHON_VERSION:  "3.11"
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
-  MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
-  GEMINI_API_KEY:  ${{ secrets.GEMINI_API_KEY }}
-  GROQ_API_KEY:    ${{ secrets.GROQ_API_KEY }}
-  OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+  SITE_BASE_URL:  "https://www.thestreamic.in"
+  PYTHON_VERSION: "3.11"
 
 jobs:
-  generate-and-build:
-    name: RSS Refresh & Build Site
+  build:
+    name: Build Static Site
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 10
 
     steps:
       - name: Checkout repository
@@ -71,146 +54,48 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set up Node.js ${{ env.NODE_VERSION }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Install Node.js dependencies
-        run: npm install
-
       - name: Set up Python ${{ env.PYTHON_VERSION }}
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Install Python dependencies
-        run: pip install feedparser beautifulsoup4 python-slugify requests
+        run: pip install beautifulsoup4 python-slugify
 
-      # ── Determine run mode ─────────────────────────────────────────────────
-      - name: Set run mode
-        id: mode
+      # ── Build the site ───────────────────────────────────────────────────
+      - name: Build static site
         run: |
-          INPUT="${{ github.event.inputs.run_mode }}"
-          MODE="${INPUT:-rss_only}"
-          echo "mode=$MODE" >> $GITHUB_OUTPUT
-          echo "🕐 Mode: $MODE"
-
-      # ═══════════════════════════════════════════════════════════════════════
-      # DISABLED: Stage 1 — Groq long-form articles (Node.js)
-      # ═══════════════════════════════════════════════════════════════════════
-      - name: "Stage 1: Groq long-form articles (DISABLED — use admin.html)"
-        if: false  # was: steps.mode.outputs.mode == 'full' || steps.mode.outputs.mode == 'groq_only'
-        env:
-          HF_API_KEY: ${{ secrets.GROQ_API_KEY }}
-        run: |
-          echo "🤖 Groq long-form generation (llama-3.3-70b-versatile)..."
-          node scripts/generate.js || echo "⚠ Groq Node step failed — continuing"
-
-      # ── STAGE 2: RSS fetch (always — feeds admin dashboard) ───────────────
-      - name: "Stage 2: Fetch RSS feeds"
-        if: steps.mode.outputs.mode != 'build_only'
-        run: |
-          python3 scripts/fetch_rss.py
-          echo "✓ RSS fetch complete"
-
-      # ── STAGE 3: Rewrite RSS → article cards (no AI calls) ────────────────
-      - name: "Stage 3: Rewrite RSS to article cards"
-        if: steps.mode.outputs.mode != 'build_only'
-        run: |
-          python3 scripts/rewrite_feed.py
-          echo "✓ RSS rewrite complete"
-
-      # ── STAGE 4: Editorial deep-dives (always — local templates, no API) ──
-      - name: "Stage 4: Generate editorial articles"
-        run: python3 scripts/generate_editorial.py
-
-      # ═══════════════════════════════════════════════════════════════════════
-      # DISABLED: Stage 4b — Vendor Hub
-      # ═══════════════════════════════════════════════════════════════════════
-      - name: "Stage 4b: Broadcast Systems Hub (DISABLED)"
-        if: false
-        env:
-          VENDOR_HUB_MODE: ${{ github.event.inputs.run_mode == 'vendor_hub' && 'full' || 'weekly' }}
-        run: |
-          echo "🏭 Vendor Hub — Mode: $VENDOR_HUB_MODE"
-          python3 scripts/generate_vendor_hub.py || echo "⚠ Vendor hub incomplete — cached vendors preserved"
-
-      # ═══════════════════════════════════════════════════════════════════════
-      # DISABLED: Stage 5 — Mistral AI (PRIMARY)
-      # Was burning ~15 articles/run that immediately got 410-purged.
-      # Re-enable by flipping `if: false` → original condition.
-      # ═══════════════════════════════════════════════════════════════════════
-      - name: "Stage 5: Mistral AI articles (DISABLED — use admin.html)"
-        if: false
-        env:
-          MISTRAL_MAX_PER_RUN: "15"
-          MISTRAL_TEMPERATURE: "0.1"
-          MISTRAL_FETCH_SOURCE: "true"
-        run: python3 scripts/generate_mistral.py || echo "Mistral step skipped"
-
-      # ═══════════════════════════════════════════════════════════════════════
-      # DISABLED: Stage 5b — Gemini (tier-2)
-      # ═══════════════════════════════════════════════════════════════════════
-      - name: "Stage 5b: Gemini AI articles (DISABLED — use admin.html)"
-        if: false
-        env:
-          ENABLE_GEMINI_PREMIUM: "true"
-          GEMINI_MAX_PER_RUN: "6"
-        run: python3 scripts/generate_gemini.py || echo "Gemini step skipped"
-
-      # ═══════════════════════════════════════════════════════════════════════
-      # DISABLED: Stage 5b — Groq card summaries (tier-2 fallback)
-      # ═══════════════════════════════════════════════════════════════════════
-      - name: "Stage 5b: Groq card summaries (DISABLED — use admin.html)"
-        if: false
-        env:
-          GROQ_PREMIUM_ONLY: "true"
-          MAX_PER_RUN: "8"
-        run: python3 ./scripts/generate_summaries.py || echo "Groq step skipped"
-
-      # ═══════════════════════════════════════════════════════════════════════
-      # DISABLED: Stage 5c — OpenRouter reasoning models
-      # ═══════════════════════════════════════════════════════════════════════
-      - name: "Stage 5c: OpenRouter reasoning models (DISABLED — use admin.html)"
-        if: false
-        env:
-          OPENROUTER_MAX_PER_RUN: "5"
-          OPENROUTER_TEMPERATURE: "0.1"
-          OPENROUTER_TOP_P: "0.95"
-          OPENROUTER_PRESENCE_PENALTY: "0.1"
-        run: python3 ./scripts/generate_openrouter.py || echo "OpenRouter step skipped"
-
-      # ── STAGE 6: Build static site (always) ───────────────────────────────
-      - name: "Stage 6: Build static site"
-        run: |
-          python3 scripts/build.py
+          if [ -f scripts/build.py ]; then
+            python3 scripts/build.py
+          else
+            python3 build.py
+          fi
           echo "✓ Build complete"
           echo "Pages:    $(find docs -maxdepth 1 -name '*.html' | wc -l)"
           echo "Articles: $(find docs/articles -name '*.html' 2>/dev/null | wc -l)"
 
-      # ── STAGE 7: Verify build output ──────────────────────────────────────
+      # ── Verify output ────────────────────────────────────────────────────
       - name: Verify build output
         run: |
-          test -f docs/index.html    || (echo "❌ index.html missing"   && exit 1)
+          test -f docs/index.html    || (echo "❌ index.html missing"    && exit 1)
           test -f docs/featured.html || (echo "❌ featured.html missing" && exit 1)
           test -f docs/posts.html    || (echo "❌ posts.html missing"    && exit 1)
           test -f docs/sitemap.xml   || (echo "❌ sitemap.xml missing"   && exit 1)
           echo "✅ All required files present"
 
-      # ── STAGE 8: Commit changes ───────────────────────────────────────────
-      - name: Commit generated content
+      # ── Commit rebuilt output ────────────────────────────────────────────
+      - name: Commit build output
         run: |
           git config user.name  "Streamic Bot"
           git config user.email "technodate3@gmail.com"
 
-          git add -A docs/ data/
+          git add -A docs/
           git add posts.html sitemap.xml featured.html index.html 2>/dev/null || true
 
           if git diff --cached --quiet; then
             echo "No changes to commit."
           else
-            git commit -m "build: rss refresh + editorial [$(date -u +%H:%M) UTC] [skip ci]"
+            git commit -m "build: site rebuild [$(date -u +%Y-%m-%d\ %H:%M) UTC] [skip ci]"
             git fetch origin main
             git merge origin/main --no-edit -s recursive -X ours 2>/dev/null || \
               git merge origin/main --no-edit || true
