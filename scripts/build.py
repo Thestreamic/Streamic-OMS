@@ -2,7 +2,7 @@
 scripts/build.py &#8212; The Streamic site builder
 Apple Newsroom-style static site generator
 """
-import hashlib, json, os, re, shutil
+import json, os, re, shutil
 from datetime import datetime, timezone
 
 ROOT      = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -26,94 +26,6 @@ MAX_ARTICLES   = 120         # 78 editorial + top RSS; raised from 35
 VISIBLE_CAT    = "ai-post-production"  # only this category page is indexed
 MIN_BODY_SCORE = 50          # minimum editorial score to appear on homepage
 MIN_ARTICLE_WORDS = 500      # hard quality gate — matches AI-upgraded output; scaffolds blocked separately by _is_ai_upgraded()
-
-# ─────────────────────────────────────────────────────────────────────────────
-# ADSENSE STAGE 1 — DESTRUCTIVE PURGE OF NON-EDITORIAL CONTENT
-# ─────────────────────────────────────────────────────────────────────────────
-# When ADSENSE_STAGE1 = True, build.py will:
-#   1. RENDER HTML only for articles passing _stage1_should_publish()
-#   2. SERVE 410 Gone responses for all other previously-published article URLs
-#      (writes a tiny stub HTML with <meta name="robots" content="noindex">,
-#      <link rel="canonical"> pointing to homepage, and a clear "page removed"
-#      message so Google de-indexes the URL fast).
-#   3. EXCLUDE purged articles from sitemap.xml and homepage feeds entirely.
-#   4. Leave data/generated_articles.json + the RSS pipeline untouched so the
-#      content can be re-enabled later by flipping this flag back to False.
-#
-# KEEP rule (Stage 1):
-#   - Article category == 'ai-post-production' AND was AI-upgraded, OR
-#   - Article generated_by == 'gpt_manual_editorial'
-#   Everything else (raw RSS scaffolds, AI-upgraded non-ai-post-prod) → 410.
-ADSENSE_STAGE1 = True
-
-
-def _stage1_should_publish(a) -> bool:
-    """Return True if this article survives the Stage 1 keep rule.
-
-    Used by build.py to decide which articles get rendered as full HTML pages
-    vs. which get a 410 Gone stub. Has no effect when ADSENSE_STAGE1 = False.
-    """
-    if not ADSENSE_STAGE1:
-        return True  # back to normal quality-gate-only behaviour
-    gb = (a.get("generated_by") or "").lower()
-    # Keep all hand-written editorials regardless of category
-    if gb == "gpt_manual_editorial":
-        return True
-    # Keep ai-post-production articles only if AI-upgraded
-    if a.get("category") == "ai-post-production":
-        if not gb or gb in ("rewrite_feed_local", "rewrite_feed"):
-            return False
-        ai_markers = ("mistral", "gemini", "groq", "openrouter", "deepseek", "generate_summaries")
-        return any(m in gb for m in ai_markers)
-    return False
-
-
-def _stage1_gone_html(slug: str, title: str = "") -> str:
-    """Return the 410 Gone stub HTML for a purged article URL.
-
-    Includes:
-      - <meta name="robots" content="noindex,nofollow"> so Google drops it
-      - <link rel="canonical" href="{BASE_URL}/"> pointing to homepage
-      - HTTP 410 semantic via meta tag (GitHub Pages can't set real 410 status,
-        but the noindex + canonical + visible "page removed" message is what
-        actually drives de-indexing in practice)
-      - Minimal body explaining the removal so it's not a soft-404
-    """
-    safe_title = title.replace("<", "&lt;").replace(">", "&gt;") if title else "Removed Page"
-    return f"""<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="robots" content="noindex,nofollow">
-<meta name="googlebot" content="noindex,nofollow,noarchive">
-<link rel="canonical" href="{BASE_URL}/">
-<title>Page Removed &mdash; The Streamic</title>
-<meta http-equiv="status" content="410 Gone">
-<meta name="description" content="This page has been permanently removed from The Streamic.">
-<style>
-  body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:640px;margin:80px auto;padding:0 24px;color:#1a1a1a;line-height:1.6}}
-  h1{{font-size:28px;margin-bottom:16px;color:#0a0a0a}}
-  p{{font-size:16px;color:#444;margin-bottom:14px}}
-  a{{color:#0066cc;text-decoration:none;font-weight:500}}
-  a:hover{{text-decoration:underline}}
-  .meta{{font-size:13px;color:#888;margin-top:32px;padding-top:16px;border-top:1px solid #eee}}
-</style>
-</head>
-<body>
-  <h1>This page has been removed</h1>
-  <p>The article you are looking for is no longer available on The Streamic. We have streamlined our editorial archive to focus on long-form analysis and original commentary.</p>
-  <p>You may be looking for:</p>
-  <ul>
-    <li><a href="{BASE_URL}/">The Streamic homepage</a> &mdash; latest editorial coverage</li>
-    <li><a href="{BASE_URL}/ai-post-production.html">AI in Broadcasting</a> &mdash; our active focus area</li>
-    <li><a href="{BASE_URL}/insights.html">Expert Insights</a> &mdash; long-form analysis</li>
-    <li><a href="{BASE_URL}/howto.html">How-To Guides</a> &mdash; practical technical guides</li>
-  </ul>
-  <p class="meta">HTTP 410 Gone &middot; This URL is permanent and will not be reinstated.</p>
-</body>
-</html>"""
-
-
 
 # ── Broadcast & Media IT relevance terms ──────────────────────────────────────
 # Articles must contain at least 2 of these terms (case-insensitive) to pass.
@@ -926,14 +838,7 @@ def _passes_quality_gate(a):
     Raw RSS rewrites (rewrite_feed_local) appear on the site for navigation
     but carry <meta robots="noindex,nofollow">. This is the defence against
     AdSense "Low value content" rejection.
-
-    STAGE 1 (when ADSENSE_STAGE1=True): also enforces _stage1_should_publish()
-    so only ai-post-production AI-upgraded + hand-written editorials survive.
     """
-    # ── STAGE 1 keep-rule (highest priority, runs before all other gates) ──
-    if ADSENSE_STAGE1 and not _stage1_should_publish(a):
-        return False, f"stage1 purge (cat={a.get('category','?')}, gb={a.get('generated_by') or 'empty'!r})"
-
     body = a.get("body_html", "") or ""
     plain = re.sub(r"<[^>]+>", " ", body)
     plain = re.sub(r"\s+", " ", plain).strip()
@@ -1193,86 +1098,22 @@ def _fix_article_images(arts):
               f"({replaced_non_pool} non-pool/RSS, {replaced_duplicate} duplicates)")
 
 
-_FALLBACK_POOLS = {
-    "newsroom": [
-        "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1200&auto=format&fit=crop&q=80",  # newsroom
-        "https://images.unsplash.com/photo-1495020689067-958852a7765e?w=1200&auto=format&fit=crop&q=80",  # newspapers
-        "https://images.unsplash.com/photo-1589998059171-988d887df646?w=1200&auto=format&fit=crop&q=80",  # control room
-        "https://images.unsplash.com/photo-1485579149621-3123dd979885?w=1200&auto=format&fit=crop&q=80",  # monitors wall
-        "https://images.unsplash.com/photo-1557992260-ec58e38d363c?w=1200&auto=format&fit=crop&q=80",  # anchor desk
-        "https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=1200&auto=format&fit=crop&q=80",  # camera studio
-    ],
-    "infrastructure": [
-        "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1200&auto=format&fit=crop&q=80",  # network cables
-        "https://images.unsplash.com/photo-1545987796-200677ee1011?w=1200&auto=format&fit=crop&q=80",  # rack
-        "https://images.unsplash.com/photo-1604754742629-3e5728249d73?w=1200&auto=format&fit=crop&q=80",  # fiber
-        "https://images.unsplash.com/photo-1562408590-e32931084e23?w=1200&auto=format&fit=crop&q=80",  # switch
-        "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=1200&auto=format&fit=crop&q=80",  # server room blue
-    ],
-    "cloud": [
-        "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=1200&auto=format&fit=crop&q=80",  # data center
-        "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1200&auto=format&fit=crop&q=80",  # cloud abstract
-        "https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?w=1200&auto=format&fit=crop&q=80",  # code cloud
-        "https://images.unsplash.com/photo-1614624532983-4ce03382d63d?w=1200&auto=format&fit=crop&q=80",  # cloud network
-        "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=1200&auto=format&fit=crop&q=80",  # server room
-    ],
-    "cloud-production": [
-        "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=1200&auto=format&fit=crop&q=80",
-        "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1200&auto=format&fit=crop&q=80",
-        "https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?w=1200&auto=format&fit=crop&q=80",
-    ],
-    "streaming": [
-        "https://images.unsplash.com/photo-1522869635100-9f4c5e86aa37?w=1200&auto=format&fit=crop&q=80",  # streaming screen
-        "https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=1200&auto=format&fit=crop&q=80",  # netflix-style
-        "https://images.unsplash.com/photo-1593784991095-a205069470b6?w=1200&auto=format&fit=crop&q=80",  # remote content
-        "https://images.unsplash.com/photo-1598550476439-6847785fcea6?w=1200&auto=format&fit=crop&q=80",  # streaming devices
-    ],
-    "playout": [
-        "https://images.unsplash.com/photo-1486572788966-cfd3df1f5b42?w=1200&auto=format&fit=crop&q=80",  # TV wall
-        "https://images.unsplash.com/photo-1518133683791-0b9de5a055f0?w=1200&auto=format&fit=crop&q=80",  # broadcast wall
-        "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=1200&auto=format&fit=crop&q=80",  # mixing desk
-        "https://images.unsplash.com/photo-1551817958-c5b51e7b4a33?w=1200&auto=format&fit=crop&q=80",  # control panel
-    ],
-    "graphics": [
-        "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=1200&auto=format&fit=crop&q=80",  # motion graphics
-        "https://images.unsplash.com/photo-1547658719-da2b51169166?w=1200&auto=format&fit=crop&q=80",  # design
-        "https://images.unsplash.com/photo-1626785774573-4b799315345d?w=1200&auto=format&fit=crop&q=80",  # creative
-        "https://images.unsplash.com/photo-1561736778-92e52a7769ef?w=1200&auto=format&fit=crop&q=80",  # abstract color
-    ],
-    "ai-post-production": [
-        "https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=1200&auto=format&fit=crop&q=80",  # AI abstract
-        "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=1200&auto=format&fit=crop&q=80",  # AI brain
-        "https://images.unsplash.com/photo-1506765515384-028b60a970df?w=1200&auto=format&fit=crop&q=80",  # editing suite
-        "https://images.unsplash.com/photo-1559028012-481c04fa702d?w=1200&auto=format&fit=crop&q=80",  # post-prod
-        "https://images.unsplash.com/photo-1492619375914-88005aa9e8fb?w=1200&auto=format&fit=crop&q=80",  # film editing
-    ],
-    "featured": [
-        "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&auto=format&fit=crop&q=80",
-        "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1200&auto=format&fit=crop&q=80",
-        "https://images.unsplash.com/photo-1485579149621-3123dd979885?w=1200&auto=format&fit=crop&q=80",
-    ],
-}
-
-
 def _hp_img(a, base=""):
     img = eu(a.get("image_url", "") or a.get("image", ""))
-    # AdSense/UX fix: if image is the Mistral generic Streamic fallback, ignore it
-    # and use a category-specific Unsplash fallback rotated per-slug so we don't
-    # get 123 identical guitar-studio cards on the homepage.
-    if img and "_fallback/streamic-default" in img:
-        img = ""
     if img:
         return img
-
     cat = (a.get("category") or "featured").lower()
-    pool = _FALLBACK_POOLS.get(cat, _FALLBACK_POOLS["featured"])
-
-    # Deterministic per-slug rotation — same article always gets same image
-    # (so no Search Console churn), but different slugs in the same category
-    # get different images across the homepage grid.
-    slug = a.get("slug", "") or a.get("title", "") or cat
-    idx = int(hashlib.sha1(slug.encode("utf-8")).hexdigest(), 16) % len(pool)
-    return pool[idx]
+    fallbacks = {
+        "featured": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&auto=format&fit=crop&q=80",
+        "newsroom": "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=1200&auto=format&fit=crop&q=80",
+        "cloud": "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=1200&auto=format&fit=crop&q=80",
+        "infrastructure": "https://images.unsplash.com/photo-1545987796-200677ee1011?w=1200&auto=format&fit=crop&q=80",
+        "graphics": "https://images.unsplash.com/photo-1547658719-da2b51169166?w=1200&auto=format&fit=crop&q=80",
+        "streaming": "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=1200&auto=format&fit=crop&q=80",
+        "ai-post-production": "https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=1200&auto=format&fit=crop&q=80",
+        "playout": "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1200&auto=format&fit=crop&q=80",
+    }
+    return fallbacks.get(cat, fallbacks["featured"])
 
 def _hp_tag(a):
     cinfo = CAT.get(a.get("category", "featured"), CAT["featured"])
@@ -1506,9 +1347,9 @@ def featured_page(arts):
     if not homepage_news:
         homepage_news = fresh_feed[:8]
 
-    title = "The Streamic — AI in Broadcasting & Streaming Technology"
-    desc = "Expert analysis on AI automation, cloud workflows, and operational intelligence for broadcast and streaming professionals."
-    canon = f"{BASE_URL}/index.html"
+    title = "NAB Show 2026 Broadcast Technology Updates — The Streamic"
+    desc = "Independent analysis of NAB Show 2026 announcements: Avid Content Core, Dalet Dalia AI, Telestream OCI, BCNEXXT Vipe HDR, and more. Expert broadcast engineering editorial."
+    canon = f"{BASE_URL}/"
     schema = json.dumps({
         "@context": "https://schema.org", "@type": "WebPage",
         "name": "The Streamic", "description": desc, "url": f"{BASE_URL}/index.html",
@@ -1665,6 +1506,7 @@ def featured_page(arts):
 </a>
       </div>
     </section>
+    {_nab_bento_section()}
     <div class="hp-outer">
       <div class="hp-main">
         <section class="hp-insights hp-insights-premium">
@@ -1822,58 +1664,19 @@ def _clean_body(a):
     - If body_html has <h2> OR word_count > 300 → return the FULL body_html untouched.
       Gemini-generated articles are complete. Truncating them strips the analysis.
     - Fallback: only strip/limit for raw RSS teasers with no AI enhancement.
-
-    Mistral [Source N] cleanup:
-    - Mistral's prompt instructs it to cite sources inline as [Source 1], [Source 2].
-      We replace these with a real source link to the article's source_url, so readers
-      see "TV Technology" or "BroadcastBeat" instead of "[Source 1]". Also satisfies
-      AdSense source-attribution requirements.
     """
     is_ed = a.get("is_editorial") or a.get("editorial")
-    src_url = a.get("source_url", "") or a.get("url", "")
-    src_dom = a.get("source_domain", "")
-    src_name = src_dom.replace("https://", "").replace("http://", "").replace("www.", "").split("/")[0] if src_dom else ""
-
-    def _replace_source_placeholders(html: str) -> str:
-        """Clean up Mistral's source artifacts to avoid duplicate/spammy attribution.
-
-        Mistral's prompt injects two artifacts we don't want rendered:
-          1. Inline [Source 1], [Source 2] placeholders throughout the body
-          2. A trailing <h3>Sources</h3> bibliography block at the end
-
-        Both are redundant because build.py renders its own 'Source Attribution'
-        banner (top) and 'Sources & Further Reading' block (bottom) for every
-        article. Two source citations on the same page is spammy to AdSense.
-
-        This function strips both artifacts so the final rendered article shows
-        ONE top banner + ONE bottom block, nothing in between.
-        """
-        if not html:
-            return html
-        # Strip trailing Sources/References block (Mistral's own bibliography)
-        html = re.sub(
-            r"\n*<h[23]>\s*(?:Sources?|References|Sources?\s*(?:&amp;|&|and)\s*Further\s+Reading)\s*</h[23]>\s*.*?$",
-            "",
-            html,
-            flags=re.IGNORECASE | re.DOTALL,
-        )
-        # Strip inline [Source N] placeholders
-        html = re.sub(r"\s*\[Source\s+\d+\]", "", html)
-        return html
 
     # ── Full editorial articles — always return complete body ─────────────
     if is_ed:
         body = a.get("body_html", "")
         if body and len(body) > 300:
-            return _replace_source_placeholders(body)
+            return body
 
     body_html  = a.get("body_html", "") or ""
     word_count = a.get("word_count", 0)
     # Also check actual body length — metadata word_count may be missing
     actual_wc  = len(re.sub(r"<[^>]+>", " ", body_html).split())
-
-    # Apply [Source N] cleanup to body_html before any further processing
-    body_html = _replace_source_placeholders(body_html)
 
     # ── AI-enhanced articles: has h2 structure OR substantial word count ──
     # Return the full body without ANY stripping — Gemini output is complete.
@@ -2567,6 +2370,169 @@ def howto_page():
 {_cookie_banner()}
 </body></html>"""
 
+def _nab_bento_section():
+    """
+    NAB 2026 Highlights — premium cinematic banner header + bento-grid cards.
+
+    Banner design: dark deep-space purple/indigo (matches NAB_SHOW_BANNER image
+    palette) with the image as a blended background layer, heavy overlay so text
+    is always legible, and a large high-contrast H2.
+
+    Image path: /assets/NAB_SHOW_BANNER_NEWS_HEADLINE_HERO.png
+    Fallback: pure CSS gradient so layout never breaks if image is missing.
+
+    Build-safe: pure string, no disk I/O, no external dependencies.
+    AdSense-safe: semantic HTML5, no deceptive elements, descriptive alt text.
+    CSS-safe: all classes prefixed nab- — zero collision with existing hp- classes.
+    """
+    cards = [
+        {
+            "cat": "AI & Post-Production",
+            "cat_color": "#ff6b8a",
+            "slug": "2026-04-17-ai-post-production-avid-google-cloud-agentic-ai-media-produ",
+            "title": "Avid & Google Cloud: Agentic AI and Content Core",
+            "img_alt": "Avid Content Core SaaS platform integrating Google Vertex AI and Gemini with Media Composer for agentic broadcast post-production",
+            "summary": "Avid launches Content Core — a cloud-native intelligence layer embedding Google Gemini directly into Media Composer. Agentic assistants handle B-roll sourcing, natural-language archive search, and temp shot generation. Hybrid architecture preserves existing NEXIS storage. Available April 2026.",
+            "tag": "🎬",
+            "is_hero": True,
+        },
+        {
+            "cat": "Cloud Production",
+            "cat_color": "#a89bff",
+            "slug": "2026-04-01-cloud-tedial-agentic-ai-media-lifecycle-nab-2026",
+            "title": "Dalet Dalia: Conversational AI Across the Media Supply Chain",
+            "img_alt": "Dalet Dalia agentic AI interface orchestrating media workflows across Dalet Flex, Pyramid, and Galaxy five broadcast platforms",
+            "summary": "Dalia is a multi-agent framework acting as a conversational orchestration layer across Dalet Flex, Pyramid, and Galaxy five. Natural language triggers structured workflows — tagging, clipping, social packaging. Early data shows 60% reduction in repetitive task time. Commercially available April 8, 2026.",
+            "tag": "☁️",
+            "is_hero": False,
+        },
+        {
+            "cat": "Playout",
+            "cat_color": "#5dde8a",
+            "slug": "2026-04-01-playout-harmonic-spectrum-x-plus-playout-economics",
+            "title": "BCNEXXT Vipe: Live UHD HLG HDR and BCE Media-as-a-Service",
+            "img_alt": "BCNEXXT Vipe cloud-native playout platform supporting UHD 2160p BT.2100 HLG live ingest with parallel SDR output for broadcast distribution",
+            "summary": "BCNEXXT adds UHD 2160p BT.2100 HLG live playout to Vipe with simultaneous SDR output. Integrated into BCE Media-as-a-Service. Pay-per-play model removes infrastructure overhead. Channel launch drops to days. Pre-rendered HLG pre-processing keeps commercial files in sync with live HDR feeds.",
+            "tag": "▶️",
+            "is_hero": False,
+        },
+        {
+            "cat": "Newsroom",
+            "cat_color": "#ffd166",
+            "slug": "2026-04-01-newsroom-dalet-flex-2512-semantic-search-dalia-ai",
+            "title": "Mediagenix: Semantic Intelligence for FAST Channel Scheduling",
+            "img_alt": "Mediagenix Scheduling Artist AI generating automated linear channel schedules using semantic content intelligence and audience behaviour signals",
+            "summary": "Mediagenix deploys a Semantic Intelligence layer — combining Spideo AI with rights metadata — to automate scheduling and discovery. Scheduling Artist cuts manual scheduling effort by 80%, playlist prep by 85%. Humanized Semantic Search interprets intent, not keywords. Won 2025 NAB Product of Year.",
+            "tag": "📰",
+            "is_hero": False,
+        },
+        {
+            "cat": "AI & Post-Production",
+            "cat_color": "#ff6b8a",
+            "slug": "2026-04-01-ai-post-production-telestream-adobe-frameio-creative-delive",
+            "title": "Telestream: Oracle OCI Multi-Cloud and Adobe Frame.io V4",
+            "img_alt": "Telestream Vantage workflow panel inside Adobe Premiere Pro submitting to Oracle Cloud Infrastructure OCI for multi-cloud broadcast media processing",
+            "summary": "Telestream optimises Vantage, UP platform, and SENTRY QoS for Oracle Cloud Infrastructure, cutting egress costs. New Premiere Pro panel submits sequences directly to Vantage pipelines. Frame.io V4 connector ensures seamless API migration. Hybrid, on-prem, and multi-cloud deployments supported.",
+            "tag": "🎬",
+            "is_hero": False,
+        },
+        {
+            "cat": "Streaming",
+            "cat_color": "#60b4ff",
+            "slug": "2026-04-01-cloud-tedial-agentic-ai-media-lifecycle-nab-2026",
+            "title": "Vubiquity & Eluvio: Zero-Copy Distribution Economics",
+            "img_alt": "Eluvio Content Fabric protocol showing zero-copy just-in-time media packaging eliminating CDN duplication costs for global streaming distribution",
+            "summary": "Vubiquity and Eluvio replace fragmented file pipelines with a single Content Fabric object — one source, global reach. Zero-copy JIT packaging eliminates per-region duplication. EVIE AI enables frame-accurate archive search without file movement. Sub-500ms global latency replaces satellite links.",
+            "tag": "📡",
+            "is_hero": False,
+        },
+    ]
+
+    hero = next((c for c in cards if c["is_hero"]), cards[0])
+    others = [c for c in cards if not c["is_hero"]]
+    fb = "assets/fallback.jpg"
+
+    # ── Hero card — wide horizontal ───────────────────────────────────────
+    hero_html = f'''<article class="nab-card nab-card-hero" itemprop="itemListElement" itemscope itemtype="https://schema.org/Article">
+  <a href="articles/{hero["slug"]}.html" class="nab-card-link" aria-label="Read full NAB 2026 analysis: {hero["title"]}">
+    <div class="nab-card-img nab-card-img-hero" aria-hidden="true">
+      <div class="nab-card-img-placeholder nab-card-img-placeholder--ai"></div>
+    </div>
+    <div class="nab-card-body">
+      <span class="nab-featured-badge">&#9733; Lead Story</span>
+      <span class="nab-cat" style="--nab-cat-c:{hero["cat_color"]}">{hero["tag"]} {hero["cat"]}</span>
+      <h3 class="nab-title" itemprop="headline">{hero["title"]}</h3>
+      <p class="nab-summary" itemprop="description">{hero["summary"]}</p>
+      <span class="nab-cta">Read Full Analysis <span class="nab-cta-arrow" aria-hidden="true">&#8594;</span></span>
+    </div>
+  </a>
+</article>'''
+
+    # ── Standard cards ────────────────────────────────────────────────────
+    std_cards = ""
+    placeholders = ["--ai", "--cloud", "--playout", "--news", "--stream"]
+    for i, c in enumerate(others):
+        ph = placeholders[i % len(placeholders)]
+        std_cards += f'''<article class="nab-card nab-card-std" itemprop="itemListElement" itemscope itemtype="https://schema.org/Article">
+  <a href="articles/{c["slug"]}.html" class="nab-card-link" aria-label="NAB 2026: {c["title"]}">
+    <div class="nab-card-img nab-card-img-std" aria-hidden="true">
+      <div class="nab-card-img-placeholder nab-card-img-placeholder{ph}"></div>
+    </div>
+    <div class="nab-card-body">
+      <span class="nab-cat" style="--nab-cat-c:{c["cat_color"]}">{c["tag"]} {c["cat"]}</span>
+      <h3 class="nab-title" itemprop="headline">{c["title"]}</h3>
+      <p class="nab-summary" itemprop="description">{c["summary"]}</p>
+      <span class="nab-cta">Read Analysis <span class="nab-cta-arrow" aria-hidden="true">&#8594;</span></span>
+    </div>
+  </a>
+</article>
+'''
+
+    return f'''<section class="nab-section" aria-labelledby="nab-h2" itemscope itemtype="https://schema.org/ItemList">
+  <meta itemprop="name" content="NAB Show 2026 Broadcast Technology Updates — The Streamic">
+
+  <!-- ── CINEMATIC BANNER HEADER ──────────────────────────────────── -->
+  <header class="nab-banner" role="banner" aria-label="NAB Show 2026 section header">
+    <div class="nab-banner-bg" aria-hidden="true">
+      <img
+        class="nab-banner-img"
+        src="assets/NAB_SHOW_BANNER_NEWS_HEADLINE_HERO.png"
+        alt=""
+        loading="lazy"
+        onerror="this.style.display=&apos;none&apos;"
+      >
+      <div class="nab-banner-overlay" aria-hidden="true"></div>
+      <div class="nab-banner-grain" aria-hidden="true"></div>
+    </div>
+    <div class="nab-banner-content">
+      <div class="nab-banner-eyebrow">
+        <span class="nab-live-pulse" aria-hidden="true"></span>
+        <span class="nab-banner-label">LIVE COVERAGE</span>
+        <span class="nab-banner-sep" aria-hidden="true">&middot;</span>
+        <span class="nab-banner-location">Las Vegas &bull; April 18&ndash;22, 2026</span>
+      </div>
+      <h2 id="nab-h2" class="nab-banner-h2">
+        <span class="nab-banner-h2-nab">NAB 2026</span>
+        <span class="nab-banner-h2-hl">Highlights</span>
+      </h2>
+      <p class="nab-banner-sub">Independent editorial analysis of the technology announcements that will reshape broadcast infrastructure, AI-driven production, and streaming distribution through 2027.</p>
+      <a href="ai-post-production.html" class="nab-banner-cta" aria-label="View all NAB 2026 coverage">
+        View all coverage <span aria-hidden="true">&#8594;</span>
+      </a>
+    </div>
+  </header>
+  <!-- ── END BANNER ────────────────────────────────────────────────── -->
+
+  <div class="nab-bento">
+    {hero_html}
+    <div class="nab-std-grid">
+      {std_cards}
+    </div>
+  </div>
+
+</section>'''
+
+
 def editorsdesk_page():
     """Editor's Desk landing page.
 
@@ -2696,7 +2662,7 @@ vlog_page = editorsdesk_page
 def sitemap(arts):
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     statics = [
-        ("index.html","daily","1.0"),("featured.html","daily","0.98"),
+        ("",           "daily","1.0"),("featured.html","daily","0.98"),
         ("ai-post-production.html","daily","0.9"),
         ("howto.html","weekly","0.85"),("post-production-workflows.html","weekly","0.90"),
         ("insights.html","weekly","0.88"),
@@ -2920,34 +2886,16 @@ def main():
 
     print(f"  Total articles after quality gate: {len(arts)}")
 
-    # ── STAGE 1: split arts into live vs purged ───────────────────────────
-    # When ADSENSE_STAGE1=True, only articles passing _stage1_should_publish()
-    # are used for page generation (homepage, categories, sitemap, feeds).
-    # Purged articles get 410 Gone stubs in the article-write loop later,
-    # but they MUST NOT appear in any card grid or link anywhere on the site.
-    # Previous bug: arts still contained purged articles during page generation,
-    # so homepage cards linked to 410 pages → "no webpage found" errors.
-    if ADSENSE_STAGE1:
-        arts_live   = [a for a in arts if _stage1_should_publish(a)]
-        arts_purged = [a for a in arts if not _stage1_should_publish(a)]
-        print(f"  Stage 1 split: {len(arts_live)} live, {len(arts_purged)} → 410 Gone")
-    else:
-        arts_live   = arts
-        arts_purged = []
-
-    # From here on, ALL page generation uses arts_live (not arts).
-    # arts_purged is only used in the article-write loop for 410 stubs.
-
     # ── Fix images: replace typewriters/newspapers with broadcast visuals ──
-    _fix_article_images(arts_live)
+    _fix_article_images(arts)
 
     # ── Select top MAX_ARTICLES by quality — editorial always first ───────
     # SAFE DESIGN: AdSense quality affects index/noindex status, NOT visibility.
     # Category pages always show articles. Only the robots meta tag differs.
     # This means cloud.html, streaming.html etc always have content.
 
-    ed_arts  = [a for a in arts_live if a.get("is_editorial") or a.get("editorial")]
-    rss_pool = [a for a in arts_live if not a.get("is_editorial") and not a.get("editorial")]
+    ed_arts  = [a for a in arts if a.get("is_editorial") or a.get("editorial")]
+    rss_pool = [a for a in arts if not a.get("is_editorial") and not a.get("editorial")]
 
     # Score all RSS articles — high scorers get indexed, others get noindex
     # but are still rendered on category pages (never blank)
@@ -2971,7 +2919,7 @@ def main():
     # Diagnostic
     rss_indexed_count = len(rss_indexed)
     rss_noindex_count = len(rss_pool) - rss_indexed_count
-    print(f"  Visible (indexed): {len(visible_slugs)} | Hidden (noindex): {len(arts_live)-len(visible_slugs)}")
+    print(f"  Visible (indexed): {len(visible_slugs)} | Hidden (noindex): {len(arts)-len(visible_slugs)}")
     print(f"  RSS: {rss_indexed_count} indexed + {rss_noindex_count} noindex (appear on pages, not in search)")
 
     os.makedirs(ARTS_D, exist_ok=True)
@@ -2979,38 +2927,18 @@ def main():
     # ── Article pages — visible indexed, rest noindex ─────────────────────
     # Any article file containing <!-- HAND_AUTHORED --> is never overwritten.
     # Add that comment to any article you edit manually to protect it permanently.
-    #
-    # STAGE 1 ADSENSE PURGE: when ADSENSE_STAGE1=True, articles that fail
-    # _stage1_should_publish() get a 410 Gone stub instead of a full HTML page.
-    # The stub carries noindex + canonical→homepage so Google de-indexes fast.
     written = 0
-    purged_410 = 0
-    purged_slugs = set()
     for a in arts:
         slug_ = a.get("slug","")
         leg   = a.get("legacy_slug")
         dest  = os.path.join(ARTS_D, f"{slug_}.html")
 
-        # Skip if file exists and is hand-authored — never touch
+        # Skip if file exists and is hand-authored
         if os.path.exists(dest):
             with open(dest, encoding="utf-8") as _fh:
                 if "<!-- HAND_AUTHORED -->" in _fh.read():
                     written += 1
                     continue
-
-        # ── STAGE 1 purge: write 410 Gone stub instead of full article ──
-        if ADSENSE_STAGE1 and not _stage1_should_publish(a):
-            stub = _stage1_gone_html(slug_, a.get("title", ""))
-            w(dest, stub)
-            purged_410 += 1
-            purged_slugs.add(slug_)
-            if leg and leg != slug_:
-                leg_dest = os.path.join(ARTS_D, f"{leg}.html")
-                if not (os.path.exists(leg_dest) and "<!-- HAND_AUTHORED -->" in open(leg_dest, encoding="utf-8").read()):
-                    w(leg_dest, stub)
-                    purged_410 += 1
-                    purged_slugs.add(leg)
-            continue
 
         html  = article_page(a)
         if a["slug"] not in visible_slugs:
@@ -3025,36 +2953,7 @@ def main():
             if not (os.path.exists(leg_dest) and "<!-- HAND_AUTHORED -->" in open(leg_dest, encoding="utf-8").read()):
                 w(leg_dest, html)
                 written += 1
-    if ADSENSE_STAGE1:
-        print(f"  &#10003; {written} article files rendered ({len(visible_slugs)} indexed)")
-        print(f"  &#10003; {purged_410} article URLs serving 410 Gone stub (Stage 1 purge)")
-    else:
-        print(f"  &#10003; {written} article files ({len(visible_slugs)} indexed, {written-len(visible_slugs)} noindex)")
-
-    # ── STAGE 1: also handle orphan article HTML files on disk ──
-    # Files that exist in docs/articles/ but whose slugs are NOT in
-    # generated_articles.json should also become 410 stubs.
-    if ADSENSE_STAGE1 and os.path.isdir(ARTS_D):
-        all_data_slugs = {a.get("slug","") for a in arts} | {a.get("legacy_slug","") for a in arts if a.get("legacy_slug")}
-        orphan_410 = 0
-        for fname in os.listdir(ARTS_D):
-            if not fname.endswith(".html"):
-                continue
-            slug_from_file = fname[:-5]
-            if slug_from_file in all_data_slugs:
-                continue  # handled above
-            fpath = os.path.join(ARTS_D, fname)
-            with open(fpath, encoding="utf-8") as _fh:
-                content = _fh.read()
-            if "<!-- HAND_AUTHORED -->" in content:
-                continue  # never touch hand-authored
-            # Check if it's already a 410 stub (idempotent — don't rewrite)
-            if 'content="410 Gone"' in content:
-                continue
-            w(fpath, _stage1_gone_html(slug_from_file))
-            orphan_410 += 1
-        if orphan_410:
-            print(f"  &#10003; {orphan_410} orphan article files converted to 410 Gone stubs")
+    print(f"  &#10003; {written} article files ({len(visible_slugs)} indexed, {written-len(visible_slugs)} noindex)")
 
     # ── Category pages ────────────────────────────────────────────────────
     # ALL category pages now show REAL articles (never blank "coming soon").
@@ -3063,7 +2962,7 @@ def main():
     # and for AdSense crawlers — they just don't appear in Google search results
     # until we're ready to index them.
     by_cat = {}
-    for a in arts_live:
+    for a in arts:
         by_cat.setdefault(a["category"], []).append(a)
 
     cat_page_counts = {}
@@ -3080,7 +2979,7 @@ def main():
                 "future-of-ai-in-broadcast-deployment-2026",
             }
             pinned_slugs = {a["slug"] for a in cat_vis}
-            for a in arts_live:
+            for a in arts:
                 if a["slug"] in PINNED_TO_AI_POST and a["slug"] not in pinned_slugs:
                     cat_vis.append(a)
             cat_vis.sort(key=lambda a: a.get("published", ""), reverse=True)
@@ -3120,7 +3019,7 @@ def main():
         print(f"      {cat}: {n} articles")
 
     # ── Homepage ──────────────────────────────────────────────────────────
-    feat_arts = sorted(arts_live, key=lambda a: a["published"], reverse=True)
+    feat_arts = sorted(arts, key=lambda a: a["published"], reverse=True)
     fp = featured_page(feat_arts)
     w(os.path.join(DOCS,"featured.html"), fp)
     w(os.path.join(DOCS,"index.html"),    fp)
@@ -3172,7 +3071,7 @@ def main():
     print("  &#10003; static pages")
 
     # ── Sitemap — only visible articles + core pages ──────────────────────
-    w(os.path.join(DOCS,"sitemap.xml"), sitemap([a for a in arts_live if a["slug"] in visible_slugs]))
+    w(os.path.join(DOCS,"sitemap.xml"), sitemap([a for a in arts if a["slug"] in visible_slugs]))
     w(os.path.join(DOCS,"robots.txt"),
       f"User-agent: *\nAllow: /\nDisallow: /posts.html\n\nSitemap: {BASE_URL}/sitemap.xml\n")
 
@@ -3248,7 +3147,7 @@ def main():
         with open(gen_dst,"w",encoding="utf-8") as _f: json.dump(out_gen,_f,ensure_ascii=False)
         print(f"  &#10003; docs/data/generated_articles.json ({len(vis_gen)} visible articles)")
 
-    print(f"\n✅ Build complete: {len(visible_slugs)}/{len(arts_live)} articles visible | {len(arts_purged)} purged → 410 | AdSense mode ON")
+    print(f"\n✅ Build complete: {len(visible_slugs)}/{len(arts)} articles visible | AdSense mode ON")
 
 if __name__ == "__main__":
     main()
