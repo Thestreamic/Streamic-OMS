@@ -1347,9 +1347,9 @@ def featured_page(arts):
     if not homepage_news:
         homepage_news = fresh_feed[:8]
 
-    title = "The Streamic — AI in Broadcasting & Streaming Technology"
-    desc = "Expert analysis on AI automation, cloud workflows, and operational intelligence for broadcast and streaming professionals."
-    canon = f"{BASE_URL}/index.html"
+    title = "NAB Show 2026 Broadcast Technology Updates — The Streamic"
+    desc = "Independent analysis of NAB Show 2026 announcements: Avid Content Core, Dalet Dalia AI, Telestream OCI, BCNEXXT Vipe HDR, and more. Expert broadcast engineering editorial."
+    canon = f"{BASE_URL}/"
     schema = json.dumps({
         "@context": "https://schema.org", "@type": "WebPage",
         "name": "The Streamic", "description": desc, "url": f"{BASE_URL}/index.html",
@@ -1506,6 +1506,7 @@ def featured_page(arts):
 </a>
       </div>
     </section>
+    {_nab_bento_section()}
     <div class="hp-outer">
       <div class="hp-main">
         <section class="hp-insights hp-insights-premium">
@@ -2369,6 +2370,169 @@ def howto_page():
 {_cookie_banner()}
 </body></html>"""
 
+def _nab_bento_section():
+    """
+    NAB 2026 Highlights — premium cinematic banner header + bento-grid cards.
+
+    Banner design: dark deep-space purple/indigo (matches NAB_SHOW_BANNER image
+    palette) with the image as a blended background layer, heavy overlay so text
+    is always legible, and a large high-contrast H2.
+
+    Image path: /assets/NAB_SHOW_BANNER_NEWS_HEADLINE_HERO.png
+    Fallback: pure CSS gradient so layout never breaks if image is missing.
+
+    Build-safe: pure string, no disk I/O, no external dependencies.
+    AdSense-safe: semantic HTML5, no deceptive elements, descriptive alt text.
+    CSS-safe: all classes prefixed nab- — zero collision with existing hp- classes.
+    """
+    cards = [
+        {
+            "cat": "AI & Post-Production",
+            "cat_color": "#ff6b8a",
+            "slug": "2026-04-17-ai-post-production-avid-google-cloud-agentic-ai-media-produ",
+            "title": "Avid & Google Cloud: Agentic AI and Content Core",
+            "img_alt": "Avid Content Core SaaS platform integrating Google Vertex AI and Gemini with Media Composer for agentic broadcast post-production",
+            "summary": "Avid launches Content Core — a cloud-native intelligence layer embedding Google Gemini directly into Media Composer. Agentic assistants handle B-roll sourcing, natural-language archive search, and temp shot generation. Hybrid architecture preserves existing NEXIS storage. Available April 2026.",
+            "tag": "🎬",
+            "is_hero": True,
+        },
+        {
+            "cat": "Cloud Production",
+            "cat_color": "#a89bff",
+            "slug": "2026-04-01-cloud-tedial-agentic-ai-media-lifecycle-nab-2026",
+            "title": "Dalet Dalia: Conversational AI Across the Media Supply Chain",
+            "img_alt": "Dalet Dalia agentic AI interface orchestrating media workflows across Dalet Flex, Pyramid, and Galaxy five broadcast platforms",
+            "summary": "Dalia is a multi-agent framework acting as a conversational orchestration layer across Dalet Flex, Pyramid, and Galaxy five. Natural language triggers structured workflows — tagging, clipping, social packaging. Early data shows 60% reduction in repetitive task time. Commercially available April 8, 2026.",
+            "tag": "☁️",
+            "is_hero": False,
+        },
+        {
+            "cat": "Playout",
+            "cat_color": "#5dde8a",
+            "slug": "2026-04-01-playout-harmonic-spectrum-x-plus-playout-economics",
+            "title": "BCNEXXT Vipe: Live UHD HLG HDR and BCE Media-as-a-Service",
+            "img_alt": "BCNEXXT Vipe cloud-native playout platform supporting UHD 2160p BT.2100 HLG live ingest with parallel SDR output for broadcast distribution",
+            "summary": "BCNEXXT adds UHD 2160p BT.2100 HLG live playout to Vipe with simultaneous SDR output. Integrated into BCE Media-as-a-Service. Pay-per-play model removes infrastructure overhead. Channel launch drops to days. Pre-rendered HLG pre-processing keeps commercial files in sync with live HDR feeds.",
+            "tag": "▶️",
+            "is_hero": False,
+        },
+        {
+            "cat": "Newsroom",
+            "cat_color": "#ffd166",
+            "slug": "2026-04-01-newsroom-dalet-flex-2512-semantic-search-dalia-ai",
+            "title": "Mediagenix: Semantic Intelligence for FAST Channel Scheduling",
+            "img_alt": "Mediagenix Scheduling Artist AI generating automated linear channel schedules using semantic content intelligence and audience behaviour signals",
+            "summary": "Mediagenix deploys a Semantic Intelligence layer — combining Spideo AI with rights metadata — to automate scheduling and discovery. Scheduling Artist cuts manual scheduling effort by 80%, playlist prep by 85%. Humanized Semantic Search interprets intent, not keywords. Won 2025 NAB Product of Year.",
+            "tag": "📰",
+            "is_hero": False,
+        },
+        {
+            "cat": "AI & Post-Production",
+            "cat_color": "#ff6b8a",
+            "slug": "2026-04-01-ai-post-production-telestream-adobe-frameio-creative-delive",
+            "title": "Telestream: Oracle OCI Multi-Cloud and Adobe Frame.io V4",
+            "img_alt": "Telestream Vantage workflow panel inside Adobe Premiere Pro submitting to Oracle Cloud Infrastructure OCI for multi-cloud broadcast media processing",
+            "summary": "Telestream optimises Vantage, UP platform, and SENTRY QoS for Oracle Cloud Infrastructure, cutting egress costs. New Premiere Pro panel submits sequences directly to Vantage pipelines. Frame.io V4 connector ensures seamless API migration. Hybrid, on-prem, and multi-cloud deployments supported.",
+            "tag": "🎬",
+            "is_hero": False,
+        },
+        {
+            "cat": "Streaming",
+            "cat_color": "#60b4ff",
+            "slug": "2026-04-01-cloud-tedial-agentic-ai-media-lifecycle-nab-2026",
+            "title": "Vubiquity & Eluvio: Zero-Copy Distribution Economics",
+            "img_alt": "Eluvio Content Fabric protocol showing zero-copy just-in-time media packaging eliminating CDN duplication costs for global streaming distribution",
+            "summary": "Vubiquity and Eluvio replace fragmented file pipelines with a single Content Fabric object — one source, global reach. Zero-copy JIT packaging eliminates per-region duplication. EVIE AI enables frame-accurate archive search without file movement. Sub-500ms global latency replaces satellite links.",
+            "tag": "📡",
+            "is_hero": False,
+        },
+    ]
+
+    hero = next((c for c in cards if c["is_hero"]), cards[0])
+    others = [c for c in cards if not c["is_hero"]]
+    fb = "assets/fallback.jpg"
+
+    # ── Hero card — wide horizontal ───────────────────────────────────────
+    hero_html = f'''<article class="nab-card nab-card-hero" itemprop="itemListElement" itemscope itemtype="https://schema.org/Article">
+  <a href="articles/{hero["slug"]}.html" class="nab-card-link" aria-label="Read full NAB 2026 analysis: {hero["title"]}">
+    <div class="nab-card-img nab-card-img-hero" aria-hidden="true">
+      <div class="nab-card-img-placeholder nab-card-img-placeholder--ai"></div>
+    </div>
+    <div class="nab-card-body">
+      <span class="nab-featured-badge">&#9733; Lead Story</span>
+      <span class="nab-cat" style="--nab-cat-c:{hero["cat_color"]}">{hero["tag"]} {hero["cat"]}</span>
+      <h3 class="nab-title" itemprop="headline">{hero["title"]}</h3>
+      <p class="nab-summary" itemprop="description">{hero["summary"]}</p>
+      <span class="nab-cta">Read Full Analysis <span class="nab-cta-arrow" aria-hidden="true">&#8594;</span></span>
+    </div>
+  </a>
+</article>'''
+
+    # ── Standard cards ────────────────────────────────────────────────────
+    std_cards = ""
+    placeholders = ["--ai", "--cloud", "--playout", "--news", "--stream"]
+    for i, c in enumerate(others):
+        ph = placeholders[i % len(placeholders)]
+        std_cards += f'''<article class="nab-card nab-card-std" itemprop="itemListElement" itemscope itemtype="https://schema.org/Article">
+  <a href="articles/{c["slug"]}.html" class="nab-card-link" aria-label="NAB 2026: {c["title"]}">
+    <div class="nab-card-img nab-card-img-std" aria-hidden="true">
+      <div class="nab-card-img-placeholder nab-card-img-placeholder{ph}"></div>
+    </div>
+    <div class="nab-card-body">
+      <span class="nab-cat" style="--nab-cat-c:{c["cat_color"]}">{c["tag"]} {c["cat"]}</span>
+      <h3 class="nab-title" itemprop="headline">{c["title"]}</h3>
+      <p class="nab-summary" itemprop="description">{c["summary"]}</p>
+      <span class="nab-cta">Read Analysis <span class="nab-cta-arrow" aria-hidden="true">&#8594;</span></span>
+    </div>
+  </a>
+</article>
+'''
+
+    return f'''<section class="nab-section" aria-labelledby="nab-h2" itemscope itemtype="https://schema.org/ItemList">
+  <meta itemprop="name" content="NAB Show 2026 Broadcast Technology Updates — The Streamic">
+
+  <!-- ── CINEMATIC BANNER HEADER ──────────────────────────────────── -->
+  <header class="nab-banner" role="banner" aria-label="NAB Show 2026 section header">
+    <div class="nab-banner-bg" aria-hidden="true">
+      <img
+        class="nab-banner-img"
+        src="assets/NAB_SHOW_BANNER_NEWS_HEADLINE_HERO.png"
+        alt=""
+        loading="lazy"
+        onerror="this.style.display=&apos;none&apos;"
+      >
+      <div class="nab-banner-overlay" aria-hidden="true"></div>
+      <div class="nab-banner-grain" aria-hidden="true"></div>
+    </div>
+    <div class="nab-banner-content">
+      <div class="nab-banner-eyebrow">
+        <span class="nab-live-pulse" aria-hidden="true"></span>
+        <span class="nab-banner-label">LIVE COVERAGE</span>
+        <span class="nab-banner-sep" aria-hidden="true">&middot;</span>
+        <span class="nab-banner-location">Las Vegas &bull; April 18&ndash;22, 2026</span>
+      </div>
+      <h2 id="nab-h2" class="nab-banner-h2">
+        <span class="nab-banner-h2-nab">NAB 2026</span>
+        <span class="nab-banner-h2-hl">Highlights</span>
+      </h2>
+      <p class="nab-banner-sub">Independent editorial analysis of the technology announcements that will reshape broadcast infrastructure, AI-driven production, and streaming distribution through 2027.</p>
+      <a href="ai-post-production.html" class="nab-banner-cta" aria-label="View all NAB 2026 coverage">
+        View all coverage <span aria-hidden="true">&#8594;</span>
+      </a>
+    </div>
+  </header>
+  <!-- ── END BANNER ────────────────────────────────────────────────── -->
+
+  <div class="nab-bento">
+    {hero_html}
+    <div class="nab-std-grid">
+      {std_cards}
+    </div>
+  </div>
+
+</section>'''
+
+
 def editorsdesk_page():
     """Editor's Desk landing page.
 
@@ -2498,7 +2662,7 @@ vlog_page = editorsdesk_page
 def sitemap(arts):
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     statics = [
-        ("index.html","daily","1.0"),("featured.html","daily","0.98"),
+        ("",           "daily","1.0"),("featured.html","daily","0.98"),
         ("ai-post-production.html","daily","0.9"),
         ("howto.html","weekly","0.85"),("post-production-workflows.html","weekly","0.90"),
         ("insights.html","weekly","0.88"),

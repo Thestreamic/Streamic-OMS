@@ -1461,3 +1461,533 @@ body[data-category="featured"] .nav {
 .hp-insight-reveal {
   animation: insightReveal 0.35s cubic-bezier(.4,0,.2,1) both;
 }
+
+
+/* ════════════════════════════════════════════════════════════════════
+   NAB 2026 HIGHLIGHTS SECTION
+   Premium cinematic banner + bento card grid
+   All classes prefixed nab- — zero collision with hp- namespace
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── Section wrapper ────────────────────────────────────────────── */
+.nab-section {
+  margin: 56px 0 0;
+  padding: 0;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   CINEMATIC BANNER HEADER
+   Image: assets/NAB_SHOW_BANNER_NEWS_HEADLINE_HERO.png
+   Deep purple/indigo atmosphere from the NAB Show arena photo.
+   Heavy overlay keeps H2 always readable regardless of image load.
+   ════════════════════════════════════════════════════════════════════ */
+.nab-banner {
+  position: relative;
+  width: 100%;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  border-radius: 16px;
+  margin-bottom: 28px;
+  /* CSS fallback gradient — matches NAB image palette exactly */
+  background: linear-gradient(
+    135deg,
+    #0d0820 0%,
+    #1a0d3d 30%,
+    #2d1060 55%,
+    #1a0830 80%,
+    #0a0518 100%
+  );
+  isolation: isolate;
+}
+
+/* ── Background image layer ─────────────────────────────────────── */
+.nab-banner-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+.nab-banner-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 30%;
+  display: block;
+  /* Desaturate slightly so overlay gold/white text pops */
+  filter: saturate(0.75) brightness(0.6);
+  transform: scale(1.03);
+  transition: transform 8s ease;
+}
+.nab-banner:hover .nab-banner-img {
+  transform: scale(1.0);
+}
+
+/* ── Multi-layer overlay — dark + editorial gold accent ─────────── */
+.nab-banner-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    /* Left-to-right gradient — text lives on left, image bleeds right */
+    linear-gradient(
+      105deg,
+      rgba(8, 3, 22, 0.96) 0%,
+      rgba(14, 6, 38, 0.92) 35%,
+      rgba(20, 8, 50, 0.80) 60%,
+      rgba(26, 10, 58, 0.40) 100%
+    ),
+    /* Bottom fade for grounding */
+    linear-gradient(
+      to top,
+      rgba(5, 2, 15, 0.70) 0%,
+      transparent 50%
+    );
+  z-index: 1;
+}
+
+/* ── Film-grain texture via SVG noise ───────────────────────────── */
+.nab-banner-grain {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  pointer-events: none;
+}
+
+/* ── Banner content — sits above all bg layers ──────────────────── */
+.nab-banner-content {
+  position: relative;
+  z-index: 10;
+  padding: 36px 48px 36px 44px;
+  max-width: 740px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ── Eyebrow row: live dot + label + location ───────────────────── */
+.nab-banner-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+/* Animated live pulse dot */
+.nab-live-pulse {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ef4444;
+  flex-shrink: 0;
+  position: relative;
+}
+.nab-live-pulse::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  background: rgba(239, 68, 68, 0.35);
+  animation: nabPulse 1.6s ease-out infinite;
+}
+@keyframes nabPulse {
+  0%   { transform: scale(0.8); opacity: 1; }
+  70%  { transform: scale(2.2); opacity: 0; }
+  100% { transform: scale(0.8); opacity: 0; }
+}
+
+.nab-banner-label {
+  font-family: var(--font, 'DM Sans', sans-serif);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 2.4px;
+  text-transform: uppercase;
+  color: #ef4444;
+}
+.nab-banner-sep {
+  color: rgba(255,255,255,0.25);
+  font-size: 11px;
+}
+.nab-banner-location {
+  font-family: var(--font, 'DM Sans', sans-serif);
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.55);
+  letter-spacing: 0.3px;
+}
+
+/* ── THE H2 — the hero of this banner ──────────────────────────── */
+.nab-banner-h2 {
+  margin: 0;
+  line-height: 1.0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  /* Prevent orphaned words */
+  text-wrap: balance;
+}
+/* "NAB 2026" — smaller weight, gold accent */
+.nab-banner-h2-nab {
+  display: block;
+  font-family: var(--font, 'DM Sans', sans-serif);
+  font-size: clamp(13px, 1.6vw, 18px);
+  font-weight: 700;
+  letter-spacing: 3.5px;
+  text-transform: uppercase;
+  color: #D4AF37;
+  margin-bottom: 2px;
+  /* Subtle text-glow to lift it off the dark bg */
+  text-shadow: 0 0 24px rgba(212, 175, 55, 0.55);
+}
+/* "Highlights" — the BIG dominant word */
+.nab-banner-h2-hl {
+  display: block;
+  font-family: var(--serif, 'DM Serif Display', Georgia, serif);
+  font-size: clamp(38px, 5.5vw, 72px);
+  font-weight: 400; /* DM Serif Display is display-weight at 400 */
+  letter-spacing: -0.025em;
+  color: #ffffff;
+  line-height: 0.95;
+  /* Premium white text glow */
+  text-shadow:
+    0 0 40px rgba(255,255,255,0.18),
+    0 2px 8px rgba(0,0,0,0.6);
+}
+
+/* ── Subheading ─────────────────────────────────────────────────── */
+.nab-banner-sub {
+  font-family: var(--font, 'DM Sans', sans-serif);
+  font-size: clamp(13px, 1.4vw, 15px);
+  color: rgba(255, 255, 255, 0.68);
+  line-height: 1.6;
+  margin: 4px 0 6px;
+  max-width: 560px;
+  font-weight: 400;
+}
+
+/* ── CTA pill ───────────────────────────────────────────────────── */
+.nab-banner-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 20px;
+  border: 1px solid rgba(212, 175, 55, 0.55);
+  border-radius: 980px;
+  background: rgba(212, 175, 55, 0.10);
+  color: #D4AF37;
+  font-family: var(--font, 'DM Sans', sans-serif);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  align-self: flex-start;
+  margin-top: 4px;
+}
+.nab-banner-cta:hover {
+  background: rgba(212, 175, 55, 0.22);
+  border-color: #D4AF37;
+  color: #f5d060;
+}
+
+/* ── Right-side decorative badge (desktop only) ─────────────────── */
+.nab-banner-content::after {
+  content: 'APR 18–22';
+  position: absolute;
+  right: -220px;
+  top: 50%;
+  transform: translateY(-50%) rotate(90deg);
+  font-family: var(--font, 'DM Sans', sans-serif);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 4px;
+  color: rgba(255,255,255,0.12);
+  text-transform: uppercase;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   BENTO GRID — cards below the banner
+   ════════════════════════════════════════════════════════════════════ */
+.nab-bento {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ── Card base ──────────────────────────────────────────────────── */
+.nab-card {
+  background: #ffffff;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.04);
+  transition: box-shadow 0.22s ease, transform 0.22s ease;
+}
+.nab-card:hover {
+  box-shadow: 0 10px 32px rgba(0,0,0,0.11), 0 0 0 1px rgba(0,0,0,0.06);
+  transform: translateY(-3px);
+}
+.nab-card-link {
+  display: flex;
+  text-decoration: none;
+  color: inherit;
+  height: 100%;
+}
+
+/* ── Hero card — horizontal wide ───────────────────────────────── */
+.nab-card-hero {
+  min-height: 240px;
+}
+.nab-card-hero .nab-card-link {
+  flex-direction: row;
+}
+.nab-card-img-hero {
+  width: 42%;
+  min-height: 240px;
+  flex-shrink: 0;
+}
+.nab-card-hero .nab-card-body {
+  flex: 1;
+  padding: 30px 34px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  justify-content: center;
+}
+
+/* ── Standard cards grid ────────────────────────────────────────── */
+.nab-std-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.nab-card-std .nab-card-link {
+  flex-direction: column;
+}
+.nab-card-img-std {
+  width: 100%;
+  height: 160px;
+  flex-shrink: 0;
+}
+.nab-card-std .nab-card-body {
+  padding: 18px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+/* ── Image placeholder — CSS gradient visuals, no broken images ──── */
+.nab-card-img {
+  overflow: hidden;
+  position: relative;
+  flex-shrink: 0;
+}
+.nab-card-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.35s ease;
+}
+.nab-card:hover .nab-card-img img {
+  transform: scale(1.04);
+}
+/* Gradient placeholders — shown when images are absent (no img tag in current build) */
+.nab-card-img-placeholder {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+}
+.nab-card-img-placeholder--ai {
+  background: linear-gradient(135deg, #1a0d3d 0%, #3d1260 40%, #6b21a8 70%, #1a0d3d 100%);
+}
+.nab-card-img-placeholder--cloud {
+  background: linear-gradient(135deg, #0c1445 0%, #1e3a8a 50%, #1d4ed8 100%);
+}
+.nab-card-img-placeholder--playout {
+  background: linear-gradient(135deg, #052e16 0%, #14532d 50%, #16a34a 100%);
+}
+.nab-card-img-placeholder--news {
+  background: linear-gradient(135deg, #1c1003 0%, #451a03 50%, #92400e 100%);
+}
+.nab-card-img-placeholder--stream {
+  background: linear-gradient(135deg, #0c1f40 0%, #1e3a5f 50%, #0369a1 100%);
+}
+/* Category icon overlay on placeholder */
+.nab-card-img-placeholder::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 30% 40%, rgba(255,255,255,0.06) 0%, transparent 60%),
+    linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.3) 100%);
+}
+
+/* ── Card body elements ─────────────────────────────────────────── */
+.nab-featured-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  background: linear-gradient(90deg, #D4AF37, #f5d060);
+  color: #1a0d00;
+  font-family: var(--font, 'DM Sans', sans-serif);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  border-radius: 980px;
+  align-self: flex-start;
+}
+
+.nab-cat {
+  font-family: var(--font, 'DM Sans', sans-serif);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  /* color set via CSS custom property from inline style */
+  color: var(--nab-cat-c, #0066cc);
+}
+
+.nab-title {
+  font-family: var(--serif, 'DM Serif Display', Georgia, serif);
+  font-size: clamp(16px, 1.6vw, 20px);
+  font-weight: 400;
+  line-height: 1.28;
+  letter-spacing: -0.02em;
+  color: #111;
+  margin: 0;
+}
+.nab-card-hero .nab-title {
+  font-size: clamp(20px, 2.2vw, 26px);
+}
+.nab-card-link:hover .nab-title {
+  color: #0066cc;
+}
+
+.nab-summary {
+  font-family: var(--font, 'DM Sans', sans-serif);
+  font-size: 13px;
+  line-height: 1.65;
+  color: #555;
+  margin: 0;
+  /* Clamp to 5 lines on standard cards */
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.nab-card-hero .nab-summary {
+  -webkit-line-clamp: 6;
+  font-size: 14px;
+}
+
+/* ── CTA row ────────────────────────────────────────────────────── */
+.nab-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font, 'DM Sans', sans-serif);
+  font-size: 12px;
+  font-weight: 700;
+  color: #0066cc;
+  text-decoration: none;
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px solid #f0f0f0;
+  transition: gap 0.2s ease, color 0.15s ease;
+  letter-spacing: 0.1px;
+}
+.nab-card-link:hover .nab-cta {
+  gap: 8px;
+  color: #004499;
+}
+.nab-cta-arrow {
+  transition: transform 0.2s ease;
+}
+.nab-card-link:hover .nab-cta-arrow {
+  transform: translateX(3px);
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   RESPONSIVE
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── Tablet: 3-col → 2-col ──────────────────────────────────────── */
+@media (max-width: 1024px) and (min-width: 641px) {
+  .nab-std-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .nab-card-hero .nab-card-link {
+    flex-direction: column;
+  }
+  .nab-card-img-hero {
+    width: 100%;
+    min-height: 220px;
+  }
+  .nab-card-hero .nab-card-body {
+    padding: 22px 26px;
+  }
+  .nab-banner-content {
+    padding: 28px 32px;
+  }
+  .nab-banner-h2-hl {
+    font-size: clamp(34px, 5vw, 56px);
+  }
+}
+
+/* ── Mobile: single column ──────────────────────────────────────── */
+@media (max-width: 640px) {
+  .nab-section {
+    margin-top: 40px;
+  }
+  .nab-banner {
+    border-radius: 12px;
+    min-height: 180px;
+  }
+  .nab-banner-content {
+    padding: 24px 22px;
+    gap: 8px;
+  }
+  .nab-banner-content::after {
+    display: none;
+  }
+  .nab-banner-h2-hl {
+    font-size: clamp(32px, 9vw, 42px);
+  }
+  .nab-banner-sub {
+    font-size: 13px;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .nab-card-hero .nab-card-link {
+    flex-direction: column;
+  }
+  .nab-card-img-hero {
+    width: 100%;
+    min-height: 180px;
+  }
+  .nab-card-hero .nab-card-body {
+    padding: 18px 18px 20px;
+  }
+  .nab-std-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .nab-card-img-std {
+    height: 140px;
+  }
+  .nab-bento {
+    gap: 14px;
+  }
+}
+/* ── END NAB 2026 SECTION ─────────────────────────────────────── */
