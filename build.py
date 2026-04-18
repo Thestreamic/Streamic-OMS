@@ -1067,6 +1067,13 @@ def _fix_article_images(arts):
 
         img = a.get("image_url", "") or ""
 
+        # Preserve approved local site assets used for curated hero/editorial art.
+        if img.startswith("/assets/") or img.startswith("assets/"):
+            a["image_credit"] = a.get("image_credit") or "The Streamic"
+            a["image_license"] = a.get("image_license") or "Site Asset"
+            a["image_license_url"] = a.get("image_license_url") or ""
+            continue
+
         if not _image_is_from_pool(img):
             # Non-pool image (RSS/vendor/bad/empty) — force replacement.
             a["image_url"] = _next_image()
@@ -1465,8 +1472,8 @@ def featured_page(arts):
 <body data-category="featured">
 {nav("/")}
 <main>
+  {_nab_bento_section()}
   <div class="w">
-    {hero_html}
     <section class="hp-flagship-section">
       <div class="w">
         <div class="hp-flagship-section__hdr">
@@ -1476,37 +1483,8 @@ def featured_page(arts):
           </div>
           <p class="hp-section-intro">Original Streamic analysis on broadcast automation, IP infrastructure, cloud production, and editorial operations — selected for depth, not noise.</p>
         </div>
-        <a href="articles/quic-http3-video-delivery-streaming-2026.html" class="hp-flagship" aria-label="Read full insight: Beyond TCP">
-  <div class="hp-flagship__body">
-    <div class="hp-flagship__eyebrow">
-      <span class="hp-flagship__label">Latest Insight</span>
-    </div>
-    <span class="hp-flagship__tag">📡 Infrastructure &amp; Streaming</span>
-    <h2 class="hp-flagship__hl">Beyond TCP: Why QUIC Is Redefining Video Delivery</h2>
-    <p class="hp-flagship__summary">Faster video start, fewer buffering issues, and smoother playback — even on weak networks. HTTP/3 and QUIC are quietly improving streaming performance across OTT platforms and live broadcasting.</p>
-    <p class="hp-flagship__body-text">For years, streaming relied on TCP — the same technology behind web browsing. It works, but it struggles with modern mobile and high-demand video traffic. QUIC improves this by enabling faster connections, better handling of network issues, and smoother playback — even when users switch between Wi-Fi and mobile networks.</p>
-    <div class="hp-flagship__usecases">
-      <div class="hp-flagship__usecase"><span class="hp-flagship__usecase-icon">🏟️</span><span><strong>Live Sports</strong> — smoother playback during peak traffic moments</span></div>
-      <div class="hp-flagship__usecase"><span class="hp-flagship__usecase-icon">📺</span><span><strong>OTT Platforms</strong> — faster video start reduces viewer drop-off</span></div>
-      <div class="hp-flagship__usecase"><span class="hp-flagship__usecase-icon">📱</span><span><strong>Mobile Viewing</strong> — stable playback when switching networks</span></div>
-      <div class="hp-flagship__usecase"><span class="hp-flagship__usecase-icon">⚡</span><span><strong>Live Events</strong> — lower latency for near real-time streaming</span></div>
-    </div>
-    <div class="hp-flagship__footer">
-      <div class="hp-flagship__meta">
-        <span class="hp-flagship__author">Prerak K Mehta</span>
-        <span class="hp-flagship__role">Broadcast Technology and Media IT Analyst</span>
-        <span class="hp-flagship__readtime">⏱ 5 min read</span>
-      </div>
-      <span class="hp-flagship__cta">Read Full Insight <span class="hp-flagship__cta-arrow">→</span></span>
-    </div>
-  </div>
-  <div class="hp-flagship__image-wrap">
-    <img class="hp-flagship__img" src="assets/insight-quic-infographic.jpg" alt="QUIC vs TCP: streaming performance comparison infographic" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
-  </div>
-</a>
       </div>
     </section>
-    {_nab_bento_section()}
     <div class="hp-outer">
       <div class="hp-main">
         <section class="hp-insights hp-insights-premium">
@@ -1576,6 +1554,28 @@ def category_page(cat, arts):
         rest   = sl[1:]
 
         hero_html = hero_block(first[0], base="") if first else ""
+        if cat == "ai-post-production" and pg == 0:
+            hero_html = f"""<section class="hero hero--ai-post-custom">
+  <div class="hero-inner">
+    <div class="hero-img">
+      <a href="articles/ai-reducing-broadcast-operational-costs-2026.html">
+        <img src="assets/hero-broadcast-male.png" alt="Broadcast production switcher in a modern control room" loading="eager" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+      </a>
+    </div>
+    <div class="hero-body">
+      <span class="hero-tag" style="background:#FF2D55">🎬 AI &amp; Post-Production</span>
+      <h1 class="hero-hl"><a href="articles/ai-reducing-broadcast-operational-costs-2026.html">Beyond Automation: How AI Can Optimize Broadcast Costs and Scale Human Potential in 2026</a></h1>
+      <p class="hero-dek">This page tracks the NAB 2026 shifts that matter to real production teams: agentic assistants inside edit systems, natural-language archive search, faster creative-to-delivery automation, and practical cloud bridges that do not force a full rip-and-replace.</p>
+      <div class="hero-meta"><span>By {AUTHOR}</span><span>{d(first[0].get('published','') if first else '')}</span><span>Curated NAB landing page</span></div>
+      <a href="articles/ai-reducing-broadcast-operational-costs-2026.html" class="hero-cta">Read featured analysis</a>
+    </div>
+  </div>
+</section>
+<section class="nab-inline-grid" aria-label="Featured NAB vendor updates">
+  <a class="nab-inline-card" href="articles/2026-04-17-ai-post-production-avid-google-cloud-agentic-ai-media-production.html"><span class="nab-inline-kicker">Avid</span><strong>Avid Content Core and Google Gemini</strong><span>Agentic AI, archive search, and hybrid deployment without a rip-and-replace migration.</span></a>
+  <a class="nab-inline-card" href="articles/2026-04-01-newsroom-dalet-flex-2512-semantic-search-dalia-ai.html"><span class="nab-inline-kicker">Dalet</span><strong>Dalia moves from idea to operational layer</strong><span>Natural-language workflow triggers with human validation kept in the loop.</span></a>
+  <a class="nab-inline-card" href="articles/2026-04-01-ai-post-production-telestream-adobe-frameio-creative-delivery-automation.html"><span class="nab-inline-kicker">Telestream</span><strong>OCI + Adobe workflow acceleration</strong><span>Premiere-to-Vantage automation, Frame.io readiness, and multi-cloud QoS monitoring.</span></a>
+</section>""" + hero_html
         grid_html = news_grid(rest, grid_id="catGrid") if rest else ""
 
         pag = _pag_html(cat, pg, total_pages)
@@ -2371,167 +2371,80 @@ def howto_page():
 </body></html>"""
 
 def _nab_bento_section():
-    """
-    NAB 2026 Highlights — premium cinematic banner header + bento-grid cards.
-
-    Banner design: dark deep-space purple/indigo (matches NAB_SHOW_BANNER image
-    palette) with the image as a blended background layer, heavy overlay so text
-    is always legible, and a large high-contrast H2.
-
-    Image path: /assets/NAB_SHOW_BANNER_NEWS_HEADLINE_HERO.png
-    Fallback: pure CSS gradient so layout never breaks if image is missing.
-
-    Build-safe: pure string, no disk I/O, no external dependencies.
-    AdSense-safe: semantic HTML5, no deceptive elements, descriptive alt text.
-    CSS-safe: all classes prefixed nab- — zero collision with existing hp- classes.
-    """
+    """Homepage NAB 2026 hero + moonlight horizontal cards."""
     cards = [
         {
             "cat": "AI & Post-Production",
-            "cat_color": "#ff6b8a",
-            "slug": "2026-04-17-ai-post-production-avid-google-cloud-agentic-ai-media-produ",
-            "title": "Avid & Google Cloud: Agentic AI and Content Core",
-            "img_alt": "Avid Content Core SaaS platform integrating Google Vertex AI and Gemini with Media Composer for agentic broadcast post-production",
-            "summary": "Avid launches Content Core — a cloud-native intelligence layer embedding Google Gemini directly into Media Composer. Agentic assistants handle B-roll sourcing, natural-language archive search, and temp shot generation. Hybrid architecture preserves existing NEXIS storage. Available April 2026.",
-            "tag": "🎬",
-            "is_hero": True,
-        },
-        {
-            "cat": "Cloud Production",
-            "cat_color": "#a89bff",
-            "slug": "2026-04-01-cloud-tedial-agentic-ai-media-lifecycle-nab-2026",
-            "title": "Dalet Dalia: Conversational AI Across the Media Supply Chain",
-            "img_alt": "Dalet Dalia agentic AI interface orchestrating media workflows across Dalet Flex, Pyramid, and Galaxy five broadcast platforms",
-            "summary": "Dalia is a multi-agent framework acting as a conversational orchestration layer across Dalet Flex, Pyramid, and Galaxy five. Natural language triggers structured workflows — tagging, clipping, social packaging. Early data shows 60% reduction in repetitive task time. Commercially available April 8, 2026.",
-            "tag": "☁️",
-            "is_hero": False,
-        },
-        {
-            "cat": "Playout",
-            "cat_color": "#5dde8a",
-            "slug": "2026-04-01-playout-harmonic-spectrum-x-plus-playout-economics",
-            "title": "BCNEXXT Vipe: Live UHD HLG HDR and BCE Media-as-a-Service",
-            "img_alt": "BCNEXXT Vipe cloud-native playout platform supporting UHD 2160p BT.2100 HLG live ingest with parallel SDR output for broadcast distribution",
-            "summary": "BCNEXXT adds UHD 2160p BT.2100 HLG live playout to Vipe with simultaneous SDR output. Integrated into BCE Media-as-a-Service. Pay-per-play model removes infrastructure overhead. Channel launch drops to days. Pre-rendered HLG pre-processing keeps commercial files in sync with live HDR feeds.",
-            "tag": "▶️",
-            "is_hero": False,
-        },
-        {
-            "cat": "Newsroom",
-            "cat_color": "#ffd166",
-            "slug": "2026-04-01-newsroom-dalet-flex-2512-semantic-search-dalia-ai",
-            "title": "Mediagenix: Semantic Intelligence for FAST Channel Scheduling",
-            "img_alt": "Mediagenix Scheduling Artist AI generating automated linear channel schedules using semantic content intelligence and audience behaviour signals",
-            "summary": "Mediagenix deploys a Semantic Intelligence layer — combining Spideo AI with rights metadata — to automate scheduling and discovery. Scheduling Artist cuts manual scheduling effort by 80%, playlist prep by 85%. Humanized Semantic Search interprets intent, not keywords. Won 2025 NAB Product of Year.",
-            "tag": "📰",
-            "is_hero": False,
+            "cat_color": "#8b5cf6",
+            "slug": "2026-04-17-ai-post-production-avid-google-cloud-agentic-ai-media-production",
+            "title": "Avid Content Core: Agentic AI, Google Gemini, and a Unified Media Intelligence Layer",
+            "eyebrow": "Avid Technology",
+            "summary_html": "<strong>The Announcement</strong> Avid Partners with Google Cloud to Integrate Agentic AI and Launch &quot;Content Core&quot;.<br><br><strong>Intelligent Data Layer:</strong> Introduces Avid Content Core — a cloud-native SaaS platform that unifies identity, ingest, and storage into a single data platform. <strong>Google Gemini Integration:</strong> Deeply embeds Google AI into Media Composer. <strong>Agentic AI Assistants:</strong> Digital agents can match visual styles and identify emotional cues. <strong>Natural Language Search:</strong> Teams can query entire archives conversationally instead of relying on manual metadata tags. <strong>Zero-Disruption Migration:</strong> Designed to work with existing infrastructure without a rip-and-replace overhaul.",
+            "cta": "Open full article",
         },
         {
             "cat": "AI & Post-Production",
-            "cat_color": "#ff6b8a",
-            "slug": "2026-04-01-ai-post-production-telestream-adobe-frameio-creative-delive",
-            "title": "Telestream: Oracle OCI Multi-Cloud and Adobe Frame.io V4",
-            "img_alt": "Telestream Vantage workflow panel inside Adobe Premiere Pro submitting to Oracle Cloud Infrastructure OCI for multi-cloud broadcast media processing",
-            "summary": "Telestream optimises Vantage, UP platform, and SENTRY QoS for Oracle Cloud Infrastructure, cutting egress costs. New Premiere Pro panel submits sequences directly to Vantage pipelines. Frame.io V4 connector ensures seamless API migration. Hybrid, on-prem, and multi-cloud deployments supported.",
-            "tag": "🎬",
-            "is_hero": False,
+            "cat_color": "#b45309",
+            "slug": "2026-04-01-newsroom-dalet-flex-2512-semantic-search-dalia-ai",
+            "title": "Dalet Dalia: Conversational Agentic AI for Enterprise Production",
+            "eyebrow": "Dalet",
+            "summary_html": "<strong>The Announcement</strong> Commercial launch of Dalia — a media-aware agentic AI layer for enterprise production. <strong>Agentic AI:</strong> Natural-language interaction for content discovery, clipping, and supply-chain tasks. <strong>Ecosystem Integration:</strong> Works across Dalet Flex, Pyramid, and Galaxy five. <strong>Human-in-the-Loop:</strong> Keeps editorial validation under operator control. <strong>Efficiency Gains:</strong> Early reporting points to a 60% reduction in repetitive work such as tagging and clipping. <strong>Unified UI:</strong> Brings fragmented media operations into one conversational interface.",
+            "cta": "Read Dalet coverage",
         },
         {
-            "cat": "Streaming",
-            "cat_color": "#60b4ff",
-            "slug": "2026-04-01-cloud-tedial-agentic-ai-media-lifecycle-nab-2026",
-            "title": "Vubiquity & Eluvio: Zero-Copy Distribution Economics",
-            "img_alt": "Eluvio Content Fabric protocol showing zero-copy just-in-time media packaging eliminating CDN duplication costs for global streaming distribution",
-            "summary": "Vubiquity and Eluvio replace fragmented file pipelines with a single Content Fabric object — one source, global reach. Zero-copy JIT packaging eliminates per-region duplication. EVIE AI enables frame-accurate archive search without file movement. Sub-500ms global latency replaces satellite links.",
-            "tag": "📡",
-            "is_hero": False,
+            "cat": "AI & Post-Production",
+            "cat_color": "#2563eb",
+            "slug": "2026-04-01-ai-post-production-telestream-adobe-frameio-creative-delivery-automation",
+            "title": "Telestream + Adobe + Oracle OCI: Creative-to-Delivery Automation Gets Sharper",
+            "eyebrow": "Telestream",
+            "summary_html": "<strong>The Announcement</strong> Telestream scales multi-cloud workflows with Oracle and deepens Adobe integration. <strong>Oracle Cloud:</strong> UP platform, SENTRY monitoring, and orchestration are now OCI-ready. <strong>Vantage Adobe Panel:</strong> Premiere Pro users can submit sequences directly into automated delivery pipelines. <strong>Frame.io V4 Readiness:</strong> A new connector prepares teams for the latest API model. <strong>QoS Monitoring:</strong> Real-time validation for audio, video, ad markers, and captions now extends inside OCI. <strong>Deployment:</strong> Supports hybrid, on-prem, and multi-cloud operations.",
+            "cta": "Read Telestream coverage",
         },
     ]
 
-    hero = next((c for c in cards if c["is_hero"]), cards[0])
-    others = [c for c in cards if not c["is_hero"]]
-    fb = "assets/fallback.jpg"
-
-    # ── Hero card — wide horizontal ───────────────────────────────────────
-    hero_html = f'''<article class="nab-card nab-card-hero" itemprop="itemListElement" itemscope itemtype="https://schema.org/Article">
-  <a href="articles/{hero["slug"]}.html" class="nab-card-link" aria-label="Read full NAB 2026 analysis: {hero["title"]}">
-    <div class="nab-card-img nab-card-img-hero" aria-hidden="true">
-      <div class="nab-card-img-placeholder nab-card-img-placeholder--ai"></div>
-    </div>
-    <div class="nab-card-body">
-      <span class="nab-featured-badge">&#9733; Lead Story</span>
-      <span class="nab-cat" style="--nab-cat-c:{hero["cat_color"]}">{hero["tag"]} {hero["cat"]}</span>
-      <h3 class="nab-title" itemprop="headline">{hero["title"]}</h3>
-      <p class="nab-summary" itemprop="description">{hero["summary"]}</p>
-      <span class="nab-cta">Read Full Analysis <span class="nab-cta-arrow" aria-hidden="true">&#8594;</span></span>
+    card_html = []
+    for c in cards:
+        card_html.append(f'''<article class="nab-card nab-card-horizontal" itemprop="itemListElement" itemscope itemtype="https://schema.org/Article">
+  <a href="articles/{c['slug']}.html" class="nab-card-link nab-card-link-horizontal" aria-label="Read NAB 2026 analysis: {c['title']}">
+    <div class="nab-card-body nab-card-body-horizontal">
+      <div class="nab-card-meta-row">
+        <span class="nab-card-eyebrow">{c['eyebrow']}</span>
+        <span class="nab-cat" style="--nab-cat-c:{c['cat_color']}">{c['cat']}</span>
+      </div>
+      <h3 class="nab-title" itemprop="headline">{c['title']}</h3>
+      <div class="nab-summary nab-summary-rich" itemprop="description">{c['summary_html']}</div>
+      <span class="nab-cta">{c['cta']} <span class="nab-cta-arrow" aria-hidden="true">&#8594;</span></span>
     </div>
   </a>
-</article>'''
-
-    # ── Standard cards ────────────────────────────────────────────────────
-    std_cards = ""
-    placeholders = ["--ai", "--cloud", "--playout", "--news", "--stream"]
-    for i, c in enumerate(others):
-        ph = placeholders[i % len(placeholders)]
-        std_cards += f'''<article class="nab-card nab-card-std" itemprop="itemListElement" itemscope itemtype="https://schema.org/Article">
-  <a href="articles/{c["slug"]}.html" class="nab-card-link" aria-label="NAB 2026: {c["title"]}">
-    <div class="nab-card-img nab-card-img-std" aria-hidden="true">
-      <div class="nab-card-img-placeholder nab-card-img-placeholder{ph}"></div>
-    </div>
-    <div class="nab-card-body">
-      <span class="nab-cat" style="--nab-cat-c:{c["cat_color"]}">{c["tag"]} {c["cat"]}</span>
-      <h3 class="nab-title" itemprop="headline">{c["title"]}</h3>
-      <p class="nab-summary" itemprop="description">{c["summary"]}</p>
-      <span class="nab-cta">Read Analysis <span class="nab-cta-arrow" aria-hidden="true">&#8594;</span></span>
-    </div>
-  </a>
-</article>
-'''
+</article>''')
 
     return f'''<section class="nab-section" aria-labelledby="nab-h2" itemscope itemtype="https://schema.org/ItemList">
   <meta itemprop="name" content="NAB Show 2026 Broadcast Technology Updates — The Streamic">
-
-  <!-- ── CINEMATIC BANNER HEADER ──────────────────────────────────── -->
   <header class="nab-banner" role="banner" aria-label="NAB Show 2026 section header">
     <div class="nab-banner-bg" aria-hidden="true">
-      <img
-        class="nab-banner-img"
-        src="assets/NAB_SHOW_BANNER_NEWS_HEADLINE_HERO.png"
-        alt=""
-        loading="lazy"
-        onerror="this.style.display=&apos;none&apos;"
-      >
+      <img class="nab-banner-img" src="assets/NAB_SHOW_BANNER_NEWS_HEADLINE_HERO.png" alt="" loading="eager" onerror="this.style.display=&apos;none&apos;">
       <div class="nab-banner-overlay" aria-hidden="true"></div>
       <div class="nab-banner-grain" aria-hidden="true"></div>
     </div>
     <div class="nab-banner-content">
       <div class="nab-banner-eyebrow">
         <span class="nab-live-pulse" aria-hidden="true"></span>
-        <span class="nab-banner-label">LIVE COVERAGE</span>
+        <span class="nab-banner-label">NAB 2026 Updates</span>
         <span class="nab-banner-sep" aria-hidden="true">&middot;</span>
         <span class="nab-banner-location">Las Vegas &bull; April 18&ndash;22, 2026</span>
       </div>
-      <h2 id="nab-h2" class="nab-banner-h2">
-        <span class="nab-banner-h2-nab">NAB 2026</span>
-        <span class="nab-banner-h2-hl">Highlights</span>
-      </h2>
-      <p class="nab-banner-sub">Independent editorial analysis of the technology announcements that will reshape broadcast infrastructure, AI-driven production, and streaming distribution through 2027.</p>
-      <a href="ai-post-production.html" class="nab-banner-cta" aria-label="View all NAB 2026 coverage">
-        View all coverage <span aria-hidden="true">&#8594;</span>
-      </a>
+      <h1 id="nab-h2" class="nab-banner-h2">
+        <span class="nab-banner-h2-nab">NAB Show 2026</span>
+        <span class="nab-banner-h2-hl">What matters for broadcast teams</span>
+      </h1>
+      <p class="nab-banner-sub">A homepage-first Streamic layout focused on the announcements worth watching now: agentic AI, media intelligence layers, archive search, and practical cloud-to-post workflow shifts.</p>
+      <a href="ai-post-production.html" class="nab-banner-cta" aria-label="View all NAB 2026 coverage">Open AI &amp; Post-Production <span aria-hidden="true">&#8594;</span></a>
     </div>
   </header>
-  <!-- ── END BANNER ────────────────────────────────────────────────── -->
-
-  <div class="nab-bento">
-    {hero_html}
-    <div class="nab-std-grid">
-      {std_cards}
-    </div>
+  <div class="nab-bento nab-bento-stack">
+    {''.join(card_html)}
   </div>
-
 </section>'''
-
 
 def editorsdesk_page():
     """Editor's Desk landing page.
@@ -2620,6 +2533,33 @@ def editorsdesk_page():
 </a>''' for (cat, slug, title, dek) in rendered
         )
         main_html = f"""<main>
+<section class="hp-flagship-section hp-flagship-section--vlog">
+  <div class="w">
+    <div class="hp-flagship-section__hdr">
+      <div class="hp-sec-hdr">
+        <h2>Vlog / Deep Insight</h2>
+        <a href="articles/quic-http3-video-delivery-streaming-2026.html">Open article &#8594;</a>
+      </div>
+      <p class="hp-section-intro">A dedicated long-read spotlight for technology concepts that deserve a cleaner, slower read.</p>
+    </div>
+    <a href="articles/quic-http3-video-delivery-streaming-2026.html" class="hp-flagship" aria-label="Read full insight: Beyond TCP">
+      <div class="hp-flagship__body">
+        <div class="hp-flagship__eyebrow"><span class="hp-flagship__label">Flagship Insight</span></div>
+        <span class="hp-flagship__tag">📡 Infrastructure &amp; Streaming</span>
+        <h2 class="hp-flagship__hl">Beyond TCP: Why QUIC Is Redefining Video Delivery</h2>
+        <p class="hp-flagship__summary">Faster video start, fewer buffering issues, and smoother playback — even on weak networks. HTTP/3 and QUIC are quietly improving streaming performance across OTT platforms and live broadcasting.</p>
+        <p class="hp-flagship__body-text">For years, streaming relied on TCP. QUIC improves connection setup, packet loss recovery, and mobility handling, which makes it more relevant to live events, mobile viewing, and premium OTT delivery than many operations teams first assume.</p>
+        <div class="hp-flagship__footer">
+          <div class="hp-flagship__meta"><span class="hp-flagship__author">Prerak K Mehta</span><span class="hp-flagship__role">Broadcast Technology and Media IT Analyst</span><span class="hp-flagship__readtime">⏱ 5 min read</span></div>
+          <span class="hp-flagship__cta">Read Full Insight <span class="hp-flagship__cta-arrow">→</span></span>
+        </div>
+      </div>
+      <div class="hp-flagship__image-wrap">
+        <img class="hp-flagship__img" src="assets/insight-quic-infographic.jpg" alt="QUIC vs TCP streaming performance infographic" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+      </div>
+    </a>
+  </div>
+</section>
 <section class="strmc-ed-hero">
   <h1>Editor's Desk</h1>
   <p class="lede">Commentary, perspective, and engineering analysis from the editorial team at The Streamic. Technical reads that go beyond the news cycle &mdash; honest trade-off analysis for broadcast engineers, CTOs, and media IT architects who actually have to deploy this stuff.</p>
@@ -3046,15 +2986,18 @@ def main():
     w(os.path.join(DOCS,"howto.html"),            howto_page())
     w(os.path.join(DOCS,"insights.html"),         insights_page())
     w(os.path.join(DOCS,"post-production-workflows.html"), post_production_workflows_page())
-    # Write Editor's Desk to editorsdesk.html (new canonical name).
-    w(os.path.join(DOCS, "editorsdesk.html"), editorsdesk_page())
+    # Write Editor's Desk to editorsdesk.html and vlog.html for the QUIC landing.
+    ed_html = editorsdesk_page()
+    w(os.path.join(DOCS, "editorsdesk.html"), ed_html)
+    vlog_html = ed_html.replace("Editor's Desk — The Streamic", "Vlog — The Streamic", 1)
+    w(os.path.join(DOCS, "vlog.html"), vlog_html)
+    w(os.path.join(ROOT, "vlog.html"), vlog_html)
 
     # ── AdSense compliance: delete thin redirect stubs + template junk ────
     # AdSense flags 4-word <meta refresh> redirect pages as "low-value
     # content." Soft-redirect stubs and thin template pages have no unique
     # content — they must return 404, not render with AdSense scripts.
     _ADSENSE_PURGE = [
-        "vlog.html",                   # redirect stub (old)
         "how-to.html",                 # redirect stub → howto.html
         "broadcast-systems-hub.html",  # 4-word redirect stub → index.html
         "featured_priority.html",      # 276w template junk (data-layer artifact)
