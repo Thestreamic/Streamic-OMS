@@ -895,51 +895,7 @@ def load_homepage_feed(arts, limit=14):
             by_title[title] = a
 
     feed_items = []
-    if os.path.exists(NEWS_F):
-        with open(NEWS_F, 'r', encoding='utf-8') as f:
-            raw = json.load(f)
-        if isinstance(raw, dict) and 'items' in raw:
-            feed_items = (raw.get('featured_priority') or []) + (raw.get('items') or [])
-        elif isinstance(raw, list):
-            feed_items = raw
-        else:
-            flat = []
-            for cat, lst in (raw or {}).items():
-                for it in (lst or []):
-                    if isinstance(it, dict):
-                        item = dict(it)
-                        item.setdefault('category', cat)
-                        flat.append(item)
-            feed_items = sorted(flat, key=lambda x: x.get('pubDate',''), reverse=True)
-
-    mapped = []
-    seen = set()
-    for item in feed_items:
-        url = item.get('link') or item.get('url') or item.get('guid')
-        title_key = (item.get('title') or '').strip().lower()
-        art = by_url.get(url) or by_title.get(title_key)
-        if not art or not art.get('slug'):
-            continue  # skip items without internal article — no external links
-        merged = dict(art)
-        merged.update({
-            'title': item.get('title') or merged.get('title',''),
-            'category': item.get('category') or merged.get('category','featured'),
-            'source_domain': item.get('source') or item.get('source_domain') or _source_name(url) or merged.get('source_domain',''),
-            'published': item.get('pubDate') or item.get('published') or merged.get('published',''),
-            'source_url': url or merged.get('source_url',''),
-            'url': url or merged.get('url',''),
-            # COPYRIGHT FIX: prefer the article's pool-normalized image_url
-            # over any legacy thumbnail. The previous order
-            # shipped copyrighted vendor PR photos into Breaking News,
-            # bypassing _fix_article_images() entirely.
-            'image_url': merged.get('image_url') or item.get('image') or '',
-            'slug': art['slug'],
-        })
-        key = merged['slug']
-        if key not in seen:
-            seen.add(key)
-            mapped.append(merged)
-
+   
     # Sort: newest first, then by body length (prefer longer articles)
     def _feed_sort(a):
         body = a.get('body_html','') or ''
