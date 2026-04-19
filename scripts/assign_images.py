@@ -224,13 +224,38 @@ def main() -> int:
         return 1
     print(f"  ✓ {len(articles)} articles loaded\n")
 
-    print("Step 4: Assigning images …")
+    print("Step 4: Assigning images (diversity-aware, deterministic) …")
     assigned = skipped_protected = skipped_existing = used_fallback = 0
     per_image: Dict[str, int] = {}
 
-    for art in articles:
-        if not isinstance(art, dict):
-            continue
+    # Pre-compute article-ordering to make distribution deterministic per rebuild.
+    # We process articles in slug-sorted order so the per-image counter fills
+    # in the same way every time the pipeline runs.
+    articles_iter = sorted(
+        [a for a in articles if isinstance(a, dict)],
+        key=lambda a: a.get("slug", "") or ""
+    )
+
+    # Usage floor — the minimum uses any image has. When picking from a
+    # tied-score pool, always prefer an image with uses == floor.
+    # This prevents the "6 articles all match 'newsroom' → all get newsroom-anchor.png" bug.
+
+    def _pick_with_diversity(slug: str, top_candidates: List[str]) -> str:
+        """Pick the LEAST-USED image from the tied-score pool.
+        Ties among least-used → deterministic slug-hash pick (stable across rebuilds)."""
+        if not top_candidates:
+            return ""
+        if len(top_candidates) == 1:
+            return top_candidates[0]
+        # Find minimum usage among candidates
+        min_used = min(per_image.get(c, 0) for c in top_candidates)
+        least_used = [c for c in top_candidates if per_image.get(c, 0) == min_used]
+        if len(least_used) == 1:
+            return least_used[0]
+        # Still multiple tied — deterministic slug-hash pick among least-used only
+        return _slug_stable_pick(slug, sorted(least_used))
+
+    for art in articles_iter:
         slug = art.get("slug", "") or ""
         if _is_protected(slug):
             skipped_protected += 1
@@ -249,9 +274,14 @@ def main() -> int:
                 scored.append((fname, s))
 
         if scored:
-            max_score = max(s for _, s in scored)
-            top = [f for f, s in scored if s == max_score]
-            chosen = _slug_stable_pick(slug, top)
+            scored.sort(key=lambda x: -x[1])
+            max_score = scored[0][1]
+            # Widen the pool: include any image within 70% of the top score.
+            # This gives the diversity picker more room to breathe without
+            # assigning a completely irrelevant image.
+            threshold = max(1, int(max_score * 0.7))
+            pool = [f for f, s in scored if s >= threshold]
+            chosen = _pick_with_diversity(slug, pool)
         else:
             chosen = fallback_file
             used_fallback += 1
@@ -267,6 +297,10 @@ def main() -> int:
             art["image_alt"]         = f"Streamic editorial image — {pretty}"
             assigned += 1
             per_image[chosen] = per_image.get(chosen, 0) + 1
+
+    # Preserve original article order in the output JSON (we only sorted
+    # locally for deterministic assignment; the original list ordering is
+    # what build.py expects).
 
     print(f"  ✓ Assigned: {assigned}")
     print(f"  ○ Skipped (protected / hand-authored): {skipped_protected}")
