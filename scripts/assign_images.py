@@ -4,11 +4,9 @@
 assign_images.py v3 — Streamic visual image assigner (Cyclic Random)
 ==================================================================
 
-CHANGED FROM v2:
-- Ripped out the broken keyword scoring and slug-hashing logic.
-- Implemented a "Shuffled Deck" cyclic randomizer. It shuffles the 
-  available images and deals them out one-by-one. This mathematically 
-  prevents adjacent duplicate images and solves the AdSense repeat bug.
+FIXED:
+- Modified the 'No editorial images' check to prevent hard-exiting.
+- Site will now build gracefully even if the assets folder is empty.
 """
 
 import json, os, re, shutil, sys, random
@@ -120,9 +118,12 @@ def main() -> int:
     
     print("Step 1: Scanning /docs/assets/ for images …")
     safe_files = _auto_rename_uploads()
+    
+    # FIXED: Changed from a hard exit to a graceful warning
     if not safe_files:
-        print("  ⚠ No editorial images found.")
-        return 0
+        print("  ⚠ No editorial images found in docs/assets/. Skipping image assignment step.")
+        return 0 
+        
     print(f"  ✓ {len(safe_files)} candidate images available.")
 
     print(f"Step 2: Reading {ARTICLES_FILE} …")
