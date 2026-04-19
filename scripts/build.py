@@ -13,7 +13,7 @@ BASE_URL  = os.environ.get("SITE_BASE_URL", "https://www.thestreamic.in").rstrip
 GA        = "G-0VSHDN3ZR6"
 ADS       = "ca-pub-8033069131874524"
 AUTHOR    = "The Streamic Editorial Team"
-
+# coding: utf-8 -*-
 # ── Editor's Note (REMOVED — disclosure lives in editorial-policy.html) ─────
 _EDITORS_NOTE_HTML = ""
 
@@ -29,7 +29,7 @@ MIN_ARTICLE_WORDS = 500      # hard quality gate — matches AI-upgraded output;
 # ── Broadcast & Media IT relevance terms ──────────────────────────────────────
 # Articles must contain at least 2 of these terms (case-insensitive) to pass.
 # This keeps the site focused on genuine broadcast engineering content.# -*- 
-coding: utf-8 -*-
+
 
 BROADCAST_TERMS = {
     # Vendors & products
