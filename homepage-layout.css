@@ -1576,4 +1576,64 @@ body[data-category="featured"] .nav {
 .nab-cta-btn .nab-cta-arrow{transition:transform .2s}
 .nab-cta-btn:hover .nab-cta-arrow{transform:translateX(3px)}
 
+/* ── NUCLEAR OVERRIDE: force hero CTA visibility regardless of stacking ─── */
+.nab-banner .nab-banner-cta-premium,
+.nab-banner-image .nab-banner-cta-premium{
+  position:relative;z-index:20;
+  align-self:flex-start !important;
+  display:inline-flex !important;visibility:visible !important;opacity:1 !important;
+  align-items:center;gap:10px;
+  padding:16px 32px;border-radius:999px;
+  background:linear-gradient(135deg,#fde68a 0%,#f7dca6 50%,#e8b672 100%) !important;
+  color:#17120f !important;text-decoration:none !important;
+  font:800 13.5px/1 var(--sans,"DM Sans",system-ui);letter-spacing:.14em;text-transform:uppercase;
+  border:2px solid rgba(255,255,255,.45) !important;
+  box-shadow:0 0 0 1px rgba(23,18,15,.25),0 0 32px rgba(253,230,138,.55),0 14px 36px rgba(247,220,166,.55),0 6px 14px rgba(0,0,0,.55) !important;
+  transition:transform .2s,box-shadow .2s,background .2s;
+}
+.nab-banner-content{z-index:5}
+
+/* ═══════════════════════════════════════════════════════════════════
+   DEEP DIVES SECTION — post-hero editorial grid
+═══════════════════════════════════════════════════════════════════ */
+.dd-section{width:min(100% - 32px,1320px);margin:40px auto 8px;padding:0 4px}
+.dd-hdr{text-align:center;padding:28px 16px 28px;border-top:1px solid rgba(23,18,15,.08)}
+.dd-eyebrow{display:inline-block;font:700 11px/1 var(--sans,"DM Sans",system-ui);letter-spacing:.22em;text-transform:uppercase;color:#8b6b3f;margin-bottom:10px}
+.dd-h2{font-family:var(--serif,"DM Serif Display",Georgia,serif);font-weight:400;font-size:clamp(30px,4.6vw,52px);line-height:1.05;letter-spacing:-.03em;color:#17120f;margin:0 0 10px}
+.dd-intro{max-width:620px;margin:0 auto;font-family:Georgia,"Times New Roman",serif;font-size:clamp(14px,1.5vw,16px);line-height:1.6;color:#4a4438}
+.dd-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px;margin-top:26px}
+
+.dd-card{display:grid;grid-template-columns:1.05fr .95fr;background:#fdfbf5;border:1px solid #ebe2cc;border-radius:16px;overflow:hidden;text-decoration:none;color:inherit;min-height:340px;transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease;box-shadow:0 2px 0 rgba(139,107,63,.04)}
+.dd-card:hover{transform:translateY(-3px);box-shadow:0 16px 36px rgba(63,47,22,.14);border-color:#d4af37}
+
+.dd-card-body{display:flex;flex-direction:column;padding:26px 24px 22px;justify-content:space-between;gap:14px}
+.dd-kicker{display:inline-block;align-self:flex-start;font:700 10.5px/1 var(--sans,"DM Sans",system-ui);letter-spacing:.16em;text-transform:uppercase;color:#8b6b3f;padding:5px 11px;background:#fff;border:1px solid #ebe2cc;border-radius:4px}
+.dd-title{font-family:var(--serif,"DM Serif Display",Georgia,serif);font-weight:400;font-size:clamp(19px,1.9vw,24px);line-height:1.22;letter-spacing:-.015em;color:#17120f;margin:10px 0 10px;text-transform:none}
+.dd-lead{font-family:Georgia,"Times New Roman",serif;font-size:14px;line-height:1.65;color:#3a332a;margin:0 0 10px;flex-grow:1}
+.dd-cta{display:inline-flex;align-items:center;gap:6px;color:#8b6b3f;font:700 12px/1 var(--sans,"DM Sans",system-ui);letter-spacing:.06em;text-transform:uppercase;border-top:2px solid #d4af37;padding-top:12px;align-self:flex-start}
+.dd-arrow{transition:transform .2s}
+.dd-card:hover .dd-arrow{transform:translateX(4px)}
+.dd-card:hover .dd-cta{color:#17120f}
+
+.dd-figure{position:relative;margin:0;background:#1a1510;overflow:hidden}
+.dd-img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s ease}
+.dd-card:hover .dd-img{transform:scale(1.04)}
+.dd-figcap{position:absolute;left:14px;bottom:12px;color:#fff;font:700 10px/1 var(--sans,"DM Sans",system-ui);letter-spacing:.14em;text-transform:uppercase;padding:5px 10px;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);border-radius:3px;text-shadow:0 1px 3px rgba(0,0,0,.5)}
+
+/* Tablet */
+@media (max-width:900px){
+  .dd-grid{grid-template-columns:1fr;gap:18px}
+  .dd-card{grid-template-columns:1fr;min-height:auto}
+  .dd-figure{order:-1;aspect-ratio:16/9;min-height:200px}
+  .dd-card-body{padding:22px 20px 20px}
+}
+/* Mobile */
+@media (max-width:640px){
+  .dd-section{margin-top:28px;padding:0}
+  .dd-hdr{padding:20px 12px 22px}
+  .dd-title{font-size:18px}
+  .dd-figure{aspect-ratio:3/2}
+  .dd-figcap{left:10px;bottom:10px;font-size:9px}
+}
+
 /* ── END NAB 2026 SECTION ─────────────────────────────────────── */
