@@ -34,14 +34,14 @@
   <link rel="stylesheet" href="../style.css">
   <link rel="stylesheet" href="../homepage-layout.css">
   <style>
-    .dd-art-hero{position:relative;min-height:clamp(240px,24vw,340px);aspect-ratio:21/9;overflow:hidden;background:#0a0a0f;margin:0 -24px 0}
-    @supports not (aspect-ratio:21/9){.dd-art-hero{height:clamp(340px,38vw,480px)}}
+    .dd-art-hero{position:relative;min-height:clamp(140px,11vw,180px);aspect-ratio:40/9;overflow:hidden;background:#0a0a0f;margin:0 -24px 0}
+    @supports not (aspect-ratio:40/9){.dd-art-hero{height:clamp(140px,11vw,180px)}}
     .dd-art-hero-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center center;filter:contrast(1.06) saturate(1.05) brightness(.88)}
     .dd-art-hero-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,10,20,.35) 0%,rgba(8,10,20,.55) 45%,rgba(8,10,20,.90) 100%),linear-gradient(90deg,rgba(8,10,20,.55) 0%,rgba(8,10,20,.15) 65%,transparent 100%)}
-    .dd-art-hero-body{position:relative;z-index:1;max-width:920px;margin:0 auto;padding:22px clamp(20px,4vw,48px) 26px;display:flex;flex-direction:column;justify-content:flex-end;min-height:inherit;box-sizing:border-box}
+    .dd-art-hero-body{position:relative;z-index:1;max-width:920px;margin:0 auto;padding:16px clamp(20px,4vw,48px) 18px;display:flex;flex-direction:column;justify-content:flex-end;min-height:inherit;box-sizing:border-box}
     .dd-art-eyebrow{font:700 11px/1 'DM Sans',system-ui;letter-spacing:.18em;text-transform:uppercase;color:#f7dca6;margin-bottom:16px;text-shadow:0 1px 6px rgba(0,0,0,.5)}
     .dd-art-kicker{display:block;font:700 11.5px/1 'DM Sans',system-ui;letter-spacing:.3em;text-transform:uppercase;color:#f7dca6;margin-bottom:14px;text-shadow:0 2px 8px rgba(0,0,0,.6)}
-    .dd-art-headline{font-family:'DM Serif Display',Georgia,serif;font-weight:400;font-size:clamp(26px,4vw,46px);color:#fff;line-height:1.04;letter-spacing:-.03em;margin:0 0 12px;text-shadow:0 3px 18px rgba(0,0,0,.75),0 1px 3px rgba(0,0,0,.9);max-width:100%;overflow-wrap:break-word;hyphens:auto}
+    .dd-art-headline{font-family:'DM Serif Display',Georgia,serif;font-weight:400;font-size:clamp(22px,3.2vw,36px);color:#fff;line-height:1.04;letter-spacing:-.03em;margin:0 0 12px;text-shadow:0 3px 18px rgba(0,0,0,.75),0 1px 3px rgba(0,0,0,.9);max-width:100%;overflow-wrap:break-word;hyphens:auto}
     .dd-art-headline em{font-style:italic;background:linear-gradient(120deg,#f7dca6 0%,#e8b672 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
     .dd-art-meta{color:rgba(255,255,255,.85);font:500 13px/1.4 'DM Sans',system-ui;display:flex;flex-wrap:wrap;gap:12px;align-items:center;text-shadow:0 1px 4px rgba(0,0,0,.5)}
     .dd-art-meta .dot{opacity:.4}
@@ -65,8 +65,8 @@
     .dd-art-more h3{font-family:'DM Serif Display',Georgia,serif;font-size:17px;color:#17120f;margin:0 0 12px;font-weight:400}
     .dd-art-more a{display:inline-block;margin:0 14px 6px 0;color:#5f3b13;font:600 13px/1 'DM Sans',system-ui;text-decoration:none}
     .dd-art-more a:hover{color:#17120f;text-decoration:underline}
-    @media(max-width:900px){.dd-art-hero{aspect-ratio:16/10;min-height:260px}.dd-art-headline{font-size:clamp(22px,5.5vw,34px)}}
-    @media(max-width:640px){.dd-art-hero{aspect-ratio:3/2;min-height:240px}.dd-art-body{padding:40px 18px 56px}.dd-art-hero-body{padding:26px 20px 32px}}
+    @media(max-width:900px){.dd-art-hero{aspect-ratio:24/9;min-height:160px}.dd-art-headline{font-size:clamp(22px,5.5vw,34px)}}
+    @media(max-width:640px){.dd-art-hero{aspect-ratio:21/9;min-height:140px}.dd-art-body{padding:40px 18px 56px}.dd-art-hero-body{padding:14px 18px 16px}}
   </style>
   <meta name="google-adsense-account" content="ca-pub-8033069131874524">
 </head>
