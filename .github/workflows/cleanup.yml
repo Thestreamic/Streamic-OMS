@@ -1,11 +1,11 @@
-name: Cleanup — Purge RSS/AI Content
+name: Cleanup — Editorial Corpus Maintenance
 
 # ═══════════════════════════════════════════════════════════════════════════
 # ONE-CLICK CONTENT PURGE
 # ═══════════════════════════════════════════════════════════════════════════
 # HOW TO USE:
 #   1. Go to GitHub → your repo → "Actions" tab
-#   2. Click "Cleanup — Purge RSS/AI Content" in the left sidebar
+#   2. Click "Cleanup — Editorial Corpus Maintenance" in the left sidebar
 #   3. Click "Run workflow" (top right)
 #   4. LEAVE "mode" as "dry-run" the first time → click Run
 #   5. Check the run logs to see what WOULD be deleted
@@ -82,7 +82,7 @@ jobs:
           if git diff --cached --quiet; then
             echo "ℹ  No changes to commit — cleanup may have already been run."
           else
-            git commit -m "cleanup: purge RSS/AI content, keep manual only [skip ci]"
+            git commit -m "cleanup: editorial-only corpus maintenance [skip ci]"
             git push origin main
             echo "✅ Cleanup committed and pushed."
             echo ""

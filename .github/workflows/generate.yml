@@ -1,14 +1,13 @@
-name: The Streamic — Manual Build (RSS & AI disabled)
+name: The Streamic — Build &amp; Deploy
 
 # ═══════════════════════════════════════════════════════════════════════════
-# FULLY MANUAL MODE — ALL AUTOMATIC CONTENT GENERATION REMOVED
+# FULLY EDITORIAL MODE — 100% manually curated content pipeline
 # ═══════════════════════════════════════════════════════════════════════════
-# As of April 2026, this site is 100% manually curated.
-#   • RSS fetch/rewrite: REMOVED (was Stages 2–3)
-#   • Local-template editorial generator: REMOVED (was Stage 4)
-#   • All AI providers (Groq/Mistral/Gemini/OpenRouter): REMOVED (was Stages 1, 5, 5b, 5c)
+# This workflow builds the static site from hand-curated editorial data.
+# All automatic content generation has been permanently removed.
 #
-# WHAT STILL RUNS:
+# WHAT RUNS:
+#   • scripts/assign_images.py — assigns local taxonomy images to articles
 #   • build.py — renders docs/ from data/generated_articles.json
 #   • sitemap.xml is regenerated automatically inside build.py
 #
@@ -16,10 +15,6 @@ name: The Streamic — Manual Build (RSS & AI disabled)
 #   1. Edit data/generated_articles.json directly (or via the admin dashboard
 #      at /admin.html, which commits to the same file).
 #   2. Push to main → this workflow runs → site rebuilds.
-#
-# HOW TO RE-ENABLE AUTOMATION (DON'T unless you mean it):
-#   Restore the Stage 2/3/4 steps from a pre-cleanup commit, and put back
-#   fetch_rss.py, rewrite_feed.py, generate_editorial.py under scripts/.
 # ═══════════════════════════════════════════════════════════════════════════
 
 on:
