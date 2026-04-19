@@ -1478,9 +1478,10 @@ def featured_page(arts):
 <body data-category="featured">
 {nav("/")}
 <main>
-  {_nab_bento_section()}
-  {_deep_dives_section()}
+  {_nab_bento_section(mode="hero")}
   <div class="w">
+    {_deep_dives_section()}
+    {_nab_bento_section(mode="cards")}
     <section class="hp-flagship-section">
       <div class="w">
         <div class="hp-flagship-section__hdr">
@@ -2492,8 +2493,13 @@ def _deep_dives_section():
 </section>'''
 
 
-def _nab_bento_section():
+def _nab_bento_section(mode="all"):
     """Homepage NAB 2026 hero + moonlight horizontal cards with Show-more accordion.
+
+    mode:
+      "all"   → hero banner + 4 vendor cards (default, legacy behaviour)
+      "hero"  → hero banner only (for new homepage order: hero → deep dives → cards)
+      "cards" → 4 vendor cards only
 
     Cards use <details>/<summary> for accordion — pure HTML, zero JavaScript,
     AdSense-safe, fully indexed by Google (expanded content is in the DOM).
@@ -2559,8 +2565,7 @@ def _nab_bento_section():
   </div>
 </article>''')
 
-    return f'''<section class="nab-section" aria-labelledby="nab-h2" itemscope itemtype="https://schema.org/ItemList">
-  <meta itemprop="name" content="NAB Show 2026 Broadcast Technology Updates — The Streamic">
+    hero_html = '''<section class="nab-section nab-section-hero-only" aria-labelledby="nab-h2">
   <header class="nab-banner nab-banner-image" role="banner" aria-label="NAB Show 2026 section header">
     <div class="nab-banner-bg" aria-hidden="true">
       <img class="nab-banner-hero-img" src="assets/gfx-hero-nab-floor.png" alt="" loading="eager" onerror="this.style.display='none'">
@@ -2582,10 +2587,20 @@ def _nab_bento_section():
       <a href="articles/nab-2026-hybrid-technology-year.html" class="nab-banner-cta nab-banner-cta-premium" aria-label="Read the full NAB 2026 field report">Read the Field Report <span aria-hidden="true">&#8594;</span></a>
     </div>
   </header>
+</section>'''
+
+    cards_wrapper = f'''<section class="nab-section nab-section-cards-only" aria-label="NAB 2026 vendor announcements" itemscope itemtype="https://schema.org/ItemList">
+  <meta itemprop="name" content="NAB Show 2026 Broadcast Technology Updates — The Streamic">
   <div class="nab-bento nab-bento-stack">
     {''.join(card_html)}
   </div>
 </section>'''
+
+    if mode == "hero":
+        return hero_html
+    if mode == "cards":
+        return cards_wrapper
+    return hero_html + cards_wrapper
 
 def editorsdesk_page():
     """Editor's Desk landing page.
