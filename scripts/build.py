@@ -2022,8 +2022,8 @@ def post_production_workflows_page():
         <div style="position:absolute;inset:0;background:linear-gradient(to top, rgba(0,0,0,.84) 0%, rgba(0,0,0,.36) 45%, rgba(0,0,0,.10) 100%)"></div>
         <div style="position:absolute;left:0;right:0;bottom:0;padding:18px 18px 16px;z-index:2">
           <span style="display:inline-block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.82);margin-bottom:8px">DI Pipeline</span>
-          <h3 style="margin:0 0 8px;font-family:var(--serif);font-size:clamp(18px,1.7vw,22px);line-height:1.2;color:#fff">Studio DI Pipeline Workflow 2026</h3>
-          <p style="margin:0;font-size:13px;line-height:1.55;color:rgba(255,255,255,.88)">A focused look at how modern DI stages connect grading, review, versioning, and finishing without introducing avoidable handoff friction.</p>
+          <h3 style="margin:0 0 8px;font-family:var(--serif);font-size:clamp(18px,1.7vw,22px);line-height:1.2;color:#fff">Telestream + Adobe Vantage Workflow Integration</h3>
+          <p style="margin:0;font-size:13px;line-height:1.55;color:rgba(255,255,255,.88)">Vantage Integration Removes the Gap Between Edit and Delivery</p>
         </div>
       </a>
 
