@@ -1498,8 +1498,8 @@ body[data-category="featured"] .nav {
 
 /* ── PREMIUM IMAGE HERO (nab-banner-image variant) ───────────────── */
 /* Cinematic aspect: ~21:9 on wide, tall on mobile. Uses aspect-ratio with min-height safety. */
-.nab-banner-image{min-height:clamp(240px,24vw,340px);aspect-ratio:21/9}
-@supports not (aspect-ratio: 21/9){.nab-banner-image{height:clamp(240px,24vw,340px)}}
+.nab-banner-image{min-height:clamp(160px,14vw,220px);aspect-ratio:32/9}
+@supports not (aspect-ratio: 32/9){.nab-banner-image{height:clamp(160px,14vw,220px)}}
 .nab-banner-image .nab-banner-hero-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 42%;display:block;filter:contrast(1.08) saturate(1.1) brightness(.94)}
 .nab-banner-image .nab-banner-overlay{background:
   linear-gradient(180deg, rgba(8,10,20,.35) 0%, rgba(8,10,20,.60) 45%, rgba(8,10,20,.94) 100%),
@@ -1519,8 +1519,8 @@ body[data-category="featured"] .nav {
 .nab-banner-cta-premium:hover{transform:translateY(-2px);background:linear-gradient(135deg,#fffbeb 0%,#fde68a 50%,#f7dca6 100%);box-shadow:0 0 0 1px rgba(23,18,15,.2),0 14px 36px rgba(247,220,166,.55),0 6px 14px rgba(0,0,0,.5)}
 .nab-banner-cta-premium span{transition:transform .2s}
 .nab-banner-cta-premium:hover span{transform:translateX(4px)}
-@media (max-width:900px){.nab-banner-image{aspect-ratio:16/10;min-height:280px}.nab-banner-headline{font-size:clamp(24px,5vw,38px)}}
-@media (max-width:640px){.nab-banner-image{aspect-ratio:3/2;min-height:260px}.nab-banner-kicker{font-size:10px;letter-spacing:.2em;margin-bottom:8px}.nab-banner-headline{font-size:clamp(22px,6.5vw,32px)}.nab-banner-image .nab-banner-content{padding:20px 18px 22px}.nab-banner-cta-premium{font-size:11.5px;padding:11px 20px;letter-spacing:.1em}.nab-banner-image .nab-banner-sub{font-size:13px;margin-bottom:14px}}
+@media (max-width:900px){.nab-banner-image{aspect-ratio:21/9;min-height:200px}.nab-banner-headline{font-size:clamp(22px,4.5vw,34px)}}
+@media (max-width:640px){.nab-banner-image{aspect-ratio:16/10;min-height:200px}.nab-banner-kicker{font-size:10px;letter-spacing:.2em;margin-bottom:8px}.nab-banner-headline{font-size:clamp(20px,6vw,28px)}.nab-banner-image .nab-banner-content{padding:18px 16px 20px}.nab-banner-cta-premium{font-size:11.5px;padding:10px 18px;letter-spacing:.1em}.nab-banner-image .nab-banner-sub{font-size:12.5px;margin-bottom:12px}}
 .nab-banner-content{position:relative;z-index:1;display:flex;flex-direction:column;justify-content:flex-end;min-height:inherit;padding:28px clamp(20px,4vw,48px)}
 .nab-banner-eyebrow{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:16px;color:#f8e8c8;font:600 12px/1.2 var(--sans, "DM Sans", system-ui)}
 .nab-live-pulse{width:10px;height:10px;border-radius:999px;background:#ff8c42;box-shadow:0 0 0 6px rgba(255,140,66,.18)}
