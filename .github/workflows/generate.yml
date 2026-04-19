@@ -62,6 +62,15 @@ jobs:
       - name: Install Python dependencies
         run: pip install beautifulsoup4 python-slugify
 
+      # ── Assign local images to articles (runs BEFORE build.py) ──────────
+      - name: "Stage 5c: Assign taxonomy images (flat layout)"
+        run: |
+          if [ -f scripts/assign_images.py ]; then
+            python3 scripts/assign_images.py || echo "⚠ Image assigner returned non-zero (non-fatal)"
+          else
+            echo "○ scripts/assign_images.py not found, skipping"
+          fi
+
       # ── Build the site ───────────────────────────────────────────────────
       - name: Build static site
         run: |
