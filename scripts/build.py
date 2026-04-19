@@ -1988,37 +1988,7 @@ def post_production_workflows_page():
 <p style="font-size:17px;color:var(--ink2);line-height:1.65;margin-bottom:24px">Practical analysis of post-production workflows for broadcast, streaming, and film teams. We cover what actually works in production &#8212; NLE handoffs that survive round-trip, proxy pipelines that don&#39;t break at the storage boundary, MAM integrations that don&#39;t trap metadata, and cloud collaboration patterns that respect the realities of bandwidth, security, and editorial sovereignty.</p>
 
 <h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">What we cover</h2>
-<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:12px">Streamic post-production coverage focuses on the integration seams where workflows most often break:</p>
-<ul style="font-size:15px;color:var(--ink3);line-height:1.9;padding-left:22px;margin-bottom:20px">
-  <li><strong>NLE interoperability</strong> &#8212; AAF, OMF, XML, EDL, and Direct Link handoffs between Avid Media Composer, DaVinci Resolve, Premiere Pro, and Final Cut Pro. Where audio maps cleanly, where effects translate, where timecode gets mangled.</li>
-  <li><strong>Codec &amp; container strategy</strong> &#8212; ProRes, DNxHD/HR, XAVC, AVC-Intra, IMF packaging, and the codec-choice decisions that determine whether a finish survives delivery QC on the first pass.</li>
-  <li><strong>MAM &amp; PAM integration</strong> &#8212; Avid Nexis and MediaCentral, EditShare EFS, Strawberry, Primestream, Dalet Flex. Which asset models travel, which metadata schemas survive a vendor migration, and where API parity fails.</li>
-  <li><strong>Proxy pipelines</strong> &#8212; when to generate proxies at ingest vs. at check-out, codec selection for proxy masters (DNx36 / ProRes Proxy / H.264), and how to keep proxy-to-full conform reliable across distributed teams.</li>
-  <li><strong>Cloud &amp; hybrid post</strong> &#8212; Frame.io, EditShare Cloud, Blackmagic Cloud, Avid Edit On Demand, and the bandwidth / latency / security trade-offs of each. Real-world remote editing vs. marketing-reel remote editing.</li>
-  <li><strong>Archive &amp; restore</strong> &#8212; LTO strategies, object-storage archive tiers, cold-retrieval SLAs, and the dark art of conforming an archived project 18 months later when the original NLE has moved on three versions.</li>
-</ul>
-
-<h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">Our approach</h2>
-<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">Post-production technology is drowning in marketing. Every NLE claims seamless interchange, every MAM claims universal metadata, every cloud-collaboration platform claims security-first architecture. Our job is to separate what actually ships from what is still a product roadmap, and to call out the integration gotchas that only surface at 02:00 on a delivery night.</p>
-<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">Every Streamic article in this area is grounded in real workflow analysis, not vendor-supplied slideware. Where a vendor claims compatibility, we verify by checking against shipping documentation, public API specs, and &#8212; where possible &#8212; the experience of engineering teams running it in production. Where compatibility is partial or conditional, we say so.</p>
-
-<h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">Who this is for</h2>
-<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">Post-production supervisors, assistant editors, technical operators, broadcast IT leads supporting post facilities, and technology directors evaluating MAM / NLE / cloud-post decisions. If you have ever argued with a vendor rep about whether AAF round-trips EQ automation in version 2024.8, this section is for you.</p>
-
-<h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">Related Streamic sections</h2>
-<ul style="font-size:15px;color:var(--ink3);line-height:1.9;padding-left:22px;margin-bottom:20px">
-  <li><a href="howto.html" style="color:var(--blue)">How-To Guides</a> &#8212; step-by-step technical guides: Premiere-to-Avid handoff, Vantage transcoding recipes, MediaCentral health checks, audio conform workflows.</li>
-  <li><a href="ai-post-production.html" style="color:var(--blue)">AI in Broadcasting</a> &#8212; AI-assisted editing tools, automated QC, generative tools for post, and operational integration patterns.</li>
-  <li><a href="insights.html" style="color:var(--blue)">Expert Insights</a> &#8212; long-form analysis and architectural reference material.</li>
-  <li><a href="editorsdesk.html" style="color:var(--blue)">Editor&#39;s Desk</a> &#8212; curated editorial picks across the Streamic archive.</li>
-</ul>
-
-<p style="font-size:13px;color:var(--ink4);line-height:1.7;margin-top:36px;padding-top:20px;border-top:1px solid var(--line)">Post team working on an integration we should cover? Tell us: <a href="mailto:technodate3@gmail.com" style="color:var(--blue)">technodate3@gmail.com</a> or <a href="contact.html" style="color:var(--blue)">contact form</a>.</p>
-</div></main>
-{footer()}
-{_cookie_banner()}
-</body></html>"""
-
+<p style="font-size:15px;color:var(--ink3);line-height:1
 
 def howto_page():
     guides = [
