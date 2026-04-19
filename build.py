@@ -2199,13 +2199,71 @@ def editorial_policy_page():
 </body></html>"""
 
 def insights_page():
-    """Expert Insights landing page — AdSense-compliant substantive content (~650w)."""
-    return f"""{head("Expert Insights — The Streamic","Long-form broadcast technology analysis: ST 2110 rollouts, cloud production, AI in broadcasting, and operational engineering for media teams.",f"{BASE_URL}/insights.html")}
+    """Expert Insights landing page — AdSense-compliant substantive content (~800w)
+    with featured expert-interview cards linking to hand-authored Q&A pages.
+
+    The cards below link to HAND_AUTHORED files under docs/articles/ that are
+    protected from the automated build. Add more entries to _interviews to
+    feature additional interviews — no other code changes needed.
+    """
+    # Featured expert interviews (hand-authored, HAND_AUTHORED-marked pages).
+    # These are the prominent link cards at the top of /insights.html.
+    _interviews = [
+        {
+            "href": "articles/Expertinsight1.html",
+            "series": "The Veteran's Lens",
+            "title": "Neil Sadwelkar on AI and the Future of Digital Imaging",
+            "dek": "From negative cutting to AI-assisted colour grading — a candid conversation with one of India's foremost DI pioneers on what the technology revolution really means for broadcast and cinema post-production.",
+            "expert_name": "Neil B. Sadwelkar",
+            "expert_role": "Digital Imaging Technician &amp; Post-Production Pioneer",
+            "read_time": "12 min read",
+            "published": "April 2, 2026",
+        },
+    ]
+
+    interview_cards_html = ""
+    for iv in _interviews:
+        interview_cards_html += f"""
+<a class="insights-feat-card" href="{iv['href']}">
+  <span class="insights-feat-series">&#10022; {iv['series']}</span>
+  <h3 class="insights-feat-title">{iv['title']}</h3>
+  <p class="insights-feat-dek">{iv['dek']}</p>
+  <div class="insights-feat-meta">
+    <span class="insights-feat-expert"><strong>{iv['expert_name']}</strong> &middot; {iv['expert_role']}</span>
+  </div>
+  <div class="insights-feat-footer">
+    <span class="insights-feat-details">{iv['published']} &middot; {iv['read_time']}</span>
+    <span class="insights-feat-cta">Read the interview &rarr;</span>
+  </div>
+</a>"""
+
+    return f"""{head("Expert Insights — The Streamic","Long-form broadcast technology analysis and expert interviews: AI colour grading, ST 2110 rollouts, cloud production, post-production workflows, and operational engineering for media teams.",f"{BASE_URL}/insights.html")}
 <body>
 {nav()}
 <main><div class="w" style="padding:52px 24px 80px;max-width:820px">
 <h1 style="font-family:var(--serif);font-size:clamp(28px,4vw,44px);margin-bottom:16px;letter-spacing:-.5px">Expert Insights</h1>
-<p style="font-size:17px;color:var(--ink2);line-height:1.65;margin-bottom:24px">Long-form broadcast and media technology analysis from the Streamic editorial team. These are the pieces we write when a topic needs more than a news briefing &#8212; standards deep-dives, architectural playbooks, vendor-neutral integration patterns, and field reports from broadcast engineers working in live production and post facilities.</p>
+<p style="font-size:17px;color:var(--ink2);line-height:1.65;margin-bottom:32px">Long-form broadcast and media technology analysis from the Streamic editorial team — plus exclusive interviews with veteran engineers, colourists, DITs, and media-IT architects. These are the pieces we write when a topic needs more than a news briefing: standards deep-dives, architectural playbooks, vendor-neutral integration patterns, and field reports from broadcast engineers working in live production and post facilities.</p>
+
+<style>
+.insights-feat-wrap{{display:flex;flex-direction:column;gap:20px;margin:28px 0 40px}}
+.insights-feat-card{{display:block;padding:26px 28px;background:linear-gradient(180deg,#fffdf7 0%,#f8f2e6 100%);border:1px solid #e6dcc2;border-radius:14px;box-shadow:0 10px 28px rgba(63,47,22,.08);text-decoration:none;color:inherit;transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}}
+.insights-feat-card:hover{{transform:translateY(-2px);box-shadow:0 16px 36px rgba(63,47,22,.12);border-color:#d4af37}}
+.insights-feat-series{{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#8b6b3f;margin-bottom:12px}}
+.insights-feat-title{{font-family:var(--serif);font-size:clamp(20px,2.6vw,26px);line-height:1.25;letter-spacing:-.01em;color:#17120f;margin:0 0 12px;font-weight:400}}
+.insights-feat-dek{{font-family:Georgia,"Times New Roman",serif;font-size:15.5px;line-height:1.7;color:#3a322a;margin:0 0 16px}}
+.insights-feat-meta{{font-size:13px;color:#5a4f40;line-height:1.55;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid rgba(139,107,63,.18)}}
+.insights-feat-meta strong{{color:#17120f}}
+.insights-feat-footer{{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}}
+.insights-feat-details{{font-size:12px;color:#7a6f5e}}
+.insights-feat-cta{{font-size:13px;font-weight:700;color:#5f3b13;letter-spacing:.02em}}
+.insights-feat-card:hover .insights-feat-cta{{color:#17120f}}
+@media (max-width:640px){{.insights-feat-card{{padding:22px 20px}}}}
+</style>
+
+<h2 style="font-family:var(--serif);font-size:22px;margin:8px 0 12px">Featured interviews</h2>
+<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">In-depth conversations with the engineers, colourists, and technology leaders shaping broadcast and post-production. Each interview is a first-person account of the workflow shifts, standards transitions, and AI integrations these veterans are living through right now.</p>
+<div class="insights-feat-wrap">{interview_cards_html}
+</div>
 
 <h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">What Expert Insights covers</h2>
 <p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">Expert Insights articles are written for broadcast engineers, technology directors, and media operations leads who need to evaluate &#8212; not just read about &#8212; new technology. Every piece is grounded in verifiable source material, quotes technical specifications accurately, and calls out what vendors have not disclosed. Topics we return to repeatedly:</p>
@@ -2219,7 +2277,7 @@ def insights_page():
 
 <h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">Editorial standard</h2>
 <p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">Expert Insights pieces go through a stricter review pass than our daily industry news briefings. We do not publish press-release rewrites under this banner. Where an article analyses a vendor&#39;s technology, we disclose what the vendor has stated, what our editorial team has verified independently, and what remains uncertain. Technical claims that cannot be traced to a primary source are either removed or flagged.</p>
-<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">AI tools assist with drafting on some Insights articles &#8212; primarily for structuring source material and initial analysis &#8212; but every published piece is reviewed by a human editor before going live. See our <a href="editorial-policy.html" style="color:var(--blue)">Editorial Policy</a> for the full methodology on AI-assisted drafting, source attribution, and corrections.</p>
+<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">AI tools assist with drafting on some Insights articles &#8212; primarily for structuring source material and initial analysis &#8212; but every published piece is reviewed by a human editor before going live. Featured interviews are transcribed and edited from first-person conversations; the interviewee reviews and approves the final published text. See our <a href="editorial-policy.html" style="color:var(--blue)">Editorial Policy</a> for the full methodology on AI-assisted drafting, source attribution, and corrections.</p>
 
 <h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">Who writes for us</h2>
 <p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">Streamic editorial is led by Prerak K Mehta, with 25+ years of IT experience and 20 years in media / post-production / broadcast IT systems. Guest contributions from broadcast engineers, vendor technical staff, and media operations leaders are welcome &#8212; email <a href="mailto:technodate3@gmail.com" style="color:var(--blue)">technodate3@gmail.com</a> with a short pitch outline and any relevant technical credentials.</p>
@@ -2445,24 +2503,25 @@ def _nab_bento_section():
 
     return f'''<section class="nab-section" aria-labelledby="nab-h2" itemscope itemtype="https://schema.org/ItemList">
   <meta itemprop="name" content="NAB Show 2026 Broadcast Technology Updates — The Streamic">
-  <header class="nab-banner" role="banner" aria-label="NAB Show 2026 section header">
+  <header class="nab-banner nab-banner-image" role="banner" aria-label="NAB Show 2026 section header">
     <div class="nab-banner-bg" aria-hidden="true">
+      <img class="nab-banner-hero-img" src="assets/gfx-hero-nab-floor.png" alt="" loading="eager" onerror="this.style.display='none'">
       <div class="nab-banner-overlay" aria-hidden="true"></div>
-      <div class="nab-banner-grain" aria-hidden="true"></div>
+      <div class="nab-banner-vignette" aria-hidden="true"></div>
     </div>
     <div class="nab-banner-content">
       <div class="nab-banner-eyebrow">
         <span class="nab-live-pulse" aria-hidden="true"></span>
-        <span class="nab-banner-label">NAB 2026 Updates</span>
+        <span class="nab-banner-label">Field Report &middot; April 2026</span>
         <span class="nab-banner-sep" aria-hidden="true">&middot;</span>
-        <span class="nab-banner-location">Las Vegas &bull; April 18&ndash;22, 2026</span>
+        <span class="nab-banner-location">Las Vegas &bull; NAB Show 2026</span>
       </div>
-      <h1 id="nab-h2" class="nab-banner-h2">
-        <span class="nab-banner-h2-nab">NAB Show 2026</span>
-        <span class="nab-banner-h2-hl">What matters for broadcast teams</span>
+      <h1 id="nab-h2" class="nab-banner-h2 nab-banner-h2-premium">
+        <span class="nab-banner-kicker">Practical Takeaways from NAB 2026</span>
+        <span class="nab-banner-headline">The Year of <em>Hybrid Technology</em></span>
       </h1>
-      <p class="nab-banner-sub">A homepage-first Streamic layout focused on the announcements worth watching now: agentic AI, media intelligence layers, archive search, and practical cloud-to-post workflow shifts.</p>
-      <a href="ai-post-production.html" class="nab-banner-cta" aria-label="View all NAB 2026 coverage">Open AI &amp; Post-Production <span aria-hidden="true">&#8594;</span></a>
+      <p class="nab-banner-sub">Beyond the hype: agentic AI, IP 2110 migration, cloud-to-post bridges, and the vendor partnerships that are quietly rewriting the broadcast stack.</p>
+      <a href="articles/nab-2026-hybrid-technology-year.html" class="nab-banner-cta nab-banner-cta-premium" aria-label="Read the full NAB 2026 field report">Read the Field Report <span aria-hidden="true">&#8594;</span></a>
     </div>
   </header>
   <div class="nab-bento nab-bento-stack">

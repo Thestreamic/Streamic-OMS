@@ -1495,6 +1495,32 @@ body[data-category="featured"] .nav {
   radial-gradient(circle at 78% 22%, rgba(245,188,106,.08), transparent 22%),
   radial-gradient(circle at 64% 78%, rgba(147,197,253,.06), transparent 24%);
   opacity:1}
+
+/* ── PREMIUM IMAGE HERO (nab-banner-image variant) ───────────────── */
+/* Cinematic aspect: ~21:9 on wide, tall on mobile. Uses aspect-ratio with min-height safety. */
+.nab-banner-image{min-height:clamp(440px,42vw,620px);aspect-ratio:21/9}
+@supports not (aspect-ratio: 21/9){.nab-banner-image{height:clamp(440px,42vw,620px)}}
+.nab-banner-image .nab-banner-hero-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 42%;display:block;filter:contrast(1.08) saturate(1.1) brightness(.94)}
+.nab-banner-image .nab-banner-overlay{background:
+  linear-gradient(180deg, rgba(8,10,20,.35) 0%, rgba(8,10,20,.60) 45%, rgba(8,10,20,.94) 100%),
+  linear-gradient(90deg, rgba(8,10,20,.65) 0%, rgba(8,10,20,.20) 65%, transparent 100%)}
+.nab-banner-image .nab-banner-vignette{position:absolute;inset:0;background:radial-gradient(ellipse 120% 80% at 25% 75%, transparent 25%, rgba(0,0,0,.60) 100%);pointer-events:none}
+.nab-banner-image .nab-banner-content{justify-content:flex-end;padding:44px clamp(28px,5vw,64px) 56px;max-width:920px;box-sizing:border-box}
+.nab-banner-image .nab-banner-eyebrow{margin-bottom:22px;color:#f7dca6;font:700 11.5px/1 var(--sans,"DM Sans",system-ui);letter-spacing:.18em;text-transform:uppercase}
+.nab-banner-image .nab-banner-label,.nab-banner-image .nab-banner-location{color:#f7dca6}
+.nab-banner-h2-premium{display:block;margin:0 0 22px;color:#fff;line-height:1.02;letter-spacing:-.03em;max-width:100%}
+.nab-banner-kicker{display:block;font:700 12px/1 var(--sans,"DM Sans",system-ui);letter-spacing:.32em;text-transform:uppercase;color:#f7dca6;margin-bottom:16px;text-shadow:0 2px 8px rgba(0,0,0,.6)}
+/* Headline sized to fit inside content box — clamp uses viewport width, max stops it from spilling */
+.nab-banner-headline{display:block;font-family:var(--serif,"DM Serif Display",Georgia,serif);font-weight:400;font-size:clamp(34px,5.4vw,64px);color:#fff;text-shadow:0 3px 20px rgba(0,0,0,.75),0 1px 3px rgba(0,0,0,.9);max-width:100%;overflow-wrap:break-word;word-wrap:break-word;hyphens:auto}
+.nab-banner-headline em{font-style:italic;color:#f7dca6;background:linear-gradient(120deg,#f7dca6 0%,#e8b672 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-shadow:none}
+.nab-banner-image .nab-banner-sub{max-width:680px;margin:0 0 30px;color:rgba(255,255,255,.94);font-size:clamp(15px,1.6vw,18px);line-height:1.65;text-shadow:0 1px 8px rgba(0,0,0,.6)}
+/* High-visibility CTA — bright amber with glow */
+.nab-banner-cta-premium{align-self:flex-start;display:inline-flex;align-items:center;gap:10px;padding:16px 30px;border-radius:999px;background:linear-gradient(135deg,#fde68a 0%,#f7dca6 50%,#e8b672 100%);color:#17120f !important;text-decoration:none;font:800 13.5px/1 var(--sans,"DM Sans",system-ui);letter-spacing:.14em;text-transform:uppercase;border:1.5px solid rgba(255,255,255,.25);box-shadow:0 0 0 1px rgba(23,18,15,.15),0 10px 30px rgba(247,220,166,.45),0 4px 10px rgba(0,0,0,.4);transition:transform .2s,box-shadow .2s,background .2s}
+.nab-banner-cta-premium:hover{transform:translateY(-2px);background:linear-gradient(135deg,#fffbeb 0%,#fde68a 50%,#f7dca6 100%);box-shadow:0 0 0 1px rgba(23,18,15,.2),0 14px 36px rgba(247,220,166,.55),0 6px 14px rgba(0,0,0,.5)}
+.nab-banner-cta-premium span{transition:transform .2s}
+.nab-banner-cta-premium:hover span{transform:translateX(4px)}
+@media (max-width:900px){.nab-banner-image{aspect-ratio:16/10;min-height:500px}.nab-banner-headline{font-size:clamp(32px,7vw,52px)}}
+@media (max-width:640px){.nab-banner-image{aspect-ratio:4/5;min-height:460px}.nab-banner-kicker{font-size:10.5px;letter-spacing:.22em;margin-bottom:12px}.nab-banner-headline{font-size:clamp(30px,8.5vw,42px)}.nab-banner-image .nab-banner-content{padding:28px 22px 36px}.nab-banner-cta-premium{font-size:12px;padding:14px 24px;letter-spacing:.12em}}
 .nab-banner-content{position:relative;z-index:1;display:flex;flex-direction:column;justify-content:flex-end;min-height:inherit;padding:28px clamp(20px,4vw,48px)}
 .nab-banner-eyebrow{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:16px;color:#f8e8c8;font:600 12px/1.2 var(--sans, "DM Sans", system-ui)}
 .nab-live-pulse{width:10px;height:10px;border-radius:999px;background:#ff8c42;box-shadow:0 0 0 6px rgba(255,140,66,.18)}
