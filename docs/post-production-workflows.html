@@ -24,164 +24,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="homepage-layout.css">
-
-  <style>
-    .ppw-bento-wrap{
-      margin:42px 0 34px;
-    }
-    .ppw-bento-head{
-      display:flex;
-      align-items:end;
-      justify-content:space-between;
-      gap:18px;
-      margin-bottom:16px;
-    }
-    .ppw-bento-head h2{
-      font-family:var(--serif);
-      font-size:24px;
-      line-height:1.15;
-      letter-spacing:-.3px;
-      margin:0;
-    }
-    .ppw-bento-sub{
-      font-size:14px;
-      color:var(--ink3);
-      line-height:1.65;
-      margin:0 0 22px;
-      max-width:680px;
-    }
-    .ppw-bento-grid{
-      display:grid;
-      grid-template-columns:1.25fr .75fr;
-      gap:18px;
-    }
-    .ppw-bento-feature,
-    .ppw-bento-side{
-      position:relative;
-      display:block;
-      overflow:hidden;
-      border-radius:20px;
-      text-decoration:none;
-      color:#fff;
-      background:#111;
-      min-height:360px;
-      box-shadow:0 10px 28px rgba(0,0,0,.10);
-    }
-    .ppw-bento-side{
-      min-height:360px;
-    }
-    .ppw-bento-feature img,
-    .ppw-bento-side img{
-      width:100%;
-      height:100%;
-      object-fit:cover;
-      display:block;
-      transition:transform .35s ease, opacity .35s ease;
-      opacity:.9;
-    }
-    .ppw-bento-feature:hover img,
-    .ppw-bento-side:hover img{
-      transform:scale(1.04);
-      opacity:1;
-    }
-    .ppw-bento-overlay{
-      position:absolute;
-      inset:0;
-      background:
-        linear-gradient(to top, rgba(0,0,0,.84) 0%, rgba(0,0,0,.36) 45%, rgba(0,0,0,.10) 100%);
-      pointer-events:none;
-    }
-    .ppw-bento-content{
-      position:absolute;
-      left:0;
-      right:0;
-      bottom:0;
-      padding:22px 22px 20px;
-      z-index:2;
-    }
-    .ppw-bento-tag{
-      display:inline-block;
-      font-size:11px;
-      font-weight:700;
-      text-transform:uppercase;
-      letter-spacing:.12em;
-      color:rgba(255,255,255,.82);
-      margin-bottom:10px;
-    }
-    .ppw-bento-feature h3,
-    .ppw-bento-side h3{
-      margin:0 0 10px;
-      font-family:var(--serif);
-      font-size:clamp(21px,2.2vw,28px);
-      line-height:1.18;
-      letter-spacing:-.02em;
-      color:#fff;
-    }
-    .ppw-bento-side h3{
-      font-size:clamp(18px,1.7vw,22px);
-    }
-    .ppw-bento-feature p,
-    .ppw-bento-side p{
-      margin:0;
-      font-size:14px;
-      line-height:1.65;
-      color:rgba(255,255,255,.88);
-      max-width:90%;
-    }
-    .ppw-bento-cta{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      margin-top:14px;
-      font-size:13px;
-      font-weight:700;
-      color:#fff;
-    }
-    .ppw-bento-stack{
-      display:grid;
-      grid-template-rows:1fr 1fr;
-      gap:18px;
-    }
-
-    @media (max-width: 900px){
-      .ppw-bento-grid{
-        grid-template-columns:1fr;
-      }
-      .ppw-bento-stack{
-        grid-template-rows:auto;
-      }
-      .ppw-bento-feature,
-      .ppw-bento-side{
-        min-height:300px;
-      }
-    }
-
-    @media (max-width: 640px){
-      .ppw-bento-wrap{
-        margin:34px 0 28px;
-      }
-      .ppw-bento-feature,
-      .ppw-bento-side{
-        min-height:260px;
-        border-radius:16px;
-      }
-      .ppw-bento-content{
-        padding:18px 16px 16px;
-      }
-      .ppw-bento-feature h3,
-      .ppw-bento-side h3{
-        font-size:22px;
-      }
-      .ppw-bento-side h3{
-        font-size:18px;
-      }
-      .ppw-bento-feature p,
-      .ppw-bento-side p{
-        max-width:100%;
-        font-size:13px;
-      }
-    }
-  </style>
 </head>
 <body>
 <nav class="nav">
@@ -205,7 +47,6 @@
   <div class="nav-gold" aria-hidden="true"></div>
   <div class="nav-mob"><a href="/">Home</a><a href="ai-post-production.html">AI in Broadcasting</a><a href="howto.html">How-To Guides</a><a href="post-production-workflows.html">Post Production Workflows</a><a href="insights.html">Expert Insights</a><a href="editorsdesk.html">Editorial Insights</a><a href="about.html">About</a><a href="contact.html">Contact</a></div>
 </nav>
-
 <main><div class="w" style="padding:52px 24px 80px;max-width:820px">
 <h1 style="font-family:var(--serif);font-size:clamp(28px,4vw,44px);margin-bottom:16px;letter-spacing:-.5px">Post Production Workflows</h1>
 <p style="font-size:17px;color:var(--ink2);line-height:1.65;margin-bottom:24px">Practical analysis of post-production workflows for broadcast, streaming, and film teams. We cover what actually works in production &#8212; NLE handoffs that survive round-trip, proxy pipelines that don&#39;t break at the storage boundary, MAM integrations that don&#39;t trap metadata, and cloud collaboration patterns that respect the realities of bandwidth, security, and editorial sovereignty.</p>
@@ -220,50 +61,6 @@
   <li><strong>Cloud &amp; hybrid post</strong> &#8212; Frame.io, EditShare Cloud, Blackmagic Cloud, Avid Edit On Demand, and the bandwidth / latency / security trade-offs of each. Real-world remote editing vs. marketing-reel remote editing.</li>
   <li><strong>Archive &amp; restore</strong> &#8212; LTO strategies, object-storage archive tiers, cold-retrieval SLAs, and the dark art of conforming an archived project 18 months later when the original NLE has moved on three versions.</li>
 </ul>
-
-<section class="ppw-bento-wrap" aria-label="Featured workflow analysis">
-  <div class="ppw-bento-head">
-    <h2>Featured Workflow Analysis</h2>
-  </div>
-  <p class="ppw-bento-sub">A closer look at the workflow layers where post-production still loses time: edit-to-delivery orchestration, shared-storage metadata discipline, and the practical realities of AI-assisted post.</p>
-
-  <div class="ppw-bento-grid">
-    <a href="articles/telestream-adobe-vantage-premiere-workflow-integration-2026.html" class="ppw-bento-feature">
-      <img src="assets/media-composer-edit.png" alt="Telestream Adobe Vantage workflow integration">
-      <div class="ppw-bento-overlay" aria-hidden="true"></div>
-      <div class="ppw-bento-content">
-        <span class="ppw-bento-tag">Edit → Delivery Workflow</span>
-        <h3>Telestream + Adobe: How Vantage Integration Removes the Gap Between Edit and Delivery</h3>
-        <p>Premiere, Media Encoder, Frame.io, and Vantage are being pulled into one governed pipeline so the export is no longer the handoff point — it becomes the start of controlled delivery.</p>
-        <span class="ppw-bento-cta">Read full analysis <span aria-hidden="true">→</span></span>
-      </div>
-    </a>
-
-    <div class="ppw-bento-stack">
-      <a href="howto.html" class="ppw-bento-side">
-        <img src="assets/fallback.jpg" alt="How-to guides for post-production workflows">
-        <div class="ppw-bento-overlay" aria-hidden="true"></div>
-        <div class="ppw-bento-content">
-          <span class="ppw-bento-tag">Operational Guides</span>
-          <h3>Workflow Guides That Solve Real Post Bottlenecks</h3>
-          <p>From Vantage transcode chains to Avid handoffs, these are the practical procedures that keep systems moving when deadlines close in.</p>
-          <span class="ppw-bento-cta">Open guides <span aria-hidden="true">→</span></span>
-        </div>
-      </a>
-
-      <a href="ai-post-production.html" class="ppw-bento-side">
-        <img src="assets/fallback.jpg" alt="AI in post-production editorial coverage">
-        <div class="ppw-bento-overlay" aria-hidden="true"></div>
-        <div class="ppw-bento-content">
-          <span class="ppw-bento-tag">AI in Post</span>
-          <h3>Where Automation Helps — and Where It Still Fails</h3>
-          <p>AI can compress repetitive work, but its value depends on how well it fits metadata, review, archive, and compliance workflows already in place.</p>
-          <span class="ppw-bento-cta">View coverage <span aria-hidden="true">→</span></span>
-        </div>
-      </a>
-    </div>
-  </div>
-</section>
 
 <h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">Our approach</h2>
 <p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">Post-production technology is drowning in marketing. Every NLE claims seamless interchange, every MAM claims universal metadata, every cloud-collaboration platform claims security-first architecture. Our job is to separate what actually ships from what is still a product roadmap, and to call out the integration gotchas that only surface at 02:00 on a delivery night.</p>
@@ -282,7 +79,6 @@
 
 <p style="font-size:13px;color:var(--ink4);line-height:1.7;margin-top:36px;padding-top:20px;border-top:1px solid var(--line)">Post team working on an integration we should cover? Tell us: <a href="mailto:technodate3@gmail.com" style="color:var(--blue)">technodate3@gmail.com</a> or <a href="contact.html" style="color:var(--blue)">contact form</a>.</p>
 </div></main>
-
 <footer class="footer">
   <div class="footer-gold" aria-hidden="true"></div>
   <div class="footer-grid">
@@ -328,7 +124,6 @@
     <span>All trademarks belong to their respective owners.</span>
   </div>
 </footer>
-
 <div id="ts-cookie">
   <div class="cookie-in">
     <div class="cookie-txt">
@@ -342,7 +137,6 @@
     </div>
   </div>
 </div>
-
 <script>
 (function(){
   var K='ts_cc',s=localStorage.getItem(K),b=document.getElementById('ts-cookie');
