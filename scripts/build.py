@@ -879,34 +879,49 @@ def _source_name(val):
     return (val or '').replace('https://','').replace('http://','').replace('www.','').split('/')[0]
 
 def load_homepage_feed(arts, limit=14):
-    """Load homepage cards from editorial corpus, mapped to internal articles.
-    
-    Only returns items that map to an internal article (has slug) so all
-    homepage links go to our own analysis pages, never to external sources.
-    Prefers articles with more body content (longer = higher quality).
     """
-    by_url, by_title = {}, {}
-    for a in arts:
-        for key in (a.get('source_url'), a.get('url'), a.get('link')):
-            if key:
-                by_url[key] = a
-        title = (a.get('title') or '').strip().lower()
-        if title:
-            by_title[title] = a
+    Build homepage feed directly from internal articles only.
 
-    feed_items = []
-   
-    # Sort: newest first, then by body length (prefer longer articles)
+    RSS/news.json dependency removed.
+    Only internal Streamic article pages are used.
+    Prefers newer, longer, non-editorial articles.
+    """
+    if not arts:
+        return []
+
+    mapped = []
+    seen = set()
+
+    for a in arts:
+        if not isinstance(a, dict):
+            continue
+
+        slug = (a.get("slug") or "").strip()
+        if not slug or slug in seen:
+            continue
+
+        # Prefer non-editorial articles for homepage feed
+        if a.get("is_editorial") or a.get("editorial"):
+            continue
+
+        mapped.append(a)
+        seen.add(slug)
+
     def _feed_sort(a):
-        body = a.get('body_html','') or ''
-        wc = len(re.sub(r'<[^>]+>',' ',body).split())
-        return (a.get('published',''), wc)
+        body = a.get("body_html", "") or ""
+        wc = len(re.sub(r"<[^>]+>", " ", body).split())
+        return (a.get("published", ""), wc)
+
     mapped.sort(key=_feed_sort, reverse=True)
 
     if not mapped:
-        mapped = sorted([a for a in arts if not a.get('is_editorial') and not a.get('editorial')], key=lambda a: a.get('published',''), reverse=True)[:limit]
-    return mapped[:limit]
+        mapped = sorted(
+            [a for a in arts if a.get("slug")],
+            key=lambda a: a.get("published", ""),
+            reverse=True
+        )
 
+    return mapped[:limit]
 def _item_href(a):
     slug = a.get('slug')
     if slug:
