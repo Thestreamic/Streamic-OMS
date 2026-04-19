@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 scripts/build.py &#8212; The Streamic site builder
 Apple Newsroom-style static site generator
@@ -7,6 +8,7 @@ from datetime import datetime, timezone
 
 ROOT      = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 ARTS_F    = os.path.join(ROOT, "data", "generated_articles.json")
+NEWS_F    = os.path.join(ROOT, "data", "news.json")
 DOCS      = os.path.join(ROOT, "docs")
 ARTS_D    = os.path.join(DOCS, "articles")
 BASE_URL  = os.environ.get("SITE_BASE_URL", "https://www.thestreamic.in").rstrip("/")
@@ -14,19 +16,19 @@ GA        = "G-0VSHDN3ZR6"
 ADS       = "ca-pub-8033069131874524"
 AUTHOR    = "The Streamic Editorial Team"
 
-# ── Editor's Note (REMOVED — disclosure lives in editorial-policy.html) ─────
+# -- Editor's Note (REMOVED - disclosure lives in editorial-policy.html) -----
 _EDITORS_NOTE_HTML = ""
 
 PAGE_SIZE = 24
 
-# ── AdSense approval mode ─────────────────────────────────────────────────────
+# -- AdSense approval mode -----------------------------------------------------
 # Show curated high-quality content. Full dataset remains hidden.
-MAX_ARTICLES   = 120         # editorial corpus cap
+MAX_ARTICLES   = 120         # 78 editorial + top RSS; raised from 35
 VISIBLE_CAT    = "ai-post-production"  # only this category page is indexed
 MIN_BODY_SCORE = 50          # minimum editorial score to appear on homepage
-MIN_ARTICLE_WORDS = 500      # hard quality gate — matches AI-upgraded output; scaffolds blocked separately by _is_ai_upgraded()
+MIN_ARTICLE_WORDS = 500      # hard quality gate - matches AI-upgraded output; scaffolds blocked separately by _is_ai_upgraded()
 
-# ── Broadcast & Media IT relevance terms ──────────────────────────────────────
+# -- Broadcast & Media IT relevance terms --------------------------------------
 # Articles must contain at least 2 of these terms (case-insensitive) to pass.
 # This keeps the site focused on genuine broadcast engineering content.
 BROADCAST_TERMS = {
@@ -91,18 +93,18 @@ BROADCAST_TERMS = {
 }
 
 CAT = {
-    "featured":           {"label":"Featured",           "icon":"⭐","color":"#1d1d1f","desc":"Independent broadcast and streaming technology journalism."},
+    "featured":           {"label":"Featured",           "icon":"&#11088;","color":"#1d1d1f","desc":"Independent broadcast and streaming technology journalism."},
     "streaming":          {"label":"Streaming",          "icon":"&#128225;","color":"#0066cc","desc":"OTT platforms, encoding, CDN infrastructure, live streaming workflows."},
-    "cloud":              {"label":"Cloud Production",   "icon":"☁️","color":"#5856d6","desc":"Cloud-native broadcast production, remote workflows, REMI architecture."},
-    "graphics":           {"label":"Graphics",           "icon":"🎨","color":"#FF9500","desc":"Real-time graphics, virtual sets, motion design, broadcast visuals."},
-    "playout":            {"label":"Playout",            "icon":"▶️","color":"#34C759","desc":"Channel playout, broadcast automation, channel-in-a-box, transmission."},
-    "infrastructure":     {"label":"Infrastructure",     "icon":"🏗️","color":"#636366","desc":"SMPTE ST 2110, IP routing, network infrastructure, broadcast facility tech."},
-    "ai-post-production": {"label":"AI & Post-Production","icon":"🎬","color":"#FF2D55","desc":"AI-driven editing tools, automated QC, intelligent MAM, colour grading."},
-    "newsroom":           {"label":"Newsroom",           "icon":"📰","color":"#b8860b","desc":"NRCS systems, remote journalism, newsroom workflow automation."},
+    "cloud":              {"label":"Cloud Production",   "icon":"&#9729;","color":"#5856d6","desc":"Cloud-native broadcast production, remote workflows, REMI architecture."},
+    "graphics":           {"label":"Graphics",           "icon":"&#127912;","color":"#FF9500","desc":"Real-time graphics, virtual sets, motion design, broadcast visuals."},
+    "playout":            {"label":"Playout",            "icon":"&#9654;","color":"#34C759","desc":"Channel playout, broadcast automation, channel-in-a-box, transmission."},
+    "infrastructure":     {"label":"Infrastructure",     "icon":"&#127959;","color":"#636366","desc":"SMPTE ST 2110, IP routing, network infrastructure, broadcast facility tech."},
+    "ai-post-production": {"label":"AI & Post-Production","icon":"&#127916;","color":"#FF2D55","desc":"AI-driven editing tools, automated QC, intelligent MAM, colour grading."},
+    "newsroom":           {"label":"Newsroom",           "icon":"&#128240;","color":"#b8860b","desc":"NRCS systems, remote journalism, newsroom workflow automation."},
 }
 CAT_PAGE = {c: f"{c}.html" for c in CAT}
 
-# ── helpers
+# -- helpers
 def e(s): return str(s).replace("&","&amp;").replace("<","&lt;").replace(">","&gt;").replace('"',"&quot;")
 def eu(s): return str(s).replace("<","&lt;").replace(">","&gt;").replace('"',"&quot;")  # URL-safe: keeps & raw in src/href attrs
 def d(iso):
@@ -158,7 +160,7 @@ def diversify_arts(arts, max_per_source=1):
         bucket_list = [b for b in bucket_list if b]
     return result
 
-# ── shared HTML blocks
+# -- shared HTML blocks
 def _consent():
     return f"""<script>
     window.dataLayer=window.dataLayer||[];function gtag(){{dataLayer.push(arguments);}}
@@ -209,11 +211,6 @@ def _fonts():
 
 def head(title, desc, canon, css="style.css", og_img="", robots="index,follow"):
     og = f'  <meta property="og:image" content="{eu(og_img)}">\n' if og_img else ""
-    # Compute homepage-layout.css path relative to the page's CSS base.
-    # When css="../style.css" (article pages), hp_css becomes "../homepage-layout.css".
-    # When css="style.css" (top-level pages), hp_css becomes "homepage-layout.css".
-    _css_prefix = css[:-len("style.css")] if css.endswith("style.css") else ""
-    hp_css = f"{_css_prefix}homepage-layout.css"
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -233,7 +230,6 @@ def head(title, desc, canon, css="style.css", og_img="", robots="index,follow"):
 {og}  <meta name="twitter:card" content="summary_large_image">
   {_fonts()}
   <link rel="stylesheet" href="{css}">
-  <link rel="stylesheet" href="{hp_css}">
 </head>"""
 
 def nav(active="", base=""):
@@ -283,7 +279,7 @@ def nav(active="", base=""):
 </nav>"""
 
 def catbar(active_cat="", base=""):
-    # Hidden during AdSense review — only AI Post visible via nav
+    # Hidden during AdSense review - only AI Post visible via nav
     return ""
 
 def footer(base=""):
@@ -335,7 +331,7 @@ def footer(base=""):
 </footer>"""
 
 
-# ── NEWS GRID (SSR from generated_articles.json)
+# -- NEWS GRID (SSR from generated_articles.json)
 def _nc_img(a, base=""):
     img = eu(a.get("image_url",""))
     fb  = f"{base}assets/fallback.jpg"
@@ -363,7 +359,7 @@ def news_card(a, base="", is_first=False):
         return f"""<li class="bento-grid-item">
   <div class="bento-img-wrap bento-img-featured">
     <a href="{href}" tabindex="-1" aria-hidden="true">
-      <img src="{img}" alt="{title}" loading="eager" onerror="this.onerror=null;this.src='{fb_}'">
+      <img src="{img}" alt="{title}" loading="eager" onerror="this.onerror=null;this.src={fb_}">
     </a>
   </div>
   <div class="bento-body bento-body-featured">
@@ -382,7 +378,7 @@ def news_card(a, base="", is_first=False):
         return f"""<li class="bento-grid-item bento-standard">
   <div class="bento-img-wrap bento-img-std">
     <a href="{href}" tabindex="-1" aria-hidden="true">
-      <img src="{img}" alt="{title}" loading="lazy" onerror="this.onerror=null;this.src='{fb_}'">
+      <img src="{img}" alt="{title}" loading="lazy" onerror="this.onerror=null;this.src={fb_}">
     </a>
   </div>
   <div class="bento-body bento-body-std">
@@ -405,7 +401,7 @@ def news_grid(arts, base="", grid_id="bentoGridLarge"):
     )
     return f'<ul id="{grid_id}" class="bento-grid-large">\n{cards}\n</ul>'
 
-# ── EDITORIAL CARD (deep-dive articles)
+# -- EDITORIAL CARD (deep-dive articles)
 def ed_card(a, base=""):
     cat   = a.get("category","featured")
     cinfo = CAT.get(cat, CAT["featured"])
@@ -421,7 +417,7 @@ def ed_card(a, base=""):
     return f"""<article class="ed-card">
   <div class="ed-img">
     <a href="{href}">
-      <img src="{img}" alt="{title}" loading="lazy" onerror="this.onerror=null;this.src='{fb}'">
+      <img src="{img}" alt="{title}" loading="lazy" onerror="this.onerror=null;this.src={fb}">
     </a>
   </div>
   <div class="ed-body">
@@ -435,7 +431,7 @@ def ed_card(a, base=""):
   </div>
 </article>"""
 
-# ── HERO
+# -- HERO
 def hero_block(a, base=""):
     cat   = a.get("category","featured")
     cinfo = CAT.get(cat, CAT["featured"])
@@ -451,7 +447,7 @@ def hero_block(a, base=""):
   <div class="hero-inner">
     <div class="hero-img">
       <a href="{href}">
-        <img src="{img}" alt="{title}" loading="eager" onerror="this.onerror=null;this.src='{fb}'">
+        <img src="{img}" alt="{title}" loading="eager" onerror="this.onerror=null;this.src={fb}">
       </a>
     </div>
     <div class="hero-body">
@@ -468,21 +464,309 @@ def hero_block(a, base=""):
   </div>
 </section>"""
 
-# ── FEATURED / INDEX PAGE
+# -- FEATURED / INDEX PAGE
+def intelligence_feed_section(arts, base=""):
+    """
+    Apple Newsroom-style card grid with images and diversity.
+    Includes both pure RSS items and rewrite_feed_local scaffolds.
+    """
+    def _is_news_card(a):
+        gen_by = (a.get("generated_by") or "").lower()
+        is_scaffold = gen_by in ("", "rewrite_feed_local", "rewrite_feed")
+        if not (a.get("is_editorial") or a.get("editorial")):
+            return True
+        if is_scaffold:
+            return True
+        return False
+
+    rss_pool = [a for a in arts if _is_news_card(a)]
+    rss = diversify_arts(rss_pool)[:12]
+    if not rss:
+        return ""
+
+    fb_ = f"{base}assets/fallback.jpg"
+    cards_html = ""
+    for i, a in enumerate(rss):
+        cat      = a.get("category", "featured")
+        cinfo    = CAT.get(cat, CAT["featured"])
+        slug_    = a.get("slug", "")
+        href     = f"{base}articles/{slug_}.html"
+        title    = e(a.get("title", ""))
+        img      = eu(a.get("image_url", ""))
+        src_dom  = e(a.get("source_domain","").replace("https://","").replace("www.","").split("/")[0])
+        dt       = d(a.get("published",""))
+        src_url  = e(a.get("source_url","") or a.get("url","") or "")
+        cat_lbl  = cinfo["label"]
+        cat_col  = cinfo["color"]
+        body     = a.get("body_html","") or ""
+        wc       = len(re.sub(r"<[^>]+>"," ",body).split())
+        has_long = wc >= 500 and ("<h2>" in body or "<h3>" in body)
+        btn_txt  = "Read Analysis" if has_long else "View Source"
+        btn_href = href if has_long else (src_url or href)
+        btn_tgt  = ' target="_blank" rel="noopener noreferrer nofollow"' if (not has_long and src_url) else ""
+
+        # First card is a wide hero; rest are standard
+        card_cls = "ic-card ic-card-hero" if i == 0 else "ic-card"
+        img_load = "eager" if i == 0 else "lazy"
+
+        cards_html += f"""
+<article class="{card_cls}">
+  <div class="ic-img-wrap">
+    <a href="{href}" tabindex="-1" aria-hidden="true">
+      <img src="{img}" alt="{title}" loading="{img_load}" onerror="this.onerror=null;this.src='{fb_}'">
+    </a>
+  </div>
+  <div class="ic-body">
+    <span class="ic-cat-tag" style="color:{cat_col}">{cat_lbl}</span>
+    <h3 class="ic-title">
+      <a href="{href}">{title}</a>
+    </h3>
+    <div class="ic-foot">
+      <span class="ic-src">{src_dom.upper()}</span>
+      <time class="ic-date">{dt}</time>
+      <a href="{btn_href}"{btn_tgt} class="ic-btn">{btn_txt} &rarr;</a>
+    </div>
+  </div>
+</article>"""
+
+    disclosure = """<div class="ic-disclosure">
+  <p><strong>Editor&rsquo;s Note:</strong> This technical briefing was prepared from source-grounded industry reporting
+  with AI assistance. Reviewed and curated by <strong>The Streamic Editorial Team</strong>.</p>
+</div>"""
+
+    return f"""<section class="intel-section">
+  <style>
+    /* -- Intelligence Feed - Apple Newsroom Cards ----------------------- */
+    .intel-section {{
+      padding-top: 60px;
+      margin: 0;
+    }}
+    .intel-hdr {{
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 6px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid #1a1a1a;
+    }}
+    .intel-h2 {{
+      font-family: 'DM Sans', 'Helvetica Neue', Arial, sans-serif;
+      font-size: clamp(28px, 3.5vw, 42px);
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      color: #1a1a1a;
+      line-height: 1.1;
+      margin: 0;
+    }}
+    .intel-h2 span {{ color: #4a101d; }}
+    .intel-view-all {{
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--blue);
+      text-decoration: none;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }}
+    .intel-sub {{
+      font-size: 14px;
+      color: var(--ink3);
+      margin: 12px 0 28px;
+      line-height: 1.6;
+      max-width: 640px;
+    }}
+    /* -- Apple Newsroom 3-col grid --------------------------------------- */
+    .ic-grid {{
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }}
+    @media (max-width: 1024px) and (min-width: 641px) {{
+      .ic-grid {{ grid-template-columns: repeat(2, 1fr); }}
+    }}
+    @media (max-width: 640px) {{
+      .ic-grid {{ grid-template-columns: 1fr; gap: 16px; }}
+    }}
+    /* -- Base card - white rounded, Apple style -------------------------- */
+    .ic-card {{
+      background: #ffffff;
+      border-radius: 14px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.06);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transition: box-shadow .2s ease, transform .2s ease;
+    }}
+    .ic-card:hover {{
+      box-shadow: 0 10px 32px rgba(0,0,0,.11);
+      transform: translateY(-3px);
+    }}
+    /* Hero card spans all columns */
+    .ic-card-hero {{
+      grid-column: 1 / -1;
+      flex-direction: row;
+    }}
+    .ic-card-hero .ic-img-wrap {{
+      width: 52%;
+      min-height: 280px;
+    }}
+    .ic-card-hero .ic-body {{
+      flex: 1;
+      padding: 32px 36px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }}
+    .ic-card-hero .ic-title {{
+      font-size: clamp(18px, 2vw, 24px);
+    }}
+    @media (max-width: 800px) {{
+      .ic-card-hero {{
+        flex-direction: column;
+      }}
+      .ic-card-hero .ic-img-wrap {{
+        width: 100%;
+        min-height: 220px;
+      }}
+      .ic-card-hero .ic-body {{
+        padding: 20px 22px;
+      }}
+    }}
+    /* -- Card image ----------------------------------------------------- */
+    .ic-img-wrap {{
+      width: 100%;
+      height: 190px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }}
+    .ic-img-wrap a {{
+      display: block;
+      width: 100%;
+      height: 100%;
+    }}
+    .ic-img-wrap img {{
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.35s ease;
+    }}
+    .ic-card:hover .ic-img-wrap img {{
+      transform: scale(1.04);
+    }}
+    /* -- Card body ------------------------------------------------------ */
+    .ic-body {{
+      padding: 20px 22px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+    }}
+    .ic-cat-tag {{
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.9px;
+    }}
+    .ic-title {{
+      font-family: var(--serif);
+      font-size: 16px;
+      line-height: 1.3;
+      letter-spacing: -0.03em;
+      color: #1a1a1a;
+      margin: 0;
+      flex: 1;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }}
+    .ic-title a {{
+      color: inherit;
+      text-decoration: none;
+    }}
+    .ic-title a:hover {{ color: var(--blue); }}
+    .ic-foot {{
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-top: 10px;
+      border-top: 1px solid #f0f0f0;
+      flex-wrap: wrap;
+      margin-top: auto;
+    }}
+    .ic-src {{
+      font-size: 10px;
+      font-weight: 700;
+      color: #999;
+      letter-spacing: .5px;
+    }}
+    .ic-date {{
+      font-size: 10px;
+      color: #bbb;
+      flex: 1;
+    }}
+    .ic-btn {{
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      background: #1a1a1a;
+      color: #fff;
+      border-radius: 100px;
+      font-size: 11px;
+      font-weight: 700;
+      text-decoration: none;
+      letter-spacing: .3px;
+      white-space: nowrap;
+      transition: background .15s ease;
+      flex-shrink: 0;
+    }}
+    .ic-btn:hover {{ background: var(--blue); }}
+    /* -- Disclosure ----------------------------------------------------- */
+    .ic-disclosure {{
+      grid-column: 1 / -1;
+      padding: 14px 18px;
+      background: #f8f8f8;
+      border-radius: 8px;
+      border: 1px solid #eee;
+    }}
+    .ic-disclosure p {{
+      font-style: italic;
+      font-size: 12px;
+      color: #999;
+      line-height: 1.5;
+      margin: 0;
+    }}
+    .ic-disclosure strong {{ font-style: normal; color: #666; }}
+  </style>
+
+  <div class="intel-hdr">
+    <h2 class="intel-h2">Latest Technical Briefings<br>&amp; <span>Industry Analysis</span></h2>
+    <a href="posts.html" class="intel-view-all">View all articles &rarr;</a>
+  </div>
+  <p class="intel-sub">Deep-dive reporting on the intersection of cloud production, AI-driven media workflows, and global streaming infrastructure.</p>
+
+  <div class="ic-grid">
+    {cards_html}
+    {disclosure}
+  </div>
+</section>"""
+
+
 def all_articles_page(arts):
     """Generate posts.html - All Articles bento grid linking to articles/."""
     # Use all non-editorial articles sorted newest first
-    non_editorial_arts   = [a for a in arts if not a.get("is_editorial") and not a.get("editorial")]
+    rss_arts   = [a for a in arts if not a.get("is_editorial") and not a.get("editorial")]
     ed_arts    = [a for a in arts if a.get("is_editorial") or a.get("editorial")]
-    all_sorted = non_editorial_arts  # newest first (already sorted in generated_articles.json)
+    all_sorted = rss_arts  # newest first (already sorted in generated_articles.json)
 
-    title  = "All Articles — The Streamic | Broadcast Technology Analysis"
+    title  = "All Articles - The Streamic | Broadcast Technology Analysis"
     desc   = "Original broadcast and streaming technology analysis. Expert-level commentary for engineers and media professionals."
     canon  = f"{BASE_URL}/posts.html"
 
     schema = json.dumps({
         "@context": "https://schema.org", "@type": "WebPage",
-        "name": "All Articles — The Streamic", "description": desc,
+        "name": "All Articles - The Streamic", "description": desc,
         "url": f"{BASE_URL}/posts.html",
         "publisher": {"@type": "Organization", "name": "The Streamic", "url": BASE_URL}
     })
@@ -532,13 +816,11 @@ def _score_art(a):
 def _is_ai_upgraded(a):
     """AdSense compliance: return True if article was enriched by a tier-1/2/3
     AI generator (Mistral, Gemini, Groq, OpenRouter) or is a hand-authored
-    editorial. Low-quality items never get indexed.
+    editorial. Raw RSS scaffolds (rewrite_feed_local) never get indexed.
     """
     gb = (a.get("generated_by") or "").lower()
     if not gb:
         return False
-    # Defensive gate: exclude any legacy auto-scaffold markers. Production
-    # corpus is editorial-only, so this match is expected to return no hits.
     if gb in ("rewrite_feed_local", "rewrite_feed"):
         return False
     ai_markers = ("mistral", "gemini", "groq", "openrouter", "deepseek",
@@ -547,14 +829,14 @@ def _is_ai_upgraded(a):
 
 
 def _passes_quality_gate(a):
-    """Hard quality gate — ADSENSE COMPLIANCE MODE.
+    """Hard quality gate - ADSENSE COMPLIANCE MODE.
 
     An article may be indexed only when ALL of the following are true:
-      1. Body word count ≥ MIN_ARTICLE_WORDS (800) OR hand-authored ≥ 400w.
-      2. Article was AI-upgraded OR hand-authored.
+      1. Body word count >= MIN_ARTICLE_WORDS (800) OR hand-authored >= 400w.
+      2. Article was AI-upgraded OR hand-authored (never raw RSS rewrite).
       3. At least 2 broadcast/media-IT terms present (relevance).
 
-    Low-tier items appear on the site for navigation
+    Raw RSS rewrites (rewrite_feed_local) appear on the site for navigation
     but carry <meta robots="noindex,nofollow">. This is the defence against
     AdSense "Low value content" rejection.
     """
@@ -572,11 +854,11 @@ def _passes_quality_gate(a):
     if is_manual_editorial and wc < 400:
         return False, f"editorial too short ({wc} words, need 400)"
 
-    # AdSense: low-tier items never get indexed
+    # AdSense: raw RSS rewrites never get indexed
     if not is_manual_editorial and not _is_ai_upgraded(a):
         return False, f"not AI-upgraded (gb={a.get('generated_by') or 'empty'!r})"
 
-    # ── Broadcast relevance gate ─────────────────────────────────────────
+    # -- Broadcast relevance gate -----------------------------------------
     # Check title + body (lowercased) for BROADCAST_TERMS matches
     search_text = (a.get("title", "") + " " + plain).lower()
     matched = set()
@@ -584,7 +866,7 @@ def _passes_quality_gate(a):
         if term in search_text:
             matched.add(term)
         if len(matched) >= 2:
-            break  # fast exit — 2 is enough
+            break  # fast exit - 2 is enough
 
     if len(matched) < 2:
         return False, f"low relevance (matched {len(matched)} terms: {matched})"
@@ -604,7 +886,7 @@ def enforce_sections(body_html: str) -> bool:
     Scoring:
       +1 for "Why This Matters"
       +1 for "Expert Insight"
-    Returns True if score >= 1 — applied OPTIONALLY, not as a hard gate.
+    Returns True if score >= 1 - applied OPTIONALLY, not as a hard gate.
     """
     if not body_html:
         return False
@@ -619,9 +901,9 @@ def enforce_sections(body_html: str) -> bool:
 
 def is_high_value(article: dict) -> bool:
     """
-    AdSense quality scoring for articles.
+    AdSense quality scoring for RSS articles.
 
-    SAFE FILTERING DESIGN — never returns fewer than needed:
+    SAFE FILTERING DESIGN - never returns fewer than needed:
     - Editorial articles always pass (pre-validated long-form content)
     - Industry briefings score points on multiple axes; any score > 0 passes
     - This means the function always returns True for articles with ANY
@@ -630,7 +912,7 @@ def is_high_value(article: dict) -> bool:
     The noindex/index decision in main() uses this for ranking,
     but visible_list is always padded to ensure pages have content.
     """
-    # Editorial always pass — hand-written or Gemini deep-dives
+    # Editorial always pass - hand-written or Gemini deep-dives
     if article.get("is_editorial") or article.get("editorial"):
         return True
 
@@ -642,22 +924,22 @@ def is_high_value(article: dict) -> bool:
     body_text  = re.sub(r"\s+", " ", body_text).strip()
 
     score = 0
-    # Section quality — soft score
+    # Section quality - soft score
     if enforce_sections(body):
         score += 2          # Has at least one required section
     # Structural quality
     if "<h2>" in body:
         score += 1          # Has section headings
-    # Length quality — any substantive content passes
+    # Length quality - any substantive content passes
     if len(body_text) > 800:
         score += 1
     elif len(body_text) > 200 or len(content) > 200:
-        score += 0          # Still allowed — just lower ranked
+        score += 0          # Still allowed - just lower ranked
 
     # Any article with a title passes (never blank)
     return bool(article.get("title", "").strip())
 
-# ── BROADCAST IMAGE SYSTEM ──────────────────────────────────────────────────
+# -- BROADCAST IMAGE SYSTEM --------------------------------------------------
 # Curated Unsplash images: server rooms, control rooms, vision mixers, cameras,
 # edit suites, studio equipment, network infrastructure. NO typewriters, newspapers.
 
@@ -669,7 +951,7 @@ _BAD_IMAGE_IDS = {
     "photo-1557804506-669a67965ba0",      # generic business meeting room
 }
 
-# 30 unique broadcast/media IT images — no repeats, all relevant
+# 30 unique broadcast/media IT images - no repeats, all relevant
 _BROADCAST_IMAGES = [
     # Server rooms & data centers
     "photo-1558494949-ef010cbdcc31",      # server room blue LED racks
@@ -737,13 +1019,13 @@ def _image_is_from_pool(url: str) -> bool:
 def _fix_article_images(arts):
     """Enforce broadcast-image policy across ALL article records.
 
-    Copyright rule: third-party thumbnails (TV Technology, Motionographer,
+    Copyright rule: third-party RSS thumbnails (TV Technology, Motionographer,
     Haivision, vendor PR photos, etc.) are never shipped on the live site.
     Every image_url must resolve to an entry in the curated _BROADCAST_IMAGES
     pool on images.unsplash.com, which Streamic licenses via Unsplash terms.
 
     Rules applied in order:
-      1. Any non-pool image (external CDN, vendor press photo,
+      1. Any non-pool image (RSS thumbnail, external CDN, vendor press photo,
          blacklisted ID, empty, or malformed) is replaced with a pool image.
       2. Any pool image already used in this run is replaced so the homepage
          and category pages never show the same visual twice in a row.
@@ -761,7 +1043,7 @@ def _fix_article_images(arts):
             if img_id not in used_images:
                 used_images.add(img_id)
                 return _unsplash_url(img_id)
-        # All pool IDs consumed — reset and continue round-robin.
+        # All pool IDs consumed - reset and continue round-robin.
         used_images.clear()
         img_id = _BROADCAST_IMAGES[pool_idx % len(_BROADCAST_IMAGES)]
         pool_idx += 1
@@ -772,29 +1054,26 @@ def _fix_article_images(arts):
     replaced_duplicate = 0
     taxonomy_applied = 0
     for a in arts:
-        # PRIORITY 1: local taxonomy image from assign_images.py if present.
-        # These are deterministic, copyright-safe local files matched to
-        # the article's topic by the Streamic visual taxonomy.
+        # PRIORITY 1: local taxonomy image from assign_images.py if present,
+        # but only when the referenced file actually exists in docs/assets.
+        # This prevents broken image boxes when the taxonomy script writes a
+        # placeholder path but the corresponding local file has not been added.
         taxonomy_img = a.get("image") or ""
         if taxonomy_img and taxonomy_img.startswith("/assets/images/"):
-            a["image_url"] = taxonomy_img
-            a["image_credit"] = "The Streamic"
-            a["image_license"] = "Site License"
-            a["image_license_url"] = ""
-            taxonomy_applied += 1
-            continue
+            _rel = taxonomy_img.lstrip("/").replace("/", os.sep)
+            _disk = os.path.join(DOCS, _rel)
+            if os.path.exists(_disk):
+                a["image_url"] = taxonomy_img
+                a["image_credit"] = "The Streamic"
+                a["image_license"] = "Site License"
+                a["image_license_url"] = ""
+                taxonomy_applied += 1
+                continue
 
         img = a.get("image_url", "") or ""
 
-        # Preserve approved local site assets used for curated hero/editorial art.
-        if img.startswith("/assets/") or img.startswith("assets/"):
-            a["image_credit"] = a.get("image_credit") or "The Streamic"
-            a["image_license"] = a.get("image_license") or "Site Asset"
-            a["image_license_url"] = a.get("image_license_url") or ""
-            continue
-
         if not _image_is_from_pool(img):
-            # Non-pool image (external/vendor/invalid) — force replacement.
+            # Non-pool image (RSS/vendor/bad/empty) - force replacement.
             a["image_url"] = _next_image()
             # Attribution: pool images are Unsplash-licensed.
             a["image_credit"] = "Unsplash"
@@ -803,7 +1082,7 @@ def _fix_article_images(arts):
             replaced_non_pool += 1
             continue
 
-        # Pool image — track uniqueness; replace if already used in this run.
+        # Pool image - track uniqueness; replace if already used in this run.
         try:
             photo_id = "photo-" + img.split("photo-", 1)[1].split("?", 1)[0]
         except IndexError:
@@ -821,7 +1100,7 @@ def _fix_article_images(arts):
     total = replaced_non_pool + replaced_duplicate
     if total:
         print(f"  Image fixer: {total} images normalized to broadcast pool "
-              f"({replaced_non_pool} non-pool, {replaced_duplicate} duplicates)")
+              f"({replaced_non_pool} non-pool/RSS, {replaced_duplicate} duplicates)")
 
 
 def _hp_img(a, base=""):
@@ -879,49 +1158,78 @@ def _source_name(val):
     return (val or '').replace('https://','').replace('http://','').replace('www.','').split('/')[0]
 
 def load_homepage_feed(arts, limit=14):
+    """Use fresh data/news.json for homepage and map to internal articles.
+    
+    Only returns items that map to an internal article (has slug) so all
+    homepage links go to our own analysis pages, never to external sources.
+    Prefers articles with more body content (longer = higher quality).
     """
-    Build homepage feed directly from internal articles only.
+    by_url, by_title = {}, {}
+    for a in arts:
+        for key in (a.get('source_url'), a.get('url'), a.get('link')):
+            if key:
+                by_url[key] = a
+        title = (a.get('title') or '').strip().lower()
+        if title:
+            by_title[title] = a
 
-    RSS/news.json dependency removed.
-    Only internal Streamic article pages are used.
-    Prefers newer, longer, non-editorial articles.
-    """
-    if not arts:
-        return []
+    feed_items = []
+    if os.path.exists(NEWS_F):
+        with open(NEWS_F, 'r', encoding='utf-8') as f:
+            raw = json.load(f)
+        if isinstance(raw, dict) and 'items' in raw:
+            feed_items = (raw.get('featured_priority') or []) + (raw.get('items') or [])
+        elif isinstance(raw, list):
+            feed_items = raw
+        else:
+            flat = []
+            for cat, lst in (raw or {}).items():
+                for it in (lst or []):
+                    if isinstance(it, dict):
+                        item = dict(it)
+                        item.setdefault('category', cat)
+                        flat.append(item)
+            feed_items = sorted(flat, key=lambda x: x.get('pubDate',''), reverse=True)
 
     mapped = []
     seen = set()
+    for item in feed_items:
+        url = item.get('link') or item.get('url') or item.get('guid')
+        title_key = (item.get('title') or '').strip().lower()
+        art = by_url.get(url) or by_title.get(title_key)
+        if not art or not art.get('slug'):
+            continue  # skip items without internal article - no external links
+        merged = dict(art)
+        merged.update({
+            'title': item.get('title') or merged.get('title',''),
+            'category': item.get('category') or merged.get('category','featured'),
+            'source_domain': item.get('source') or item.get('source_domain') or _source_name(url) or merged.get('source_domain',''),
+            'published': item.get('pubDate') or item.get('published') or merged.get('published',''),
+            'source_url': url or merged.get('source_url',''),
+            'url': url or merged.get('url',''),
+            # COPYRIGHT FIX: prefer the article's pool-normalized image_url
+            # over the raw RSS thumbnail in news.json. The previous order
+            # shipped copyrighted vendor PR photos into Breaking News,
+            # bypassing _fix_article_images() entirely.
+            'image_url': merged.get('image_url') or item.get('image') or '',
+            'slug': art['slug'],
+        })
+        key = merged['slug']
+        if key not in seen:
+            seen.add(key)
+            mapped.append(merged)
 
-    for a in arts:
-        if not isinstance(a, dict):
-            continue
-
-        slug = (a.get("slug") or "").strip()
-        if not slug or slug in seen:
-            continue
-
-        # Prefer non-editorial articles for homepage feed
-        if a.get("is_editorial") or a.get("editorial"):
-            continue
-
-        mapped.append(a)
-        seen.add(slug)
-
+    # Sort: newest first, then by body length (prefer longer articles)
     def _feed_sort(a):
-        body = a.get("body_html", "") or ""
-        wc = len(re.sub(r"<[^>]+>", " ", body).split())
-        return (a.get("published", ""), wc)
-
+        body = a.get('body_html','') or ''
+        wc = len(re.sub(r'<[^>]+>',' ',body).split())
+        return (a.get('published',''), wc)
     mapped.sort(key=_feed_sort, reverse=True)
 
     if not mapped:
-        mapped = sorted(
-            [a for a in arts if a.get("slug")],
-            key=lambda a: a.get("published", ""),
-            reverse=True
-        )
-
+        mapped = sorted([a for a in arts if not a.get('is_editorial') and not a.get('editorial')], key=lambda a: a.get('published',''), reverse=True)[:limit]
     return mapped[:limit]
+
 def _item_href(a):
     slug = a.get('slug')
     if slug:
@@ -942,7 +1250,7 @@ def _hp_news_item(a):
     src = e(_source_name(a.get("source_domain", a.get("source", ""))))
     dt = d(a.get("published", ""))
     dek = e((a.get("dek") or a.get("card_summary") or a.get("meta_description") or "")[:120])
-    # Source link — only if we have a real URL
+    # Source link - only if we have a real URL
     src_link = ""
     if src_url and src:
         src_link = f'<a href="{src_url}" target="_blank" rel="noopener noreferrer nofollow" class="hp-news-src-link">Source: {src} &#8599;</a>'
@@ -1003,7 +1311,7 @@ def featured_page(arts):
     guide_map = {a.get("slug"): a for a in editorial_all}
     guide_arts = [guide_map[s] for s in guide_slug_order if s in guide_map]
 
-    # ── Latest Insights: ALL quality articles, newest first ────────────
+    # -- Latest Insights: ALL quality articles, newest first ------------
     #    Must be 400+ words + 2 broadcast terms (lower than the 800-word
     #    SEO gate so latest daily articles always appear on the homepage).
     #    Manual editorials bypass word count entirely.
@@ -1021,21 +1329,21 @@ def featured_page(arts):
         s = a.get("slug")
         if not s or s in _seen_ins:
             continue
-        # ── Quality gate: 400+ words (manual editorials bypass) ──
+        # -- Quality gate: 400+ words (manual editorials bypass) --
         _body = a.get("body_html", "") or ""
         _plain = re.sub(r"<[^>]+>", " ", _body)
         _wc = len(re.sub(r"\s+", " ", _plain).strip().split())
         is_manual_ed = a.get("generated_by") == "gpt_manual_editorial"
         if not is_manual_ed and _wc < MIN_INSIGHT_WORDS:
             continue
-        # ── Broadcast relevance: 2+ terms ──
+        # -- Broadcast relevance: 2+ terms --
         _search = (a.get("title", "") + " " + _plain).lower()
         _hits = sum(1 for t in BROADCAST_TERMS if t in _search)
         if _hits < 2:
             continue
         _seen_ins.add(s)
         insight_arts.append(a)
-    # No cap — all quality articles included
+    # No cap - all quality articles included
 
     sidebar_picks = [a for a in editorial_all if a.get("slug") != (hero_art or {}).get("slug")][:3]
     fresh_feed = load_homepage_feed(arts, limit=16)
@@ -1044,7 +1352,7 @@ def featured_page(arts):
     if not homepage_news:
         homepage_news = fresh_feed[:8]
 
-    title = "NAB Show 2026 Broadcast Technology Updates — The Streamic"
+    title = "NAB Show 2026 Broadcast Technology Updates - The Streamic"
     desc = "Independent analysis of NAB Show 2026 announcements: Avid Content Core, Dalet Dalia AI, Telestream OCI, BCNEXXT Vipe HDR, and more. Expert broadcast engineering editorial."
     canon = f"{BASE_URL}/"
     schema = json.dumps({
@@ -1055,10 +1363,10 @@ def featured_page(arts):
 
     custom_hero_path = os.path.join(DOCS, 'assets', 'hero-broadcast-male.png')
     hero_img = f"{BASE_URL}/assets/hero-broadcast-male.png" if os.path.exists(custom_hero_path) else (_hp_img(hero_art) if hero_art else '')
-    homepage_head = head(title, desc, canon, og_img=hero_img)
+    homepage_head = head(title, desc, canon, og_img=hero_img).replace('</head>', '  <link rel="stylesheet" href="homepage-layout.css">\n</head>')
 
     cinfo = CAT.get((hero_art or {}).get("category", "featured"), CAT["featured"])
-    # Hero title overrides — edit here to control displayed title without touching JSON
+    # Hero title overrides - edit here to control displayed title without touching JSON
     HERO_TITLE_OVERRIDES = {
         "ai-reducing-broadcast-operational-costs-2026": "Beyond Automation: How AI Can Optimize Broadcast Costs and Scale Human Potential in 2026",
     }
@@ -1077,13 +1385,13 @@ def featured_page(arts):
     <span class="hp-hero-tag">{e(cinfo['icon'])} {e(cinfo['label'])}</span>
     <h1 class="hp-hero-hl"><a href="articles/{hero_art['slug']}.html">{e(_hero_title)}</a></h1>
     <div class="hp-hero-meta"><span>By {AUTHOR}</span><span>&#124;</span><span>{d(hero_art.get("published", ""))}</span><span>&#124;</span><span>{rm(hero_art.get("word_count", 1000))}</span></div>
-    <a href="articles/{hero_art['slug']}.html" class="hp-hero-cta">View Analysis <span class="hp-hero-cta__arrow">→</span></a>
+    <a href="articles/{hero_art['slug']}.html" class="hp-hero-cta">View Analysis <span class="hp-hero-cta__arrow">&rarr;</span></a>
   </div>
 </section>'''
 
     guide_subs = ["2026 Engineering Edition", "Complete Technical Reference", "Distributed Production Playbook", "Metadata, Search & Monetisation"]
     guides_html = ''.join(_hp_guide_card(a, guide_subs[i] if i < len(guide_subs) else "Technical Guide") for i, a in enumerate(guide_arts))
-    # First 6 visible, rest hidden — revealed by Load More button
+    # First 6 visible, rest hidden - revealed by Load More button
     INSIGHT_INITIAL = 20
     _insight_cards = []
     for i, a in enumerate(insight_arts):
@@ -1093,7 +1401,7 @@ def featured_page(arts):
             card_html = card_html.replace('class="hp-insight-card"', 'class="hp-insight-card hp-insight-hidden"', 1)
         _insight_cards.append(card_html)
     insights_html = ''.join(_insight_cards)
-    # Load More — self-contained component (inline CSS + HTML + JS)
+    # Load More - self-contained component (inline CSS + HTML + JS)
     _hidden_count = max(0, len(insight_arts) - INSIGHT_INITIAL)
     insights_loadmore = ""
     if _hidden_count > 0:
@@ -1162,10 +1470,8 @@ def featured_page(arts):
 <body data-category="featured">
 {nav("/")}
 <main>
-  {_nab_bento_section(mode="hero")}
   <div class="w">
-    {_deep_dives_section()}
-    {_nab_bento_section(mode="cards")}
+    {hero_html}
     <section class="hp-flagship-section">
       <div class="w">
         <div class="hp-flagship-section__hdr">
@@ -1173,10 +1479,39 @@ def featured_page(arts):
             <h2>Latest Insights</h2>
             <a href="ai-post-production.html">View all &#8594;</a>
           </div>
-          <p class="hp-section-intro">Original Streamic analysis on broadcast automation, IP infrastructure, cloud production, and editorial operations — selected for depth, not noise.</p>
+          <p class="hp-section-intro">Original Streamic analysis on broadcast automation, IP infrastructure, cloud production, and editorial operations - selected for depth, not noise.</p>
         </div>
+        <a href="articles/quic-http3-video-delivery-streaming-2026.html" class="hp-flagship" aria-label="Read full insight: Beyond TCP">
+  <div class="hp-flagship__body">
+    <div class="hp-flagship__eyebrow">
+      <span class="hp-flagship__label">Latest Insight</span>
+    </div>
+    <span class="hp-flagship__tag">&#128225; Infrastructure &amp; Streaming</span>
+    <h2 class="hp-flagship__hl">Beyond TCP: Why QUIC Is Redefining Video Delivery</h2>
+    <p class="hp-flagship__summary">Faster video start, fewer buffering issues, and smoother playback - even on weak networks. HTTP/3 and QUIC are quietly improving streaming performance across OTT platforms and live broadcasting.</p>
+    <p class="hp-flagship__body-text">For years, streaming relied on TCP - the same technology behind web browsing. It works, but it struggles with modern mobile and high-demand video traffic. QUIC improves this by enabling faster connections, better handling of network issues, and smoother playback - even when users switch between Wi-Fi and mobile networks.</p>
+    <div class="hp-flagship__usecases">
+      <div class="hp-flagship__usecase"><span class="hp-flagship__usecase-icon">🏟</span><span><strong>Live Sports</strong> - smoother playback during peak traffic moments</span></div>
+      <div class="hp-flagship__usecase"><span class="hp-flagship__usecase-icon">📺</span><span><strong>OTT Platforms</strong> - faster video start reduces viewer drop-off</span></div>
+      <div class="hp-flagship__usecase"><span class="hp-flagship__usecase-icon">📱</span><span><strong>Mobile Viewing</strong> - stable playback when switching networks</span></div>
+      <div class="hp-flagship__usecase"><span class="hp-flagship__usecase-icon">⚡</span><span><strong>Live Events</strong> - lower latency for near real-time streaming</span></div>
+    </div>
+    <div class="hp-flagship__footer">
+      <div class="hp-flagship__meta">
+        <span class="hp-flagship__author">Prerak K Mehta</span>
+        <span class="hp-flagship__role">Broadcast Technology and Media IT Analyst</span>
+        <span class="hp-flagship__readtime"> 5 min read</span>
+      </div>
+      <span class="hp-flagship__cta">Read Full Insight <span class="hp-flagship__cta-arrow">&rarr;</span></span>
+    </div>
+  </div>
+  <div class="hp-flagship__image-wrap">
+    <img class="hp-flagship__img" src="assets/insight-quic-infographic.jpg" alt="QUIC vs TCP: streaming performance comparison infographic" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+  </div>
+</a>
       </div>
     </section>
+    {_nab_bento_section()}
     <div class="hp-outer">
       <div class="hp-main">
         <section class="hp-insights hp-insights-premium">
@@ -1216,13 +1551,13 @@ def featured_page(arts):
 </body>
 </html>'''
 
-# ── CATEGORY PAGE
+# -- CATEGORY PAGE
 def category_page(cat, arts):
     cinfo = CAT.get(cat, CAT["featured"])
     cpg   = f"{cat}.html"
     canon = f"{BASE_URL}/{cpg}"
     cat_label_ = cinfo.get('label', '')
-    title_base = f"{cat_label_} — The Streamic"
+    title_base = f"{cat_label_} - The Streamic"
     desc  = cinfo["desc"]
 
     # First article: editorial hero card
@@ -1246,33 +1581,11 @@ def category_page(cat, arts):
         rest   = sl[1:]
 
         hero_html = hero_block(first[0], base="") if first else ""
-        if cat == "ai-post-production" and pg == 0:
-            hero_html = f"""<section class="hero hero--ai-post-custom">
-  <div class="hero-inner">
-    <div class="hero-img">
-      <a href="articles/ai-reducing-broadcast-operational-costs-2026.html">
-        <img src="assets/hero-broadcast-male.png" alt="Broadcast production switcher in a modern control room" loading="eager" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
-      </a>
-    </div>
-    <div class="hero-body">
-      <span class="hero-tag" style="background:#FF2D55">🎬 AI &amp; Post-Production</span>
-      <h1 class="hero-hl"><a href="articles/ai-reducing-broadcast-operational-costs-2026.html">Beyond Automation: How AI Can Optimize Broadcast Costs and Scale Human Potential in 2026</a></h1>
-      <p class="hero-dek">This page tracks the NAB 2026 shifts that matter to real production teams: agentic assistants inside edit systems, natural-language archive search, faster creative-to-delivery automation, and practical cloud bridges that do not force a full rip-and-replace.</p>
-      <div class="hero-meta"><span>By {AUTHOR}</span><span>{d(first[0].get('published','') if first else '')}</span><span>Curated NAB landing page</span></div>
-      <a href="articles/ai-reducing-broadcast-operational-costs-2026.html" class="hero-cta">Read featured analysis</a>
-    </div>
-  </div>
-</section>
-<section class="nab-inline-grid" aria-label="Featured NAB vendor updates">
-  <a class="nab-inline-card" href="articles/2026-04-17-ai-post-production-avid-google-cloud-agentic-ai-media-production.html"><span class="nab-inline-kicker">Avid</span><strong>Avid Content Core and Google Gemini</strong><span>Agentic AI, archive search, and hybrid deployment without a rip-and-replace migration.</span></a>
-  <a class="nab-inline-card" href="articles/2026-04-01-newsroom-dalet-flex-2512-semantic-search-dalia-ai.html"><span class="nab-inline-kicker">Dalet</span><strong>Dalia moves from idea to operational layer</strong><span>Natural-language workflow triggers with human validation kept in the loop.</span></a>
-  <a class="nab-inline-card" href="articles/2026-04-01-ai-post-production-telestream-adobe-frameio-creative-delivery-automation.html"><span class="nab-inline-kicker">Telestream</span><strong>OCI + Adobe workflow acceleration</strong><span>Premiere-to-Vantage automation, Frame.io readiness, and multi-cloud QoS monitoring.</span></a>
-</section>""" + hero_html
         grid_html = news_grid(rest, grid_id="catGrid") if rest else ""
 
         pag = _pag_html(cat, pg, total_pages)
 
-        pg_title = title_base if pg==0 else f"{title_base} — Page {pg+1}"
+        pg_title = title_base if pg==0 else f"{title_base} - Page {pg+1}"
         cinfo_icon = cinfo.get('icon','')
         cinfo_label = cinfo.get('label','')
         pg_canon = canon if pg==0 else f"{BASE_URL}/{cat}-p{pg+1}.html"
@@ -1309,7 +1622,7 @@ def _pag_html(cat, page, total):
     nxt  = f'<a href="{cat}-p{page+2}.html" class="pag-link">Older &rarr;</a>' if page < total-1 else '<span class="dis">Older &rarr;</span>'
     return f'<div class="pag">{prev}<span class="info">Page {page+1} of {total}</span>{nxt}</div>'
 
-# ── ARTICLE PAGE
+# -- ARTICLE PAGE
 # Boilerplate sentences to strip from article bodies
 # All known boilerplate sentence fragments (substring match)
 _BOILER_FRAGMENTS = [
@@ -1353,13 +1666,13 @@ def _clean_body(a):
     Return clean article body for rendering.
 
     Anti-truncation rule:
-    - If body_html has <h2> OR word_count > 300 → return the FULL body_html untouched.
+    - If body_html has <h2> OR word_count > 300 &rarr; return the FULL body_html untouched.
       Gemini-generated articles are complete. Truncating them strips the analysis.
-    - Fallback: only strip/limit for short teasers with no AI enhancement.
+    - Fallback: only strip/limit for raw RSS teasers with no AI enhancement.
     """
     is_ed = a.get("is_editorial") or a.get("editorial")
 
-    # ── Full editorial articles — always return complete body ─────────────
+    # -- Full editorial articles - always return complete body -------------
     if is_ed:
         body = a.get("body_html", "")
         if body and len(body) > 300:
@@ -1367,11 +1680,11 @@ def _clean_body(a):
 
     body_html  = a.get("body_html", "") or ""
     word_count = a.get("word_count", 0)
-    # Also check actual body length — metadata word_count may be missing
+    # Also check actual body length - metadata word_count may be missing
     actual_wc  = len(re.sub(r"<[^>]+>", " ", body_html).split())
 
-    # ── AI-enhanced articles: has h2 structure OR substantial word count ──
-    # Return the full body without ANY stripping — Gemini output is complete.
+    # -- AI-enhanced articles: has h2 structure OR substantial word count --
+    # Return the full body without ANY stripping - Gemini output is complete.
     if "<h2>" in body_html or "<h3>" in body_html or word_count > 300 or actual_wc > 300:
         # Only strip accidental markdown fences Gemini occasionally produces
         body_clean = re.sub(r"```html?\n?|```\n?", "", body_html).strip()
@@ -1400,8 +1713,8 @@ def _clean_body(a):
                 result = result.replace(f"<p>{p_content.strip()}</p>", "", 1)
         return result.strip() or body_clean
 
-    # ── Fallback: short teaser with no AI enhancement ─────────────────────
-    # card_summary is the Groq/Gemini 120-150 word intel card — show it in full
+    # -- Fallback: raw RSS teaser with no AI enhancement -------------------
+    # card_summary is the Groq/Gemini 120-150 word intel card - show it in full
     cs_raw = re.sub(r"<[^>]+>", " ", a.get("card_summary", "") or "").strip()
     cs_raw = re.sub(r"\s+", " ", cs_raw)
     cs_words = cs_raw.split()
@@ -1414,7 +1727,7 @@ def _clean_body(a):
         p2 = " ".join(cs_words[mid:])
         return f"<p>{p1}</p>\n" + (f"<p>{p2}</p>" if p2 else "")
 
-    # Raw paragraphs — keep ALL that pass quality check (no arbitrary limit)
+    # Raw paragraphs - keep ALL that pass quality check (no arbitrary limit)
     paras = re.findall(r"<p[^>]*>(.*?)</p>", body_html, re.DOTALL)
     clean = []
     for p in paras:
@@ -1425,7 +1738,7 @@ def _clean_body(a):
         clean.append(f"<p>{p.strip()}</p>")
 
     if clean:
-        return "\n".join(clean)   # no truncation — article passed quality gate
+        return "\n".join(clean)   # no truncation - article passed quality gate
 
     # Last resort: dek + short teaser
     dek    = (a.get("dek") or "").strip()
@@ -1438,7 +1751,7 @@ def _clean_body(a):
 
 
 def article_page(a):
-    # ── Thin content check: redirect to source for stub articles ──────────────
+    # -- Thin content check: redirect to source for stub articles --------------
     body_raw = a.get("body_html","") or ""
     body_wc  = len(re.sub(r"<[^>]+>", " ", body_raw).split())
     has_struct = "<h2>" in body_raw or "<h3>" in body_raw
@@ -1454,14 +1767,14 @@ def article_page(a):
 <body>
 {nav(ci2.get("page","featured.html"), base="../")}
 <main><div class="art-wrap" style="max-width:680px;padding:60px 24px 80px">
-  <a href="../{ci2.get('page','featured.html')}" style="font-size:13px;color:var(--blue);text-decoration:none">← {ci2.get('label','Featured')}</a>
+  <a href="../{ci2.get('page','featured.html')}" style="font-size:13px;color:var(--blue);text-decoration:none">&larr; {ci2.get('label','Featured')}</a>
   <h1 style="font-family:var(--serif);font-size:clamp(22px,3.5vw,36px);line-height:1.25;letter-spacing:-.03em;margin:20px 0 12px">{title2}</h1>
-  <p style="font-size:13px;color:var(--ink4);margin-bottom:32px">By The Streamic Editorial Team · {dt2}</p>
+  <p style="font-size:13px;color:var(--ink4);margin-bottom:32px">By The Streamic Editorial Team &middot; {dt2}</p>
   <div style="background:var(--bg);border-radius:14px;padding:28px 32px;border-left:4px solid var(--blue)">
     <p style="font-size:15px;color:var(--ink2);line-height:1.7;margin:0 0 20px">This is an industry news item tracked by The Streamic. Our editorial team has flagged it for upcoming analysis. For the complete story, read the original article from {e(a.get('source_domain','the source').replace('https://','').replace('www.','').split('/')[0])}.</p>
     <a href="{e(src_url_direct)}" target="_blank" rel="noopener noreferrer nofollow"
       style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;background:var(--blue);color:#fff;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none">
-      Read Original Article →
+      Read Original Article &rarr;
     </a>
   </div>
   <p style="font-size:12px;color:var(--ink4);margin-top:24px">The Streamic publishes original broadcast technology analysis on our <a href="../featured.html" style="color:var(--blue)">Featured</a> and <a href="../posts.html" style="color:var(--blue)">All Articles</a> pages.</p>
@@ -1504,7 +1817,7 @@ def article_page(a):
         src_dom = src_url.replace("https://","").replace("http://","").replace("www.","").split("/")[0]
     # Show source attribution for ALL articles with a source_url,
     # EXCEPT truly hand-written editorials (gpt_manual_editorial).
-    # Some articles have is_editorial=True but are sourced from external news.
+    # rewrite_feed_local articles have is_editorial=True but ARE sourced from news.
     _is_original = a.get("generated_by") == "gpt_manual_editorial"
     if src_url and not _is_original:
         _src_name = e(src_dom) if src_dom else "Original Source"
@@ -1517,7 +1830,7 @@ def article_page(a):
             except Exception:
                 _pub_month = _pub_date
 
-        # ── TOP: Source attribution banner ──
+        # -- TOP: Source attribution banner --
         source_banner = f"""<div style="background:#f0f4ff;border:1px solid #d0daf0;border-radius:10px;padding:16px 20px;margin-bottom:28px;font-size:13.5px;color:var(--ink2);line-height:1.6">
   <span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--blue);display:block;margin-bottom:6px">Source Attribution</span>
   This analysis is based on publicly available reporting from:
@@ -1525,7 +1838,7 @@ def article_page(a):
   <br>This article provides independent technical interpretation by The Streamic.
 </div>"""
 
-        # ── BOTTOM: Sources & Further Reading ──
+        # -- BOTTOM: Sources & Further Reading --
         source_credit = f"""<div style="background:var(--bg);border-radius:12px;padding:22px 24px;margin-top:36px;border-top:3px solid var(--blue)">
   <h4 style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--blue);margin:0 0 14px">Sources &amp; Further Reading</h4>
   <ul style="margin:0;padding-left:18px;list-style:disc">
@@ -1541,7 +1854,7 @@ def article_page(a):
 
     about_txt = "Original analysis and commentary by The Streamic Editorial Team. Independent broadcast technology journalism for engineers and media professionals." if is_ed else "Editorial commentary and analysis by The Streamic Editorial Team. For the original source, see the attribution above."
     # Use professional bio block if body_html already contains one from AI generation;
-    # otherwise render the default author box for editorial articles and the bio for sourced ones.
+    # otherwise render the default author box for editorial articles and the bio for RSS-sourced ones.
     has_bio = "art-author-bio" in body_raw
     if has_bio:
         author_box = ""   # bio already embedded in body_html by the AI prompt
@@ -1561,7 +1874,7 @@ def article_page(a):
   </div>
 </div>"""
 
-    # ── Editor's Note with generated_by attribution (AdSense transparency) ──
+    # -- Editor's Note with generated_by attribution (AdSense transparency) --
     gen_by    = a.get("generated_by", "") or ""
     gen_label = {
         "gemini-2.5-pro":       "Gemini 2.5 Pro (Google)",
@@ -1601,7 +1914,7 @@ def article_page(a):
   <div class="art-wrap">
     <div class="art-breadcrumb">
       <a href="../featured.html">Home</a>
-      <span>›</span>
+      <span>&rsaquo;</span>
       <a href="../{cinfo_page}" style="color:{cinfo_color}">{cinfo_lbl}</a>
     </div>
     <span class="art-tag" style="background:{cinfo_color}">{cinfo_icon2} {cinfo_lbl}</span>
@@ -1610,7 +1923,7 @@ def article_page(a):
     <div class="art-byline">
       <strong>{AUTHOR}</strong>
       <time datetime="{a.get("published","")}" style="color:var(--ink4);font-size:13px">{dt}</time>
-      <span>{wc:,} words · {rm(wc)}</span>
+      <span>{wc:,} words &middot; {rm(wc)}</span>
       {analysis_badge}
     </div>
     <figure>
@@ -1623,7 +1936,7 @@ def article_page(a):
     <div class="art-more">
       <h3>Continue Reading</h3>
       <a href="../{CAT_PAGE.get(cat,cat+'.html')}">{cinfo['icon']} All {cinfo['label']} Coverage</a>
-      <a href="../featured.html">⭐ Featured Stories</a>
+      <a href="../featured.html">&#11088; Featured Stories</a>
     </div>
   </div>
 </main>
@@ -1633,9 +1946,9 @@ def article_page(a):
 </body>
 </html>"""
 
-# ── STATIC PAGES
+# -- STATIC PAGES
 def about_page():
-    return f"""{head("About The Streamic — Prerak K Mehta","Independent broadcast and streaming technology journalism from Dublin, Ireland.",f"{BASE_URL}/about.html")}
+    return f"""{head("About The Streamic - Prerak K Mehta","Independent broadcast and streaming technology journalism from Dublin, Ireland.",f"{BASE_URL}/about.html")}
 <body>
 {nav()}
 <main><div class="w" style="padding:52px 24px 80px;max-width:780px">
@@ -1659,7 +1972,7 @@ def about_page():
   <div style="flex-shrink:0;width:56px;height:56px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;font-family:var(--serif)">P</div>
   <div>
     <strong style="font-size:16px;color:var(--ink)">Prerak K Mehta</strong>
-    <p style="font-size:13px;color:var(--ink4);margin:2px 0 8px">Founder &amp; Editor-in-Chief, The Streamic · Dublin, Ireland</p>
+    <p style="font-size:13px;color:var(--ink4);margin:2px 0 8px">Founder &amp; Editor-in-Chief, The Streamic &middot; Dublin, Ireland</p>
     <p style="font-size:14px;color:var(--ink3);line-height:1.7;margin:0">Broadcast technology professional with total 25+ years of IT and 20 years of Media/Post Production &amp; Broadcast IT systems experience. He covers broadcast engineering, streaming, infrastructure, and media technology trends for The Streamic.</p>
     <div style="display:flex;gap:12px;margin-top:12px;flex-wrap:wrap">
       <a href="https://twitter.com/thestreamic" target="_blank" rel="noopener noreferrer"
@@ -1688,7 +2001,7 @@ def about_page():
 </body></html>"""
 
 def contact_page():
-    return f"""{head("Contact — The Streamic","Get in touch with The Streamic editorial team in Dublin, Ireland.",f"{BASE_URL}/contact.html")}
+    return f"""{head("Contact - The Streamic","Get in touch with The Streamic editorial team in Dublin, Ireland.",f"{BASE_URL}/contact.html")}
 <body>
 {nav()}
 <main><div class="w" style="padding:52px 24px 80px;max-width:680px">
@@ -1757,7 +2070,7 @@ def contact_page():
 
 def privacy_page():
     yr = datetime.now().year
-    return f"""{head("Privacy Policy — The Streamic","Privacy Policy for thestreamic.in",f"{BASE_URL}/privacy.html")}
+    return f"""{head("Privacy Policy - The Streamic","Privacy Policy for thestreamic.in",f"{BASE_URL}/privacy.html")}
 <body>
 {nav()}
 <main><div class="w" style="padding:52px 24px 80px;max-width:760px">
@@ -1803,7 +2116,7 @@ def privacy_page():
 </body></html>"""
 
 def terms_page():
-    return f"""{head("Terms of Use — The Streamic","Terms of Use for thestreamic.in",f"{BASE_URL}/terms.html")}
+    return f"""{head("Terms of Use - The Streamic","Terms of Use for thestreamic.in",f"{BASE_URL}/terms.html")}
 <body>
 {nav()}
 <main><div class="w" style="padding:52px 24px 80px;max-width:760px">
@@ -1845,7 +2158,7 @@ def terms_page():
 
 def editorial_policy_page():
     yr = datetime.now().year
-    return f"""{head("Editorial Policy — The Streamic","How The Streamic produces, reviews, and attributes broadcast technology content.",f"{BASE_URL}/editorial-policy.html")}
+    return f"""{head("Editorial Policy - The Streamic","How The Streamic produces, reviews, and attributes broadcast technology content.",f"{BASE_URL}/editorial-policy.html")}
 <body>
 {nav()}
 <main><div class="w" style="padding:52px 24px 80px;max-width:780px">
@@ -1853,7 +2166,7 @@ def editorial_policy_page():
 <p style="font-size:13px;color:var(--ink4);margin-bottom:32px">Last updated: {yr}</p>
 
 <h2 style="font-family:var(--serif);font-size:22px;margin:0 0 12px">Our Editorial Mission</h2>
-<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:20px">The Streamic is an independent broadcast and streaming technology publication. Our mission is to provide clear, practical analysis for broadcast engineers, media operations teams, and streaming professionals — not press release rewrites, and not generic AI summaries.</p>
+<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:20px">The Streamic is an independent broadcast and streaming technology publication. Our mission is to provide clear, practical analysis for broadcast engineers, media operations teams, and streaming professionals - not press release rewrites, and not generic AI summaries.</p>
 
 <h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">How We Use AI Tools</h2>
 <p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">Some articles on The Streamic are produced with the assistance of AI language models (Google Gemini and Groq/Llama). These tools are used to:</p>
@@ -1885,71 +2198,13 @@ def editorial_policy_page():
 </body></html>"""
 
 def insights_page():
-    """Expert Insights landing page — AdSense-compliant substantive content (~800w)
-    with featured expert-interview cards linking to hand-authored Q&A pages.
-
-    The cards below link to HAND_AUTHORED files under docs/articles/ that are
-    protected from the automated build. Add more entries to _interviews to
-    feature additional interviews — no other code changes needed.
-    """
-    # Featured expert interviews (hand-authored, HAND_AUTHORED-marked pages).
-    # These are the prominent link cards at the top of /insights.html.
-    _interviews = [
-        {
-            "href": "articles/Expertinsight1.html",
-            "series": "The Veteran's Lens",
-            "title": "Neil Sadwelkar on AI and the Future of Digital Imaging",
-            "dek": "From negative cutting to AI-assisted colour grading — a candid conversation with one of India's foremost DI pioneers on what the technology revolution really means for broadcast and cinema post-production.",
-            "expert_name": "Neil B. Sadwelkar",
-            "expert_role": "Digital Imaging Technician &amp; Post-Production Pioneer",
-            "read_time": "12 min read",
-            "published": "April 2, 2026",
-        },
-    ]
-
-    interview_cards_html = ""
-    for iv in _interviews:
-        interview_cards_html += f"""
-<a class="insights-feat-card" href="{iv['href']}">
-  <span class="insights-feat-series">&#10022; {iv['series']}</span>
-  <h3 class="insights-feat-title">{iv['title']}</h3>
-  <p class="insights-feat-dek">{iv['dek']}</p>
-  <div class="insights-feat-meta">
-    <span class="insights-feat-expert"><strong>{iv['expert_name']}</strong> &middot; {iv['expert_role']}</span>
-  </div>
-  <div class="insights-feat-footer">
-    <span class="insights-feat-details">{iv['published']} &middot; {iv['read_time']}</span>
-    <span class="insights-feat-cta">Read the interview &rarr;</span>
-  </div>
-</a>"""
-
-    return f"""{head("Expert Insights — The Streamic","Long-form broadcast technology analysis and expert interviews: AI colour grading, ST 2110 rollouts, cloud production, post-production workflows, and operational engineering for media teams.",f"{BASE_URL}/insights.html")}
+    """Expert Insights landing page - AdSense-compliant substantive content (~650w)."""
+    return f"""{head("Expert Insights - The Streamic","Long-form broadcast technology analysis: ST 2110 rollouts, cloud production, AI in broadcasting, and operational engineering for media teams.",f"{BASE_URL}/insights.html")}
 <body>
 {nav()}
 <main><div class="w" style="padding:52px 24px 80px;max-width:820px">
 <h1 style="font-family:var(--serif);font-size:clamp(28px,4vw,44px);margin-bottom:16px;letter-spacing:-.5px">Expert Insights</h1>
-<p style="font-size:17px;color:var(--ink2);line-height:1.65;margin-bottom:32px">Long-form broadcast and media technology analysis from the Streamic editorial team — plus exclusive interviews with veteran engineers, colourists, DITs, and media-IT architects. These are the pieces we write when a topic needs more than a news briefing: standards deep-dives, architectural playbooks, vendor-neutral integration patterns, and field reports from broadcast engineers working in live production and post facilities.</p>
-
-<style>
-.insights-feat-wrap{{display:flex;flex-direction:column;gap:20px;margin:28px 0 40px}}
-.insights-feat-card{{display:block;padding:26px 28px;background:linear-gradient(180deg,#fffdf7 0%,#f8f2e6 100%);border:1px solid #e6dcc2;border-radius:14px;box-shadow:0 10px 28px rgba(63,47,22,.08);text-decoration:none;color:inherit;transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}}
-.insights-feat-card:hover{{transform:translateY(-2px);box-shadow:0 16px 36px rgba(63,47,22,.12);border-color:#d4af37}}
-.insights-feat-series{{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#8b6b3f;margin-bottom:12px}}
-.insights-feat-title{{font-family:var(--serif);font-size:clamp(20px,2.6vw,26px);line-height:1.25;letter-spacing:-.01em;color:#17120f;margin:0 0 12px;font-weight:400}}
-.insights-feat-dek{{font-family:Georgia,"Times New Roman",serif;font-size:15.5px;line-height:1.7;color:#3a322a;margin:0 0 16px}}
-.insights-feat-meta{{font-size:13px;color:#5a4f40;line-height:1.55;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid rgba(139,107,63,.18)}}
-.insights-feat-meta strong{{color:#17120f}}
-.insights-feat-footer{{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}}
-.insights-feat-details{{font-size:12px;color:#7a6f5e}}
-.insights-feat-cta{{font-size:13px;font-weight:700;color:#5f3b13;letter-spacing:.02em}}
-.insights-feat-card:hover .insights-feat-cta{{color:#17120f}}
-@media (max-width:640px){{.insights-feat-card{{padding:22px 20px}}}}
-</style>
-
-<h2 style="font-family:var(--serif);font-size:22px;margin:8px 0 12px">Featured interviews</h2>
-<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">In-depth conversations with the engineers, colourists, and technology leaders shaping broadcast and post-production. Each interview is a first-person account of the workflow shifts, standards transitions, and AI integrations these veterans are living through right now.</p>
-<div class="insights-feat-wrap">{interview_cards_html}
-</div>
+<p style="font-size:17px;color:var(--ink2);line-height:1.65;margin-bottom:24px">Long-form broadcast and media technology analysis from the Streamic editorial team. These are the pieces we write when a topic needs more than a news briefing &#8212; standards deep-dives, architectural playbooks, vendor-neutral integration patterns, and field reports from broadcast engineers working in live production and post facilities.</p>
 
 <h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">What Expert Insights covers</h2>
 <p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">Expert Insights articles are written for broadcast engineers, technology directors, and media operations leads who need to evaluate &#8212; not just read about &#8212; new technology. Every piece is grounded in verifiable source material, quotes technical specifications accurately, and calls out what vendors have not disclosed. Topics we return to repeatedly:</p>
@@ -1963,7 +2218,7 @@ def insights_page():
 
 <h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">Editorial standard</h2>
 <p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">Expert Insights pieces go through a stricter review pass than our daily industry news briefings. We do not publish press-release rewrites under this banner. Where an article analyses a vendor&#39;s technology, we disclose what the vendor has stated, what our editorial team has verified independently, and what remains uncertain. Technical claims that cannot be traced to a primary source are either removed or flagged.</p>
-<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">AI tools assist with drafting on some Insights articles &#8212; primarily for structuring source material and initial analysis &#8212; but every published piece is reviewed by a human editor before going live. Featured interviews are transcribed and edited from first-person conversations; the interviewee reviews and approves the final published text. See our <a href="editorial-policy.html" style="color:var(--blue)">Editorial Policy</a> for the full methodology on AI-assisted drafting, source attribution, and corrections.</p>
+<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">AI tools assist with drafting on some Insights articles &#8212; primarily for structuring source material and initial analysis &#8212; but every published piece is reviewed by a human editor before going live. See our <a href="editorial-policy.html" style="color:var(--blue)">Editorial Policy</a> for the full methodology on AI-assisted drafting, source attribution, and corrections.</p>
 
 <h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">Who writes for us</h2>
 <p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">Streamic editorial is led by Prerak K Mehta, with 25+ years of IT experience and 20 years in media / post-production / broadcast IT systems. Guest contributions from broadcast engineers, vendor technical staff, and media operations leaders are welcome &#8212; email <a href="mailto:technodate3@gmail.com" style="color:var(--blue)">technodate3@gmail.com</a> with a short pitch outline and any relevant technical credentials.</p>
@@ -1979,8 +2234,8 @@ def insights_page():
 
 
 def post_production_workflows_page():
-    """Post Production Workflows landing page — AdSense-compliant (~700w)."""
-    return f"""{head("Post Production Workflows — The Streamic","Practical post-production workflow analysis: NLE interoperability, MAM / PAM integration, proxy pipelines, codec compatibility, and cloud collaboration for broadcast post teams.",f"{BASE_URL}/post-production-workflows.html")}
+    """Post Production Workflows landing page - AdSense-compliant (~700w)."""
+    return f"""{head("Post Production Workflows - The Streamic","Practical post-production workflow analysis: NLE interoperability, MAM / PAM integration, proxy pipelines, codec compatibility, and cloud collaboration for broadcast post teams.",f"{BASE_URL}/post-production-workflows.html")}
 <body>
 {nav()}
 <main><div class="w" style="padding:52px 24px 80px;max-width:820px">
@@ -1997,6 +2252,48 @@ def post_production_workflows_page():
   <li><strong>Cloud &amp; hybrid post</strong> &#8212; Frame.io, EditShare Cloud, Blackmagic Cloud, Avid Edit On Demand, and the bandwidth / latency / security trade-offs of each. Real-world remote editing vs. marketing-reel remote editing.</li>
   <li><strong>Archive &amp; restore</strong> &#8212; LTO strategies, object-storage archive tiers, cold-retrieval SLAs, and the dark art of conforming an archived project 18 months later when the original NLE has moved on three versions.</li>
 </ul>
+
+<section style="margin:42px 0 34px" aria-label="Featured workflow analysis">
+  <div style="display:flex;align-items:end;justify-content:space-between;gap:18px;margin-bottom:16px;flex-wrap:wrap">
+    <h2 style="font-family:var(--serif);font-size:24px;line-height:1.15;letter-spacing:-.3px;margin:0">Featured Workflow Analysis</h2>
+  </div>
+  <p style="font-size:14px;color:var(--ink3);line-height:1.65;margin:0 0 22px;max-width:680px">A closer look at the workflow layers where post-production still loses time: edit-to-delivery orchestration, DI pipeline continuity, and studio-grade finishing discipline.</p>
+
+  <div style="display:grid;grid-template-columns:1.25fr .75fr;gap:18px" class="ppw-bento-grid">
+    <a href="articles/telestream-adobe-vantage-premiere-workflow-integration-2026.html" style="position:relative;display:block;overflow:hidden;border-radius:20px;text-decoration:none;color:#fff;background:#111;min-height:360px;box-shadow:0 10px 28px rgba(0,0,0,.10)">
+      <img src="assets/media-composer-edit.png" alt="Telestream Adobe Vantage workflow integration" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;opacity:.9">
+      <div style="position:absolute;inset:0;background:linear-gradient(to top, rgba(0,0,0,.84) 0%, rgba(0,0,0,.36) 45%, rgba(0,0,0,.10) 100%)"></div>
+      <div style="position:absolute;left:0;right:0;bottom:0;padding:22px 22px 20px;z-index:2">
+        <span style="display:inline-block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.82);margin-bottom:10px">Edit to Delivery Workflow</span>
+        <h3 style="margin:0 0 10px;font-family:var(--serif);font-size:clamp(21px,2.2vw,28px);line-height:1.18;letter-spacing:-.02em;color:#fff">Telestream + Adobe: How Vantage Integration Removes the Gap Between Edit and Delivery</h3>
+        <p style="margin:0;font-size:14px;line-height:1.65;color:rgba(255,255,255,.88);max-width:90%">Premiere, Media Encoder, Frame.io, and Vantage are being pulled into one governed pipeline so the export is no longer the handoff point - it becomes the start of controlled delivery.</p>
+        <span style="display:inline-flex;align-items:center;gap:8px;margin-top:14px;font-size:13px;font-weight:700;color:#fff">Read full analysis <span aria-hidden="true">&rarr;</span></span>
+      </div>
+    </a>
+
+    <div style="display:grid;grid-template-rows:1fr 1fr;gap:18px">
+      <a href="articles/studio-di-pipeline-workflow-2026.html" style="position:relative;display:block;overflow:hidden;border-radius:20px;text-decoration:none;color:#fff;background:#111;min-height:171px;box-shadow:0 10px 28px rgba(0,0,0,.10)">
+        <img src="assets/fallback.jpg" alt="Studio DI pipeline workflow" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;opacity:.9">
+        <div style="position:absolute;inset:0;background:linear-gradient(to top, rgba(0,0,0,.84) 0%, rgba(0,0,0,.36) 45%, rgba(0,0,0,.10) 100%)"></div>
+        <div style="position:absolute;left:0;right:0;bottom:0;padding:18px 18px 16px;z-index:2">
+          <span style="display:inline-block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.82);margin-bottom:8px">DI Pipeline</span>
+          <h3 style="margin:0 0 8px;font-family:var(--serif);font-size:clamp(18px,1.7vw,22px);line-height:1.22;color:#fff">Studio DI Pipeline Workflow 2026</h3>
+          <p style="margin:0;font-size:13px;line-height:1.6;color:rgba(255,255,255,.86)">How finishing, grading, review, and delivery stay aligned when DI becomes the operational center of post.</p>
+        </div>
+      </a>
+
+      <a href="articles/studio-grade-video-workflow-post-production-2026.html" style="position:relative;display:block;overflow:hidden;border-radius:20px;text-decoration:none;color:#fff;background:#111;min-height:171px;box-shadow:0 10px 28px rgba(0,0,0,.10)">
+        <img src="assets/fallback.jpg" alt="Studio-grade video workflow for post-production" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;opacity:.9">
+        <div style="position:absolute;inset:0;background:linear-gradient(to top, rgba(0,0,0,.84) 0%, rgba(0,0,0,.36) 45%, rgba(0,0,0,.10) 100%)"></div>
+        <div style="position:absolute;left:0;right:0;bottom:0;padding:18px 18px 16px;z-index:2">
+          <span style="display:inline-block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.82);margin-bottom:8px">Studio Workflow</span>
+          <h3 style="margin:0 0 8px;font-family:var(--serif);font-size:clamp(18px,1.7vw,22px);line-height:1.22;color:#fff">Studio-Grade Video Workflow for Post Production</h3>
+          <p style="margin:0;font-size:13px;line-height:1.6;color:rgba(255,255,255,.86)">A practical view of how controlled ingest, finishing, and output discipline shape reliable post-production operations.</p>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
 
 <h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">Our approach</h2>
 <p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">Post-production technology is drowning in marketing. Every NLE claims seamless interchange, every MAM claims universal metadata, every cloud-collaboration platform claims security-first architecture. Our job is to separate what actually ships from what is still a product roadmap, and to call out the integration gotchas that only surface at 02:00 on a delivery night.</p>
@@ -2033,63 +2330,63 @@ def howto_page():
             "title": "Vantage: Transcode Any File to MP4 on a NAS Share",
             "desc": "Build a hot folder workflow in Telestream Vantage that accepts any input format and delivers broadcast-ready H.264 MP4 to a local NAS.",
             "href": "articles/guide-vantage-nas-transcode.html",
-            "tag": "Vantage · Workflow",
+            "tag": "Vantage &middot; Workflow",
             "time": "10 min",
         },
         {
             "title": "Vantage: Output to AWS S3 for Cloud Delivery",
             "desc": "Extend your Vantage workflow to deliver MP4 output directly to Amazon S3. IAM setup, S3 storage configuration, and parallel NAS + cloud delivery.",
             "href": "articles/guide-vantage-aws-transcode.html",
-            "tag": "Vantage · AWS",
+            "tag": "Vantage &middot; AWS",
             "time": "9 min",
         },
         {
             "title": "Strawberry PAM + Avid Media Composer Workflow",
             "desc": "Configure Production Flow's Strawberry for collaborative editing with Avid Media Composer. Shared storage, ingest hot folders, version control, and automated delivery.",
             "href": "articles/guide-avid-strawberry.html",
-            "tag": "PAM · Avid",
+            "tag": "PAM &middot; Avid",
             "time": "10 min",
         },
         {
             "title": "Audio Conform: Avid Media Composer to Pro Tools and Back",
             "desc": "Export AAF from Avid, open in Pro Tools for audio finishing, and return the mix in sync. Covers sample rates, BWF export, and timecode alignment.",
             "href": "articles/guide-audio-conform-avid-protools.html",
-            "tag": "Avid · Pro Tools · Audio",
+            "tag": "Avid &middot; Pro Tools &middot; Audio",
             "time": "10 min",
         },
         {
             "title": "Clearing Cache in Avid MediaCentral Cloud UX (2025)",
             "desc": "Fix slow loads, stale thumbnails, and playback errors by clearing browser, application, and server-side proxy cache in MediaCentral Cloud UX.",
             "href": "articles/guide-media-central-cache.html",
-            "tag": "MediaCentral · Admin",
+            "tag": "MediaCentral &middot; Admin",
             "time": "7 min",
         },
         {
             "title": "Avid MediaCentral Health Check: Services, Connections, and Logs",
             "desc": "Run a full pre-air health check &#8212; verify MCPS services, Interplay and iNEWS connections, licensing, and system logs before going on air.",
             "href": "articles/guide-avid-media-central-health-check.html",
-            "tag": "MediaCentral · Infrastructure",
+            "tag": "MediaCentral &middot; Infrastructure",
             "time": "12 min",
         },
         {
             "title": "Integrating Vizrt Graphics with Avid MediaCentral and iNEWS",
             "desc": "Configure the Vizrt Plugin for MediaCentral and the MOS Gateway to connect Viz Engine templates to iNEWS stories for story-driven graphics playout.",
             "href": "articles/guide-vizrt-avid-integration.html",
-            "tag": "Vizrt · iNEWS · MOS",
+            "tag": "Vizrt &middot; iNEWS &middot; MOS",
             "time": "14 min",
         },
         {
             "title": "Upgrade to Windows 11",
             "desc": "Step-by-step upgrade guide for broadcast workstations and edit suites. Compatibility checks, driver verification, and rollback procedure.",
             "href": "articles/guide-windows11-upgrade.html",
-            "tag": "IT · Windows",
+            "tag": "IT &middot; Windows",
             "time": "5 min",
         },
         {
             "title": "Upgrade to macOS Sequoia",
             "desc": "How to safely upgrade a post-production Mac. Pre-upgrade checklist, NLE compatibility matrix, and what to do if your plugins break.",
             "href": "articles/guide-macos-upgrade.html",
-            "tag": "IT · macOS",
+            "tag": "IT &middot; macOS",
             "time": "5 min",
         },
     ]
@@ -2104,7 +2401,7 @@ def howto_page():
   </div>
 </div>''' for g in guides)
 
-    return f"""{head("How-To Guides — The Streamic",
+    return f"""{head("How-To Guides - The Streamic",
                       "Practical broadcast and post-production workflow guides: Vantage, Avid, Strawberry, AWS, and more.",
                       f"{BASE_URL}/howto.html")}
 <body>
@@ -2120,171 +2417,168 @@ def howto_page():
 {_cookie_banner()}
 </body></html>"""
 
-def _deep_dives_section():
-    """Homepage 'Technical Deep Dives' — 2 premium editorial cards below hero.
-
-    Layout matches the reference: 2 side-by-side cards on desktop, stacked on mobile.
-    Each card links to a full hand-authored article page under /docs/articles/.
-    Images expected at /docs/assets/deepdives/ — upload media-composer-edit.png and ms-server-datacenter.png.
+def _nab_bento_section():
     """
-    cards = [
-        {
-            "kicker": "Automation",
-            "title": "The Death of the &quot;Black Box&quot;: Why Pebble and Harmonic are Winning the Playout War",
-            "lead": "The \"Black Box\" era is officially over. Pebble's JT-DMF interoperability push and Harmonic's SMPTE ST 2110-native Spectrum X are collapsing the decades-old hardware lock-in.",
-            "img": "assets/deepdives/media-composer-edit.png",
-            "img_alt": "Avid Media Composer editing interface showing multi-clip timeline and source monitor",
-            "img_caption": "Software-Defined Playout",
-            "href": "articles/deepdive-pebble-harmonic-playout-war-nab-2026.html",
-            "cta": "Read analysis",
-        },
-        {
-            "kicker": "Infrastructure",
-            "title": "From Bots to Agents: How AWS and Google Cloud are Actually Solving the Newsroom Headache",
-            "lead": "2025 was AI that created stuff. 2026 is Agentic AI — AI that does stuff. AWS Elemental Inference and the Google Cloud / Avid partnership signal a real shift from demo to deployment.",
-            "img": "assets/deepdives/ms-server-datacenter.png",
-            "img_alt": "Hyperscale data center server aisle with illuminated racks extending to vanishing point",
-            "img_caption": "Agentic Cloud Infrastructure",
-            "href": "articles/deepdive-aws-google-cloud-agentic-ai-nab-2026.html",
-            "cta": "Read analysis",
-        },
-    ]
+    NAB 2026 Highlights - premium cinematic banner header + bento-grid cards.
 
-    card_html = ""
-    for c in cards:
-        card_html += f'''<a class="dd-card" href="{c['href']}" aria-label="Read deep dive: {c['title']}">
-  <div class="dd-card-body">
-    <span class="dd-kicker">{c['kicker']}</span>
-    <h3 class="dd-title">{c['title']}</h3>
-    <p class="dd-lead">{c['lead']}</p>
-    <span class="dd-cta">{c['cta']} <span class="dd-arrow" aria-hidden="true">&#8594;</span></span>
-  </div>
-  <figure class="dd-figure">
-    <img class="dd-img" src="{c['img']}" alt="{c['img_alt']}" loading="lazy" onerror="this.style.opacity='0'">
-    <figcaption class="dd-figcap">{c['img_caption']}</figcaption>
-  </figure>
-</a>'''
+    Banner design: dark deep-space purple/indigo (matches NAB_SHOW_BANNER image
+    palette) with the image as a blended background layer, heavy overlay so text
+    is always legible, and a large high-contrast H2.
 
-    return f'''<section class="dd-section" aria-labelledby="dd-h2">
-  <div class="dd-hdr">
-    <span class="dd-eyebrow">The 2026 Collection</span>
-    <h2 id="dd-h2" class="dd-h2">Technical Deep Dives</h2>
-    <p class="dd-intro">Moving beyond the headlines into the architecture of the modern media supply chain.</p>
-  </div>
-  <div class="dd-grid">
-    {card_html}
-  </div>
-</section>'''
+    Image path: /assets/NAB_SHOW_BANNER_NEWS_HEADLINE_HERO.png
+    Fallback: pure CSS gradient so layout never breaks if image is missing.
 
-
-def _nab_bento_section(mode="all"):
-    """Homepage NAB 2026 hero + moonlight horizontal cards with Show-more accordion.
-
-    mode:
-      "all"   → hero banner + 4 vendor cards (default, legacy behaviour)
-      "hero"  → hero banner only (for new homepage order: hero → deep dives → cards)
-      "cards" → 4 vendor cards only
-
-    Cards use <details>/<summary> for accordion — pure HTML, zero JavaScript,
-    AdSense-safe, fully indexed by Google (expanded content is in the DOM).
-    'teaser_html' is the always-visible first 5 lines.
-    'more_html' is the hidden-until-expanded rest.
+    Build-safe: pure string, no disk I/O, no external dependencies.
+    AdSense-safe: semantic HTML5, no deceptive elements, descriptive alt text.
+    CSS-safe: all classes prefixed nab- - zero collision with existing hp- classes.
     """
     cards = [
         {
             "cat": "AI & Post-Production",
-            "cat_color": "#8b5cf6",
-            "slug": "2026-04-17-ai-post-production-avid-google-cloud-agentic-ai-media-production",
-            "title": "Avid Content Core: Agentic AI, Google Gemini, and a Unified Media Intelligence Layer",
-            "eyebrow": "Avid Technology",
-            "teaser_html": "<strong>Avid Partners with Google Cloud to Integrate Agentic AI and Launch &quot;Content Core&quot;.</strong> Avid is introducing Content Core &mdash; a cloud-native SaaS platform that acts as a unified data layer for media assets, bringing identity, ingest, and storage into a single data platform.",
-            "more_html": "<p><strong>Google Gemini Integration:</strong> Deeply embeds Google&#39;s AI into Media Composer, the industry-standard non-linear editing system used across professional film and television post-production.</p><p><strong>Agentic AI Assistants:</strong> Digital agents autonomously manage complex tasks like matching visual styles and identifying emotional cues.</p><p><strong>Natural Language Search:</strong> Production teams can now query entire archives using conversational language instead of manual metadata tags.</p><p><strong>Zero-Disruption Migration:</strong> Designed to work with existing Avid NEXIS and MediaCentral infrastructure, avoiding rip-and-replace overhauls. Hybrid deployment across Google Cloud and AWS. Commercially available April 2026.</p>",
+            "cat_color": "#ff6b8a",
+            "slug": "2026-04-17-ai-post-production-avid-google-cloud-agentic-ai-media-produ",
+            "title": "Avid & Google Cloud: Agentic AI and Content Core",
+            "img_alt": "Avid Content Core SaaS platform integrating Google Vertex AI and Gemini with Media Composer for agentic broadcast post-production",
+            "summary": "Avid launches Content Core - a cloud-native intelligence layer embedding Google Gemini directly into Media Composer. Agentic assistants handle B-roll sourcing, natural-language archive search, and temp shot generation. Hybrid architecture preserves existing NEXIS storage. Available April 2026.",
+            "tag": "&#127916;",
+            "is_hero": True,
         },
         {
-            "cat": "AI & Post-Production",
-            "cat_color": "#b45309",
-            "slug": "2026-04-01-newsroom-dalet-flex-2512-semantic-search-dalia-ai",
-            "title": "Dalet Dalia: Conversational Agentic AI for Enterprise Production",
-            "eyebrow": "Dalet",
-            "teaser_html": "<strong>Commercial Launch of Dalia: Media-Aware Agentic AI for Enterprise Production.</strong> Dalet&#39;s multi-agent framework translates conversational requests into structured media workflows including content discovery and clip creation, available across Dalet Flex, Pyramid, and Galaxy five.",
-            "more_html": "<p><strong>Agentic AI:</strong> Uses a natural-language interface to simplify complex media supply chain tasks.</p><p><strong>Ecosystem Integration:</strong> Works across Dalet Flex (cloud-native media logistics and orchestration) and Dalet Pyramid (collaborative web-based news production).</p><p><strong>Human-in-the-Loop:</strong> Keeps users in control of critical creative and editorial validation &mdash; human validation required for downstream actions.</p><p><strong>Efficiency Gains:</strong> Early data shows a 60% reduction in time spent on repetitive tasks like tagging and clipping.</p><p><strong>Unified UI:</strong> Consolidates fragmented tools into a single conversational interface. Commercially available April 8, 2026.</p>",
-        },
-        {
-            "cat": "AI & Post-Production",
-            "cat_color": "#2563eb",
-            "slug": "2026-04-01-ai-post-production-telestream-adobe-frameio-creative-delivery-automation",
-            "title": "Telestream + Adobe + Oracle OCI: Creative-to-Delivery Automation Gets Sharper",
-            "eyebrow": "Telestream",
-            "teaser_html": "<strong>Telestream Scales Multi-Cloud with Oracle and Enhances Adobe Workflows.</strong> Cloud services are now optimized for Oracle Cloud Infrastructure, bringing high-performance compute and low-cost data egress to media workloads, while Premiere Pro users can submit sequences directly into automated pipelines.",
-            "more_html": "<p><strong>Vantage Adobe Panel:</strong> Submit Premiere Pro sequences directly to automated delivery pipelines using the Vantage enterprise media processing and workflow automation platform.</p><p><strong>UP Platform:</strong> Capture, orchestration, and review are now OCI-ready via Telestream&#39;s unified cloud-native ingest and supply chain monitoring platform.</p><p><strong>Frame.io V4 Readiness:</strong> A new connector ensures seamless migration to Adobe Frame.io&#39;s redesigned API architecture.</p><p><strong>SENTRY Monitoring:</strong> Real-time QoS monitoring &mdash; including video/audio quality, ad marker validation, and caption compliance &mdash; is now available within OCI. Available April 2026. Supports hybrid, on-premises, and multi-cloud deployment.</p>",
-        },
-        {
-            "cat": "Distribution",
-            "cat_color": "#0ea5e9",
+            "cat": "Cloud Production",
+            "cat_color": "#a89bff",
             "slug": "2026-04-01-cloud-tedial-agentic-ai-media-lifecycle-nab-2026",
-            "title": "Vubiquity + Eluvio Content Fabric: Rewriting Distribution Economics",
-            "eyebrow": "Vubiquity &amp; Eluvio",
-            "teaser_html": "<strong>Vubiquity adopts the Eluvio Content Fabric to redefine media distribution economics.</strong> The partnership replaces traditional file-based delivery with a blockchain-backed content fabric that streams the exact requested version on demand &mdash; eliminating the transcoding, storage, and CDN costs baked into conventional supply chains.",
-            "more_html": "<p><strong>Content Fabric Protocol:</strong> A decentralized media protocol built on a verifiable content-addressable storage layer. Masters are stored once and dynamically assembled per request &mdash; versions, subtitles, and territorial variants generated at the edge.</p><p><strong>Zero Egress Duplication:</strong> Removes the need to pre-transcode and pre-store every distribution version. Reduces storage footprint by up to 80% and eliminates redundant CDN fills.</p><p><strong>Rights-Aware Delivery:</strong> Territorial rights, version control, and edit compliance are enforced at the protocol layer, not the application layer &mdash; faster rights clearance, no misdelivery.</p><p><strong>Operator Impact:</strong> For distributors like Vubiquity, this collapses the delivery cost curve and makes long-tail catalog monetization economically viable again. Active in production workflows as of Q2 2026.</p>",
+            "title": "Dalet Dalia: Conversational AI Across the Media Supply Chain",
+            "img_alt": "Dalet Dalia agentic AI interface orchestrating media workflows across Dalet Flex, Pyramid, and Galaxy five broadcast platforms",
+            "summary": "Dalia is a multi-agent framework acting as a conversational orchestration layer across Dalet Flex, Pyramid, and Galaxy five. Natural language triggers structured workflows - tagging, clipping, social packaging. Early data shows 60% reduction in repetitive task time. Commercially available April 8, 2026.",
+            "tag": "&#9729;",
+            "is_hero": False,
+        },
+        {
+            "cat": "Playout",
+            "cat_color": "#5dde8a",
+            "slug": "2026-04-01-playout-harmonic-spectrum-x-plus-playout-economics",
+            "title": "BCNEXXT Vipe: Live UHD HLG HDR and BCE Media-as-a-Service",
+            "img_alt": "BCNEXXT Vipe cloud-native playout platform supporting UHD 2160p BT.2100 HLG live ingest with parallel SDR output for broadcast distribution",
+            "summary": "BCNEXXT adds UHD 2160p BT.2100 HLG live playout to Vipe with simultaneous SDR output. Integrated into BCE Media-as-a-Service. Pay-per-play model removes infrastructure overhead. Channel launch drops to days. Pre-rendered HLG pre-processing keeps commercial files in sync with live HDR feeds.",
+            "tag": "&#9654;",
+            "is_hero": False,
+        },
+        {
+            "cat": "Newsroom",
+            "cat_color": "#ffd166",
+            "slug": "2026-04-01-newsroom-dalet-flex-2512-semantic-search-dalia-ai",
+            "title": "Mediagenix: Semantic Intelligence for FAST Channel Scheduling",
+            "img_alt": "Mediagenix Scheduling Artist AI generating automated linear channel schedules using semantic content intelligence and audience behaviour signals",
+            "summary": "Mediagenix deploys a Semantic Intelligence layer - combining Spideo AI with rights metadata - to automate scheduling and discovery. Scheduling Artist cuts manual scheduling effort by 80%, playlist prep by 85%. Humanized Semantic Search interprets intent, not keywords. Won 2025 NAB Product of Year.",
+            "tag": "&#128240;",
+            "is_hero": False,
+        },
+        {
+            "cat": "AI & Post-Production",
+            "cat_color": "#ff6b8a",
+            "slug": "2026-04-01-ai-post-production-telestream-adobe-frameio-creative-delive",
+            "title": "Telestream: Oracle OCI Multi-Cloud and Adobe Frame.io V4",
+            "img_alt": "Telestream Vantage workflow panel inside Adobe Premiere Pro submitting to Oracle Cloud Infrastructure OCI for multi-cloud broadcast media processing",
+            "summary": "Telestream optimises Vantage, UP platform, and SENTRY QoS for Oracle Cloud Infrastructure, cutting egress costs. New Premiere Pro panel submits sequences directly to Vantage pipelines. Frame.io V4 connector ensures seamless API migration. Hybrid, on-prem, and multi-cloud deployments supported.",
+            "tag": "&#127916;",
+            "is_hero": False,
+        },
+        {
+            "cat": "Streaming",
+            "cat_color": "#60b4ff",
+            "slug": "2026-04-01-cloud-tedial-agentic-ai-media-lifecycle-nab-2026",
+            "title": "Vubiquity & Eluvio: Zero-Copy Distribution Economics",
+            "img_alt": "Eluvio Content Fabric protocol showing zero-copy just-in-time media packaging eliminating CDN duplication costs for global streaming distribution",
+            "summary": "Vubiquity and Eluvio replace fragmented file pipelines with a single Content Fabric object - one source, global reach. Zero-copy JIT packaging eliminates per-region duplication. EVIE AI enables frame-accurate archive search without file movement. Sub-500ms global latency replaces satellite links.",
+            "tag": "&#128225;",
+            "is_hero": False,
         },
     ]
 
-    card_html = []
-    for c in cards:
-        card_html.append(f'''<article class="nab-card nab-card-horizontal" itemprop="itemListElement" itemscope itemtype="https://schema.org/Article">
-  <div class="nab-card-body nab-card-body-horizontal">
-    <div class="nab-card-meta-row">
-      <span class="nab-card-eyebrow">{c['eyebrow']}</span>
-      <span class="nab-cat" style="--nab-cat-c:{c['cat_color']}">{c['cat']}</span>
-    </div>
-    <h3 class="nab-title" itemprop="headline"><a href="articles/{c['slug']}.html" class="nab-title-link">{c['title']}</a></h3>
-    <div class="nab-summary nab-summary-rich" itemprop="description">
-      <div class="nab-teaser">{c['teaser_html']}</div>
-      <details class="nab-more">
-        <summary class="nab-more-toggle"><span class="nab-more-label-open">Show more</span><span class="nab-more-label-close">Show less</span><span class="nab-more-chev" aria-hidden="true">&#9662;</span></summary>
-        <div class="nab-more-body">{c['more_html']}</div>
-      </details>
-    </div>
-    <a href="articles/{c['slug']}.html" class="nab-cta nab-cta-btn" aria-label="Read full article: {c['title']}">Read full article <span class="nab-cta-arrow" aria-hidden="true">&#8594;</span></a>
-  </div>
-</article>''')
+    hero = next((c for c in cards if c["is_hero"]), cards[0])
+    others = [c for c in cards if not c["is_hero"]]
+    fb = "assets/fallback.jpg"
 
-    hero_html = '''<section class="nab-section nab-section-hero-only" aria-labelledby="nab-h2">
-  <header class="nab-banner nab-banner-image" role="banner" aria-label="NAB Show 2026 section header">
+    # -- Hero card - wide horizontal ---------------------------------------
+    hero_html = f'''<article class="nab-card nab-card-hero" itemprop="itemListElement" itemscope itemtype="https://schema.org/Article">
+  <a href="articles/{hero["slug"]}.html" class="nab-card-link" aria-label="Read full NAB 2026 analysis: {hero["title"]}">
+    <div class="nab-card-img nab-card-img-hero" aria-hidden="true">
+      <div class="nab-card-img-placeholder nab-card-img-placeholder--ai"></div>
+    </div>
+    <div class="nab-card-body">
+      <span class="nab-featured-badge">&#9733; Lead Story</span>
+      <span class="nab-cat" style="--nab-cat-c:{hero["cat_color"]}">{hero["tag"]} {hero["cat"]}</span>
+      <h3 class="nab-title" itemprop="headline">{hero["title"]}</h3>
+      <p class="nab-summary" itemprop="description">{hero["summary"]}</p>
+      <span class="nab-cta">Read Full Analysis <span class="nab-cta-arrow" aria-hidden="true">&#8594;</span></span>
+    </div>
+  </a>
+</article>'''
+
+    # -- Standard cards ----------------------------------------------------
+    std_cards = ""
+    placeholders = ["--ai", "--cloud", "--playout", "--news", "--stream"]
+    for i, c in enumerate(others):
+        ph = placeholders[i % len(placeholders)]
+        std_cards += f'''<article class="nab-card nab-card-std" itemprop="itemListElement" itemscope itemtype="https://schema.org/Article">
+  <a href="articles/{c["slug"]}.html" class="nab-card-link" aria-label="NAB 2026: {c["title"]}">
+    <div class="nab-card-img nab-card-img-std" aria-hidden="true">
+      <div class="nab-card-img-placeholder nab-card-img-placeholder{ph}"></div>
+    </div>
+    <div class="nab-card-body">
+      <span class="nab-cat" style="--nab-cat-c:{c["cat_color"]}">{c["tag"]} {c["cat"]}</span>
+      <h3 class="nab-title" itemprop="headline">{c["title"]}</h3>
+      <p class="nab-summary" itemprop="description">{c["summary"]}</p>
+      <span class="nab-cta">Read Analysis <span class="nab-cta-arrow" aria-hidden="true">&#8594;</span></span>
+    </div>
+  </a>
+</article>
+'''
+
+    return f'''<section class="nab-section" aria-labelledby="nab-h2" itemscope itemtype="https://schema.org/ItemList">
+  <meta itemprop="name" content="NAB Show 2026 Broadcast Technology Updates - The Streamic">
+
+  <!-- -- CINEMATIC BANNER HEADER ------------------------------------ -->
+  <header class="nab-banner" role="banner" aria-label="NAB Show 2026 section header">
     <div class="nab-banner-bg" aria-hidden="true">
-      <img class="nab-banner-hero-img" src="assets/gfx-hero-nab-floor.png" alt="" loading="eager" onerror="this.style.display='none'">
+      <img
+        class="nab-banner-img"
+        src="assets/NAB_SHOW_BANNER_NEWS_HEADLINE_HERO.png"
+        alt=""
+        loading="lazy"
+        onerror="this.style.display=&apos;none&apos;"
+      >
       <div class="nab-banner-overlay" aria-hidden="true"></div>
-      <div class="nab-banner-vignette" aria-hidden="true"></div>
+      <div class="nab-banner-grain" aria-hidden="true"></div>
     </div>
     <div class="nab-banner-content">
       <div class="nab-banner-eyebrow">
         <span class="nab-live-pulse" aria-hidden="true"></span>
-        <span class="nab-banner-label">Field Report &middot; April 2026</span>
+        <span class="nab-banner-label">LIVE COVERAGE</span>
         <span class="nab-banner-sep" aria-hidden="true">&middot;</span>
-        <span class="nab-banner-location">Las Vegas &bull; NAB Show 2026</span>
+        <span class="nab-banner-location">Las Vegas &bull; April 18&ndash;22, 2026</span>
       </div>
-      <h1 id="nab-h2" class="nab-banner-h2 nab-banner-h2-premium">
-        <span class="nab-banner-kicker">Practical Takeaways from NAB 2026</span>
-        <span class="nab-banner-headline">The Year of <em>Hybrid Technology</em></span>
-      </h1>
-      <p class="nab-banner-sub">Beyond the hype: agentic AI, IP 2110 migration, cloud-to-post bridges, and the vendor partnerships that are quietly rewriting the broadcast stack.</p>
-      <a href="articles/nab-2026-hybrid-technology-year.html" class="nab-banner-cta nab-banner-cta-premium" aria-label="Read the full NAB 2026 field report">Read the Field Report <span aria-hidden="true">&#8594;</span></a>
+      <h2 id="nab-h2" class="nab-banner-h2">
+        <span class="nab-banner-h2-nab">NAB 2026</span>
+        <span class="nab-banner-h2-hl">Highlights</span>
+      </h2>
+      <p class="nab-banner-sub">Independent editorial analysis of the technology announcements that will reshape broadcast infrastructure, AI-driven production, and streaming distribution through 2027.</p>
+      <a href="ai-post-production.html" class="nab-banner-cta" aria-label="View all NAB 2026 coverage">
+        View all coverage <span aria-hidden="true">&#8594;</span>
+      </a>
     </div>
   </header>
-</section>'''
+  <!-- -- END BANNER -------------------------------------------------- -->
 
-    cards_wrapper = f'''<section class="nab-section nab-section-cards-only" aria-label="NAB 2026 vendor announcements" itemscope itemtype="https://schema.org/ItemList">
-  <meta itemprop="name" content="NAB Show 2026 Broadcast Technology Updates — The Streamic">
-  <div class="nab-bento nab-bento-stack">
-    {''.join(card_html)}
+  <div class="nab-bento">
+    {hero_html}
+    <div class="nab-std-grid">
+      {std_cards}
+    </div>
   </div>
+
 </section>'''
 
-    if mode == "hero":
-        return hero_html
-    if mode == "cards":
-        return cards_wrapper
-    return hero_html + cards_wrapper
 
 def editorsdesk_page():
     """Editor's Desk landing page.
@@ -2297,7 +2591,7 @@ def editorsdesk_page():
       3. Explicit hex colors are used (not CSS variables) so cards render
          even if style.css hasn't loaded or var(--ink) is undefined.
       4. Each card's target article file is checked on disk BEFORE the card
-         is rendered. Missing articles produce no card — never a broken link.
+         is rendered. Missing articles produce no card - never a broken link.
       5. If zero cards survive the existence check, we fall back to the old
          simple "what we're watching" layout so the page is never empty.
       6. nav() and footer() are always included so the page has the site
@@ -2315,7 +2609,7 @@ def editorsdesk_page():
          "Every MAM vendor ships AI auto-tagging in 2026. The accuracy numbers describe benchmarks editors never hit. The gap between '95% correct' and 'useful for an editor on deadline' is where these systems still fail."),
         ("INFRASTRUCTURE", "ndi-6-vs-st-2110-india-mid-market-2026",
          "NDI 6 vs ST 2110 for India's Mid-Market Broadcasters: The Pragmatic Read",
-         "ST 2110 is the standard. NDI 6 is what most Indian regional broadcasters will actually deploy. The honest engineering comparison — latency, compression, network cost, and where each earns its place."),
+         "ST 2110 is the standard. NDI 6 is what most Indian regional broadcasters will actually deploy. The honest engineering comparison - latency, compression, network cost, and where each earns its place."),
         ("AI IN BROADCASTING", "c2pa-provenance-newsroom-broadcast-mandate-2027",
          "C2PA in the Newsroom: The Provenance Standard Nobody Can Afford to Ignore by 2027",
          "C2PA content provenance has been a compliance side-project since 2023. Synthetic media incidents and EU regulation mean 2026 is the last year it stays a side-project."),
@@ -2336,7 +2630,7 @@ def editorsdesk_page():
         if os.path.exists(os.path.join(DOCS, "articles", f"{slug}.html")):
             rendered.append((cat, slug, title, dek))
 
-    # Build CSS block — scoped, explicit colors, !important on critical props
+    # Build CSS block - scoped, explicit colors, !important on critical props
     # so nothing in style.css can hide the title or link.
     extra_css = """
 <style>
@@ -2358,7 +2652,7 @@ def editorsdesk_page():
 """
     # Inject the style block INSIDE <head>, right before </head>, so it
     # cascades after style.css and wins on specificity ties.
-    raw_head = head("Editor's Desk — The Streamic",
+    raw_head = head("Editor's Desk - The Streamic",
                     "Commentary, perspective, and engineering analysis from the editorial team at The Streamic.",
                     f"{BASE_URL}/editorsdesk.html")
     head_with_css = raw_head.replace("</head>", extra_css + "</head>")
@@ -2384,31 +2678,6 @@ def editorsdesk_page():
 <section class="strmc-ed-grid">
 {cards_html}
 </section>
-<section class="hp-flagship-section hp-flagship-section--vlog">
-  <div class="w">
-    <div class="hp-flagship-section__hdr">
-      <div class="hp-sec-hdr">
-        <h2>Flagship Long-Read</h2>
-      </div>
-      <p class="hp-section-intro">A dedicated spotlight for technology concepts that deserve a cleaner, slower read.</p>
-    </div>
-    <a href="articles/quic-http3-video-delivery-streaming-2026.html" class="hp-flagship" aria-label="Read full insight: Beyond TCP">
-      <div class="hp-flagship__body">
-        <span class="hp-flagship__tag">📡 Infrastructure &amp; Streaming</span>
-        <h2 class="hp-flagship__hl">Beyond TCP: Why QUIC Is Redefining Video Delivery</h2>
-        <p class="hp-flagship__summary">Faster video start, fewer buffering issues, and smoother playback — even on weak networks. HTTP/3 and QUIC are quietly improving streaming performance across OTT platforms and live broadcasting.</p>
-        <p class="hp-flagship__body-text">For years, streaming relied on TCP. QUIC improves connection setup, packet loss recovery, and mobility handling, which makes it more relevant to live events, mobile viewing, and premium OTT delivery than many operations teams first assume.</p>
-        <div class="hp-flagship__footer">
-          <div class="hp-flagship__meta"><span class="hp-flagship__author">Prerak K Mehta</span><span class="hp-flagship__role">Broadcast Technology and Media IT Analyst</span><span class="hp-flagship__readtime">⏱ 5 min read</span></div>
-          <span class="hp-flagship__cta">Read Full Insight <span class="hp-flagship__cta-arrow">→</span></span>
-        </div>
-      </div>
-      <div class="hp-flagship__image-wrap">
-        <img class="hp-flagship__img" src="assets/insight-quic-infographic.jpg" alt="QUIC vs TCP streaming performance infographic" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
-      </div>
-    </a>
-  </div>
-</section>
 </main>"""
     else:
         # Fallback: no hand-authored articles on disk yet. Show the old
@@ -2433,10 +2702,10 @@ def editorsdesk_page():
 {_cookie_banner()}
 </body></html>"""
 
-# Backwards-compatibility alias — in case any other call site still calls vlog_page().
+# Backwards-compatibility alias - in case any other call site still calls vlog_page().
 vlog_page = editorsdesk_page
 
-# ── SITEMAP
+# -- SITEMAP
 def sitemap(arts):
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     statics = [
@@ -2460,12 +2729,12 @@ def sitemap(arts):
     lines.append('</urlset>')
     return "\n".join(lines)
 
-# ── MAIN
+# -- MAIN
 def main():
     with open(ARTS_F,"r",encoding="utf-8") as f: arts = json.load(f)
     if not arts: raise SystemExit("No articles")
 
-    # ── Deduplicate by slug ───────────────────────────────────────────────
+    # -- Deduplicate by slug -----------------------------------------------
     seen_slugs, deduped = set(), []
     for a in arts:
         if a["slug"] not in seen_slugs:
@@ -2474,8 +2743,8 @@ def main():
     arts = deduped
     print(f"  After slug dedup: {len(arts)} unique articles")
 
-    # ── Jaccard near-duplicate cleanup (retroactive) ──────────────────────
-    # Catches cross-topic story re-runs
+    # -- Jaccard near-duplicate cleanup (retroactive) ----------------------
+    # Catches cross-feed story re-runs that slipped through rewrite_feed.py
     # before the 3-pass dedup was introduced. E.g. "Bitcentral to Showcase
     # Connected Media Workflows" and "Bitcentral To Feature Connected
     # Media Workflows" both about the same NAB press release.
@@ -2547,7 +2816,7 @@ def main():
                     winner = candidate if (candidate.get("date", "") > existing.get("date", "")) else existing
                 loser = existing if winner is candidate else candidate
                 print(f"  [DEDUP] '{loser.get('title','')[:55]}' "
-                      f"≈ '{winner.get('title','')[:55]}' ({similarity:.0%}) — keeping winner")
+                      f"~ '{winner.get('title','')[:55]}' ({similarity:.0%}) - keeping winner")
                 if winner is candidate:
                     kept[idx] = candidate
                 dropped_near_dup += 1
@@ -2559,14 +2828,14 @@ def main():
     print(f"  After near-dup dedup: {len(arts)} unique articles "
           f"(removed {dropped_near_dup} near-duplicates)")
 
-    # ── Ensure all articles have a slug ──────────────────────────────────
+    # -- Ensure all articles have a slug ----------------------------------
     def _slugify(title):
         return re.sub(r"[^a-z0-9]+", "-", (title or "article").lower()).strip("-")
     for a in arts:
         if not a.get("slug"):
             a["slug"] = _slugify(a.get("title", "untitled"))
 
-    # ── Ensure all articles have body content field ───────────────────────
+    # -- Ensure all articles have body content field -----------------------
     for a in arts:
         if not a.get("body_html"):
             # Fall back to card_summary or description so pages aren't empty
@@ -2574,22 +2843,22 @@ def main():
             if fallback:
                 a["body_html"] = f"<p>{fallback}</p>"
 
-    # ── QUALITY GATE — TWO-TIER SYSTEM ─────────────────────────────────────
+    # -- QUALITY GATE - TWO-TIER SYSTEM -------------------------------------
     #
     # Tier 1 (page exists, internal link works): 400+ words + 2 broadcast terms
-    #   → article HTML page is generated, used by Intelligence section, etc.
-    #   → gets noindex,nofollow (not visible to Google)
+    #   &rarr; article HTML page is generated, used by Intelligence section, etc.
+    #   &rarr; gets noindex,nofollow (not visible to Google)
     #
     # Tier 2 (SEO-visible, fully indexed): 800+ words OR gpt_manual_editorial
-    #   → gets index,follow — the high-quality articles Google sees
+    #   &rarr; gets index,follow - the high-quality articles Google sees
     #
     # HOMEPAGE PROTECTION: articles hardcoded into the homepage layout
     # (hero, Latest Insights, Professional Media Systems Guide) always survive.
-    # ─────────────────────────────────────────────────────────────────────────
+    # -------------------------------------------------------------------------
 
     MIN_FEED_WORDS = 400   # Word-count floor only.
                            # Kept at 400 because Groq TPM rate limits cause
-                           # scaffold upgrades to lag — raising the gate
+                           # scaffold upgrades to lag - raising the gate
                            # before upgrades complete strips ~120 articles
                            # from the visible site (verified in pipeline log
                            # 2026-04-11 13:22 UTC: 62 pass / 122 rejected).
@@ -2657,52 +2926,52 @@ def main():
     if quality_fail:
         print(f"  Quality gate: {len(quality_pass)} pass, {len(quality_fail)} rejected")
         for slug, reason in quality_fail[:10]:
-            print(f"    ✗ {slug[:60]}  — {reason}")
+            print(f"    [X] {slug[:60]}  - {reason}")
         if len(quality_fail) > 10:
-            print(f"    … and {len(quality_fail)-10} more")
+            print(f"    ... and {len(quality_fail)-10} more")
     arts = quality_pass
 
     print(f"  Total articles after quality gate: {len(arts)}")
 
-    # ── Fix images: replace typewriters/newspapers with broadcast visuals ──
+    # -- Fix images: replace typewriters/newspapers with broadcast visuals --
     _fix_article_images(arts)
 
-    # ── Select top MAX_ARTICLES by quality — editorial always first ───────
+    # -- Select top MAX_ARTICLES by quality - editorial always first -------
     # SAFE DESIGN: AdSense quality affects index/noindex status, NOT visibility.
     # Category pages always show articles. Only the robots meta tag differs.
     # This means cloud.html, streaming.html etc always have content.
 
     ed_arts  = [a for a in arts if a.get("is_editorial") or a.get("editorial")]
-    non_editorial_pool = [a for a in arts if not a.get("is_editorial") and not a.get("editorial")]
+    rss_pool = [a for a in arts if not a.get("is_editorial") and not a.get("editorial")]
 
-    # Score all non-editorial articles — high scorers get indexed, others get noindex
+    # Score all RSS articles - high scorers get indexed, others get noindex
     # but are still rendered on category pages (never blank)
-    non_editorial_pool.sort(key=lambda a: -_score_art(a))
+    rss_pool.sort(key=lambda a: -_score_art(a))
 
-    # Top non-editorial by score — these get index,follow
+    # Top RSS by score - these get index,follow
     # Use a per-category quota to ensure diversity: 3 per cat max
     cat_quota = {}
-    non_editorial_indexed = []
-    for a in non_editorial_pool:
+    rss_indexed = []
+    for a in rss_pool:
         cat = a.get("category", "featured")
         if cat_quota.get(cat, 0) < 3:
-            non_editorial_indexed.append(a)
+            rss_indexed.append(a)
             cat_quota[cat] = cat_quota.get(cat, 0) + 1
-        if len(non_editorial_indexed) >= 22:   # max 22 industry briefing indexed slots
+        if len(rss_indexed) >= 22:   # max 22 industry briefing indexed slots
             break
 
-    visible_list  = (ed_arts + non_editorial_indexed)[:MAX_ARTICLES]
+    visible_list  = (ed_arts + rss_indexed)[:MAX_ARTICLES]
     visible_slugs = {a["slug"] for a in visible_list}
 
     # Diagnostic
-    non_editorial_indexed_count = len(non_editorial_indexed)
-    non_editorial_noindex_count = len(non_editorial_pool) - non_editorial_indexed_count
+    rss_indexed_count = len(rss_indexed)
+    rss_noindex_count = len(rss_pool) - rss_indexed_count
     print(f"  Visible (indexed): {len(visible_slugs)} | Hidden (noindex): {len(arts)-len(visible_slugs)}")
-    print(f"  Non-editorial: {non_editorial_indexed_count} indexed + {non_editorial_noindex_count} noindex (appear on pages, not in search)")
+    print(f"  RSS: {rss_indexed_count} indexed + {rss_noindex_count} noindex (appear on pages, not in search)")
 
     os.makedirs(ARTS_D, exist_ok=True)
 
-    # ── Article pages — visible indexed, rest noindex ─────────────────────
+    # -- Article pages - visible indexed, rest noindex ---------------------
     # Any article file containing <!-- HAND_AUTHORED --> is never overwritten.
     # Add that comment to any article you edit manually to protect it permanently.
     written = 0
@@ -2733,11 +3002,11 @@ def main():
                 written += 1
     print(f"  &#10003; {written} article files ({len(visible_slugs)} indexed, {written-len(visible_slugs)} noindex)")
 
-    # ── Category pages ────────────────────────────────────────────────────
+    # -- Category pages ----------------------------------------------------
     # ALL category pages now show REAL articles (never blank "coming soon").
     # Only the robots meta tag differs: VISIBLE_CAT is indexed, others are noindex.
     # This means cloud.html, streaming.html etc always have content for visitors
-    # and for AdSense crawlers — they just don't appear in Google search results
+    # and for AdSense crawlers - they just don't appear in Google search results
     # until we're ready to index them.
     by_cat = {}
     for a in arts:
@@ -2796,16 +3065,16 @@ def main():
     for cat, n in sorted(cat_page_counts.items()):
         print(f"      {cat}: {n} articles")
 
-    # ── Homepage ──────────────────────────────────────────────────────────
+    # -- Homepage ----------------------------------------------------------
     feat_arts = sorted(arts, key=lambda a: a["published"], reverse=True)
     fp = featured_page(feat_arts)
     w(os.path.join(DOCS,"featured.html"), fp)
     w(os.path.join(DOCS,"index.html"),    fp)
-    w(os.path.join(ROOT,"index.html"),    fp)   # Also at root — fixes 404 when Pages serves from branch root
+    w(os.path.join(ROOT,"index.html"),    fp)   # Also at root - fixes 404 when Pages serves from branch root
     w(os.path.join(ROOT,"featured.html"), fp)  # Mirror at root so /featured.html resolves everywhere
     print("  &#10003; featured.html + index.html")
 
-    # ── posts.html — noindex (preserve links, hide from Google) ──────────
+    # -- posts.html - noindex (preserve links, hide from Google) ----------
     ap = all_articles_page(feat_arts)
     ap = ap.replace(
         '<meta name="robots" content="index,follow">',
@@ -2815,7 +3084,7 @@ def main():
     w(os.path.join(ROOT,"posts.html"), ap)
     print("  &#10003; posts.html (noindex)")
 
-    # ── Static pages ──────────────────────────────────────────────────────
+    # -- Static pages ------------------------------------------------------
     w(os.path.join(DOCS,"about.html"),            about_page())
     w(os.path.join(DOCS,"contact.html"),          contact_page())
     w(os.path.join(DOCS,"privacy.html"),          privacy_page())
@@ -2824,20 +3093,17 @@ def main():
     w(os.path.join(DOCS,"howto.html"),            howto_page())
     w(os.path.join(DOCS,"insights.html"),         insights_page())
     w(os.path.join(DOCS,"post-production-workflows.html"), post_production_workflows_page())
-    # Write Editor's Desk to editorsdesk.html and vlog.html for the QUIC landing.
-    ed_html = editorsdesk_page()
-    w(os.path.join(DOCS, "editorsdesk.html"), ed_html)
-    vlog_html = ed_html.replace("Editor's Desk — The Streamic", "Vlog — The Streamic", 1)
-    w(os.path.join(DOCS, "vlog.html"), vlog_html)
-    w(os.path.join(ROOT, "vlog.html"), vlog_html)
+    # Write Editor's Desk to editorsdesk.html (new canonical name).
+    w(os.path.join(DOCS, "editorsdesk.html"), editorsdesk_page())
 
-    # ── AdSense compliance: delete thin redirect stubs + template junk ────
+    # -- AdSense compliance: delete thin redirect stubs + template junk ----
     # AdSense flags 4-word <meta refresh> redirect pages as "low-value
     # content." Soft-redirect stubs and thin template pages have no unique
-    # content — they must return 404, not render with AdSense scripts.
+    # content - they must return 404, not render with AdSense scripts.
     _ADSENSE_PURGE = [
-        "how-to.html",                 # redirect stub → howto.html
-        "broadcast-systems-hub.html",  # 4-word redirect stub → index.html
+        "vlog.html",                   # redirect stub (old)
+        "how-to.html",                 # redirect stub &rarr; howto.html
+        "broadcast-systems-hub.html",  # 4-word redirect stub &rarr; index.html
         "featured_priority.html",      # 276w template junk (data-layer artifact)
         "thank-you.html",              # 19w form-submission landing (thin)
     ]
@@ -2851,12 +3117,12 @@ def main():
                 pass
     print("  &#10003; static pages")
 
-    # ── Sitemap — only visible articles + core pages ──────────────────────
+    # -- Sitemap - only visible articles + core pages ----------------------
     w(os.path.join(DOCS,"sitemap.xml"), sitemap([a for a in arts if a["slug"] in visible_slugs]))
     w(os.path.join(DOCS,"robots.txt"),
       f"User-agent: *\nAllow: /\nDisallow: /posts.html\n\nSitemap: {BASE_URL}/sitemap.xml\n")
 
-    # ── Assets ────────────────────────────────────────────────────────────
+    # -- Assets ------------------------------------------------------------
     for f_name in ("style.css","main.js"):
         src = os.path.join(ROOT, f_name)
         if os.path.isfile(src): shutil.copy2(src, os.path.join(DOCS, f_name))
@@ -2865,14 +3131,14 @@ def main():
     w(os.path.join(DOCS,"ads.txt"),  "google.com, pub-8033069131874524, DIRECT, f08c47fec0942fa0\n")
     w(os.path.join(DOCS,"CNAME"),    "thestreamic.in\n")
     open(os.path.join(DOCS,".nojekyll"),"w").close()
-    open(os.path.join(ROOT,".nojekyll"),"w").close()  # Also at root — prevents Jekyll from running at all
+    open(os.path.join(ROOT,".nojekyll"),"w").close()  # Also at root - prevents Jekyll from running at all
     w(os.path.join(ROOT,"CNAME"),    "thestreamic.in\n")
 
     for fn in ["style.css","main.js","ads.txt","robots.txt"]:
         src_f = os.path.join(DOCS, fn)
         if os.path.isfile(src_f): shutil.copy2(src_f, os.path.join(ROOT, fn))
 
-    # ── How-to guides to root/articles/ ──────────────────────────────────
+    # -- How-to guides to root/articles/ ----------------------------------
     root_arts = os.path.join(ROOT,"articles")
     os.makedirs(root_arts, exist_ok=True)
     howto_guides = [fn for fn in os.listdir(ARTS_D) if fn.startswith("guide-") and fn.endswith(".html")]
@@ -2880,7 +3146,7 @@ def main():
         shutil.copy2(os.path.join(ARTS_D,fn), os.path.join(root_arts,fn))
     print(f"  &#10003; {len(howto_guides)} how-to guides mirrored to root/articles/")
 
-    # ── Copy root-level hand-authored articles to docs/articles/ ──────────
+    # -- Copy root-level hand-authored articles to docs/articles/ ----------
     # These are manually created articles that live at repo root and must
     # also be served from docs/articles/ for GitHub Pages to find them.
     _root_html_articles = [
@@ -2893,13 +3159,30 @@ def main():
             shutil.copy2(_src_path, _dst_path)
             print(f"  &#10003; {_fn} copied to docs/articles/")
         elif os.path.isfile(_src_path):
-            # Always update — root is the source of truth for hand-authored articles
+            # Always update - root is the source of truth for hand-authored articles
             shutil.copy2(_src_path, _dst_path)
             print(f"  &#10003; {_fn} synced to docs/articles/")
 
-    # ── docs/data/ for client-side JS — only visible articles ────────────
+    # -- docs/data/ for client-side JS - only visible articles ------------
     docs_data_dir = os.path.join(DOCS, "data")
     os.makedirs(docs_data_dir, exist_ok=True)
+
+    news_src = os.path.join(ROOT, "data", "news.json")
+    if os.path.exists(news_src):
+        with open(news_src,encoding="utf-8") as f: raw = json.load(f)
+        if isinstance(raw,list):
+            out = {"featured_priority":raw[:6],"items":raw[6:]}
+        elif isinstance(raw,dict) and "items" in raw:
+            out = raw
+        else:
+            flat=[]
+            for cat,lst in raw.items():
+                for it in (lst or []): it.setdefault("category",cat); flat.append(it)
+            flat.sort(key=lambda x:x.get("pubDate",""),reverse=True)
+            out = {"featured_priority":flat[:6],"items":flat[6:]}
+        with open(os.path.join(docs_data_dir,"news.json"),"w",encoding="utf-8") as f:
+            json.dump(out,f,ensure_ascii=False)
+        print(f"  &#10003; docs/data/news.json ({len(out.get('items',[]))} items)")
 
     gen_src = os.path.join(ROOT, "data", "generated_articles.json")
     if os.path.exists(gen_src):
@@ -2911,7 +3194,7 @@ def main():
         with open(gen_dst,"w",encoding="utf-8") as _f: json.dump(out_gen,_f,ensure_ascii=False)
         print(f"  &#10003; docs/data/generated_articles.json ({len(vis_gen)} visible articles)")
 
-    print(f"\n✅ Build complete: {len(visible_slugs)}/{len(arts)} articles visible | AdSense mode ON")
+    print(f"\n[OK] Build complete: {len(visible_slugs)}/{len(arts)} articles visible | AdSense mode ON")
 
 if __name__ == "__main__":
     main()
