@@ -1979,8 +1979,8 @@ def insights_page():
 
 
 def post_production_workflows_page():
-    """Post Production Workflows landing page — AdSense-compliant (~700w)."""
-    return f"""{head("Post Production Workflows — The Streamic","Practical post-production workflow analysis: NLE interoperability, MAM / PAM integration, proxy pipelines, codec compatibility, and cloud collaboration for broadcast post teams.",f"{BASE_URL}/post-production-workflows.html")}
+    """Post Production Workflows landing page - AdSense-compliant (~700w)."""
+    return f"""{head("Post Production Workflows - The Streamic","Practical post-production workflow analysis: NLE interoperability, MAM / PAM integration, proxy pipelines, codec compatibility, and cloud collaboration for broadcast post teams.",f"{BASE_URL}/post-production-workflows.html")}
 <body>
 {nav()}
 <main><div class="w" style="padding:52px 24px 80px;max-width:820px">
@@ -1997,6 +1997,59 @@ def post_production_workflows_page():
   <li><strong>Cloud &amp; hybrid post</strong> &#8212; Frame.io, EditShare Cloud, Blackmagic Cloud, Avid Edit On Demand, and the bandwidth / latency / security trade-offs of each. Real-world remote editing vs. marketing-reel remote editing.</li>
   <li><strong>Archive &amp; restore</strong> &#8212; LTO strategies, object-storage archive tiers, cold-retrieval SLAs, and the dark art of conforming an archived project 18 months later when the original NLE has moved on three versions.</li>
 </ul>
+
+<section style="margin:40px 0 34px">
+  <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin-bottom:12px">
+    <h2 style="font-family:var(--serif);font-size:24px;line-height:1.15;letter-spacing:-.3px;margin:0">Featured Workflow Analysis</h2>
+  </div>
+  <p style="font-size:14px;color:var(--ink3);line-height:1.65;margin:0 0 20px;max-width:680px">A closer look at the workflow layers where post-production still loses time: edit-to-delivery orchestration, DI pipeline discipline, and the system design choices behind studio-grade finishing.</p>
+
+  <div style="display:grid;grid-template-columns:1.25fr .75fr;gap:18px">
+    <a href="articles/telestream-adobe-vantage-premiere-workflow-integration-2026.html" style="position:relative;display:block;overflow:hidden;border-radius:20px;min-height:360px;background:#111;text-decoration:none;color:#fff;box-shadow:0 10px 28px rgba(0,0,0,.10)">
+      <img src="assets/media-composer-edit.png" alt="Telestream Adobe Vantage workflow integration" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'" style="width:100%;height:100%;object-fit:cover;display:block;opacity:.9">
+      <div style="position:absolute;inset:0;background:linear-gradient(to top, rgba(0,0,0,.84) 0%, rgba(0,0,0,.36) 45%, rgba(0,0,0,.10) 100%)"></div>
+      <div style="position:absolute;left:0;right:0;bottom:0;padding:22px 22px 20px;z-index:2">
+        <span style="display:inline-block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.82);margin-bottom:10px">Edit to Delivery Workflow</span>
+        <h3 style="margin:0 0 10px;font-family:var(--serif);font-size:clamp(21px,2.2vw,28px);line-height:1.18;letter-spacing:-.02em;color:#fff">Telestream + Adobe: How Vantage Integration Removes the Gap Between Edit and Delivery</h3>
+        <p style="margin:0;font-size:14px;line-height:1.65;color:rgba(255,255,255,.88);max-width:90%">Premiere, Media Encoder, Frame.io, and Vantage are being pulled into one governed pipeline so the export is no longer the handoff point &#8212; it becomes the start of controlled delivery.</p>
+        <span style="display:inline-flex;align-items:center;gap:8px;margin-top:14px;font-size:13px;font-weight:700;color:#fff">Read full analysis <span aria-hidden="true">&#8594;</span></span>
+      </div>
+    </a>
+
+    <div style="display:grid;grid-template-rows:1fr 1fr;gap:18px">
+      <a href="articles/studio-di-pipeline-workflow-2026.html" style="position:relative;display:block;overflow:hidden;border-radius:20px;min-height:171px;background:#111;text-decoration:none;color:#fff;box-shadow:0 10px 28px rgba(0,0,0,.10)">
+        <img src="assets/fallback.jpg" alt="Studio DI pipeline workflow" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'" style="width:100%;height:100%;object-fit:cover;display:block;opacity:.9">
+        <div style="position:absolute;inset:0;background:linear-gradient(to top, rgba(0,0,0,.84) 0%, rgba(0,0,0,.36) 45%, rgba(0,0,0,.10) 100%)"></div>
+        <div style="position:absolute;left:0;right:0;bottom:0;padding:18px 18px 16px;z-index:2">
+          <span style="display:inline-block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.82);margin-bottom:8px">DI Pipeline</span>
+          <h3 style="margin:0 0 8px;font-family:var(--serif);font-size:clamp(18px,1.7vw,22px);line-height:1.2;color:#fff">Studio DI Pipeline Workflow 2026</h3>
+          <p style="margin:0;font-size:13px;line-height:1.55;color:rgba(255,255,255,.88)">A focused look at how modern DI stages connect grading, review, versioning, and finishing without introducing avoidable handoff friction.</p>
+        </div>
+      </a>
+
+      <a href="articles/studio-grade-video-workflow-post-production-2026.html" style="position:relative;display:block;overflow:hidden;border-radius:20px;min-height:171px;background:#111;text-decoration:none;color:#fff;box-shadow:0 10px 28px rgba(0,0,0,.10)">
+        <img src="assets/fallback.jpg" alt="Studio-grade video workflow post production" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'" style="width:100%;height:100%;object-fit:cover;display:block;opacity:.9">
+        <div style="position:absolute;inset:0;background:linear-gradient(to top, rgba(0,0,0,.84) 0%, rgba(0,0,0,.36) 45%, rgba(0,0,0,.10) 100%)"></div>
+        <div style="position:absolute;left:0;right:0;bottom:0;padding:18px 18px 16px;z-index:2">
+          <span style="display:inline-block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.82);margin-bottom:8px">Studio Workflow</span>
+          <h3 style="margin:0 0 8px;font-family:var(--serif);font-size:clamp(18px,1.7vw,22px);line-height:1.2;color:#fff">Studio-Grade Video Workflow in Post Production</h3>
+          <p style="margin:0;font-size:13px;line-height:1.55;color:rgba(255,255,255,.88)">How professional post environments structure ingest, editorial, finishing, approval, and delivery so quality control does not depend on manual luck.</p>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <style>
+    @media (max-width: 900px) {{
+      .w section[style*="margin:40px 0 34px"] > div[style*="grid-template-columns:1.25fr .75fr"] {{
+        grid-template-columns:1fr !important;
+      }}
+      .w section[style*="margin:40px 0 34px"] > div > div[style*="grid-template-rows:1fr 1fr"] {{
+        grid-template-rows:auto !important;
+      }}
+    }}
+  </style>
+</section>
 
 <h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">Our approach</h2>
 <p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">Post-production technology is drowning in marketing. Every NLE claims seamless interchange, every MAM claims universal metadata, every cloud-collaboration platform claims security-first architecture. Our job is to separate what actually ships from what is still a product roadmap, and to call out the integration gotchas that only surface at 02:00 on a delivery night.</p>
@@ -2018,7 +2071,6 @@ def post_production_workflows_page():
 {footer()}
 {_cookie_banner()}
 </body></html>"""
-
 
 def howto_page():
     guides = [
