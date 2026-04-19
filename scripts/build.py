@@ -28,7 +28,9 @@ MIN_ARTICLE_WORDS = 500      # hard quality gate — matches AI-upgraded output;
 
 # ── Broadcast & Media IT relevance terms ──────────────────────────────────────
 # Articles must contain at least 2 of these terms (case-insensitive) to pass.
-# This keeps the site focused on genuine broadcast engineering content.
+# This keeps the site focused on genuine broadcast engineering content.# -*- 
+coding: utf-8 -*-
+
 BROADCAST_TERMS = {
     # Vendors & products
     "avid", "media composer", "interplay", "mediacentral", "isis", "nexis",
