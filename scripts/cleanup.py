@@ -100,6 +100,8 @@ PROTECTED_SLUGS = {
     # Guides and Expert Insight (file-only, may not appear in JSON)
     "Expertinsight1",
     "nab-2026-hybrid-technology-year",
+    "deepdive-pebble-harmonic-playout-war-nab-2026",
+    "deepdive-aws-google-cloud-agentic-ai-nab-2026",
     "guide-audio-conform-avid-protools",
     "guide-avid-media-central-health-check",
     "guide-avid-strawberry",

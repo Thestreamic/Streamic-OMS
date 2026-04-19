@@ -1479,6 +1479,7 @@ def featured_page(arts):
 {nav("/")}
 <main>
   {_nab_bento_section()}
+  {_deep_dives_section()}
   <div class="w">
     <section class="hp-flagship-section">
       <div class="w">
@@ -2433,6 +2434,63 @@ def howto_page():
 {footer()}
 {_cookie_banner()}
 </body></html>"""
+
+def _deep_dives_section():
+    """Homepage 'Technical Deep Dives' — 2 premium editorial cards below hero.
+
+    Layout matches the reference: 2 side-by-side cards on desktop, stacked on mobile.
+    Each card links to a full hand-authored article page under /docs/articles/.
+    Images expected at /docs/assets/deepdives/ — upload media-composer-edit.png and ms-server-datacenter.png.
+    """
+    cards = [
+        {
+            "kicker": "Automation",
+            "title": "The Death of the &quot;Black Box&quot;: Why Pebble and Harmonic are Winning the Playout War",
+            "lead": "The \"Black Box\" era is officially over. Pebble's JT-DMF interoperability push and Harmonic's SMPTE ST 2110-native Spectrum X are collapsing the decades-old hardware lock-in.",
+            "img": "assets/deepdives/media-composer-edit.png",
+            "img_alt": "Avid Media Composer editing interface showing multi-clip timeline and source monitor",
+            "img_caption": "Software-Defined Playout",
+            "href": "articles/deepdive-pebble-harmonic-playout-war-nab-2026.html",
+            "cta": "Read analysis",
+        },
+        {
+            "kicker": "Infrastructure",
+            "title": "From Bots to Agents: How AWS and Google Cloud are Actually Solving the Newsroom Headache",
+            "lead": "2025 was AI that created stuff. 2026 is Agentic AI — AI that does stuff. AWS Elemental Inference and the Google Cloud / Avid partnership signal a real shift from demo to deployment.",
+            "img": "assets/deepdives/ms-server-datacenter.png",
+            "img_alt": "Hyperscale data center server aisle with illuminated racks extending to vanishing point",
+            "img_caption": "Agentic Cloud Infrastructure",
+            "href": "articles/deepdive-aws-google-cloud-agentic-ai-nab-2026.html",
+            "cta": "Read analysis",
+        },
+    ]
+
+    card_html = ""
+    for c in cards:
+        card_html += f'''<a class="dd-card" href="{c['href']}" aria-label="Read deep dive: {c['title']}">
+  <div class="dd-card-body">
+    <span class="dd-kicker">{c['kicker']}</span>
+    <h3 class="dd-title">{c['title']}</h3>
+    <p class="dd-lead">{c['lead']}</p>
+    <span class="dd-cta">{c['cta']} <span class="dd-arrow" aria-hidden="true">&#8594;</span></span>
+  </div>
+  <figure class="dd-figure">
+    <img class="dd-img" src="{c['img']}" alt="{c['img_alt']}" loading="lazy" onerror="this.style.opacity='0'">
+    <figcaption class="dd-figcap">{c['img_caption']}</figcaption>
+  </figure>
+</a>'''
+
+    return f'''<section class="dd-section" aria-labelledby="dd-h2">
+  <div class="dd-hdr">
+    <span class="dd-eyebrow">The 2026 Collection</span>
+    <h2 id="dd-h2" class="dd-h2">Technical Deep Dives</h2>
+    <p class="dd-intro">Moving beyond the headlines into the architecture of the modern media supply chain.</p>
+  </div>
+  <div class="dd-grid">
+    {card_html}
+  </div>
+</section>'''
+
 
 def _nab_bento_section():
     """Homepage NAB 2026 hero + moonlight horizontal cards with Show-more accordion.
