@@ -7,7 +7,6 @@ from datetime import datetime, timezone
 
 ROOT      = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 ARTS_F    = os.path.join(ROOT, "data", "generated_articles.json")
-NEWS_F    = os.path.join(ROOT, "data", "news.json")
 DOCS      = os.path.join(ROOT, "docs")
 ARTS_D    = os.path.join(DOCS, "articles")
 BASE_URL  = os.environ.get("SITE_BASE_URL", "https://www.thestreamic.in").rstrip("/")
@@ -22,7 +21,7 @@ PAGE_SIZE = 24
 
 # ── AdSense approval mode ─────────────────────────────────────────────────────
 # Show curated high-quality content. Full dataset remains hidden.
-MAX_ARTICLES   = 120         # 78 editorial + top RSS; raised from 35
+MAX_ARTICLES   = 120         # editorial corpus cap
 VISIBLE_CAT    = "ai-post-production"  # only this category page is indexed
 MIN_BODY_SCORE = 50          # minimum editorial score to appear on homepage
 MIN_ARTICLE_WORDS = 500      # hard quality gate — matches AI-upgraded output; scaffolds blocked separately by _is_ai_upgraded()
@@ -470,300 +469,12 @@ def hero_block(a, base=""):
 </section>"""
 
 # ── FEATURED / INDEX PAGE
-def intelligence_feed_section(arts, base=""):
-    """
-    Apple Newsroom-style card grid with images and diversity.
-    Includes both pure RSS items and rewrite_feed_local scaffolds.
-    """
-    def _is_news_card(a):
-        gen_by = (a.get("generated_by") or "").lower()
-        is_scaffold = gen_by in ("", "rewrite_feed_local", "rewrite_feed")
-        if not (a.get("is_editorial") or a.get("editorial")):
-            return True
-        if is_scaffold:
-            return True
-        return False
-
-    rss_pool = [a for a in arts if _is_news_card(a)]
-    rss = diversify_arts(rss_pool)[:12]
-    if not rss:
-        return ""
-
-    fb_ = f"{base}assets/fallback.jpg"
-    cards_html = ""
-    for i, a in enumerate(rss):
-        cat      = a.get("category", "featured")
-        cinfo    = CAT.get(cat, CAT["featured"])
-        slug_    = a.get("slug", "")
-        href     = f"{base}articles/{slug_}.html"
-        title    = e(a.get("title", ""))
-        img      = eu(a.get("image_url", ""))
-        src_dom  = e(a.get("source_domain","").replace("https://","").replace("www.","").split("/")[0])
-        dt       = d(a.get("published",""))
-        src_url  = e(a.get("source_url","") or a.get("url","") or "")
-        cat_lbl  = cinfo["label"]
-        cat_col  = cinfo["color"]
-        body     = a.get("body_html","") or ""
-        wc       = len(re.sub(r"<[^>]+>"," ",body).split())
-        has_long = wc >= 500 and ("<h2>" in body or "<h3>" in body)
-        btn_txt  = "Read Analysis" if has_long else "View Source"
-        btn_href = href if has_long else (src_url or href)
-        btn_tgt  = ' target="_blank" rel="noopener noreferrer nofollow"' if (not has_long and src_url) else ""
-
-        # First card is a wide hero; rest are standard
-        card_cls = "ic-card ic-card-hero" if i == 0 else "ic-card"
-        img_load = "eager" if i == 0 else "lazy"
-
-        cards_html += f"""
-<article class="{card_cls}">
-  <div class="ic-img-wrap">
-    <a href="{href}" tabindex="-1" aria-hidden="true">
-      <img src="{img}" alt="{title}" loading="{img_load}" onerror="this.onerror=null;this.src='{fb_}'">
-    </a>
-  </div>
-  <div class="ic-body">
-    <span class="ic-cat-tag" style="color:{cat_col}">{cat_lbl}</span>
-    <h3 class="ic-title">
-      <a href="{href}">{title}</a>
-    </h3>
-    <div class="ic-foot">
-      <span class="ic-src">{src_dom.upper()}</span>
-      <time class="ic-date">{dt}</time>
-      <a href="{btn_href}"{btn_tgt} class="ic-btn">{btn_txt} &rarr;</a>
-    </div>
-  </div>
-</article>"""
-
-    disclosure = """<div class="ic-disclosure">
-  <p><strong>Editor&rsquo;s Note:</strong> This technical briefing was prepared from source-grounded industry reporting
-  with AI assistance. Reviewed and curated by <strong>The Streamic Editorial Team</strong>.</p>
-</div>"""
-
-    return f"""<section class="intel-section">
-  <style>
-    /* ── Intelligence Feed — Apple Newsroom Cards ─────────────────────── */
-    .intel-section {{
-      padding-top: 60px;
-      margin: 0;
-    }}
-    .intel-hdr {{
-      display: flex;
-      align-items: flex-end;
-      justify-content: space-between;
-      gap: 20px;
-      margin-bottom: 6px;
-      padding-bottom: 16px;
-      border-bottom: 2px solid #1a1a1a;
-    }}
-    .intel-h2 {{
-      font-family: 'DM Sans', 'Helvetica Neue', Arial, sans-serif;
-      font-size: clamp(28px, 3.5vw, 42px);
-      font-weight: 800;
-      letter-spacing: -0.01em;
-      color: #1a1a1a;
-      line-height: 1.1;
-      margin: 0;
-    }}
-    .intel-h2 span {{ color: #4a101d; }}
-    .intel-view-all {{
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--blue);
-      text-decoration: none;
-      white-space: nowrap;
-      flex-shrink: 0;
-    }}
-    .intel-sub {{
-      font-size: 14px;
-      color: var(--ink3);
-      margin: 12px 0 28px;
-      line-height: 1.6;
-      max-width: 640px;
-    }}
-    /* ── Apple Newsroom 3-col grid ─────────────────────────────────────── */
-    .ic-grid {{
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
-    }}
-    @media (max-width: 1024px) and (min-width: 641px) {{
-      .ic-grid {{ grid-template-columns: repeat(2, 1fr); }}
-    }}
-    @media (max-width: 640px) {{
-      .ic-grid {{ grid-template-columns: 1fr; gap: 16px; }}
-    }}
-    /* ── Base card — white rounded, Apple style ────────────────────────── */
-    .ic-card {{
-      background: #ffffff;
-      border-radius: 14px;
-      box-shadow: 0 2px 8px rgba(0,0,0,.06);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      transition: box-shadow .2s ease, transform .2s ease;
-    }}
-    .ic-card:hover {{
-      box-shadow: 0 10px 32px rgba(0,0,0,.11);
-      transform: translateY(-3px);
-    }}
-    /* Hero card spans all columns */
-    .ic-card-hero {{
-      grid-column: 1 / -1;
-      flex-direction: row;
-    }}
-    .ic-card-hero .ic-img-wrap {{
-      width: 52%;
-      min-height: 280px;
-    }}
-    .ic-card-hero .ic-body {{
-      flex: 1;
-      padding: 32px 36px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }}
-    .ic-card-hero .ic-title {{
-      font-size: clamp(18px, 2vw, 24px);
-    }}
-    @media (max-width: 800px) {{
-      .ic-card-hero {{
-        flex-direction: column;
-      }}
-      .ic-card-hero .ic-img-wrap {{
-        width: 100%;
-        min-height: 220px;
-      }}
-      .ic-card-hero .ic-body {{
-        padding: 20px 22px;
-      }}
-    }}
-    /* ── Card image ───────────────────────────────────────────────────── */
-    .ic-img-wrap {{
-      width: 100%;
-      height: 190px;
-      overflow: hidden;
-      flex-shrink: 0;
-    }}
-    .ic-img-wrap a {{
-      display: block;
-      width: 100%;
-      height: 100%;
-    }}
-    .ic-img-wrap img {{
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-      transition: transform 0.35s ease;
-    }}
-    .ic-card:hover .ic-img-wrap img {{
-      transform: scale(1.04);
-    }}
-    /* ── Card body ────────────────────────────────────────────────────── */
-    .ic-body {{
-      padding: 20px 22px 18px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      flex: 1;
-    }}
-    .ic-cat-tag {{
-      font-size: 10px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.9px;
-    }}
-    .ic-title {{
-      font-family: var(--serif);
-      font-size: 16px;
-      line-height: 1.3;
-      letter-spacing: -0.03em;
-      color: #1a1a1a;
-      margin: 0;
-      flex: 1;
-      display: -webkit-box;
-      -webkit-line-clamp: 3;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }}
-    .ic-title a {{
-      color: inherit;
-      text-decoration: none;
-    }}
-    .ic-title a:hover {{ color: var(--blue); }}
-    .ic-foot {{
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding-top: 10px;
-      border-top: 1px solid #f0f0f0;
-      flex-wrap: wrap;
-      margin-top: auto;
-    }}
-    .ic-src {{
-      font-size: 10px;
-      font-weight: 700;
-      color: #999;
-      letter-spacing: .5px;
-    }}
-    .ic-date {{
-      font-size: 10px;
-      color: #bbb;
-      flex: 1;
-    }}
-    .ic-btn {{
-      display: inline-flex;
-      align-items: center;
-      padding: 6px 14px;
-      background: #1a1a1a;
-      color: #fff;
-      border-radius: 100px;
-      font-size: 11px;
-      font-weight: 700;
-      text-decoration: none;
-      letter-spacing: .3px;
-      white-space: nowrap;
-      transition: background .15s ease;
-      flex-shrink: 0;
-    }}
-    .ic-btn:hover {{ background: var(--blue); }}
-    /* ── Disclosure ───────────────────────────────────────────────────── */
-    .ic-disclosure {{
-      grid-column: 1 / -1;
-      padding: 14px 18px;
-      background: #f8f8f8;
-      border-radius: 8px;
-      border: 1px solid #eee;
-    }}
-    .ic-disclosure p {{
-      font-style: italic;
-      font-size: 12px;
-      color: #999;
-      line-height: 1.5;
-      margin: 0;
-    }}
-    .ic-disclosure strong {{ font-style: normal; color: #666; }}
-  </style>
-
-  <div class="intel-hdr">
-    <h2 class="intel-h2">Latest Technical Briefings<br>&amp; <span>Industry Analysis</span></h2>
-    <a href="posts.html" class="intel-view-all">View all articles &rarr;</a>
-  </div>
-  <p class="intel-sub">Deep-dive reporting on the intersection of cloud production, AI-driven media workflows, and global streaming infrastructure.</p>
-
-  <div class="ic-grid">
-    {cards_html}
-    {disclosure}
-  </div>
-</section>"""
-
-
 def all_articles_page(arts):
     """Generate posts.html - All Articles bento grid linking to articles/."""
     # Use all non-editorial articles sorted newest first
-    rss_arts   = [a for a in arts if not a.get("is_editorial") and not a.get("editorial")]
+    non_editorial_arts   = [a for a in arts if not a.get("is_editorial") and not a.get("editorial")]
     ed_arts    = [a for a in arts if a.get("is_editorial") or a.get("editorial")]
-    all_sorted = rss_arts  # newest first (already sorted in generated_articles.json)
+    all_sorted = non_editorial_arts  # newest first (already sorted in generated_articles.json)
 
     title  = "All Articles — The Streamic | Broadcast Technology Analysis"
     desc   = "Original broadcast and streaming technology analysis. Expert-level commentary for engineers and media professionals."
@@ -821,11 +532,13 @@ def _score_art(a):
 def _is_ai_upgraded(a):
     """AdSense compliance: return True if article was enriched by a tier-1/2/3
     AI generator (Mistral, Gemini, Groq, OpenRouter) or is a hand-authored
-    editorial. Raw RSS scaffolds (rewrite_feed_local) never get indexed.
+    editorial. Low-quality items never get indexed.
     """
     gb = (a.get("generated_by") or "").lower()
     if not gb:
         return False
+    # Defensive gate: exclude any legacy auto-scaffold markers. Production
+    # corpus is editorial-only, so this match is expected to return no hits.
     if gb in ("rewrite_feed_local", "rewrite_feed"):
         return False
     ai_markers = ("mistral", "gemini", "groq", "openrouter", "deepseek",
@@ -838,10 +551,10 @@ def _passes_quality_gate(a):
 
     An article may be indexed only when ALL of the following are true:
       1. Body word count ≥ MIN_ARTICLE_WORDS (800) OR hand-authored ≥ 400w.
-      2. Article was AI-upgraded OR hand-authored (never raw RSS rewrite).
+      2. Article was AI-upgraded OR hand-authored.
       3. At least 2 broadcast/media-IT terms present (relevance).
 
-    Raw RSS rewrites (rewrite_feed_local) appear on the site for navigation
+    Low-tier items appear on the site for navigation
     but carry <meta robots="noindex,nofollow">. This is the defence against
     AdSense "Low value content" rejection.
     """
@@ -859,7 +572,7 @@ def _passes_quality_gate(a):
     if is_manual_editorial and wc < 400:
         return False, f"editorial too short ({wc} words, need 400)"
 
-    # AdSense: raw RSS rewrites never get indexed
+    # AdSense: low-tier items never get indexed
     if not is_manual_editorial and not _is_ai_upgraded(a):
         return False, f"not AI-upgraded (gb={a.get('generated_by') or 'empty'!r})"
 
@@ -906,7 +619,7 @@ def enforce_sections(body_html: str) -> bool:
 
 def is_high_value(article: dict) -> bool:
     """
-    AdSense quality scoring for RSS articles.
+    AdSense quality scoring for articles.
 
     SAFE FILTERING DESIGN — never returns fewer than needed:
     - Editorial articles always pass (pre-validated long-form content)
@@ -1024,13 +737,13 @@ def _image_is_from_pool(url: str) -> bool:
 def _fix_article_images(arts):
     """Enforce broadcast-image policy across ALL article records.
 
-    Copyright rule: third-party RSS thumbnails (TV Technology, Motionographer,
+    Copyright rule: third-party thumbnails (TV Technology, Motionographer,
     Haivision, vendor PR photos, etc.) are never shipped on the live site.
     Every image_url must resolve to an entry in the curated _BROADCAST_IMAGES
     pool on images.unsplash.com, which Streamic licenses via Unsplash terms.
 
     Rules applied in order:
-      1. Any non-pool image (RSS thumbnail, external CDN, vendor press photo,
+      1. Any non-pool image (external CDN, vendor press photo,
          blacklisted ID, empty, or malformed) is replaced with a pool image.
       2. Any pool image already used in this run is replaced so the homepage
          and category pages never show the same visual twice in a row.
@@ -1081,7 +794,7 @@ def _fix_article_images(arts):
             continue
 
         if not _image_is_from_pool(img):
-            # Non-pool image (RSS/vendor/bad/empty) — force replacement.
+            # Non-pool image (external/vendor/invalid) — force replacement.
             a["image_url"] = _next_image()
             # Attribution: pool images are Unsplash-licensed.
             a["image_credit"] = "Unsplash"
@@ -1108,7 +821,7 @@ def _fix_article_images(arts):
     total = replaced_non_pool + replaced_duplicate
     if total:
         print(f"  Image fixer: {total} images normalized to broadcast pool "
-              f"({replaced_non_pool} non-pool/RSS, {replaced_duplicate} duplicates)")
+              f"({replaced_non_pool} non-pool, {replaced_duplicate} duplicates)")
 
 
 def _hp_img(a, base=""):
@@ -1166,7 +879,7 @@ def _source_name(val):
     return (val or '').replace('https://','').replace('http://','').replace('www.','').split('/')[0]
 
 def load_homepage_feed(arts, limit=14):
-    """Use fresh data/news.json for homepage and map to internal articles.
+    """Load homepage cards from editorial corpus, mapped to internal articles.
     
     Only returns items that map to an internal article (has slug) so all
     homepage links go to our own analysis pages, never to external sources.
@@ -1216,7 +929,7 @@ def load_homepage_feed(arts, limit=14):
             'source_url': url or merged.get('source_url',''),
             'url': url or merged.get('url',''),
             # COPYRIGHT FIX: prefer the article's pool-normalized image_url
-            # over the raw RSS thumbnail in news.json. The previous order
+            # over any legacy thumbnail. The previous order
             # shipped copyrighted vendor PR photos into Breaking News,
             # bypassing _fix_article_images() entirely.
             'image_url': merged.get('image_url') or item.get('image') or '',
@@ -1671,7 +1384,7 @@ def _clean_body(a):
     Anti-truncation rule:
     - If body_html has <h2> OR word_count > 300 → return the FULL body_html untouched.
       Gemini-generated articles are complete. Truncating them strips the analysis.
-    - Fallback: only strip/limit for raw RSS teasers with no AI enhancement.
+    - Fallback: only strip/limit for short teasers with no AI enhancement.
     """
     is_ed = a.get("is_editorial") or a.get("editorial")
 
@@ -1716,7 +1429,7 @@ def _clean_body(a):
                 result = result.replace(f"<p>{p_content.strip()}</p>", "", 1)
         return result.strip() or body_clean
 
-    # ── Fallback: raw RSS teaser with no AI enhancement ───────────────────
+    # ── Fallback: short teaser with no AI enhancement ─────────────────────
     # card_summary is the Groq/Gemini 120-150 word intel card — show it in full
     cs_raw = re.sub(r"<[^>]+>", " ", a.get("card_summary", "") or "").strip()
     cs_raw = re.sub(r"\s+", " ", cs_raw)
@@ -1820,7 +1533,7 @@ def article_page(a):
         src_dom = src_url.replace("https://","").replace("http://","").replace("www.","").split("/")[0]
     # Show source attribution for ALL articles with a source_url,
     # EXCEPT truly hand-written editorials (gpt_manual_editorial).
-    # rewrite_feed_local articles have is_editorial=True but ARE sourced from news.
+    # Some articles have is_editorial=True but are sourced from external news.
     _is_original = a.get("generated_by") == "gpt_manual_editorial"
     if src_url and not _is_original:
         _src_name = e(src_dom) if src_dom else "Original Source"
@@ -1857,7 +1570,7 @@ def article_page(a):
 
     about_txt = "Original analysis and commentary by The Streamic Editorial Team. Independent broadcast technology journalism for engineers and media professionals." if is_ed else "Editorial commentary and analysis by The Streamic Editorial Team. For the original source, see the attribution above."
     # Use professional bio block if body_html already contains one from AI generation;
-    # otherwise render the default author box for editorial articles and the bio for RSS-sourced ones.
+    # otherwise render the default author box for editorial articles and the bio for sourced ones.
     has_bio = "art-author-bio" in body_raw
     if has_bio:
         author_box = ""   # bio already embedded in body_html by the AI prompt
@@ -2791,7 +2504,7 @@ def main():
     print(f"  After slug dedup: {len(arts)} unique articles")
 
     # ── Jaccard near-duplicate cleanup (retroactive) ──────────────────────
-    # Catches cross-feed story re-runs that slipped through rewrite_feed.py
+    # Catches cross-topic story re-runs
     # before the 3-pass dedup was introduced. E.g. "Bitcentral to Showcase
     # Connected Media Workflows" and "Bitcentral To Feature Connected
     # Media Workflows" both about the same NAB press release.
@@ -2989,32 +2702,32 @@ def main():
     # This means cloud.html, streaming.html etc always have content.
 
     ed_arts  = [a for a in arts if a.get("is_editorial") or a.get("editorial")]
-    rss_pool = [a for a in arts if not a.get("is_editorial") and not a.get("editorial")]
+    non_editorial_pool = [a for a in arts if not a.get("is_editorial") and not a.get("editorial")]
 
-    # Score all RSS articles — high scorers get indexed, others get noindex
+    # Score all non-editorial articles — high scorers get indexed, others get noindex
     # but are still rendered on category pages (never blank)
-    rss_pool.sort(key=lambda a: -_score_art(a))
+    non_editorial_pool.sort(key=lambda a: -_score_art(a))
 
-    # Top RSS by score — these get index,follow
+    # Top non-editorial by score — these get index,follow
     # Use a per-category quota to ensure diversity: 3 per cat max
     cat_quota = {}
-    rss_indexed = []
-    for a in rss_pool:
+    non_editorial_indexed = []
+    for a in non_editorial_pool:
         cat = a.get("category", "featured")
         if cat_quota.get(cat, 0) < 3:
-            rss_indexed.append(a)
+            non_editorial_indexed.append(a)
             cat_quota[cat] = cat_quota.get(cat, 0) + 1
-        if len(rss_indexed) >= 22:   # max 22 industry briefing indexed slots
+        if len(non_editorial_indexed) >= 22:   # max 22 industry briefing indexed slots
             break
 
-    visible_list  = (ed_arts + rss_indexed)[:MAX_ARTICLES]
+    visible_list  = (ed_arts + non_editorial_indexed)[:MAX_ARTICLES]
     visible_slugs = {a["slug"] for a in visible_list}
 
     # Diagnostic
-    rss_indexed_count = len(rss_indexed)
-    rss_noindex_count = len(rss_pool) - rss_indexed_count
+    non_editorial_indexed_count = len(non_editorial_indexed)
+    non_editorial_noindex_count = len(non_editorial_pool) - non_editorial_indexed_count
     print(f"  Visible (indexed): {len(visible_slugs)} | Hidden (noindex): {len(arts)-len(visible_slugs)}")
-    print(f"  RSS: {rss_indexed_count} indexed + {rss_noindex_count} noindex (appear on pages, not in search)")
+    print(f"  Non-editorial: {non_editorial_indexed_count} indexed + {non_editorial_noindex_count} noindex (appear on pages, not in search)")
 
     os.makedirs(ARTS_D, exist_ok=True)
 
@@ -3216,23 +2929,6 @@ def main():
     # ── docs/data/ for client-side JS — only visible articles ────────────
     docs_data_dir = os.path.join(DOCS, "data")
     os.makedirs(docs_data_dir, exist_ok=True)
-
-    news_src = os.path.join(ROOT, "data", "news.json")
-    if os.path.exists(news_src):
-        with open(news_src,encoding="utf-8") as f: raw = json.load(f)
-        if isinstance(raw,list):
-            out = {"featured_priority":raw[:6],"items":raw[6:]}
-        elif isinstance(raw,dict) and "items" in raw:
-            out = raw
-        else:
-            flat=[]
-            for cat,lst in raw.items():
-                for it in (lst or []): it.setdefault("category",cat); flat.append(it)
-            flat.sort(key=lambda x:x.get("pubDate",""),reverse=True)
-            out = {"featured_priority":flat[:6],"items":flat[6:]}
-        with open(os.path.join(docs_data_dir,"news.json"),"w",encoding="utf-8") as f:
-            json.dump(out,f,ensure_ascii=False)
-        print(f"  &#10003; docs/data/news.json ({len(out.get('items',[]))} items)")
 
     gen_src = os.path.join(ROOT, "data", "generated_articles.json")
     if os.path.exists(gen_src):
