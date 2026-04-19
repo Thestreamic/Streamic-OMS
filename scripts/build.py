@@ -210,6 +210,11 @@ def _fonts():
 
 def head(title, desc, canon, css="style.css", og_img="", robots="index,follow"):
     og = f'  <meta property="og:image" content="{eu(og_img)}">\n' if og_img else ""
+    # Compute homepage-layout.css path relative to the page's CSS base.
+    # When css="../style.css" (article pages), hp_css becomes "../homepage-layout.css".
+    # When css="style.css" (top-level pages), hp_css becomes "homepage-layout.css".
+    _css_prefix = css[:-len("style.css")] if css.endswith("style.css") else ""
+    hp_css = f"{_css_prefix}homepage-layout.css"
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -229,6 +234,7 @@ def head(title, desc, canon, css="style.css", og_img="", robots="index,follow"):
 {og}  <meta name="twitter:card" content="summary_large_image">
   {_fonts()}
   <link rel="stylesheet" href="{css}">
+  <link rel="stylesheet" href="{hp_css}">
 </head>"""
 
 def nav(active="", base=""):
@@ -358,7 +364,7 @@ def news_card(a, base="", is_first=False):
         return f"""<li class="bento-grid-item">
   <div class="bento-img-wrap bento-img-featured">
     <a href="{href}" tabindex="-1" aria-hidden="true">
-      <img src="{img}" alt="{title}" loading="eager" onerror="this.onerror=null;this.src={fb_}">
+      <img src="{img}" alt="{title}" loading="eager" onerror="this.onerror=null;this.src='{fb_}'">
     </a>
   </div>
   <div class="bento-body bento-body-featured">
@@ -377,7 +383,7 @@ def news_card(a, base="", is_first=False):
         return f"""<li class="bento-grid-item bento-standard">
   <div class="bento-img-wrap bento-img-std">
     <a href="{href}" tabindex="-1" aria-hidden="true">
-      <img src="{img}" alt="{title}" loading="lazy" onerror="this.onerror=null;this.src={fb_}">
+      <img src="{img}" alt="{title}" loading="lazy" onerror="this.onerror=null;this.src='{fb_}'">
     </a>
   </div>
   <div class="bento-body bento-body-std">
@@ -416,7 +422,7 @@ def ed_card(a, base=""):
     return f"""<article class="ed-card">
   <div class="ed-img">
     <a href="{href}">
-      <img src="{img}" alt="{title}" loading="lazy" onerror="this.onerror=null;this.src={fb}">
+      <img src="{img}" alt="{title}" loading="lazy" onerror="this.onerror=null;this.src='{fb}'">
     </a>
   </div>
   <div class="ed-body">
@@ -446,7 +452,7 @@ def hero_block(a, base=""):
   <div class="hero-inner">
     <div class="hero-img">
       <a href="{href}">
-        <img src="{img}" alt="{title}" loading="eager" onerror="this.onerror=null;this.src={fb}">
+        <img src="{img}" alt="{title}" loading="eager" onerror="this.onerror=null;this.src='{fb}'">
       </a>
     </div>
     <div class="hero-body">
@@ -1365,7 +1371,7 @@ def featured_page(arts):
 
     custom_hero_path = os.path.join(DOCS, 'assets', 'hero-broadcast-male.png')
     hero_img = f"{BASE_URL}/assets/hero-broadcast-male.png" if os.path.exists(custom_hero_path) else (_hp_img(hero_art) if hero_art else '')
-    homepage_head = head(title, desc, canon, og_img=hero_img).replace('</head>', '  <link rel="stylesheet" href="homepage-layout.css">\n</head>')
+    homepage_head = head(title, desc, canon, og_img=hero_img)
 
     cinfo = CAT.get((hero_art or {}).get("category", "featured"), CAT["featured"])
     # Hero title overrides — edit here to control displayed title without touching JSON
@@ -1473,6 +1479,7 @@ def featured_page(arts):
 {nav("/")}
 <main>
   {_nab_bento_section()}
+  {_deep_dives_section()}
   <div class="w">
     <section class="hp-flagship-section">
       <div class="w">
@@ -2193,13 +2200,71 @@ def editorial_policy_page():
 </body></html>"""
 
 def insights_page():
-    """Expert Insights landing page — AdSense-compliant substantive content (~650w)."""
-    return f"""{head("Expert Insights — The Streamic","Long-form broadcast technology analysis: ST 2110 rollouts, cloud production, AI in broadcasting, and operational engineering for media teams.",f"{BASE_URL}/insights.html")}
+    """Expert Insights landing page — AdSense-compliant substantive content (~800w)
+    with featured expert-interview cards linking to hand-authored Q&A pages.
+
+    The cards below link to HAND_AUTHORED files under docs/articles/ that are
+    protected from the automated build. Add more entries to _interviews to
+    feature additional interviews — no other code changes needed.
+    """
+    # Featured expert interviews (hand-authored, HAND_AUTHORED-marked pages).
+    # These are the prominent link cards at the top of /insights.html.
+    _interviews = [
+        {
+            "href": "articles/Expertinsight1.html",
+            "series": "The Veteran's Lens",
+            "title": "Neil Sadwelkar on AI and the Future of Digital Imaging",
+            "dek": "From negative cutting to AI-assisted colour grading — a candid conversation with one of India's foremost DI pioneers on what the technology revolution really means for broadcast and cinema post-production.",
+            "expert_name": "Neil B. Sadwelkar",
+            "expert_role": "Digital Imaging Technician &amp; Post-Production Pioneer",
+            "read_time": "12 min read",
+            "published": "April 2, 2026",
+        },
+    ]
+
+    interview_cards_html = ""
+    for iv in _interviews:
+        interview_cards_html += f"""
+<a class="insights-feat-card" href="{iv['href']}">
+  <span class="insights-feat-series">&#10022; {iv['series']}</span>
+  <h3 class="insights-feat-title">{iv['title']}</h3>
+  <p class="insights-feat-dek">{iv['dek']}</p>
+  <div class="insights-feat-meta">
+    <span class="insights-feat-expert"><strong>{iv['expert_name']}</strong> &middot; {iv['expert_role']}</span>
+  </div>
+  <div class="insights-feat-footer">
+    <span class="insights-feat-details">{iv['published']} &middot; {iv['read_time']}</span>
+    <span class="insights-feat-cta">Read the interview &rarr;</span>
+  </div>
+</a>"""
+
+    return f"""{head("Expert Insights — The Streamic","Long-form broadcast technology analysis and expert interviews: AI colour grading, ST 2110 rollouts, cloud production, post-production workflows, and operational engineering for media teams.",f"{BASE_URL}/insights.html")}
 <body>
 {nav()}
 <main><div class="w" style="padding:52px 24px 80px;max-width:820px">
 <h1 style="font-family:var(--serif);font-size:clamp(28px,4vw,44px);margin-bottom:16px;letter-spacing:-.5px">Expert Insights</h1>
-<p style="font-size:17px;color:var(--ink2);line-height:1.65;margin-bottom:24px">Long-form broadcast and media technology analysis from the Streamic editorial team. These are the pieces we write when a topic needs more than a news briefing &#8212; standards deep-dives, architectural playbooks, vendor-neutral integration patterns, and field reports from broadcast engineers working in live production and post facilities.</p>
+<p style="font-size:17px;color:var(--ink2);line-height:1.65;margin-bottom:32px">Long-form broadcast and media technology analysis from the Streamic editorial team — plus exclusive interviews with veteran engineers, colourists, DITs, and media-IT architects. These are the pieces we write when a topic needs more than a news briefing: standards deep-dives, architectural playbooks, vendor-neutral integration patterns, and field reports from broadcast engineers working in live production and post facilities.</p>
+
+<style>
+.insights-feat-wrap{{display:flex;flex-direction:column;gap:20px;margin:28px 0 40px}}
+.insights-feat-card{{display:block;padding:26px 28px;background:linear-gradient(180deg,#fffdf7 0%,#f8f2e6 100%);border:1px solid #e6dcc2;border-radius:14px;box-shadow:0 10px 28px rgba(63,47,22,.08);text-decoration:none;color:inherit;transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}}
+.insights-feat-card:hover{{transform:translateY(-2px);box-shadow:0 16px 36px rgba(63,47,22,.12);border-color:#d4af37}}
+.insights-feat-series{{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#8b6b3f;margin-bottom:12px}}
+.insights-feat-title{{font-family:var(--serif);font-size:clamp(20px,2.6vw,26px);line-height:1.25;letter-spacing:-.01em;color:#17120f;margin:0 0 12px;font-weight:400}}
+.insights-feat-dek{{font-family:Georgia,"Times New Roman",serif;font-size:15.5px;line-height:1.7;color:#3a322a;margin:0 0 16px}}
+.insights-feat-meta{{font-size:13px;color:#5a4f40;line-height:1.55;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid rgba(139,107,63,.18)}}
+.insights-feat-meta strong{{color:#17120f}}
+.insights-feat-footer{{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}}
+.insights-feat-details{{font-size:12px;color:#7a6f5e}}
+.insights-feat-cta{{font-size:13px;font-weight:700;color:#5f3b13;letter-spacing:.02em}}
+.insights-feat-card:hover .insights-feat-cta{{color:#17120f}}
+@media (max-width:640px){{.insights-feat-card{{padding:22px 20px}}}}
+</style>
+
+<h2 style="font-family:var(--serif);font-size:22px;margin:8px 0 12px">Featured interviews</h2>
+<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">In-depth conversations with the engineers, colourists, and technology leaders shaping broadcast and post-production. Each interview is a first-person account of the workflow shifts, standards transitions, and AI integrations these veterans are living through right now.</p>
+<div class="insights-feat-wrap">{interview_cards_html}
+</div>
 
 <h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">What Expert Insights covers</h2>
 <p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">Expert Insights articles are written for broadcast engineers, technology directors, and media operations leads who need to evaluate &#8212; not just read about &#8212; new technology. Every piece is grounded in verifiable source material, quotes technical specifications accurately, and calls out what vendors have not disclosed. Topics we return to repeatedly:</p>
@@ -2213,7 +2278,7 @@ def insights_page():
 
 <h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">Editorial standard</h2>
 <p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">Expert Insights pieces go through a stricter review pass than our daily industry news briefings. We do not publish press-release rewrites under this banner. Where an article analyses a vendor&#39;s technology, we disclose what the vendor has stated, what our editorial team has verified independently, and what remains uncertain. Technical claims that cannot be traced to a primary source are either removed or flagged.</p>
-<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">AI tools assist with drafting on some Insights articles &#8212; primarily for structuring source material and initial analysis &#8212; but every published piece is reviewed by a human editor before going live. See our <a href="editorial-policy.html" style="color:var(--blue)">Editorial Policy</a> for the full methodology on AI-assisted drafting, source attribution, and corrections.</p>
+<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">AI tools assist with drafting on some Insights articles &#8212; primarily for structuring source material and initial analysis &#8212; but every published piece is reviewed by a human editor before going live. Featured interviews are transcribed and edited from first-person conversations; the interviewee reviews and approves the final published text. See our <a href="editorial-policy.html" style="color:var(--blue)">Editorial Policy</a> for the full methodology on AI-assisted drafting, source attribution, and corrections.</p>
 
 <h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">Who writes for us</h2>
 <p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">Streamic editorial is led by Prerak K Mehta, with 25+ years of IT experience and 20 years in media / post-production / broadcast IT systems. Guest contributions from broadcast engineers, vendor technical staff, and media operations leaders are welcome &#8212; email <a href="mailto:technodate3@gmail.com" style="color:var(--blue)">technodate3@gmail.com</a> with a short pitch outline and any relevant technical credentials.</p>
@@ -2370,8 +2435,71 @@ def howto_page():
 {_cookie_banner()}
 </body></html>"""
 
+def _deep_dives_section():
+    """Homepage 'Technical Deep Dives' — 2 premium editorial cards below hero.
+
+    Layout matches the reference: 2 side-by-side cards on desktop, stacked on mobile.
+    Each card links to a full hand-authored article page under /docs/articles/.
+    Images expected at /docs/assets/deepdives/ — upload media-composer-edit.png and ms-server-datacenter.png.
+    """
+    cards = [
+        {
+            "kicker": "Automation",
+            "title": "The Death of the &quot;Black Box&quot;: Why Pebble and Harmonic are Winning the Playout War",
+            "lead": "The \"Black Box\" era is officially over. Pebble's JT-DMF interoperability push and Harmonic's SMPTE ST 2110-native Spectrum X are collapsing the decades-old hardware lock-in.",
+            "img": "assets/deepdives/media-composer-edit.png",
+            "img_alt": "Avid Media Composer editing interface showing multi-clip timeline and source monitor",
+            "img_caption": "Software-Defined Playout",
+            "href": "articles/deepdive-pebble-harmonic-playout-war-nab-2026.html",
+            "cta": "Read analysis",
+        },
+        {
+            "kicker": "Infrastructure",
+            "title": "From Bots to Agents: How AWS and Google Cloud are Actually Solving the Newsroom Headache",
+            "lead": "2025 was AI that created stuff. 2026 is Agentic AI — AI that does stuff. AWS Elemental Inference and the Google Cloud / Avid partnership signal a real shift from demo to deployment.",
+            "img": "assets/deepdives/ms-server-datacenter.png",
+            "img_alt": "Hyperscale data center server aisle with illuminated racks extending to vanishing point",
+            "img_caption": "Agentic Cloud Infrastructure",
+            "href": "articles/deepdive-aws-google-cloud-agentic-ai-nab-2026.html",
+            "cta": "Read analysis",
+        },
+    ]
+
+    card_html = ""
+    for c in cards:
+        card_html += f'''<a class="dd-card" href="{c['href']}" aria-label="Read deep dive: {c['title']}">
+  <div class="dd-card-body">
+    <span class="dd-kicker">{c['kicker']}</span>
+    <h3 class="dd-title">{c['title']}</h3>
+    <p class="dd-lead">{c['lead']}</p>
+    <span class="dd-cta">{c['cta']} <span class="dd-arrow" aria-hidden="true">&#8594;</span></span>
+  </div>
+  <figure class="dd-figure">
+    <img class="dd-img" src="{c['img']}" alt="{c['img_alt']}" loading="lazy" onerror="this.style.opacity='0'">
+    <figcaption class="dd-figcap">{c['img_caption']}</figcaption>
+  </figure>
+</a>'''
+
+    return f'''<section class="dd-section" aria-labelledby="dd-h2">
+  <div class="dd-hdr">
+    <span class="dd-eyebrow">The 2026 Collection</span>
+    <h2 id="dd-h2" class="dd-h2">Technical Deep Dives</h2>
+    <p class="dd-intro">Moving beyond the headlines into the architecture of the modern media supply chain.</p>
+  </div>
+  <div class="dd-grid">
+    {card_html}
+  </div>
+</section>'''
+
+
 def _nab_bento_section():
-    """Homepage NAB 2026 hero + moonlight horizontal cards."""
+    """Homepage NAB 2026 hero + moonlight horizontal cards with Show-more accordion.
+
+    Cards use <details>/<summary> for accordion — pure HTML, zero JavaScript,
+    AdSense-safe, fully indexed by Google (expanded content is in the DOM).
+    'teaser_html' is the always-visible first 5 lines.
+    'more_html' is the hidden-until-expanded rest.
+    """
     cards = [
         {
             "cat": "AI & Post-Production",
@@ -2379,8 +2507,8 @@ def _nab_bento_section():
             "slug": "2026-04-17-ai-post-production-avid-google-cloud-agentic-ai-media-production",
             "title": "Avid Content Core: Agentic AI, Google Gemini, and a Unified Media Intelligence Layer",
             "eyebrow": "Avid Technology",
-            "summary_html": "<strong>The Announcement</strong> Avid Partners with Google Cloud to Integrate Agentic AI and Launch &quot;Content Core&quot;.<br><br><strong>Intelligent Data Layer:</strong> Introduces Avid Content Core — a cloud-native SaaS platform that unifies identity, ingest, and storage into a single data platform. <strong>Google Gemini Integration:</strong> Deeply embeds Google AI into Media Composer. <strong>Agentic AI Assistants:</strong> Digital agents can match visual styles and identify emotional cues. <strong>Natural Language Search:</strong> Teams can query entire archives conversationally instead of relying on manual metadata tags. <strong>Zero-Disruption Migration:</strong> Designed to work with existing infrastructure without a rip-and-replace overhaul.",
-            "cta": "Open full article",
+            "teaser_html": "<strong>Avid Partners with Google Cloud to Integrate Agentic AI and Launch &quot;Content Core&quot;.</strong> Avid is introducing Content Core &mdash; a cloud-native SaaS platform that acts as a unified data layer for media assets, bringing identity, ingest, and storage into a single data platform.",
+            "more_html": "<p><strong>Google Gemini Integration:</strong> Deeply embeds Google&#39;s AI into Media Composer, the industry-standard non-linear editing system used across professional film and television post-production.</p><p><strong>Agentic AI Assistants:</strong> Digital agents autonomously manage complex tasks like matching visual styles and identifying emotional cues.</p><p><strong>Natural Language Search:</strong> Production teams can now query entire archives using conversational language instead of manual metadata tags.</p><p><strong>Zero-Disruption Migration:</strong> Designed to work with existing Avid NEXIS and MediaCentral infrastructure, avoiding rip-and-replace overhauls. Hybrid deployment across Google Cloud and AWS. Commercially available April 2026.</p>",
         },
         {
             "cat": "AI & Post-Production",
@@ -2388,8 +2516,8 @@ def _nab_bento_section():
             "slug": "2026-04-01-newsroom-dalet-flex-2512-semantic-search-dalia-ai",
             "title": "Dalet Dalia: Conversational Agentic AI for Enterprise Production",
             "eyebrow": "Dalet",
-            "summary_html": "<strong>The Announcement</strong> Commercial launch of Dalia — a media-aware agentic AI layer for enterprise production. <strong>Agentic AI:</strong> Natural-language interaction for content discovery, clipping, and supply-chain tasks. <strong>Ecosystem Integration:</strong> Works across Dalet Flex, Pyramid, and Galaxy five. <strong>Human-in-the-Loop:</strong> Keeps editorial validation under operator control. <strong>Efficiency Gains:</strong> Early reporting points to a 60% reduction in repetitive work such as tagging and clipping. <strong>Unified UI:</strong> Brings fragmented media operations into one conversational interface.",
-            "cta": "Read Dalet coverage",
+            "teaser_html": "<strong>Commercial Launch of Dalia: Media-Aware Agentic AI for Enterprise Production.</strong> Dalet&#39;s multi-agent framework translates conversational requests into structured media workflows including content discovery and clip creation, available across Dalet Flex, Pyramid, and Galaxy five.",
+            "more_html": "<p><strong>Agentic AI:</strong> Uses a natural-language interface to simplify complex media supply chain tasks.</p><p><strong>Ecosystem Integration:</strong> Works across Dalet Flex (cloud-native media logistics and orchestration) and Dalet Pyramid (collaborative web-based news production).</p><p><strong>Human-in-the-Loop:</strong> Keeps users in control of critical creative and editorial validation &mdash; human validation required for downstream actions.</p><p><strong>Efficiency Gains:</strong> Early data shows a 60% reduction in time spent on repetitive tasks like tagging and clipping.</p><p><strong>Unified UI:</strong> Consolidates fragmented tools into a single conversational interface. Commercially available April 8, 2026.</p>",
         },
         {
             "cat": "AI & Post-Production",
@@ -2397,48 +2525,61 @@ def _nab_bento_section():
             "slug": "2026-04-01-ai-post-production-telestream-adobe-frameio-creative-delivery-automation",
             "title": "Telestream + Adobe + Oracle OCI: Creative-to-Delivery Automation Gets Sharper",
             "eyebrow": "Telestream",
-            "summary_html": "<strong>The Announcement</strong> Telestream scales multi-cloud workflows with Oracle and deepens Adobe integration. <strong>Oracle Cloud:</strong> UP platform, SENTRY monitoring, and orchestration are now OCI-ready. <strong>Vantage Adobe Panel:</strong> Premiere Pro users can submit sequences directly into automated delivery pipelines. <strong>Frame.io V4 Readiness:</strong> A new connector prepares teams for the latest API model. <strong>QoS Monitoring:</strong> Real-time validation for audio, video, ad markers, and captions now extends inside OCI. <strong>Deployment:</strong> Supports hybrid, on-prem, and multi-cloud operations.",
-            "cta": "Read Telestream coverage",
+            "teaser_html": "<strong>Telestream Scales Multi-Cloud with Oracle and Enhances Adobe Workflows.</strong> Cloud services are now optimized for Oracle Cloud Infrastructure, bringing high-performance compute and low-cost data egress to media workloads, while Premiere Pro users can submit sequences directly into automated pipelines.",
+            "more_html": "<p><strong>Vantage Adobe Panel:</strong> Submit Premiere Pro sequences directly to automated delivery pipelines using the Vantage enterprise media processing and workflow automation platform.</p><p><strong>UP Platform:</strong> Capture, orchestration, and review are now OCI-ready via Telestream&#39;s unified cloud-native ingest and supply chain monitoring platform.</p><p><strong>Frame.io V4 Readiness:</strong> A new connector ensures seamless migration to Adobe Frame.io&#39;s redesigned API architecture.</p><p><strong>SENTRY Monitoring:</strong> Real-time QoS monitoring &mdash; including video/audio quality, ad marker validation, and caption compliance &mdash; is now available within OCI. Available April 2026. Supports hybrid, on-premises, and multi-cloud deployment.</p>",
+        },
+        {
+            "cat": "Distribution",
+            "cat_color": "#0ea5e9",
+            "slug": "2026-04-01-cloud-tedial-agentic-ai-media-lifecycle-nab-2026",
+            "title": "Vubiquity + Eluvio Content Fabric: Rewriting Distribution Economics",
+            "eyebrow": "Vubiquity &amp; Eluvio",
+            "teaser_html": "<strong>Vubiquity adopts the Eluvio Content Fabric to redefine media distribution economics.</strong> The partnership replaces traditional file-based delivery with a blockchain-backed content fabric that streams the exact requested version on demand &mdash; eliminating the transcoding, storage, and CDN costs baked into conventional supply chains.",
+            "more_html": "<p><strong>Content Fabric Protocol:</strong> A decentralized media protocol built on a verifiable content-addressable storage layer. Masters are stored once and dynamically assembled per request &mdash; versions, subtitles, and territorial variants generated at the edge.</p><p><strong>Zero Egress Duplication:</strong> Removes the need to pre-transcode and pre-store every distribution version. Reduces storage footprint by up to 80% and eliminates redundant CDN fills.</p><p><strong>Rights-Aware Delivery:</strong> Territorial rights, version control, and edit compliance are enforced at the protocol layer, not the application layer &mdash; faster rights clearance, no misdelivery.</p><p><strong>Operator Impact:</strong> For distributors like Vubiquity, this collapses the delivery cost curve and makes long-tail catalog monetization economically viable again. Active in production workflows as of Q2 2026.</p>",
         },
     ]
 
     card_html = []
     for c in cards:
         card_html.append(f'''<article class="nab-card nab-card-horizontal" itemprop="itemListElement" itemscope itemtype="https://schema.org/Article">
-  <a href="articles/{c['slug']}.html" class="nab-card-link nab-card-link-horizontal" aria-label="Read NAB 2026 analysis: {c['title']}">
-    <div class="nab-card-body nab-card-body-horizontal">
-      <div class="nab-card-meta-row">
-        <span class="nab-card-eyebrow">{c['eyebrow']}</span>
-        <span class="nab-cat" style="--nab-cat-c:{c['cat_color']}">{c['cat']}</span>
-      </div>
-      <h3 class="nab-title" itemprop="headline">{c['title']}</h3>
-      <div class="nab-summary nab-summary-rich" itemprop="description">{c['summary_html']}</div>
-      <span class="nab-cta">{c['cta']} <span class="nab-cta-arrow" aria-hidden="true">&#8594;</span></span>
+  <div class="nab-card-body nab-card-body-horizontal">
+    <div class="nab-card-meta-row">
+      <span class="nab-card-eyebrow">{c['eyebrow']}</span>
+      <span class="nab-cat" style="--nab-cat-c:{c['cat_color']}">{c['cat']}</span>
     </div>
-  </a>
+    <h3 class="nab-title" itemprop="headline"><a href="articles/{c['slug']}.html" class="nab-title-link">{c['title']}</a></h3>
+    <div class="nab-summary nab-summary-rich" itemprop="description">
+      <div class="nab-teaser">{c['teaser_html']}</div>
+      <details class="nab-more">
+        <summary class="nab-more-toggle"><span class="nab-more-label-open">Show more</span><span class="nab-more-label-close">Show less</span><span class="nab-more-chev" aria-hidden="true">&#9662;</span></summary>
+        <div class="nab-more-body">{c['more_html']}</div>
+      </details>
+    </div>
+    <a href="articles/{c['slug']}.html" class="nab-cta nab-cta-btn" aria-label="Read full article: {c['title']}">Read full article <span class="nab-cta-arrow" aria-hidden="true">&#8594;</span></a>
+  </div>
 </article>''')
 
     return f'''<section class="nab-section" aria-labelledby="nab-h2" itemscope itemtype="https://schema.org/ItemList">
   <meta itemprop="name" content="NAB Show 2026 Broadcast Technology Updates — The Streamic">
-  <header class="nab-banner" role="banner" aria-label="NAB Show 2026 section header">
+  <header class="nab-banner nab-banner-image" role="banner" aria-label="NAB Show 2026 section header">
     <div class="nab-banner-bg" aria-hidden="true">
-      <img class="nab-banner-img" src="assets/NAB_SHOW_BANNER_NEWS_HEADLINE_HERO.png" alt="" loading="eager" onerror="this.style.display=&apos;none&apos;">
+      <img class="nab-banner-hero-img" src="assets/gfx-hero-nab-floor.png" alt="" loading="eager" onerror="this.style.display='none'">
       <div class="nab-banner-overlay" aria-hidden="true"></div>
-      <div class="nab-banner-grain" aria-hidden="true"></div>
+      <div class="nab-banner-vignette" aria-hidden="true"></div>
     </div>
     <div class="nab-banner-content">
       <div class="nab-banner-eyebrow">
         <span class="nab-live-pulse" aria-hidden="true"></span>
-        <span class="nab-banner-label">NAB 2026 Updates</span>
+        <span class="nab-banner-label">Field Report &middot; April 2026</span>
         <span class="nab-banner-sep" aria-hidden="true">&middot;</span>
-        <span class="nab-banner-location">Las Vegas &bull; April 18&ndash;22, 2026</span>
+        <span class="nab-banner-location">Las Vegas &bull; NAB Show 2026</span>
       </div>
-      <h1 id="nab-h2" class="nab-banner-h2">
-        <span class="nab-banner-h2-nab">NAB Show 2026</span>
-        <span class="nab-banner-h2-hl">What matters for broadcast teams</span>
+      <h1 id="nab-h2" class="nab-banner-h2 nab-banner-h2-premium">
+        <span class="nab-banner-kicker">Practical Takeaways from NAB 2026</span>
+        <span class="nab-banner-headline">The Year of <em>Hybrid Technology</em></span>
       </h1>
-      <p class="nab-banner-sub">A homepage-first Streamic layout focused on the announcements worth watching now: agentic AI, media intelligence layers, archive search, and practical cloud-to-post workflow shifts.</p>
-      <a href="ai-post-production.html" class="nab-banner-cta" aria-label="View all NAB 2026 coverage">Open AI &amp; Post-Production <span aria-hidden="true">&#8594;</span></a>
+      <p class="nab-banner-sub">Beyond the hype: agentic AI, IP 2110 migration, cloud-to-post bridges, and the vendor partnerships that are quietly rewriting the broadcast stack.</p>
+      <a href="articles/nab-2026-hybrid-technology-year.html" class="nab-banner-cta nab-banner-cta-premium" aria-label="Read the full NAB 2026 field report">Read the Field Report <span aria-hidden="true">&#8594;</span></a>
     </div>
   </header>
   <div class="nab-bento nab-bento-stack">
@@ -2533,18 +2674,27 @@ def editorsdesk_page():
 </a>''' for (cat, slug, title, dek) in rendered
         )
         main_html = f"""<main>
+<section class="strmc-ed-hero">
+  <h1>Editor's Desk</h1>
+  <p class="lede">Commentary, perspective, and engineering analysis from the editorial team at The Streamic. Technical reads that go beyond the news cycle &mdash; honest trade-off analysis for broadcast engineers, CTOs, and media IT architects who actually have to deploy this stuff.</p>
+</section>
+<section class="strmc-ed-watching">
+  <strong>What we're watching in 2026</strong>
+  <p>The ST 2110 adoption curve in small-market broadcasters. The real TCO of cloud playout post-NAB 2026. How C2PA is quietly becoming a newsroom compliance surface. The gap between AI-tagged MAMs in demos and AI-tagged MAMs in production.</p>
+</section>
+<section class="strmc-ed-grid">
+{cards_html}
+</section>
 <section class="hp-flagship-section hp-flagship-section--vlog">
   <div class="w">
     <div class="hp-flagship-section__hdr">
       <div class="hp-sec-hdr">
-        <h2>Vlog / Deep Insight</h2>
-        <a href="articles/quic-http3-video-delivery-streaming-2026.html">Open article &#8594;</a>
+        <h2>Flagship Long-Read</h2>
       </div>
-      <p class="hp-section-intro">A dedicated long-read spotlight for technology concepts that deserve a cleaner, slower read.</p>
+      <p class="hp-section-intro">A dedicated spotlight for technology concepts that deserve a cleaner, slower read.</p>
     </div>
     <a href="articles/quic-http3-video-delivery-streaming-2026.html" class="hp-flagship" aria-label="Read full insight: Beyond TCP">
       <div class="hp-flagship__body">
-        <div class="hp-flagship__eyebrow"><span class="hp-flagship__label">Flagship Insight</span></div>
         <span class="hp-flagship__tag">📡 Infrastructure &amp; Streaming</span>
         <h2 class="hp-flagship__hl">Beyond TCP: Why QUIC Is Redefining Video Delivery</h2>
         <p class="hp-flagship__summary">Faster video start, fewer buffering issues, and smoother playback — even on weak networks. HTTP/3 and QUIC are quietly improving streaming performance across OTT platforms and live broadcasting.</p>
@@ -2559,17 +2709,6 @@ def editorsdesk_page():
       </div>
     </a>
   </div>
-</section>
-<section class="strmc-ed-hero">
-  <h1>Editor's Desk</h1>
-  <p class="lede">Commentary, perspective, and engineering analysis from the editorial team at The Streamic. Technical reads that go beyond the news cycle &mdash; honest trade-off analysis for broadcast engineers, CTOs, and media IT architects who actually have to deploy this stuff.</p>
-</section>
-<section class="strmc-ed-watching">
-  <strong>What we're watching in 2026</strong>
-  <p>The ST 2110 adoption curve in small-market broadcasters. The real TCO of cloud playout post-NAB 2026. How C2PA is quietly becoming a newsroom compliance surface. The gap between AI-tagged MAMs in demos and AI-tagged MAMs in production.</p>
-</section>
-<section class="strmc-ed-grid">
-{cards_html}
 </section>
 </main>"""
     else:
