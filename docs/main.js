@@ -175,15 +175,8 @@
         return { featured_priority: raw.slice ? raw.slice(0, 6) : [], items: raw.slice ? raw.slice(6) : [] };
       } catch (_) {}
     }
-    for (const p of [`data/news.json?v=${BUST}`, `/data/news.json?v=${BUST}`]) {
-      try {
-        const r = await fetch(p); if (!r.ok) continue;
-        const raw = await r.json();
-        if (Array.isArray(raw)) return { featured_priority: raw.slice(0, 6), items: raw.slice(6) };
-        if (raw.items !== undefined) return raw;
-        return { featured_priority: [], items: [] };
-      } catch (_) {}
-    }
+    /* Editorial-only data mode.
+       Homepage cards come from generated_articles.json via the editorial loader above. */
     throw new Error('No data source reachable');
   }
 
