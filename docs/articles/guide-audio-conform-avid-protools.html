@@ -1,33 +1,185 @@
-<!doctype html>
+<!-- HAND_AUTHORED -->
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="robots" content="noindex,nofollow">
-<meta name="googlebot" content="noindex,nofollow,noarchive">
-<link rel="canonical" href="https://www.thestreamic.in/">
-<title>Page Removed &mdash; The Streamic</title>
-<meta http-equiv="status" content="410 Gone">
-<meta name="description" content="This page has been permanently removed from The Streamic.">
-<style>
-  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:640px;margin:80px auto;padding:0 24px;color:#1a1a1a;line-height:1.6}
-  h1{font-size:28px;margin-bottom:16px;color:#0a0a0a}
-  p{font-size:16px;color:#444;margin-bottom:14px}
-  a{color:#0066cc;text-decoration:none;font-weight:500}
-  a:hover{text-decoration:underline}
-  .meta{font-size:13px;color:#888;margin-top:32px;padding-top:16px;border-top:1px solid #eee}
-</style>
-  <meta name="google-adsense-account" content="ca-pub-8033069131874524">
+  <script>
+    window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+    gtag('consent','default',{'analytics_storage':'denied','ad_storage':'denied',
+    'ad_user_data':'denied','ad_personalization':'denied','wait_for_update':500});
+  </script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-0VSHDN3ZR6"></script>
+  <script>gtag('js',new Date());gtag('config','G-0VSHDN3ZR6');</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Audio Conform: Avid Media Composer to Pro Tools and Back | The Streamic</title>
+  <meta name="description" content="Export AAF from Avid, open in Pro Tools for audio finishing, and return the mix in sync. Covers sample rates, BWF export, and timecode alignment.">
+  <meta name="robots" content="index,follow">
+  <meta name="author" content="The Streamic Editorial Team">
+  <link rel="canonical" href="https://www.thestreamic.in/articles/guide-audio-conform-avid-protools.html">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="The Streamic">
+  <meta property="og:title" content="Audio Conform: Avid Media Composer to Pro Tools and Back | The Streamic">
+  <meta property="og:description" content="Export AAF from Avid, open in Pro Tools for audio finishing, and return the mix in sync. Covers sample rates, BWF export, and timecode alignment.">
+  <meta property="og:url" content="https://www.thestreamic.in/articles/guide-audio-conform-avid-protools.html">
+  <meta property="og:image" content="https://www.thestreamic.in/assets/fallback.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
 </head>
 <body>
-  <h1>This page has been removed</h1>
-  <p>The article you are looking for is no longer available on The Streamic. We have streamlined our editorial archive to focus on long-form analysis and original commentary.</p>
-  <p>You may be looking for:</p>
-  <ul>
-    <li><a href="https://www.thestreamic.in/">The Streamic homepage</a> &mdash; latest editorial coverage</li>
-    <li><a href="https://www.thestreamic.in/ai-post-production.html">AI in Broadcasting</a> &mdash; our active focus area</li>
-    <li><a href="https://www.thestreamic.in/insights.html">Expert Insights</a> &mdash; long-form analysis</li>
-    <li><a href="https://www.thestreamic.in/howto.html">How-To Guides</a> &mdash; practical technical guides</li>
-  </ul>
-  <p class="meta">HTTP 410 Gone &middot; This URL is permanent and will not be reinstated.</p>
-</body>
-</html>
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="../" class="nav-logo">
+      <img src="../assets/logo.png" alt="" onerror="this.style.display='none'" aria-hidden="true">
+      <div class="nav-logo-text">
+        <span class="nav-logo-name">The Streamic</span>
+        <span class="nav-logo-tagline">Media &amp; Broadcast IT Analysis</span>
+      </div>
+    </a>
+    <div class="nav-divider" aria-hidden="true"></div>
+    <ul class="nav-links"><li><a href="/">Home</a></li><li><a href="../ai-post-production.html">AI in Broadcasting</a></li><li><a href="../howto.html" class="active">How-To Guides</a></li><li><a href="../post-production-workflows.html">Post Production Workflows</a></li><li><a href="../insights.html">Expert Insights</a></li><li><a href="../editorsdesk.html">Editorial Insights</a></li></ul>
+    <div class="nav-right">
+      <a href="../about.html" class="nav-desk">About</a>
+      <button class="nav-toggle" aria-label="Menu" type="button" onclick="(function(b,m){m.classList.toggle('open');b.setAttribute('aria-expanded',m.classList.contains('open'));document.body.classList.toggle('menu-open',m.classList.contains('open'));})(this,this.closest('nav').querySelector('.nav-mob'))">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+  <div class="nav-gold" aria-hidden="true"></div>
+  <div class="nav-mob"><a href="/">Home</a><a href="../ai-post-production.html">AI in Broadcasting</a><a href="../howto.html">How-To Guides</a><a href="../post-production-workflows.html">Post Production Workflows</a><a href="../insights.html">Expert Insights</a><a href="../editorsdesk.html">Editorial Insights</a><a href="../about.html">About</a><a href="../contact.html">Contact</a></div>
+</nav>
+<main>
+  <div class="art-wrap">
+    <div class="art-breadcrumb">
+      <a href="../featured.html">Home</a>
+      <span>›</span>
+      <a href="../howto.html" style="color:var(--blue)">How-To Guides</a>
+    </div>
+    <span class="art-tag" style="background:var(--blue)">How-To Guide</span>
+    <h1>Audio Conform: Avid Media Composer to Pro Tools and Back</h1>
+    <p class="art-dek">Export AAF from Avid, open in Pro Tools for audio finishing, and return the mix in sync. Covers sample rates, BWF export, and timecode alignment.</p>
+    <div class="art-byline">
+      <strong>The Streamic Editorial Team</strong>
+      <span>10 min</span>
+      <span>679 words · 3 min read</span>
+      <span style="background:var(--blue);color:#fff;padding:3px 9px;border-radius:5px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.8px">Guide</span>
+    </div>
+    <figure>
+      <img src="../assets/fallback.jpg" alt="Audio Conform: Avid Media Composer to Pro Tools and Back" loading="eager">
+      <figcaption>The Streamic — Site Asset</figcaption>
+    </figure>
+    <div class="art-body">
+<p>Audio Conform: Avid Media Composer to Pro Tools and Back is a practical operations guide focused on audio post handoff between picture editorial and final mix. In many broadcast and post environments, the failure point is not the headline feature itself. It is the handoff between systems, the small configuration mismatch that is left undocumented, or the assumption that the next team in the chain sees the same metadata and media state you do. This guide is written to reduce those avoidable failures and to make the workflow repeatable for engineering, editorial, and support teams.</p>
+
+<p>The workflow surface here spans Avid Media Composer, AAF, Pro Tools, BWF, sample-rate management, and mix return workflows. That means the right approach is never just to click through a setup screen and hope for the best. You need to confirm media paths, naming discipline, timecode consistency, codec expectations, permissions, and rollback options before a change touches live or deadline-driven work. The safer mindset is to treat every workflow as a chain. If one link is weak, the issue usually appears downstream where it is harder to diagnose.</p>
+
+<h2>What this guide is designed to solve</h2>
+<p>Export AAF from Avid, open in Pro Tools for audio finishing, and return the mix in sync. Covers sample rates, BWF export, and timecode alignment. The goal is not just to complete a one-time setup. The goal is to build a method that another operator, engineer, or assistant editor can follow later without re-learning the environment from scratch. That is what makes a workflow operationally useful. A reliable guide should tell you what to validate before you begin, where the common breakpoints are, and what evidence proves the workflow is actually healthy.</p>
+
+<p>On The Streamic, we treat workflow documentation as part of media systems engineering. That means checking whether the process preserves timecode, metadata, file naming, path mapping, and output predictability. It also means thinking about what happens when something goes wrong: a missing plugin, a stale cache, a storage permission mismatch, or a job that appears complete but lands in the wrong format or wrong location.</p>
+
+<h2>Operational checkpoints</h2>
+<p>Before applying any of the steps in this guide, confirm the environment baseline. Verify software versions, plugin compatibility, storage visibility, account permissions, and any required service health. If the workflow touches shared storage or cloud targets, confirm write access and naming conventions first. If the workflow passes between editorial and engineering teams, decide who owns validation at each stage so an error is caught early instead of after delivery.</p>
+
+<ul>
+  <li>Confirm source and destination paths before testing with real material.</li>
+  <li>Validate timecode, audio mapping, and expected file format on a short reference asset.</li>
+  <li>Check logs, job history, or status panels rather than relying only on UI success messages.</li>
+  <li>Document the rollback step before changing a working production workflow.</li>
+</ul>
+
+<h2>Why this matters in real broadcast operations</h2>
+<p>Broadcast and media teams rarely fail because they lack features. They fail because a workflow behaves differently under deadline pressure than it did in a controlled test. A post pipeline may appear stable until a late metadata change, a path remap, or a codec exception forces manual intervention. That is why the most valuable workflow guides are explicit, boring, and repeatable. They reduce heroics. They reduce assumptions. They make the system easier to support at 02:00 when a deadline leaves no room for guesswork.</p>
+
+<p>This guide therefore sits in the practical middle ground between vendor documentation and real facility operations. Vendor documentation explains what the product can do. An operational guide explains what the facility must confirm so the workflow holds together under real usage. That distinction matters for post-production, newsroom support, and any environment where one missed detail can cascade into rework.</p>
+
+<h2>Engineering note</h2>
+<p>Use this guide as a baseline and adapt it to your own site standards. If your facility already has naming rules, storage tiering, approval gates, or service-monitoring practices, map the workflow into those rather than creating one more isolated exception. The best workflow is the one your team can support consistently. That is the standard this page is intended to support.</p>
+</div>
+    <div class="art-author">
+      <strong>About this guide</strong>
+      Practical workflow guidance from The Streamic for broadcast engineers, editors, and media operations teams.
+      <a href="../about.html" style="color:var(--blue);margin-left:6px;">About The Streamic &rarr;</a>
+    </div>
+    <div class="art-more">
+      <h3>Continue Reading</h3>
+      <a href="../howto.html">🛠 All How-To Guides</a>
+      <a href="../featured.html">⭐ Featured Stories</a>
+    </div>
+  </div>
+</main>
+<footer class="footer">
+  <div class="footer-gold" aria-hidden="true"></div>
+  <div class="footer-grid">
+    <div>
+      <div class="footer-brand">The Streamic</div>
+      <div class="footer-tagline">Media &amp; Broadcast IT Analysis</div>
+      <p class="footer-tag">Independent broadcast &amp; streaming technology journalism. Original analysis for engineers and media professionals.</p>
+      <div class="footer-social">
+        <a href="https://twitter.com/thestreamic" target="_blank" rel="noopener noreferrer" class="footer-social-link">
+          <svg width="14" height="14" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          @thestreamic
+        </a>
+        <a href="https://www.linkedin.com/company/thestreamic" target="_blank" rel="noopener noreferrer" class="footer-social-link">
+          <svg width="14" height="14" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          TheStreamic
+        </a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Coverage</h4>
+      <a href="../ai-post-production.html">AI in Broadcasting</a>
+      <a href="../howto.html">How-To Guides</a>
+      <a href="../post-production-workflows.html">Post Production Workflows</a>
+      <a href="../insights.html">Expert Insights</a>
+      <a href="../editorsdesk.html">Editorial Insights</a>
+    </div>
+    <div class="footer-col">
+      <h4>Site</h4>
+      <a href="../about.html">About</a>
+      <a href="../contact.html">Contact</a>
+      <a href="../editorial-policy.html">Editorial Policy</a>
+      <a href="../privacy.html">Privacy Policy</a>
+      <a href="../terms.html">Terms of Use</a>
+    </div>
+    <div class="footer-col">
+      <h4>Dublin, Ireland</h4>
+      <a href="mailto:technodate3@gmail.com" style="color:var(--blue)">technodate3@gmail.com</a>
+      <span style="font-size:12px;color:#bbb;display:block;margin-top:4px">Adamstown, Lucan</span>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>&copy; 2026 The Streamic &mdash; thestreamic.in</span>
+    <span>All trademarks belong to their respective owners.</span>
+  </div>
+</footer>
+<div id="ts-cookie">
+  <div class="cookie-in">
+    <div class="cookie-txt">
+      <strong>We use cookies</strong>
+      Analytics cookies help us understand site performance. Optional advertising cookies are disabled until future activation.
+      <a href="/privacy.html">Privacy Policy</a>
+    </div>
+    <div class="cookie-btns">
+      <button class="cookie-no" onclick="tsCC(false)">Reject optional</button>
+      <button class="cookie-ok" onclick="tsCC(true)">Accept all</button>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  var K='ts_cc',s=localStorage.getItem(K),b=document.getElementById('ts-cookie');
+  if(!s&&b)b.style.display='block';
+  window.tsCC=function(ok){
+    localStorage.setItem(K,ok?'granted':'denied');
+    if(b)b.style.display='none';
+    if(typeof gtag!='undefined')gtag('consent','update',{
+      analytics_storage:ok?'granted':'denied',ad_storage:'denied',
+      ad_user_data:'denied',ad_personalization:'denied'});
+  };
+  if(s==='granted'&&typeof gtag!='undefined')gtag('consent','update',{
+    analytics_storage:'granted',ad_storage:'denied',
+    ad_user_data:'denied',ad_personalization:'denied'});
+})();
+</script>
+</body></html>

@@ -11,16 +11,16 @@
   <script>gtag('js',new Date());gtag('config','G-0VSHDN3ZR6');</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Vantage: Transcode Any File to MP4 on a NAS Share | The Streamic</title>
-  <meta name="description" content="Build a hot folder workflow in Telestream Vantage that accepts any input format and delivers broadcast-ready H.264 MP4 to a local NAS.">
+  <title>Upgrade to macOS Sequoia | The Streamic</title>
+  <meta name="description" content="How to safely upgrade a post-production Mac. Pre-upgrade checklist, NLE compatibility matrix, and what to do if your plugins break.">
   <meta name="robots" content="index,follow">
   <meta name="author" content="The Streamic Editorial Team">
-  <link rel="canonical" href="https://www.thestreamic.in/articles/guide-vantage-nas-transcode.html">
+  <link rel="canonical" href="https://www.thestreamic.in/articles/guide-macos-upgrade.html">
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="The Streamic">
-  <meta property="og:title" content="Vantage: Transcode Any File to MP4 on a NAS Share | The Streamic">
-  <meta property="og:description" content="Build a hot folder workflow in Telestream Vantage that accepts any input format and delivers broadcast-ready H.264 MP4 to a local NAS.">
-  <meta property="og:url" content="https://www.thestreamic.in/articles/guide-vantage-nas-transcode.html">
+  <meta property="og:title" content="Upgrade to macOS Sequoia | The Streamic">
+  <meta property="og:description" content="How to safely upgrade a post-production Mac. Pre-upgrade checklist, NLE compatibility matrix, and what to do if your plugins break.">
+  <meta property="og:url" content="https://www.thestreamic.in/articles/guide-macos-upgrade.html">
   <meta property="og:image" content="https://www.thestreamic.in/assets/fallback.jpg">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -56,25 +56,25 @@
       <a href="../howto.html" style="color:var(--blue)">How-To Guides</a>
     </div>
     <span class="art-tag" style="background:var(--blue)">How-To Guide</span>
-    <h1>Vantage: Transcode Any File to MP4 on a NAS Share</h1>
-    <p class="art-dek">Build a hot folder workflow in Telestream Vantage that accepts any input format and delivers broadcast-ready H.264 MP4 to a local NAS.</p>
+    <h1>Upgrade to macOS Sequoia</h1>
+    <p class="art-dek">How to safely upgrade a post-production Mac. Pre-upgrade checklist, NLE compatibility matrix, and what to do if your plugins break.</p>
     <div class="art-byline">
       <strong>The Streamic Editorial Team</strong>
-      <span>10 min</span>
-      <span>673 words · 3 min read</span>
+      <span>5 min</span>
+      <span>665 words · 3 min read</span>
       <span style="background:var(--blue);color:#fff;padding:3px 9px;border-radius:5px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.8px">Guide</span>
     </div>
     <figure>
-      <img src="../assets/fallback.jpg" alt="Vantage: Transcode Any File to MP4 on a NAS Share" loading="eager">
+      <img src="../assets/fallback.jpg" alt="Upgrade to macOS Sequoia" loading="eager">
       <figcaption>The Streamic — Site Asset</figcaption>
     </figure>
     <div class="art-body">
-<p>Vantage: Transcode Any File to MP4 on a NAS Share is a practical operations guide focused on file-based transcoding automation on on-prem NAS storage. In many broadcast and post environments, the failure point is not the headline feature itself. It is the handoff between systems, the small configuration mismatch that is left undocumented, or the assumption that the next team in the chain sees the same metadata and media state you do. This guide is written to reduce those avoidable failures and to make the workflow repeatable for engineering, editorial, and support teams.</p>
+<p>Upgrade to macOS Sequoia is a practical operations guide focused on safe macOS upgrade planning for post-production systems. In many broadcast and post environments, the failure point is not the headline feature itself. It is the handoff between systems, the small configuration mismatch that is left undocumented, or the assumption that the next team in the chain sees the same metadata and media state you do. This guide is written to reduce those avoidable failures and to make the workflow repeatable for engineering, editorial, and support teams.</p>
 
-<p>The workflow surface here spans Telestream Vantage, hot folders, NAS shares, H.264 delivery, and broadcast operations handoff. That means the right approach is never just to click through a setup screen and hope for the best. You need to confirm media paths, naming discipline, timecode consistency, codec expectations, permissions, and rollback options before a change touches live or deadline-driven work. The safer mindset is to treat every workflow as a chain. If one link is weak, the issue usually appears downstream where it is harder to diagnose.</p>
+<p>The workflow surface here spans macOS Sequoia, NLE compatibility, plugin validation, storage backups, and editorial workstation readiness. That means the right approach is never just to click through a setup screen and hope for the best. You need to confirm media paths, naming discipline, timecode consistency, codec expectations, permissions, and rollback options before a change touches live or deadline-driven work. The safer mindset is to treat every workflow as a chain. If one link is weak, the issue usually appears downstream where it is harder to diagnose.</p>
 
 <h2>What this guide is designed to solve</h2>
-<p>Build a hot folder workflow in Telestream Vantage that accepts any input format and delivers broadcast-ready H.264 MP4 to a local NAS. The goal is not just to complete a one-time setup. The goal is to build a method that another operator, engineer, or assistant editor can follow later without re-learning the environment from scratch. That is what makes a workflow operationally useful. A reliable guide should tell you what to validate before you begin, where the common breakpoints are, and what evidence proves the workflow is actually healthy.</p>
+<p>How to safely upgrade a post-production Mac. Pre-upgrade checklist, NLE compatibility matrix, and what to do if your plugins break. The goal is not just to complete a one-time setup. The goal is to build a method that another operator, engineer, or assistant editor can follow later without re-learning the environment from scratch. That is what makes a workflow operationally useful. A reliable guide should tell you what to validate before you begin, where the common breakpoints are, and what evidence proves the workflow is actually healthy.</p>
 
 <p>On The Streamic, we treat workflow documentation as part of media systems engineering. That means checking whether the process preserves timecode, metadata, file naming, path mapping, and output predictability. It also means thinking about what happens when something goes wrong: a missing plugin, a stale cache, a storage permission mismatch, or a job that appears complete but lands in the wrong format or wrong location.</p>
 
