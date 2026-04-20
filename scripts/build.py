@@ -894,27 +894,52 @@ def load_homepage_feed(arts, limit=14):
         if title:
             by_title[title] = a
 
-    feed_items = []
-    if os.path.exists(NEWS_F):
-        with open(NEWS_F, 'r', encoding='utf-8') as f:
-            raw = json.load(f)
-        if isinstance(raw, dict) and 'items' in raw:
-            feed_items = (raw.get('featured_priority') or []) + (raw.get('items') or [])
-        elif isinstance(raw, list):
-            feed_items = raw
-        else:
-            flat = []
-            for cat, lst in (raw or {}).items():
-                for it in (lst or []):
-                    if isinstance(it, dict):
-                        item = dict(it)
-                        item.setdefault('category', cat)
-                        flat.append(item)
-            feed_items = sorted(flat, key=lambda x: x.get('pubDate',''), reverse=True)
+def load_homepage_feed(arts, limit=14):
+    """Build homepage feed from internal articles only (no NEWS_F)."""
 
     mapped = []
     seen = set()
-    for item in feed_items:
+
+    for a in arts:
+        if not isinstance(a, dict):
+            continue
+
+        slug = (a.get("slug") or "").strip()
+        if not slug or slug in seen:
+            continue
+
+        # Skip editorials for feed (keep homepage clean)
+        if a.get("is_editorial") or a.get("editorial"):
+            continue
+
+        merged = dict(a)
+        merged.setdefault("category", merged.get("category", "featured"))
+        merged.setdefault("source_domain", _source_name(merged.get("source_url") or merged.get("url") or ""))
+        merged.setdefault("published", merged.get("published", ""))
+        merged.setdefault("source_url", merged.get("source_url") or merged.get("url") or "")
+        merged.setdefault("url", merged.get("url") or merged.get("source_url") or "")
+        merged.setdefault("image_url", merged.get("image_url") or "")
+
+        mapped.append(merged)
+        seen.add(slug)
+
+    # Sort: newest first, then by body length
+    def _feed_sort(a):
+        body = a.get('body_html','') or ''
+        wc = len(re.sub(r'<[^>]+>',' ',body).split())
+        return (a.get('published',''), wc)
+
+    mapped.sort(key=_feed_sort, reverse=True)
+
+    # Fallback (never empty)
+    if not mapped:
+        mapped = sorted(
+            [a for a in arts if a.get("slug")],
+            key=lambda a: a.get("published",""),
+            reverse=True
+        )
+
+    return mapped[:limit]
         url = item.get('link') or item.get('url') or item.get('guid')
         title_key = (item.get('title') or '').strip().lower()
         art = by_url.get(url) or by_title.get(title_key)
