@@ -2658,13 +2658,31 @@ def main():
     }
 
     quality_pass, quality_fail = [], []
-    for a in arts:
-        slug = a.get("slug", "")
+    GUIDE_EXEMPT_SLUGS = {
+    "guide-premiere-to-avid",
+    "guide-vantage-nas-transcode",
+    "guide-vantage-aws-transcode",
+    "guide-avid-strawberry",
+    "guide-audio-conform-avid-protools",
+    "guide-media-central-cache",
+    "guide-avid-media-central-health-check",
+    "guide-vizrt-avid-integration",
+    "guide-windows11-upgrade",
+    "guide-macos-upgrade",
+}
 
-        # Homepage-protected articles always pass
-        if slug in HOMEPAGE_PROTECTED_SLUGS:
-            quality_pass.append(a)
-            continue
+for a in arts:
+    slug = a.get("slug", "")
+
+    # Homepage-protected articles always pass
+    if slug in HOMEPAGE_PROTECTED_SLUGS:
+        quality_pass.append(a)
+        continue
+
+    # Hand-made / evergreen how-to guides must stay live
+    if slug in GUIDE_EXEMPT_SLUGS:
+        quality_pass.append(a)
+        continue
 
         # Manual editorials: 400-word floor (they're hand-curated)
         is_manual = a.get("generated_by") == "gpt_manual_editorial"
