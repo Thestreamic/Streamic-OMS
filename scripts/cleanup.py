@@ -110,6 +110,8 @@ PROTECTED_SLUGS = {
     "guide-vantage-aws-transcode",
     "guide-vantage-nas-transcode",
     "guide-vizrt-avid-integration",
+    "guide-windows11-upgrade",
+    "guide-macos-upgrade",
     "telestream-adobe-vantage-premiere-workflow-integration-2026",
 }
 

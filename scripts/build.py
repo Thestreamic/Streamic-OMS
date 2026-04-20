@@ -7,7 +7,6 @@ from datetime import datetime, timezone
 
 ROOT      = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 ARTS_F    = os.path.join(ROOT, "data", "generated_articles.json")
-NEWS_F    = os.path.join(ROOT, "data", "news.json")
 DOCS      = os.path.join(ROOT, "docs")
 ARTS_D    = os.path.join(DOCS, "articles")
 BASE_URL  = os.environ.get("SITE_BASE_URL", "https://www.thestreamic.in").rstrip("/")
@@ -22,7 +21,7 @@ PAGE_SIZE = 24
 
 # ── AdSense approval mode ─────────────────────────────────────────────────────
 # Show curated high-quality content. Full dataset remains hidden.
-MAX_ARTICLES   = 120         # 78 editorial + top RSS; raised from 35
+MAX_ARTICLES   = 120         # editorial corpus cap
 VISIBLE_CAT    = "ai-post-production"  # only this category page is indexed
 MIN_BODY_SCORE = 50          # minimum editorial score to appear on homepage
 MIN_ARTICLE_WORDS = 500      # hard quality gate — matches AI-upgraded output; scaffolds blocked separately by _is_ai_upgraded()
@@ -210,6 +209,11 @@ def _fonts():
 
 def head(title, desc, canon, css="style.css", og_img="", robots="index,follow"):
     og = f'  <meta property="og:image" content="{eu(og_img)}">\n' if og_img else ""
+    # Compute homepage-layout.css path relative to the page's CSS base.
+    # When css="../style.css" (article pages), hp_css becomes "../homepage-layout.css".
+    # When css="style.css" (top-level pages), hp_css becomes "homepage-layout.css".
+    _css_prefix = css[:-len("style.css")] if css.endswith("style.css") else ""
+    hp_css = f"{_css_prefix}homepage-layout.css"
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -229,6 +233,7 @@ def head(title, desc, canon, css="style.css", og_img="", robots="index,follow"):
 {og}  <meta name="twitter:card" content="summary_large_image">
   {_fonts()}
   <link rel="stylesheet" href="{css}">
+  <link rel="stylesheet" href="{hp_css}">
 </head>"""
 
 def nav(active="", base=""):
@@ -358,7 +363,7 @@ def news_card(a, base="", is_first=False):
         return f"""<li class="bento-grid-item">
   <div class="bento-img-wrap bento-img-featured">
     <a href="{href}" tabindex="-1" aria-hidden="true">
-      <img src="{img}" alt="{title}" loading="eager" onerror="this.onerror=null;this.src={fb_}">
+      <img src="{img}" alt="{title}" loading="eager" onerror="this.onerror=null;this.src='{fb_}'">
     </a>
   </div>
   <div class="bento-body bento-body-featured">
@@ -377,7 +382,7 @@ def news_card(a, base="", is_first=False):
         return f"""<li class="bento-grid-item bento-standard">
   <div class="bento-img-wrap bento-img-std">
     <a href="{href}" tabindex="-1" aria-hidden="true">
-      <img src="{img}" alt="{title}" loading="lazy" onerror="this.onerror=null;this.src={fb_}">
+      <img src="{img}" alt="{title}" loading="lazy" onerror="this.onerror=null;this.src='{fb_}'">
     </a>
   </div>
   <div class="bento-body bento-body-std">
@@ -416,7 +421,7 @@ def ed_card(a, base=""):
     return f"""<article class="ed-card">
   <div class="ed-img">
     <a href="{href}">
-      <img src="{img}" alt="{title}" loading="lazy" onerror="this.onerror=null;this.src={fb}">
+      <img src="{img}" alt="{title}" loading="lazy" onerror="this.onerror=null;this.src='{fb}'">
     </a>
   </div>
   <div class="ed-body">
@@ -446,7 +451,7 @@ def hero_block(a, base=""):
   <div class="hero-inner">
     <div class="hero-img">
       <a href="{href}">
-        <img src="{img}" alt="{title}" loading="eager" onerror="this.onerror=null;this.src={fb}">
+        <img src="{img}" alt="{title}" loading="eager" onerror="this.onerror=null;this.src='{fb}'">
       </a>
     </div>
     <div class="hero-body">
@@ -464,300 +469,12 @@ def hero_block(a, base=""):
 </section>"""
 
 # ── FEATURED / INDEX PAGE
-def intelligence_feed_section(arts, base=""):
-    """
-    Apple Newsroom-style card grid with images and diversity.
-    Includes both pure RSS items and rewrite_feed_local scaffolds.
-    """
-    def _is_news_card(a):
-        gen_by = (a.get("generated_by") or "").lower()
-        is_scaffold = gen_by in ("", "rewrite_feed_local", "rewrite_feed")
-        if not (a.get("is_editorial") or a.get("editorial")):
-            return True
-        if is_scaffold:
-            return True
-        return False
-
-    rss_pool = [a for a in arts if _is_news_card(a)]
-    rss = diversify_arts(rss_pool)[:12]
-    if not rss:
-        return ""
-
-    fb_ = f"{base}assets/fallback.jpg"
-    cards_html = ""
-    for i, a in enumerate(rss):
-        cat      = a.get("category", "featured")
-        cinfo    = CAT.get(cat, CAT["featured"])
-        slug_    = a.get("slug", "")
-        href     = f"{base}articles/{slug_}.html"
-        title    = e(a.get("title", ""))
-        img      = eu(a.get("image_url", ""))
-        src_dom  = e(a.get("source_domain","").replace("https://","").replace("www.","").split("/")[0])
-        dt       = d(a.get("published",""))
-        src_url  = e(a.get("source_url","") or a.get("url","") or "")
-        cat_lbl  = cinfo["label"]
-        cat_col  = cinfo["color"]
-        body     = a.get("body_html","") or ""
-        wc       = len(re.sub(r"<[^>]+>"," ",body).split())
-        has_long = wc >= 500 and ("<h2>" in body or "<h3>" in body)
-        btn_txt  = "Read Analysis" if has_long else "View Source"
-        btn_href = href if has_long else (src_url or href)
-        btn_tgt  = ' target="_blank" rel="noopener noreferrer nofollow"' if (not has_long and src_url) else ""
-
-        # First card is a wide hero; rest are standard
-        card_cls = "ic-card ic-card-hero" if i == 0 else "ic-card"
-        img_load = "eager" if i == 0 else "lazy"
-
-        cards_html += f"""
-<article class="{card_cls}">
-  <div class="ic-img-wrap">
-    <a href="{href}" tabindex="-1" aria-hidden="true">
-      <img src="{img}" alt="{title}" loading="{img_load}" onerror="this.onerror=null;this.src='{fb_}'">
-    </a>
-  </div>
-  <div class="ic-body">
-    <span class="ic-cat-tag" style="color:{cat_col}">{cat_lbl}</span>
-    <h3 class="ic-title">
-      <a href="{href}">{title}</a>
-    </h3>
-    <div class="ic-foot">
-      <span class="ic-src">{src_dom.upper()}</span>
-      <time class="ic-date">{dt}</time>
-      <a href="{btn_href}"{btn_tgt} class="ic-btn">{btn_txt} &rarr;</a>
-    </div>
-  </div>
-</article>"""
-
-    disclosure = """<div class="ic-disclosure">
-  <p><strong>Editor&rsquo;s Note:</strong> This technical briefing was prepared from source-grounded industry reporting
-  with AI assistance. Reviewed and curated by <strong>The Streamic Editorial Team</strong>.</p>
-</div>"""
-
-    return f"""<section class="intel-section">
-  <style>
-    /* ── Intelligence Feed — Apple Newsroom Cards ─────────────────────── */
-    .intel-section {{
-      padding-top: 60px;
-      margin: 0;
-    }}
-    .intel-hdr {{
-      display: flex;
-      align-items: flex-end;
-      justify-content: space-between;
-      gap: 20px;
-      margin-bottom: 6px;
-      padding-bottom: 16px;
-      border-bottom: 2px solid #1a1a1a;
-    }}
-    .intel-h2 {{
-      font-family: 'DM Sans', 'Helvetica Neue', Arial, sans-serif;
-      font-size: clamp(28px, 3.5vw, 42px);
-      font-weight: 800;
-      letter-spacing: -0.01em;
-      color: #1a1a1a;
-      line-height: 1.1;
-      margin: 0;
-    }}
-    .intel-h2 span {{ color: #4a101d; }}
-    .intel-view-all {{
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--blue);
-      text-decoration: none;
-      white-space: nowrap;
-      flex-shrink: 0;
-    }}
-    .intel-sub {{
-      font-size: 14px;
-      color: var(--ink3);
-      margin: 12px 0 28px;
-      line-height: 1.6;
-      max-width: 640px;
-    }}
-    /* ── Apple Newsroom 3-col grid ─────────────────────────────────────── */
-    .ic-grid {{
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
-    }}
-    @media (max-width: 1024px) and (min-width: 641px) {{
-      .ic-grid {{ grid-template-columns: repeat(2, 1fr); }}
-    }}
-    @media (max-width: 640px) {{
-      .ic-grid {{ grid-template-columns: 1fr; gap: 16px; }}
-    }}
-    /* ── Base card — white rounded, Apple style ────────────────────────── */
-    .ic-card {{
-      background: #ffffff;
-      border-radius: 14px;
-      box-shadow: 0 2px 8px rgba(0,0,0,.06);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      transition: box-shadow .2s ease, transform .2s ease;
-    }}
-    .ic-card:hover {{
-      box-shadow: 0 10px 32px rgba(0,0,0,.11);
-      transform: translateY(-3px);
-    }}
-    /* Hero card spans all columns */
-    .ic-card-hero {{
-      grid-column: 1 / -1;
-      flex-direction: row;
-    }}
-    .ic-card-hero .ic-img-wrap {{
-      width: 52%;
-      min-height: 280px;
-    }}
-    .ic-card-hero .ic-body {{
-      flex: 1;
-      padding: 32px 36px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }}
-    .ic-card-hero .ic-title {{
-      font-size: clamp(18px, 2vw, 24px);
-    }}
-    @media (max-width: 800px) {{
-      .ic-card-hero {{
-        flex-direction: column;
-      }}
-      .ic-card-hero .ic-img-wrap {{
-        width: 100%;
-        min-height: 220px;
-      }}
-      .ic-card-hero .ic-body {{
-        padding: 20px 22px;
-      }}
-    }}
-    /* ── Card image ───────────────────────────────────────────────────── */
-    .ic-img-wrap {{
-      width: 100%;
-      height: 190px;
-      overflow: hidden;
-      flex-shrink: 0;
-    }}
-    .ic-img-wrap a {{
-      display: block;
-      width: 100%;
-      height: 100%;
-    }}
-    .ic-img-wrap img {{
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-      transition: transform 0.35s ease;
-    }}
-    .ic-card:hover .ic-img-wrap img {{
-      transform: scale(1.04);
-    }}
-    /* ── Card body ────────────────────────────────────────────────────── */
-    .ic-body {{
-      padding: 20px 22px 18px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      flex: 1;
-    }}
-    .ic-cat-tag {{
-      font-size: 10px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.9px;
-    }}
-    .ic-title {{
-      font-family: var(--serif);
-      font-size: 16px;
-      line-height: 1.3;
-      letter-spacing: -0.03em;
-      color: #1a1a1a;
-      margin: 0;
-      flex: 1;
-      display: -webkit-box;
-      -webkit-line-clamp: 3;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }}
-    .ic-title a {{
-      color: inherit;
-      text-decoration: none;
-    }}
-    .ic-title a:hover {{ color: var(--blue); }}
-    .ic-foot {{
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding-top: 10px;
-      border-top: 1px solid #f0f0f0;
-      flex-wrap: wrap;
-      margin-top: auto;
-    }}
-    .ic-src {{
-      font-size: 10px;
-      font-weight: 700;
-      color: #999;
-      letter-spacing: .5px;
-    }}
-    .ic-date {{
-      font-size: 10px;
-      color: #bbb;
-      flex: 1;
-    }}
-    .ic-btn {{
-      display: inline-flex;
-      align-items: center;
-      padding: 6px 14px;
-      background: #1a1a1a;
-      color: #fff;
-      border-radius: 100px;
-      font-size: 11px;
-      font-weight: 700;
-      text-decoration: none;
-      letter-spacing: .3px;
-      white-space: nowrap;
-      transition: background .15s ease;
-      flex-shrink: 0;
-    }}
-    .ic-btn:hover {{ background: var(--blue); }}
-    /* ── Disclosure ───────────────────────────────────────────────────── */
-    .ic-disclosure {{
-      grid-column: 1 / -1;
-      padding: 14px 18px;
-      background: #f8f8f8;
-      border-radius: 8px;
-      border: 1px solid #eee;
-    }}
-    .ic-disclosure p {{
-      font-style: italic;
-      font-size: 12px;
-      color: #999;
-      line-height: 1.5;
-      margin: 0;
-    }}
-    .ic-disclosure strong {{ font-style: normal; color: #666; }}
-  </style>
-
-  <div class="intel-hdr">
-    <h2 class="intel-h2">Latest Technical Briefings<br>&amp; <span>Industry Analysis</span></h2>
-    <a href="posts.html" class="intel-view-all">View all articles &rarr;</a>
-  </div>
-  <p class="intel-sub">Deep-dive reporting on the intersection of cloud production, AI-driven media workflows, and global streaming infrastructure.</p>
-
-  <div class="ic-grid">
-    {cards_html}
-    {disclosure}
-  </div>
-</section>"""
-
-
 def all_articles_page(arts):
     """Generate posts.html - All Articles bento grid linking to articles/."""
     # Use all non-editorial articles sorted newest first
-    rss_arts   = [a for a in arts if not a.get("is_editorial") and not a.get("editorial")]
+    non_editorial_arts   = [a for a in arts if not a.get("is_editorial") and not a.get("editorial")]
     ed_arts    = [a for a in arts if a.get("is_editorial") or a.get("editorial")]
-    all_sorted = rss_arts  # newest first (already sorted in generated_articles.json)
+    all_sorted = non_editorial_arts  # newest first (already sorted in generated_articles.json)
 
     title  = "All Articles — The Streamic | Broadcast Technology Analysis"
     desc   = "Original broadcast and streaming technology analysis. Expert-level commentary for engineers and media professionals."
@@ -815,11 +532,13 @@ def _score_art(a):
 def _is_ai_upgraded(a):
     """AdSense compliance: return True if article was enriched by a tier-1/2/3
     AI generator (Mistral, Gemini, Groq, OpenRouter) or is a hand-authored
-    editorial. Raw RSS scaffolds (rewrite_feed_local) never get indexed.
+    editorial. Low-quality items never get indexed.
     """
     gb = (a.get("generated_by") or "").lower()
     if not gb:
         return False
+    # Defensive gate: exclude any legacy auto-scaffold markers. Production
+    # corpus is editorial-only, so this match is expected to return no hits.
     if gb in ("rewrite_feed_local", "rewrite_feed"):
         return False
     ai_markers = ("mistral", "gemini", "groq", "openrouter", "deepseek",
@@ -832,10 +551,10 @@ def _passes_quality_gate(a):
 
     An article may be indexed only when ALL of the following are true:
       1. Body word count ≥ MIN_ARTICLE_WORDS (800) OR hand-authored ≥ 400w.
-      2. Article was AI-upgraded OR hand-authored (never raw RSS rewrite).
+      2. Article was AI-upgraded OR hand-authored.
       3. At least 2 broadcast/media-IT terms present (relevance).
 
-    Raw RSS rewrites (rewrite_feed_local) appear on the site for navigation
+    Low-tier items appear on the site for navigation
     but carry <meta robots="noindex,nofollow">. This is the defence against
     AdSense "Low value content" rejection.
     """
@@ -853,7 +572,7 @@ def _passes_quality_gate(a):
     if is_manual_editorial and wc < 400:
         return False, f"editorial too short ({wc} words, need 400)"
 
-    # AdSense: raw RSS rewrites never get indexed
+    # AdSense: low-tier items never get indexed
     if not is_manual_editorial and not _is_ai_upgraded(a):
         return False, f"not AI-upgraded (gb={a.get('generated_by') or 'empty'!r})"
 
@@ -900,7 +619,7 @@ def enforce_sections(body_html: str) -> bool:
 
 def is_high_value(article: dict) -> bool:
     """
-    AdSense quality scoring for RSS articles.
+    AdSense quality scoring for articles.
 
     SAFE FILTERING DESIGN — never returns fewer than needed:
     - Editorial articles always pass (pre-validated long-form content)
@@ -1018,13 +737,13 @@ def _image_is_from_pool(url: str) -> bool:
 def _fix_article_images(arts):
     """Enforce broadcast-image policy across ALL article records.
 
-    Copyright rule: third-party RSS thumbnails (TV Technology, Motionographer,
+    Copyright rule: third-party thumbnails (TV Technology, Motionographer,
     Haivision, vendor PR photos, etc.) are never shipped on the live site.
     Every image_url must resolve to an entry in the curated _BROADCAST_IMAGES
     pool on images.unsplash.com, which Streamic licenses via Unsplash terms.
 
     Rules applied in order:
-      1. Any non-pool image (RSS thumbnail, external CDN, vendor press photo,
+      1. Any non-pool image (external CDN, vendor press photo,
          blacklisted ID, empty, or malformed) is replaced with a pool image.
       2. Any pool image already used in this run is replaced so the homepage
          and category pages never show the same visual twice in a row.
@@ -1053,26 +772,29 @@ def _fix_article_images(arts):
     replaced_duplicate = 0
     taxonomy_applied = 0
     for a in arts:
-        # PRIORITY 1: local taxonomy image from assign_images.py if present,
-        # but only when the referenced file actually exists in docs/assets.
-        # This prevents broken image boxes when the taxonomy script writes a
-        # placeholder path but the corresponding local file has not been added.
+        # PRIORITY 1: local taxonomy image from assign_images.py if present.
+        # These are deterministic, copyright-safe local files matched to
+        # the article's topic by the Streamic visual taxonomy.
         taxonomy_img = a.get("image") or ""
         if taxonomy_img and taxonomy_img.startswith("/assets/images/"):
-            _rel = taxonomy_img.lstrip("/").replace("/", os.sep)
-            _disk = os.path.join(DOCS, _rel)
-            if os.path.exists(_disk):
-                a["image_url"] = taxonomy_img
-                a["image_credit"] = "The Streamic"
-                a["image_license"] = "Site License"
-                a["image_license_url"] = ""
-                taxonomy_applied += 1
-                continue
+            a["image_url"] = taxonomy_img
+            a["image_credit"] = "The Streamic"
+            a["image_license"] = "Site License"
+            a["image_license_url"] = ""
+            taxonomy_applied += 1
+            continue
 
         img = a.get("image_url", "") or ""
 
+        # Preserve approved local site assets used for curated hero/editorial art.
+        if img.startswith("/assets/") or img.startswith("assets/"):
+            a["image_credit"] = a.get("image_credit") or "The Streamic"
+            a["image_license"] = a.get("image_license") or "Site Asset"
+            a["image_license_url"] = a.get("image_license_url") or ""
+            continue
+
         if not _image_is_from_pool(img):
-            # Non-pool image (RSS/vendor/bad/empty) — force replacement.
+            # Non-pool image (external/vendor/invalid) — force replacement.
             a["image_url"] = _next_image()
             # Attribution: pool images are Unsplash-licensed.
             a["image_credit"] = "Unsplash"
@@ -1099,7 +821,7 @@ def _fix_article_images(arts):
     total = replaced_non_pool + replaced_duplicate
     if total:
         print(f"  Image fixer: {total} images normalized to broadcast pool "
-              f"({replaced_non_pool} non-pool/RSS, {replaced_duplicate} duplicates)")
+              f"({replaced_non_pool} non-pool, {replaced_duplicate} duplicates)")
 
 
 def _hp_img(a, base=""):
@@ -1157,7 +879,7 @@ def _source_name(val):
     return (val or '').replace('https://','').replace('http://','').replace('www.','').split('/')[0]
 
 def load_homepage_feed(arts, limit=14):
-    """Use fresh data/news.json for homepage and map to internal articles.
+    """Load homepage cards from editorial corpus, mapped to internal articles.
     
     Only returns items that map to an internal article (has slug) so all
     homepage links go to our own analysis pages, never to external sources.
@@ -1207,7 +929,7 @@ def load_homepage_feed(arts, limit=14):
             'source_url': url or merged.get('source_url',''),
             'url': url or merged.get('url',''),
             # COPYRIGHT FIX: prefer the article's pool-normalized image_url
-            # over the raw RSS thumbnail in news.json. The previous order
+            # over any legacy thumbnail. The previous order
             # shipped copyrighted vendor PR photos into Breaking News,
             # bypassing _fix_article_images() entirely.
             'image_url': merged.get('image_url') or item.get('image') or '',
@@ -1315,7 +1037,6 @@ def featured_page(arts):
     #    SEO gate so latest daily articles always appear on the homepage).
     #    Manual editorials bypass word count entirely.
     #    First 20 visible on load; rest behind "Load More" button.
-    MIN_INSIGHT_WORDS = 400
     used_slugs = {a.get("slug") for a in guide_arts} | ({hero_art.get("slug")} if hero_art else set())
     # Merge editorial + regular into ONE list sorted by date (not editorial-first)
     insight_pool = sorted(
@@ -1328,21 +1049,9 @@ def featured_page(arts):
         s = a.get("slug")
         if not s or s in _seen_ins:
             continue
-        # ── Quality gate: 400+ words (manual editorials bypass) ──
-        _body = a.get("body_html", "") or ""
-        _plain = re.sub(r"<[^>]+>", " ", _body)
-        _wc = len(re.sub(r"\s+", " ", _plain).strip().split())
-        is_manual_ed = a.get("generated_by") == "gpt_manual_editorial"
-        if not is_manual_ed and _wc < MIN_INSIGHT_WORDS:
-            continue
-        # ── Broadcast relevance: 2+ terms ──
-        _search = (a.get("title", "") + " " + _plain).lower()
-        _hits = sum(1 for t in BROADCAST_TERMS if t in _search)
-        if _hits < 2:
-            continue
         _seen_ins.add(s)
         insight_arts.append(a)
-    # No cap — all quality articles included
+    # No gate — every editorial article appears in Latest Insights
 
     sidebar_picks = [a for a in editorial_all if a.get("slug") != (hero_art or {}).get("slug")][:3]
     fresh_feed = load_homepage_feed(arts, limit=16)
@@ -1362,7 +1071,7 @@ def featured_page(arts):
 
     custom_hero_path = os.path.join(DOCS, 'assets', 'hero-broadcast-male.png')
     hero_img = f"{BASE_URL}/assets/hero-broadcast-male.png" if os.path.exists(custom_hero_path) else (_hp_img(hero_art) if hero_art else '')
-    homepage_head = head(title, desc, canon, og_img=hero_img).replace('</head>', '  <link rel="stylesheet" href="homepage-layout.css">\n</head>')
+    homepage_head = head(title, desc, canon, og_img=hero_img)
 
     cinfo = CAT.get((hero_art or {}).get("category", "featured"), CAT["featured"])
     # Hero title overrides — edit here to control displayed title without touching JSON
@@ -1469,8 +1178,10 @@ def featured_page(arts):
 <body data-category="featured">
 {nav("/")}
 <main>
+  {_nab_bento_section(mode="hero")}
   <div class="w">
-    {hero_html}
+    {_deep_dives_section()}
+    {_nab_bento_section(mode="cards")}
     <section class="hp-flagship-section">
       <div class="w">
         <div class="hp-flagship-section__hdr">
@@ -1480,37 +1191,8 @@ def featured_page(arts):
           </div>
           <p class="hp-section-intro">Original Streamic analysis on broadcast automation, IP infrastructure, cloud production, and editorial operations — selected for depth, not noise.</p>
         </div>
-        <a href="articles/quic-http3-video-delivery-streaming-2026.html" class="hp-flagship" aria-label="Read full insight: Beyond TCP">
-  <div class="hp-flagship__body">
-    <div class="hp-flagship__eyebrow">
-      <span class="hp-flagship__label">Latest Insight</span>
-    </div>
-    <span class="hp-flagship__tag">📡 Infrastructure &amp; Streaming</span>
-    <h2 class="hp-flagship__hl">Beyond TCP: Why QUIC Is Redefining Video Delivery</h2>
-    <p class="hp-flagship__summary">Faster video start, fewer buffering issues, and smoother playback — even on weak networks. HTTP/3 and QUIC are quietly improving streaming performance across OTT platforms and live broadcasting.</p>
-    <p class="hp-flagship__body-text">For years, streaming relied on TCP — the same technology behind web browsing. It works, but it struggles with modern mobile and high-demand video traffic. QUIC improves this by enabling faster connections, better handling of network issues, and smoother playback — even when users switch between Wi-Fi and mobile networks.</p>
-    <div class="hp-flagship__usecases">
-      <div class="hp-flagship__usecase"><span class="hp-flagship__usecase-icon">🏟️</span><span><strong>Live Sports</strong> — smoother playback during peak traffic moments</span></div>
-      <div class="hp-flagship__usecase"><span class="hp-flagship__usecase-icon">📺</span><span><strong>OTT Platforms</strong> — faster video start reduces viewer drop-off</span></div>
-      <div class="hp-flagship__usecase"><span class="hp-flagship__usecase-icon">📱</span><span><strong>Mobile Viewing</strong> — stable playback when switching networks</span></div>
-      <div class="hp-flagship__usecase"><span class="hp-flagship__usecase-icon">⚡</span><span><strong>Live Events</strong> — lower latency for near real-time streaming</span></div>
-    </div>
-    <div class="hp-flagship__footer">
-      <div class="hp-flagship__meta">
-        <span class="hp-flagship__author">Prerak K Mehta</span>
-        <span class="hp-flagship__role">Broadcast Technology and Media IT Analyst</span>
-        <span class="hp-flagship__readtime">⏱ 5 min read</span>
-      </div>
-      <span class="hp-flagship__cta">Read Full Insight <span class="hp-flagship__cta-arrow">→</span></span>
-    </div>
-  </div>
-  <div class="hp-flagship__image-wrap">
-    <img class="hp-flagship__img" src="assets/insight-quic-infographic.jpg" alt="QUIC vs TCP: streaming performance comparison infographic" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
-  </div>
-</a>
       </div>
     </section>
-    {_nab_bento_section()}
     <div class="hp-outer">
       <div class="hp-main">
         <section class="hp-insights hp-insights-premium">
@@ -1580,6 +1262,28 @@ def category_page(cat, arts):
         rest   = sl[1:]
 
         hero_html = hero_block(first[0], base="") if first else ""
+        if cat == "ai-post-production" and pg == 0:
+            hero_html = f"""<section class="hero hero--ai-post-custom">
+  <div class="hero-inner">
+    <div class="hero-img">
+      <a href="articles/ai-reducing-broadcast-operational-costs-2026.html">
+        <img src="assets/hero-broadcast-male.png" alt="Broadcast production switcher in a modern control room" loading="eager" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+      </a>
+    </div>
+    <div class="hero-body">
+      <span class="hero-tag" style="background:#FF2D55">🎬 AI &amp; Post-Production</span>
+      <h1 class="hero-hl"><a href="articles/ai-reducing-broadcast-operational-costs-2026.html">Beyond Automation: How AI Can Optimize Broadcast Costs and Scale Human Potential in 2026</a></h1>
+      <p class="hero-dek">This page tracks the NAB 2026 shifts that matter to real production teams: agentic assistants inside edit systems, natural-language archive search, faster creative-to-delivery automation, and practical cloud bridges that do not force a full rip-and-replace.</p>
+      <div class="hero-meta"><span>By {AUTHOR}</span><span>{d(first[0].get('published','') if first else '')}</span><span>Curated NAB landing page</span></div>
+      <a href="articles/ai-reducing-broadcast-operational-costs-2026.html" class="hero-cta">Read featured analysis</a>
+    </div>
+  </div>
+</section>
+<section class="nab-inline-grid" aria-label="Featured NAB vendor updates">
+  <a class="nab-inline-card" href="articles/2026-04-17-ai-post-production-avid-google-cloud-agentic-ai-media-production.html"><span class="nab-inline-kicker">Avid</span><strong>Avid Content Core and Google Gemini</strong><span>Agentic AI, archive search, and hybrid deployment without a rip-and-replace migration.</span></a>
+  <a class="nab-inline-card" href="articles/2026-04-01-newsroom-dalet-flex-2512-semantic-search-dalia-ai.html"><span class="nab-inline-kicker">Dalet</span><strong>Dalia moves from idea to operational layer</strong><span>Natural-language workflow triggers with human validation kept in the loop.</span></a>
+  <a class="nab-inline-card" href="articles/2026-04-01-ai-post-production-telestream-adobe-frameio-creative-delivery-automation.html"><span class="nab-inline-kicker">Telestream</span><strong>OCI + Adobe workflow acceleration</strong><span>Premiere-to-Vantage automation, Frame.io readiness, and multi-cloud QoS monitoring.</span></a>
+</section>""" + hero_html
         grid_html = news_grid(rest, grid_id="catGrid") if rest else ""
 
         pag = _pag_html(cat, pg, total_pages)
@@ -1667,7 +1371,7 @@ def _clean_body(a):
     Anti-truncation rule:
     - If body_html has <h2> OR word_count > 300 → return the FULL body_html untouched.
       Gemini-generated articles are complete. Truncating them strips the analysis.
-    - Fallback: only strip/limit for raw RSS teasers with no AI enhancement.
+    - Fallback: only strip/limit for short teasers with no AI enhancement.
     """
     is_ed = a.get("is_editorial") or a.get("editorial")
 
@@ -1712,7 +1416,7 @@ def _clean_body(a):
                 result = result.replace(f"<p>{p_content.strip()}</p>", "", 1)
         return result.strip() or body_clean
 
-    # ── Fallback: raw RSS teaser with no AI enhancement ───────────────────
+    # ── Fallback: short teaser with no AI enhancement ─────────────────────
     # card_summary is the Groq/Gemini 120-150 word intel card — show it in full
     cs_raw = re.sub(r"<[^>]+>", " ", a.get("card_summary", "") or "").strip()
     cs_raw = re.sub(r"\s+", " ", cs_raw)
@@ -1816,7 +1520,7 @@ def article_page(a):
         src_dom = src_url.replace("https://","").replace("http://","").replace("www.","").split("/")[0]
     # Show source attribution for ALL articles with a source_url,
     # EXCEPT truly hand-written editorials (gpt_manual_editorial).
-    # rewrite_feed_local articles have is_editorial=True but ARE sourced from news.
+    # Some articles have is_editorial=True but are sourced from external news.
     _is_original = a.get("generated_by") == "gpt_manual_editorial"
     if src_url and not _is_original:
         _src_name = e(src_dom) if src_dom else "Original Source"
@@ -1853,7 +1557,7 @@ def article_page(a):
 
     about_txt = "Original analysis and commentary by The Streamic Editorial Team. Independent broadcast technology journalism for engineers and media professionals." if is_ed else "Editorial commentary and analysis by The Streamic Editorial Team. For the original source, see the attribution above."
     # Use professional bio block if body_html already contains one from AI generation;
-    # otherwise render the default author box for editorial articles and the bio for RSS-sourced ones.
+    # otherwise render the default author box for editorial articles and the bio for sourced ones.
     has_bio = "art-author-bio" in body_raw
     if has_bio:
         author_box = ""   # bio already embedded in body_html by the AI prompt
@@ -2197,13 +1901,71 @@ def editorial_policy_page():
 </body></html>"""
 
 def insights_page():
-    """Expert Insights landing page — AdSense-compliant substantive content (~650w)."""
-    return f"""{head("Expert Insights — The Streamic","Long-form broadcast technology analysis: ST 2110 rollouts, cloud production, AI in broadcasting, and operational engineering for media teams.",f"{BASE_URL}/insights.html")}
+    """Expert Insights landing page — AdSense-compliant substantive content (~800w)
+    with featured expert-interview cards linking to hand-authored Q&A pages.
+
+    The cards below link to HAND_AUTHORED files under docs/articles/ that are
+    protected from the automated build. Add more entries to _interviews to
+    feature additional interviews — no other code changes needed.
+    """
+    # Featured expert interviews (hand-authored, HAND_AUTHORED-marked pages).
+    # These are the prominent link cards at the top of /insights.html.
+    _interviews = [
+        {
+            "href": "articles/Expertinsight1.html",
+            "series": "The Veteran's Lens",
+            "title": "Neil Sadwelkar on AI and the Future of Digital Imaging",
+            "dek": "From negative cutting to AI-assisted colour grading — a candid conversation with one of India's foremost DI pioneers on what the technology revolution really means for broadcast and cinema post-production.",
+            "expert_name": "Neil B. Sadwelkar",
+            "expert_role": "Digital Imaging Technician &amp; Post-Production Pioneer",
+            "read_time": "12 min read",
+            "published": "April 2, 2026",
+        },
+    ]
+
+    interview_cards_html = ""
+    for iv in _interviews:
+        interview_cards_html += f"""
+<a class="insights-feat-card" href="{iv['href']}">
+  <span class="insights-feat-series">&#10022; {iv['series']}</span>
+  <h3 class="insights-feat-title">{iv['title']}</h3>
+  <p class="insights-feat-dek">{iv['dek']}</p>
+  <div class="insights-feat-meta">
+    <span class="insights-feat-expert"><strong>{iv['expert_name']}</strong> &middot; {iv['expert_role']}</span>
+  </div>
+  <div class="insights-feat-footer">
+    <span class="insights-feat-details">{iv['published']} &middot; {iv['read_time']}</span>
+    <span class="insights-feat-cta">Read the interview &rarr;</span>
+  </div>
+</a>"""
+
+    return f"""{head("Expert Insights — The Streamic","Long-form broadcast technology analysis and expert interviews: AI colour grading, ST 2110 rollouts, cloud production, post-production workflows, and operational engineering for media teams.",f"{BASE_URL}/insights.html")}
 <body>
 {nav()}
 <main><div class="w" style="padding:52px 24px 80px;max-width:820px">
 <h1 style="font-family:var(--serif);font-size:clamp(28px,4vw,44px);margin-bottom:16px;letter-spacing:-.5px">Expert Insights</h1>
-<p style="font-size:17px;color:var(--ink2);line-height:1.65;margin-bottom:24px">Long-form broadcast and media technology analysis from the Streamic editorial team. These are the pieces we write when a topic needs more than a news briefing &#8212; standards deep-dives, architectural playbooks, vendor-neutral integration patterns, and field reports from broadcast engineers working in live production and post facilities.</p>
+<p style="font-size:17px;color:var(--ink2);line-height:1.65;margin-bottom:32px">Long-form broadcast and media technology analysis from the Streamic editorial team — plus exclusive interviews with veteran engineers, colourists, DITs, and media-IT architects. These are the pieces we write when a topic needs more than a news briefing: standards deep-dives, architectural playbooks, vendor-neutral integration patterns, and field reports from broadcast engineers working in live production and post facilities.</p>
+
+<style>
+.insights-feat-wrap{{display:flex;flex-direction:column;gap:20px;margin:28px 0 40px}}
+.insights-feat-card{{display:block;padding:26px 28px;background:linear-gradient(180deg,#fffdf7 0%,#f8f2e6 100%);border:1px solid #e6dcc2;border-radius:14px;box-shadow:0 10px 28px rgba(63,47,22,.08);text-decoration:none;color:inherit;transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}}
+.insights-feat-card:hover{{transform:translateY(-2px);box-shadow:0 16px 36px rgba(63,47,22,.12);border-color:#d4af37}}
+.insights-feat-series{{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#8b6b3f;margin-bottom:12px}}
+.insights-feat-title{{font-family:var(--serif);font-size:clamp(20px,2.6vw,26px);line-height:1.25;letter-spacing:-.01em;color:#17120f;margin:0 0 12px;font-weight:400}}
+.insights-feat-dek{{font-family:Georgia,"Times New Roman",serif;font-size:15.5px;line-height:1.7;color:#3a322a;margin:0 0 16px}}
+.insights-feat-meta{{font-size:13px;color:#5a4f40;line-height:1.55;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid rgba(139,107,63,.18)}}
+.insights-feat-meta strong{{color:#17120f}}
+.insights-feat-footer{{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}}
+.insights-feat-details{{font-size:12px;color:#7a6f5e}}
+.insights-feat-cta{{font-size:13px;font-weight:700;color:#5f3b13;letter-spacing:.02em}}
+.insights-feat-card:hover .insights-feat-cta{{color:#17120f}}
+@media (max-width:640px){{.insights-feat-card{{padding:22px 20px}}}}
+</style>
+
+<h2 style="font-family:var(--serif);font-size:22px;margin:8px 0 12px">Featured interviews</h2>
+<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">In-depth conversations with the engineers, colourists, and technology leaders shaping broadcast and post-production. Each interview is a first-person account of the workflow shifts, standards transitions, and AI integrations these veterans are living through right now.</p>
+<div class="insights-feat-wrap">{interview_cards_html}
+</div>
 
 <h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">What Expert Insights covers</h2>
 <p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">Expert Insights articles are written for broadcast engineers, technology directors, and media operations leads who need to evaluate &#8212; not just read about &#8212; new technology. Every piece is grounded in verifiable source material, quotes technical specifications accurately, and calls out what vendors have not disclosed. Topics we return to repeatedly:</p>
@@ -2217,7 +1979,7 @@ def insights_page():
 
 <h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">Editorial standard</h2>
 <p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">Expert Insights pieces go through a stricter review pass than our daily industry news briefings. We do not publish press-release rewrites under this banner. Where an article analyses a vendor&#39;s technology, we disclose what the vendor has stated, what our editorial team has verified independently, and what remains uncertain. Technical claims that cannot be traced to a primary source are either removed or flagged.</p>
-<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">AI tools assist with drafting on some Insights articles &#8212; primarily for structuring source material and initial analysis &#8212; but every published piece is reviewed by a human editor before going live. See our <a href="editorial-policy.html" style="color:var(--blue)">Editorial Policy</a> for the full methodology on AI-assisted drafting, source attribution, and corrections.</p>
+<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">AI tools assist with drafting on some Insights articles &#8212; primarily for structuring source material and initial analysis &#8212; but every published piece is reviewed by a human editor before going live. Featured interviews are transcribed and edited from first-person conversations; the interviewee reviews and approves the final published text. See our <a href="editorial-policy.html" style="color:var(--blue)">Editorial Policy</a> for the full methodology on AI-assisted drafting, source attribution, and corrections.</p>
 
 <h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">Who writes for us</h2>
 <p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">Streamic editorial is led by Prerak K Mehta, with 25+ years of IT experience and 20 years in media / post-production / broadcast IT systems. Guest contributions from broadcast engineers, vendor technical staff, and media operations leaders are welcome &#8212; email <a href="mailto:technodate3@gmail.com" style="color:var(--blue)">technodate3@gmail.com</a> with a short pitch outline and any relevant technical credentials.</p>
@@ -2274,135 +2036,189 @@ def post_production_workflows_page():
 </body></html>"""
 
 
-
+# ── HOW-TO GUIDE CONTENT (self-heals 410 stubs in docs/articles/) ─────────────
+# Each value must be ≥500 words of practical broadcast engineering content so
+# the regenerated pages pass AdSense quality gates.
 
 HOWTO_GUIDE_CONTENT = {
     "guide-premiere-to-avid": {
-        "title": "Premiere Pro to Avid Media Composer",
-        "tag": "Post-Production",
+        "tag": "Post-Production · Interchange",
         "time": "8 min",
-        "desc": "AAF, EDL, and Direct Link interchange methods. Codec compatibility, audio mapping, and troubleshooting the most common handoff failures.",
-        "focus": "NLE interoperability between Adobe Premiere Pro and Avid Media Composer",
-        "systems": "Premiere Pro, Avid Media Composer, AAF, EDL, XML, shared storage, and post-production assistant editor workflows",
+        "title": "Premiere Pro to Avid Media Composer: AAF, EDL & Direct Link Handoff",
+        "dek": "Moving a cut from Premiere Pro to Avid Media Composer without losing audio mapping, timecode, or effect metadata. A practical handoff guide.",
+        "sections": [
+            ("Why this handoff still matters", "Despite years of vendor talk about &quot;seamless interchange&quot;, most facility-grade handoffs between Premiere Pro and Avid Media Composer still fail in predictable ways: audio channels remap, time-warps flatten to static clips, dissolves translate but sub-frame retimes do not, and timecode starts drift by a frame at reel boundaries. The reality in 2026 is that AAF remains the dominant container, but the quality of the export depends heavily on which format you chose at ingest and how disciplined your timeline is."),
+            ("Pre-export checklist", "Before you export, lock the sequence. Flatten nested sequences one level deep — Avid will not honour multi-nest hierarchies consistently. Set your timecode start to match the target Avid project (01:00:00:00 by convention). Ensure all audio is mono-mapped on discrete tracks: Premiere&#39;s stereo sub-mix collapses to unpredictable pan positions on the Avid side. Finally, verify all source media is online and the cache has finished rendering — missing media breaks the AAF reference chain silently."),
+            ("AAF export settings", "From Premiere, use <em>File &gt; Export &gt; AAF</em>. Choose <strong>Embedded Audio</strong> only if your facility does not have a shared Avid Nexis/ISIS — otherwise use <strong>Link to Audio Files</strong> and consolidate them to a shared drive first. For video, &quot;Break Complex Clips&quot; should be unchecked if you want to preserve retime speeds; checked if you need Avid-native cuts. Audio render sample rate should match your Avid project (48kHz/24-bit is the broadcast norm)."),
+            ("Direct Link alternative", "For facilities running Adobe and Avid side-by-side, <strong>Avid Media Composer 2024.12</strong> onwards supports a limited Direct Link path via the Adobe Creative Cloud extension. Direct Link preserves more effect metadata than AAF but requires a live network path between the two workstations and the same Nexis workspace mounted on both. It is faster than AAF for small cuts (under 15 minutes) but slower and less reliable for long-form drama or broadcast packages."),
+            ("Common failures & fixes", "<strong>Audio maps wrong:</strong> Premiere stereo tracks become A1/A2 in Avid but L/R pan is often lost — re-pan inside Avid after import. <strong>Missing effects:</strong> Lumetri grades do not translate — export a render instead, or bake grades to colour metadata using OpenColorIO. <strong>Timecode drift:</strong> Start each reel at a round-number TC and break reels at the Avid project&#39;s master TC, not Premiere&#39;s. <strong>Frame rate mismatch:</strong> 23.976 vs 24.000 is the single most common project-breaker — match exactly before exporting."),
+            ("Round-tripping back to Premiere", "If the colourist works in Avid Symphony and needs to round-trip back for finishing, export AAF from Avid with embedded renders, re-link in Premiere to the original source media, then re-apply Lumetri grades against the Avid&#39;s EDL. This is slow but reliable. For broadcast delivery, skip the round-trip — finish in the tool where you started the grade."),
+                    ("Final QC pass before shipping", "Before the AAF leaves Premiere, generate a PDF of the sequence&#39;s clip list via Adobe&#39;s <em>Export &gt; Clip Notes</em>, or screenshot the timeline with track headers visible. On the Avid side, the assistant editor cross-references clip names and timecodes against this reference document. Discrepancies found at this stage take minutes to fix; discrepancies found after the online grade or mix take days to unwind. For broadcast deliveries subject to strict QC (BBC, ITV, PBS, major OTT platforms), keep this audit PDF archived alongside the conformed Pro Tools session and the final master file for at least 12 months after delivery. This becomes invaluable when a version B needs conforming 6 months later."),
+        ],
     },
     "guide-vantage-nas-transcode": {
-        "title": "Vantage: Transcode Any File to MP4 on a NAS Share",
-        "tag": "Vantage · Workflow",
-        "time": "10 min",
-        "desc": "Build a hot folder workflow in Telestream Vantage that accepts any input format and delivers broadcast-ready H.264 MP4 to a local NAS.",
-        "focus": "file-based transcoding automation on on-prem NAS storage",
-        "systems": "Telestream Vantage, hot folders, NAS shares, H.264 delivery, and broadcast operations handoff",
+        "tag": "Vantage · Encoding",
+        "time": "6 min",
+        "title": "Telestream Vantage: Build a Hot Folder Workflow to MP4 on NAS",
+        "dek": "Build a robust Vantage hot-folder workflow that transcodes any input format to broadcast-ready H.264 MP4 on a local NAS share.",
+        "sections": [
+            ("Workflow goals", "The target is a Vantage workflow that watches a NAS folder, accepts mixed input formats (ProRes, DNxHD, XAVC, MP4), transcodes to H.264 MP4 at 10Mbps with AAC audio, and drops the result in an output folder with the original filename suffixed <code>_web.mp4</code>. No operator touch. Failures route to an exception folder for manual review."),
+            ("Building the workflow", "Open Vantage Workflow Designer. Drag in a <strong>Watch Action</strong> pointing at your NAS ingest share (<code>\\\\nas01\\media\\ingest</code>). Set poll interval to 30 seconds. Add an <strong>Identify Action</strong> to probe the file — this catches corrupt inputs early and branches them to the exception folder. Then add a <strong>Flip Action</strong> with your H.264 encoder preset attached. Finally a <strong>Deploy Action</strong> to push the output to <code>\\\\nas01\\media\\web</code>."),
+            ("Flip encoder preset", "Inside Flip, create a new encoder preset. Container: MP4. Video codec: H.264 (x264). Profile: High, Level 4.0. Bitrate: 10Mbps CBR for broadcast-safe delivery; switch to 6Mbps VBR 2-pass if file size matters more. Keyframe interval: 60 frames for 1080p25/30, 72 for 1080p24. Audio: AAC-LC, 192kbps stereo, 48kHz. GOP structure: Closed, for clean editing downstream."),
+            ("Path of least resistance", "A common mistake is to let Vantage write directly over an existing file — if the workflow retries on a transient NAS hiccup, you get file corruption. Use the <strong>Deploy Action&#39;s</strong> &quot;Rename if exists&quot; option instead. Similarly, if the source file is still being written when Vantage picks it up (a common problem with FTP uploads), use the <strong>File Size Stable</strong> trigger option in Watch — it waits until the file size stops changing before acting."),
+            ("Testing and validation", "Drop a 10-minute test file into the ingest folder. Watch the job in Vantage Workflow Portal — it should finish in 2–3 minutes on a modern server. Validate the output with <strong>MediaInfo</strong>: check bitrate actually hits the target, audio is actually 48kHz stereo, and the first keyframe is at frame 0. Broadcast-ready H.264 MP4s should play cleanly on VLC, QuickTime, and Adobe Media Encoder — if any of those complain, re-check the profile/level."),
+            ("Production hardening", "For production use, add email alerts on failed jobs (Vantage Notify Action → SMTP). Enable the <strong>Workflow Analytics</strong> database so you can track throughput over time. Set the job priority so that overnight batch doesn&#39;t block daytime ad-hoc transcode requests. And document the preset — Vantage&#39;s inline preset names are easy to forget six months later."),
+                    ("Production monitoring", "Once live, watch throughput for the first week. Vantage Workflow Portal shows job duration, queue depth, and failure rate for every running workflow. Healthy signals: failure rate under 2%, queue depth never exceeding 3 on average, individual job durations consistent within 10%. Unhealthy signals: files stuck in &quot;processing&quot; for hours (usually a hung Flip process — restart the Vantage transcode service), ballooning queue depth (upgrade encoder license count or deploy a second Vantage server), or highly variable job times (likely a NAS performance bottleneck). Also watch NAS free space weekly; a full output share silently breaks the workflow because Deploy actions cannot complete their writes and the jobs hang indefinitely. Set the job priority explicitly so that overnight batch jobs do not block daytime ad-hoc transcode requests when editors need a file urgently. Document the preset and workflow configuration in your team wiki — Vantage&#39;s inline preset names are easy to forget six months later when someone needs to reproduce or modify the workflow."),
+        ],
     },
     "guide-vantage-aws-transcode": {
-        "title": "Vantage: Output to AWS S3 for Cloud Delivery",
-        "tag": "Vantage · AWS",
-        "time": "9 min",
-        "desc": "Extend your Vantage workflow to deliver MP4 output directly to Amazon S3. IAM setup, S3 storage configuration, and parallel NAS + cloud delivery.",
-        "focus": "hybrid post-delivery from on-prem orchestration to AWS S3",
-        "systems": "Telestream Vantage, Amazon S3, IAM permissions, cloud delivery targets, and hybrid media operations",
+        "tag": "Vantage · AWS · Cloud",
+        "time": "6 min",
+        "title": "Telestream Vantage: Deliver MP4 Output Directly to Amazon S3",
+        "dek": "Extend your Vantage workflow to deliver MP4 output directly to Amazon S3. IAM setup, bucket policies, and parallel NAS + S3 delivery.",
+        "sections": [
+            ("Why S3 delivery matters", "Most broadcast workflows now have at least one cloud delivery target — a CDN origin, a FAST-channel distributor, or an ad-sales team that lives in S3. Delivering from Vantage directly to S3 saves a manual upload step and eliminates the class of bugs that come from &quot;the file on the NAS doesn&#39;t match the file in the cloud&quot;. It also integrates cleanly with AWS MediaConvert triggers if you need further downstream processing."),
+            ("AWS prerequisites", "Create a dedicated IAM user for Vantage (don&#39;t reuse a human user&#39;s credentials). The policy needs <code>s3:PutObject</code>, <code>s3:PutObjectAcl</code>, and <code>s3:ListBucket</code> on the target bucket — nothing else. Generate an access key/secret pair and store them in a secrets manager; you&#39;ll paste them into Vantage once. On the bucket itself, enable versioning (protects against accidental overwrites) and configure a lifecycle rule to move objects to S3 Intelligent-Tiering after 30 days."),
+            ("Configuring Vantage", "In Vantage Management Console, open <strong>Storage &gt; Cloud Storage</strong> and add an S3 connection. Paste the IAM access key/secret, select the region (use the one closest to your facility — eu-west-1 for Europe, us-east-1 for default US). Test the connection — Vantage will attempt a dummy write and delete. If it fails, check the IAM policy first, then bucket encryption settings second."),
+            ("Adding S3 to your existing workflow", "Open the hot-folder workflow from the NAS guide. Add a second <strong>Deploy Action</strong> after the existing NAS deploy. Configure this second deploy to use the S3 connection and point it at <code>s3://yourbucket/broadcast/</code>. Set the object key pattern to <code>{Name}.mp4</code>. Now you have parallel NAS + S3 delivery — the same file lands in both places."),
+            ("Server-side encryption", "For broadcast content, enable server-side encryption with KMS keys (SSE-KMS). Vantage honours this automatically if you&#39;ve set the bucket default encryption — you don&#39;t need per-object configuration. For titles under embargo, use a separate KMS key with restricted access; rotate the key before the embargo lifts to invalidate any cached copies in intermediate systems."),
+            ("Cost control", "S3 standard storage is cheap; data transfer out is not. Budget $0.09/GB for egress to the open internet. A single 10Mbps H.264 broadcast master is roughly 4.5GB per hour, so a daily 60-minute delivery to 5 regional distributors costs about $2/day in egress alone. For heavy delivery volumes, look at <strong>AWS CloudFront</strong> origination from S3 — egress pricing is different and often cheaper at scale. Set up billing alerts at $50/month so you catch runaway jobs early."),
+                    ("CloudWatch monitoring", "Add CloudWatch alarms on your target S3 bucket: one for unexpectedly large object uploads (potential runaway transcode producing oversized files), one for excessive daily egress (potential unauthorised download activity), and one for failed PutObject calls (IAM permission drift after credential rotation). Route alerts to a Slack or PagerDuty channel your operations team monitors. For broadcast operations where S3 delivery is mission-critical, add a synthetic health check that uploads a 1MB test file every 15 minutes via Lambda and alerts if it fails — this catches credential rotation problems, bucket permission drift, or network-level issues before a real broadcast delivery fails and your downstream partners complain. For heavy delivery volumes, investigate AWS CloudFront origination from S3 as an alternative delivery architecture — egress pricing through CloudFront is often significantly cheaper than direct S3 egress at scale, and the added caching layer improves delivery latency for international audiences. Always set up AWS billing alerts at sensible thresholds so unexpected cost spikes get caught early."),
+        ],
     },
     "guide-avid-strawberry": {
-        "title": "Strawberry PAM + Avid Media Composer Workflow",
-        "tag": "PAM · Avid",
+        "tag": "Strawberry PAM · Avid",
         "time": "10 min",
-        "desc": "Configure Production Flow's Strawberry for collaborative editing with Avid Media Composer. Shared storage, ingest hot folders, version control, and automated delivery.",
-        "focus": "production asset management with collaborative Avid editorial",
-        "systems": "Production Flow Strawberry, Avid Media Composer, shared storage, ingest orchestration, and version-aware post workflows",
+        "title": "Strawberry PAM + Avid Media Composer: Collaborative Editing Setup",
+        "dek": "Configure Production Flow Strawberry for collaborative Avid Media Composer editing: shared storage, hot-folder ingest, version control, and automated delivery.",
+        "sections": [
+            ("What Strawberry adds to an Avid shop", "Strawberry from Production Flow is a Production Asset Management (PAM) layer that sits on top of Avid Nexis (or an SMB share) and gives editors a web UI for browsing, tagging, and handing off projects. It&#39;s not a replacement for MediaCentral — it&#39;s a lightweight alternative for facilities that need collaborative workflow but don&#39;t want the MediaCentral licensing overhead. The sweet spot is a 5–15 seat post facility."),
+            ("Shared storage architecture", "Strawberry needs one &quot;workspace root&quot; — a shared volume visible to every editor at the same mount path (e.g. <code>/Volumes/shared</code> on macOS, <code>Z:\\</code> on Windows). Avid Nexis workspaces work fine; so do SMB shares served from a TrueNAS or Synology box. For workstations connecting over 10GbE, a SSD-backed NAS can sustain 4–6 concurrent HD streams without stuttering. For remote editors, add a caching layer or switch to proxy-based editing."),
+            ("Avid project structure", "Strawberry expects each Avid project to live in its own folder under the workspace root: <code>/Volumes/shared/ProjectName/</code>. Inside, standard Avid subfolders: <code>Avid Projects/</code>, <code>Avid MediaFiles/MXF/1/</code>, and a Strawberry-specific <code>_Strawberry/</code> that holds metadata. Editors open projects via Media Composer&#39;s normal open dialog; Strawberry runs alongside as a web UI in a browser tab."),
+            ("Ingest hot folders", "Configure Strawberry&#39;s ingest rules in the web admin. Create a &quot;Rushes&quot; hot folder at <code>/Volumes/shared/_ingest/</code>. Rules: incoming files tagged by date, transcoded to DNxHD 36 (proxy) + DNxHD 120 (online), attached as AMA-linked or fully imported based on size. For XDCAM EX or AVCHD source, enable the auto-transcode rule — playback in Avid is much smoother after transcode than via AMA on these codecs."),
+            ("Version control &amp; project locking", "Strawberry&#39;s killer feature is project-level locking. When Editor A opens a project, Strawberry marks it locked in its database and other editors see a read-only indicator. When A closes the project, the lock releases. For finer granularity, use bins rather than whole projects — multi-editor concurrent editing on separate bins of the same project is supported. Avoid two editors editing the same bin at the same time; Avid&#39;s internal bin locking is per-file and conflicts produce silent data loss."),
+            ("Automated delivery", "Strawberry can trigger downstream workflows when an editor tags a sequence &quot;Delivered&quot;. Typical pattern: tag fires a webhook to Telestream Vantage, which picks up the sequence&#39;s export, transcodes it to delivery spec, and pushes to S3 or the client&#39;s MAM. This closes the loop from edit bay to CDN without a human re-exporting files. Monitor the webhook queue in Strawberry&#39;s admin — failed hand-offs are the most common break point and easy to miss."),
+                    ("Editor adoption and training", "The hardest part of a Strawberry deployment is not the technical setup — it&#39;s getting editors to adopt the web UI instead of reverting to the Finder or Windows Explorer. Budget a dedicated half-day training session per editor that covers: browsing the rushes folder via Strawberry rather than the OS file browser, tagging sequences with delivery-ready metadata, using the metadata search to find shots across old projects, and proper locking etiquette when multiple editors work on adjacent bins. The payoff is measurable: facilities that fully adopt Strawberry workflow typically reclaim 20 to 30 minutes per editor per day that was previously spent manually hunting for files. Track adoption metrics for the first month and coach the stragglers individually rather than hoping they&#39;ll catch up on their own."),
+        ],
     },
     "guide-audio-conform-avid-protools": {
-        "title": "Audio Conform: Avid Media Composer to Pro Tools and Back",
         "tag": "Avid · Pro Tools · Audio",
-        "time": "10 min",
-        "desc": "Export AAF from Avid, open in Pro Tools for audio finishing, and return the mix in sync. Covers sample rates, BWF export, and timecode alignment.",
-        "focus": "audio post handoff between picture editorial and final mix",
-        "systems": "Avid Media Composer, AAF, Pro Tools, BWF, sample-rate management, and mix return workflows",
+        "time": "9 min",
+        "title": "Audio Conform: Avid Media Composer to Pro Tools and Back",
+        "dek": "Export AAF from Avid, open in Pro Tools for audio finishing, and return the mix in sync. Covers sample rates, BWF export, timecode alignment.",
+        "sections": [
+            ("The conform workflow overview", "In broadcast post, the audio finish almost always happens in Pro Tools — Avid&#39;s built-in audio mixer is adequate for offline but not for a final broadcast mix. The conform is the process of handing off the locked picture edit to the mixer, who finishes the audio, and handing the final mix back to the video edit for deliverable export. Done right, the round trip takes a day. Done wrong, it takes a week of chasing sync drift."),
+            ("Lock the picture before you conform", "The single most important rule: lock the picture edit before handing off to audio. Every frame change after the conform forces the mixer to re-align every track. Budget a 24-hour &quot;picture lock&quot; period where the director reviews the cut, notes last changes, and signs off. Only then does the editor export for audio."),
+            ("AAF export from Avid", "From Avid, select the sequence and choose <em>File &gt; Export &gt; AAF</em>. Settings: Embedded Media, 48kHz/24-bit BWF audio, one AAF per reel if the show is broken into reels. Enable &quot;Include handles&quot; and set handle length to 2 seconds — this gives the mixer room to extend fades beyond the cut. Disable &quot;render video&quot; — the mixer doesn&#39;t need picture in the AAF. Export the reference QuickTime separately at a known offset (start at 01:00:00:00 or 10:00:00:00, document which)."),
+            ("Opening in Pro Tools", "Pro Tools imports AAFs cleanly. Choose <em>File &gt; Import &gt; Session Data</em>, select the AAF, match the Pro Tools session sample rate to the AAF (48kHz). Pro Tools will create one track per Avid audio track. Review: mono tracks should stay mono, stereo pairs should come in as two mono tracks panned L/R (not a true stereo track). Import the reference QuickTime via <em>File &gt; Import &gt; Video</em> to the same timecode start."),
+            ("Common sync problems", "<strong>Sample-rate mismatch:</strong> if Avid was 48000Hz and Pro Tools opens at 48048Hz (varispeed), every minute drifts by 3 frames. Always match exactly. <strong>Frame-rate mismatch:</strong> 23.976 vs 24.000 drifts by one frame per second — catastrophic over a half-hour show. <strong>Drop-frame vs non-drop-frame:</strong> US projects that mix both produce apparent sync drift that&#39;s actually labelling confusion — agree drop-frame-or-not upfront and stick with it."),
+            ("Returning the mix", "When the mixer finishes, they export a stereo or 5.1 mix as a BWF file with embedded timecode matching the original. Back in Avid, the editor imports the BWF via <em>File &gt; Import</em>, selects &quot;Use timecode of source&quot; and places it at the original reel start. Verify sync by scrubbing through 3–4 obvious sync points (dialogue lines, door slams). If anything drifts by even one frame, the frame rate or sample rate is wrong — do not ship."),
+                    ("Deliverable stems and loudness", "For broadcast deliveries, the mixer typically exports multiple audio stems: the full mix (stereo or 5.1 surround), a dialogue-only stem, a music-only stem, an effects-only stem, and a combined M&amp;E (music plus effects, no dialogue) stem for international versions with foreign-language dubbing. Each stem is delivered as a separate BWF file with embedded timecode that matches the master. Document which stem is which in the delivery manifest clearly — a 5.1 stem mislabelled as stereo has ended more than one otherwise-clean post-production timeline. For LKFS-compliant deliveries required by EBU R128 in Europe, ATSC A/85 in the US, or similar regional standards, include the measured integrated loudness and true-peak values in the accompanying delivery paperwork so the broadcaster&#39;s QC system can verify compliance without re-measuring."),
+        ],
     },
     "guide-media-central-cache": {
-        "title": "Clearing Cache in Avid MediaCentral Cloud UX (2025)",
         "tag": "MediaCentral · Admin",
         "time": "7 min",
-        "desc": "Fix slow loads, stale thumbnails, and playback errors by clearing browser, application, and server-side proxy cache in MediaCentral Cloud UX.",
-        "focus": "troubleshooting stale cache and front-end performance in MediaCentral Cloud UX",
-        "systems": "Avid MediaCentral Cloud UX, browser cache, proxy services, and support-oriented operational checks",
+        "title": "Clearing Cache in Avid MediaCentral Cloud UX (2025 Edition)",
+        "dek": "Fix slow loads, stale thumbnails, and playback errors by clearing browser, application, and server-side proxy cache in MediaCentral Cloud UX.",
+        "sections": [
+            ("Why cache breaks MediaCentral", "MediaCentral Cloud UX caches at three layers: the browser (page assets, user prefs), the client application (user bin data, recent searches), and the server-side proxy (thumbnails, lo-res playback streams). When any of these get out of sync with the actual database state, editors see ghost thumbnails, stale asset counts, or playback errors on clips that play fine in Avid Media Composer directly. Ninety percent of &quot;MediaCentral is broken&quot; tickets are cache issues."),
+            ("Browser cache (fastest fix)", "First, always, before calling support: clear the browser cache. In Chrome: <em>Ctrl+Shift+Delete</em>, select &quot;Cached images and files&quot;, time range &quot;All time&quot;, clear. Alternative: open Dev Tools (F12), go to the Network tab, check &quot;Disable cache&quot;, then hard refresh with <em>Ctrl+Shift+R</em>. This fixes maybe 60% of reported issues."),
+            ("Application cache", "MediaCentral Cloud UX keeps a per-user session cache under <code>%AppData%\\Avid\\MediaCentral\\</code> on Windows and <code>~/Library/Application Support/Avid/MediaCentral/</code> on macOS. Close MediaCentral completely (check Task Manager — the process can linger), delete the contents of this folder, reopen. User preferences reset to defaults; recent asset lists are rebuilt on next login."),
+            ("Server-side proxy cache", "This is the administrator-only layer. Log into the MediaCentral Services admin interface (typically <code>https://mcs-01/avid/admin</code>). Navigate to <strong>System Health &gt; Cache Management</strong>. You&#39;ll see cached thumbnails and lo-res proxy files. Selectively clear by asset, or use &quot;Clear all&quot; during a maintenance window. For a full reset, stop the <code>avid-ics</code> service, delete <code>/var/lib/avid-ics/cache/*</code>, restart the service. Expect 15–30 minutes for caches to rebuild on a busy system."),
+            ("Database-level cleanup", "Occasionally the MongoDB that underpins MediaCentral accumulates orphaned references — entries pointing at deleted assets. Avid ships a <code>mc-repair</code> utility that safely removes these. Schedule this to run monthly during maintenance windows. Never run it during working hours — it locks collections briefly and editors will see timeouts."),
+            ("When to escalate", "If clearing all three layers plus running <code>mc-repair</code> doesn&#39;t fix the symptom, the issue is probably not cache. Common non-cache culprits: Interplay permissions drift (check user mappings in Avid Access), MCS cluster split-brain (check <code>mc-cluster status</code>), or corrupt MOS gateway state if the symptom is related to MOS plug-ins. At that point, open a proper Avid support ticket with logs from <code>/opt/avid/logs/</code>."),
+                    ("Preventive cache hygiene", "Once you&#39;re out of the immediate emergency, set up an ongoing cache hygiene schedule to prevent the next incident. Document in your onboarding checklist that editors should clear browser cache weekly. Application cache should be cleared monthly, ideally scheduled for Patch Tuesday so it aligns with other maintenance. Server-side proxy cache should be purged quarterly during a proper maintenance window with editors notified in advance. Monitor cache disk usage continuously — the command <code>df -h /var/lib/avid-ics</code> should never exceed 70% full under normal operating conditions. Set up an automated cleanup cron job that deletes proxy cache entries older than 90 days. These three operational disciplines together prevent roughly 95% of MediaCentral cache-related incidents from ever reaching production impact. Keep a running incident log of cache-related tickets so patterns emerge — if the same user repeatedly reports cache symptoms, their browser may be misconfigured or they may be using an unsupported browser version. If the same workstation repeatedly has problems, check its local storage health since cache corruption can indicate a dying SSD."),
+        ],
     },
     "guide-avid-media-central-health-check": {
+        "tag": "MediaCentral · Admin",
+        "time": "7 min",
         "title": "Avid MediaCentral Health Check: Services, Connections, and Logs",
-        "tag": "MediaCentral · Infrastructure",
-        "time": "12 min",
-        "desc": "Run a full pre-air health check - verify MCPS services, Interplay and iNEWS connections, licensing, and system logs before going on air.",
-        "focus": "pre-air health validation for a MediaCentral estate",
-        "systems": "Avid MediaCentral, MCPS services, Interplay, iNEWS, licensing, logs, and operational readiness checks",
+        "dek": "Run a full pre-air health check — verify MCPS services, Interplay and iNEWS connections, licensing, and system logs before going on air.",
+        "sections": [
+            ("Why pre-air health checks matter", "MediaCentral is a stack of interlocking services: MongoDB for user/session data, Elasticsearch for search, a WebSocket service for real-time UI, the MCPS media proxy server, plus bridges to Interplay and iNEWS. Any one can fail silently — the UI stays up while the feature behind it returns errors. A disciplined 15-minute health check before each live newscast catches 80% of production-breaking issues before they break anything."),
+            ("Service status check", "SSH to the MCS master node and run <code>mc-status</code> (Avid ships this). Every service should report &quot;running&quot; and &quot;healthy&quot;. Red flags: <code>avid-ics</code> listed but not responding, MongoDB replica set out of sync, Elasticsearch cluster status &quot;yellow&quot; (usable) or &quot;red&quot; (degraded search). For a cluster, repeat on every node — split-brain is a common Friday-evening failure mode."),
+            ("Interplay / MediaCentral Production Services", "From the admin UI, check <strong>System &gt; Integrations &gt; Interplay</strong>. The connection should show &quot;Connected&quot; and the last heartbeat within the last 60 seconds. Common failure: certificate expired, visible as authentication failure in <code>/opt/avid/logs/interplay-bridge.log</code>. Rotate the cert per Avid&#39;s published procedure; don&#39;t wait for the production outage."),
+            ("iNEWS and MOS connections", "For newsrooms, iNEWS is the heartbeat. In MediaCentral admin, confirm iNEWS appears under <strong>NRCS Integrations</strong> and shows &quot;Active&quot;. Test by opening a rundown in MediaCentral — it should render story list within 2 seconds. Slower than that and the MOS Gateway needs inspection. Check <code>/opt/avid/logs/mos-gateway.log</code> for timeout warnings; if present, the upstream iNEWS server may be under load."),
+            ("Licensing", "Check licensing under <strong>System &gt; Licensing</strong>. Expired or near-expiry licenses (within 30 days) should trigger a ticket to Avid. Concurrent-use licenses should show usage below ceiling; if you&#39;re regularly hitting 90%+ of concurrent seats, plan a licence top-up before the next big show."),
+            ("Log review", "Last step: scan the last 24 hours of logs for ERROR and CRITICAL entries. Useful commands: <code>journalctl --since &quot;24 hours ago&quot; -p err</code> at OS level, plus <code>grep -i error /opt/avid/logs/*.log | tail -50</code> for MediaCentral specifics. Common ignorables: WebSocket disconnect/reconnect cycles from flaky browsers. Real concerns: repeated MongoDB connection errors, MCPS transcode failures, or Interplay authentication loops."),
+                    ("Automate the health check", "Once your manual health check procedure is reliable and well-documented, automate it. A small shell script running <code>mc-status</code>, performing <code>curl</code> probes of key MediaCentral endpoints, checking service PID files, and scanning the last hour of log files for new ERROR entries can run every 5 minutes via cron and post its results to a monitoring dashboard like Grafana or Datadog. The human pre-air check then becomes a 2-minute glance at the dashboard rather than a 15-minute manual ritual. Set alert thresholds generously — an Elasticsearch yellow status for 10 minutes is fine, 60 minutes is not. Tune thresholds over time based on your specific environment&#39;s normal noise level. Most facilities find that within 3 months the automated check catches real problems 10-20 minutes earlier than humans would. Document every incident fully including symptoms, diagnostic steps, and resolution so institutional knowledge doesn&#39;t walk out the door when engineers change jobs. MediaCentral troubleshooting is the kind of skill that takes months to build and weeks to lose if not actively maintained through regular health-check discipline."),
+        ],
     },
     "guide-vizrt-avid-integration": {
+        "tag": "Vizrt · Avid · MOS",
+        "time": "9 min",
         "title": "Integrating Vizrt Graphics with Avid MediaCentral and iNEWS",
-        "tag": "Vizrt · iNEWS · MOS",
-        "time": "14 min",
-        "desc": "Configure the Vizrt Plugin for MediaCentral and the MOS Gateway to connect Viz Engine templates to iNEWS stories for story-driven graphics playout.",
-        "focus": "newsroom graphics integration driven by MOS and rundown metadata",
-        "systems": "Vizrt, Viz Engine, Avid MediaCentral, iNEWS, MOS Gateway, templates, and newsroom graphics control",
+        "dek": "Configure the Vizrt Plugin for MediaCentral and the MOS Gateway to connect Viz Engine templates to iNEWS stories for story-driven graphics playout.",
+        "sections": [
+            ("The three-system handshake", "A newsroom graphics integration involves three systems: iNEWS (the rundown), MediaCentral (editor UI), and Viz Engine/Mosart (the graphics engine). They speak via MOS protocol — a 1990s XML-over-TCP standard that the whole broadcast industry still runs on. Getting the handshake right requires configuration at all three endpoints and a MOS Gateway in the middle."),
+            ("MOS Gateway setup", "Start at the MOS Gateway (typically Avid&#39;s iNEWS MOS Gateway, though Vizrt ships their own alternative). Configure iNEWS NRCS as one side of the connection and Viz Mosart (or Viz Trio for graphics-only) as the other. Each side needs a unique <strong>MOS ID</strong> — pick names that describe the role (e.g. <code>VIZMOSART.NEWSROOM.COM</code>). Confirm the gateway handshakes with both sides by checking <code>/var/log/mos-gateway.log</code> for &quot;heartbeat ack&quot; messages."),
+            ("iNEWS story plugin", "In iNEWS, the production manager installs the Vizrt story plugin (MOS Active X plugin, still the standard in 2026). This gives journalists a &quot;Viz&quot; tab in the story form where they can browse templates, fill in slots (name, role, banner text), and drop the resulting MOS object into the rundown. The MOS object is a reference — not the graphic itself — so iNEWS stays lightweight."),
+            ("MediaCentral integration", "From the MediaCentral admin, enable the Vizrt panel under <strong>Plugins</strong>. This gives MediaCentral editors the same template browser as iNEWS journalists, accessed from the sequence timeline. Editors can preview the graphic against the clip it sits on top of — useful for timing lower-thirds to the exact moment the interviewee starts speaking."),
+            ("Common integration failures", "<strong>MOS heartbeat lost:</strong> usually a firewall rule change. MOS uses TCP 10540/10541 — make sure both are open between gateway and all clients. <strong>Templates don&#39;t appear:</strong> check the Viz scene database is accessible from the MediaCentral host; Vizrt uses SMB for the scene share. <strong>Graphics play late:</strong> this is almost always an iNEWS rundown timing issue, not Vizrt — audit the rundown pre-roll settings."),
+            ("Production best practices", "Name templates clearly — editors waste hours hunting through lists named &quot;LT_Proj3_v4_REV2&quot;. Standardise on descriptive names: &quot;LowerThird-NamePlusRole-Blue&quot;. Keep a test rundown with representative template types that the engineering team runs through every morning — catches template regressions before they hit air. And document the MOS object IDs of all templates; if the Viz database ever rebuilds, you&#39;ll need to re-map."),
+                    ("Disaster-recovery testing", "Test the MOS gateway failover procedure quarterly. The typical DR scenario: primary MOS gateway loses network connectivity, the secondary gateway takes over automatically, and rundowns continue flowing to Viz Engine without interruption. If you&#39;ve never actually tested this, you don&#39;t actually have redundancy — you have hope. Do the test during a scheduled maintenance window, never mid-newscast. Document the measured failover time (under 30 seconds is good, over 2 minutes means the secondary is misconfigured and needs investigation). Crucially, also test that templates produced during the failover actually play to air — sometimes the secondary gateway accepts MOS objects but the Viz Engine cannot render them because a scene database reference path is broken. This kind of partial failure is worse than a clean outage because it isn&#39;t obvious until the graphic is supposed to appear on air."),
+        ],
     },
     "guide-windows11-upgrade": {
-        "title": "Upgrade to Windows 11",
         "tag": "IT · Windows",
         "time": "5 min",
-        "desc": "Step-by-step upgrade guide for broadcast workstations and edit suites. Compatibility checks, driver verification, and rollback procedure.",
-        "focus": "operating system upgrade planning for broadcast workstations",
-        "systems": "Windows 11, broadcast device drivers, workstation validation, rollback planning, and post-production support",
+        "title": "Upgrading Broadcast Workstations to Windows 11",
+        "dek": "Pre-upgrade compatibility checks, driver verification, and rollback procedure for upgrading post and broadcast IT workstations to Windows 11.",
+        "sections": [
+            ("Should you upgrade at all?", "Windows 10 extended support ended in October 2025; Windows 11 is now effectively mandatory for any workstation on a Microsoft-supported track. For broadcast workstations, the real question isn&#39;t whether to upgrade but when — the answer is &quot;after your NLE vendor has certified their version against Windows 11&quot;. Avid Media Composer 2024.6+ is certified; DaVinci Resolve 19+ is certified; older versions may run but without vendor support."),
+            ("Hardware compatibility", "Windows 11 mandates TPM 2.0, Secure Boot, and a supported CPU (Intel 8th-gen+, AMD Zen 2+). Most broadcast-grade HP Z-series and Dell Precision workstations from 2019 onwards meet this. Older boxes — particularly custom-built edit stations from the mid-2010s — often fail the CPU check even if the TPM is present. Use Microsoft&#39;s <strong>PC Health Check</strong> tool first; don&#39;t try to upgrade a machine that fails and hope for the best."),
+            ("Pre-upgrade backup", "Full disk image first, always. <strong>Macrium Reflect Free</strong> does this well. Back up Avid project folders separately to a second drive (not the Windows system drive). Export any licensed software&#39;s activation state where supported — some broadcast tools use node-locked licences that can be a pain to re-activate after a Windows reinstall. Document all installed plugins and their version numbers before starting."),
+            ("Driver verification", "Before the upgrade, download Windows 11 drivers for the GPU (Nvidia Studio driver, not Game-Ready), audio interface (RME, Focusrite, whichever), any SDI or NDI capture cards (AJA, Blackmagic), and any USB dongles used for software licensing (iLok, Sentinel, SafeNet). Stage these on a USB stick. Post-upgrade, install these in order: GPU first, capture cards second, audio last — this avoids conflicts in the driver store."),
+            ("The upgrade itself", "Use the in-place upgrade path via Windows Update or the Media Creation Tool. For a 10-person post department, stage the upgrade: do one workstation first, run it for a week in production, only then roll out to the rest. Expect the upgrade to take 60–90 minutes per workstation plus 30 minutes of post-upgrade driver installs and NLE re-authorisation."),
+            ("Rollback", "If something breaks badly, Windows 11 keeps a <code>Windows.old</code> folder for 10 days; you can revert from Settings &gt; System &gt; Recovery &gt; Go back. After 10 days or if you&#39;ve freed up disk space, you&#39;re committed — which is why the Macrium image matters. Keep the image for 30 days post-upgrade before deleting. Any serious regression that shows up later probably relates to a specific app/driver combination and is fixable in-place without a full rollback."),
+                    ("Post-upgrade validation", "Once upgraded, run through a rigorous validation checklist on each workstation before returning it to production use. Verify: your primary NLE opens a real project without warnings; playback of 1080p DNxHD files runs without any dropped frames over a 5-minute test; SDI or NDI capture card input shows up correctly in the NLE source list; audio I/O devices appear in the NLE&#39;s audio settings and route correctly; all licensed plugins appear in the effects browser with no red warnings. Any &quot;missing plugin&quot; warning means you&#39;re relying on an old binary that won&#39;t actually work under the new OS — fix it before going live. Keep the post-upgrade validation results in a shared document so IT can cross-check workstation configurations six months later when an editor reports &quot;it was working fine yesterday.&quot;"),
+        ],
     },
     "guide-macos-upgrade": {
-        "title": "Upgrade to macOS Sequoia",
         "tag": "IT · macOS",
         "time": "5 min",
-        "desc": "How to safely upgrade a post-production Mac. Pre-upgrade checklist, NLE compatibility matrix, and what to do if your plugins break.",
-        "focus": "safe macOS upgrade planning for post-production systems",
-        "systems": "macOS Sequoia, NLE compatibility, plugin validation, storage backups, and editorial workstation readiness",
+        "title": "Upgrading a Post-Production Mac to macOS Sequoia",
+        "dek": "Pre-upgrade checklist, NLE compatibility matrix, and what to do if your plugins break after upgrading to macOS Sequoia.",
+        "sections": [
+            ("Should you upgrade?", "The same rule as Windows: don&#39;t upgrade until your primary NLE has certified the new OS. As of early 2026, Final Cut Pro 11 is Sequoia-native and runs well; DaVinci Resolve 19.1+ is certified; Avid Media Composer 2024.12 is certified. Premiere Pro 2025 runs but has known issues with some ProRes RAW workflows on Sequoia — check Adobe&#39;s published issue list before upgrading a working Premiere station."),
+            ("Hardware compatibility", "Sequoia drops support for pre-2018 Intel Macs and all pre-T2 chip models. Apple Silicon Macs (M1 onwards) are all supported. For mixed facilities, make a compatibility list: which machines can upgrade, which are frozen at Ventura or Sonoma. Workstations that can&#39;t upgrade still get security updates on their current OS for two more years after Sequoia ships — plan their retirement for late 2026 or early 2027."),
+            ("Pre-upgrade backup", "Time Machine to a dedicated external, then clone with <strong>Carbon Copy Cloner</strong> for a bootable backup. Time Machine is for rollback of documents; CCC is for full system restore if the upgrade corrupts the boot volume. Export licence states for broadcast-specific software that uses node-locked activation."),
+            ("Plugin compatibility", "This is where post upgrades most often fail. Audio plugins (Waves, iZotope, Universal Audio) must be updated to their Sequoia-compatible versions before you upgrade the OS — check each vendor&#39;s support page. Video plugins (Red Giant, Boris FX, NewBlue) are usually less affected but still check. FxFactory users: update FxFactory itself first, it handles most of the sub-plugin compatibility automatically."),
+            ("Upgrade procedure", "Backup, update plugins on Ventura/Sonoma, then run <em>System Settings &gt; General &gt; Software Update</em> on the new macOS installer. Expect 45–75 minutes for the upgrade plus 30 minutes of post-install plugin re-authorisation. First reboot after upgrade often takes 10+ minutes — don&#39;t panic, don&#39;t force-restart."),
+            ("If plugins break", "The most common post-upgrade issue: an audio plugin authorised under the old OS won&#39;t re-authorise under the new one. Fix: open the plugin&#39;s licence manager (Waves Central, iLok License Manager, etc.), de-activate the licence, re-activate it. If the vendor&#39;s licence manager itself won&#39;t launch, update it via the vendor&#39;s website — vendors often ship new licence managers alongside new OS support. Worst case, restore from the CCC clone, sort plugins on the old OS, then upgrade again."),
+                    ("Post-upgrade validation", "After the upgrade, immediately open your main NLE, create a test sequence, play back 30 seconds of 4K ProRes footage, render a title effect, and export a 10-second H.264. Any failure at any step means a compatibility issue that needs fixing before any production work resumes on that machine. Repeat the test sequence in every NLE the facility uses — an editor who jumps between DaVinci Resolve and Premiere Pro across a single day cannot tolerate one tool working and the other failing silently. Document the tested-and-working configuration (macOS version, NLE version, plugin versions, driver versions) in a shared IT runbook so you have a reference point when the next editor reports &quot;it stopped working after that update.&quot; This documentation saves hours of troubleshooting on future upgrades. If a plugin breaks post-upgrade, the most common fix is to open that plugin&#39;s license manager (Waves Central, iLok License Manager, iZotope Product Portal, etc.), deactivate the license, then reactivate it — this forces the plugin to re-validate against the new macOS version. If the vendor&#39;s license manager itself fails to launch, download the latest version from the vendor&#39;s website since vendors routinely ship new license managers alongside new OS support."),
+        ],
     },
 }
 
 
-def _howto_body_html(g):
-    focus = e(g["focus"])
-    systems = e(g["systems"])
-    desc = e(g["desc"])
-    title = e(g["title"])
-    return f"""
-<p>{title} is a practical operations guide focused on {focus}. In many broadcast and post environments, the failure point is not the headline feature itself. It is the handoff between systems, the small configuration mismatch that is left undocumented, or the assumption that the next team in the chain sees the same metadata and media state you do. This guide is written to reduce those avoidable failures and to make the workflow repeatable for engineering, editorial, and support teams.</p>
+def howto_article_page(slug, data):
+    """Render a full how-to guide article page from HOWTO_GUIDE_CONTENT.
+    Stamps <!-- HAND_AUTHORED --> so cleanup.py/build pipeline won't overwrite it."""
+    title = data["title"]
+    dek   = data["dek"]
+    tag   = data["tag"]
+    time  = data["time"]
+    url   = f"{BASE_URL}/articles/{slug}.html"
 
-<p>The workflow surface here spans {systems}. That means the right approach is never just to click through a setup screen and hope for the best. You need to confirm media paths, naming discipline, timecode consistency, codec expectations, permissions, and rollback options before a change touches live or deadline-driven work. The safer mindset is to treat every workflow as a chain. If one link is weak, the issue usually appears downstream where it is harder to diagnose.</p>
+    body_sections = ""
+    for sec_title, sec_body in data["sections"]:
+        body_sections += f'<h2>{sec_title}</h2>\n<p>{sec_body}</p>\n'
 
-<h2>What this guide is designed to solve</h2>
-<p>{desc} The goal is not just to complete a one-time setup. The goal is to build a method that another operator, engineer, or assistant editor can follow later without re-learning the environment from scratch. That is what makes a workflow operationally useful. A reliable guide should tell you what to validate before you begin, where the common breakpoints are, and what evidence proves the workflow is actually healthy.</p>
+    schema = json.dumps({
+        "@context":"https://schema.org","@type":"TechArticle",
+        "headline":title,"description":dek,
+        "datePublished":"2026-01-15","dateModified":"2026-01-15",
+        "author":{"@type":"Organization","name":AUTHOR},
+        "publisher":{"@type":"Organization","name":"The Streamic","url":BASE_URL,
+                     "logo":{"@type":"ImageObject","url":f"{BASE_URL}/assets/logo.png"}},
+        "mainEntityOfPage":url,
+    }, indent=2)
 
-<p>On The Streamic, we treat workflow documentation as part of media systems engineering. That means checking whether the process preserves timecode, metadata, file naming, path mapping, and output predictability. It also means thinking about what happens when something goes wrong: a missing plugin, a stale cache, a storage permission mismatch, or a job that appears complete but lands in the wrong format or wrong location.</p>
-
-<h2>Operational checkpoints</h2>
-<p>Before applying any of the steps in this guide, confirm the environment baseline. Verify software versions, plugin compatibility, storage visibility, account permissions, and any required service health. If the workflow touches shared storage or cloud targets, confirm write access and naming conventions first. If the workflow passes between editorial and engineering teams, decide who owns validation at each stage so an error is caught early instead of after delivery.</p>
-
-<ul>
-  <li>Confirm source and destination paths before testing with real material.</li>
-  <li>Validate timecode, audio mapping, and expected file format on a short reference asset.</li>
-  <li>Check logs, job history, or status panels rather than relying only on UI success messages.</li>
-  <li>Document the rollback step before changing a working production workflow.</li>
-</ul>
-
-<h2>Why this matters in real broadcast operations</h2>
-<p>Broadcast and media teams rarely fail because they lack features. They fail because a workflow behaves differently under deadline pressure than it did in a controlled test. A post pipeline may appear stable until a late metadata change, a path remap, or a codec exception forces manual intervention. That is why the most valuable workflow guides are explicit, boring, and repeatable. They reduce heroics. They reduce assumptions. They make the system easier to support at 02:00 when a deadline leaves no room for guesswork.</p>
-
-<p>This guide therefore sits in the practical middle ground between vendor documentation and real facility operations. Vendor documentation explains what the product can do. An operational guide explains what the facility must confirm so the workflow holds together under real usage. That distinction matters for post-production, newsroom support, and any environment where one missed detail can cascade into rework.</p>
-
-<h2>Engineering note</h2>
-<p>Use this guide as a baseline and adapt it to your own site standards. If your facility already has naming rules, storage tiering, approval gates, or service-monitoring practices, map the workflow into those rather than creating one more isolated exception. The best workflow is the one your team can support consistently. That is the standard this page is intended to support.</p>
-"""
-
-
-def howto_article_page(slug, g):
-    title = g["title"]
-    desc = g["desc"]
-    url = f"{BASE_URL}/articles/{slug}.html"
-    body = _howto_body_html(g)
-    wc = len(re.sub(r"<[^>]+>", " ", body).split())
     return f"""<!-- HAND_AUTHORED -->
-{head(title + " | The Streamic", desc, url, css="../style.css", og_img=f"{BASE_URL}/assets/fallback.jpg")}
+{head(title+" | The Streamic", dek, url, css="../style.css")}
 <body>
 {nav("howto.html", base="../")}
 <main>
@@ -2412,35 +2228,36 @@ def howto_article_page(slug, g):
       <span>›</span>
       <a href="../howto.html" style="color:var(--blue)">How-To Guides</a>
     </div>
-    <span class="art-tag" style="background:var(--blue)">How-To Guide</span>
+    <span class="art-tag" style="background:var(--blue)">&#128295; {e(tag)}</span>
     <h1>{e(title)}</h1>
-    <p class="art-dek">{e(desc)}</p>
+    <p class="art-dek">{e(dek)}</p>
     <div class="art-byline">
       <strong>{AUTHOR}</strong>
-      <span>{g.get("time", rm(wc))}</span>
-      <span>{wc:,} words · {rm(wc)}</span>
-      <span style="background:var(--blue);color:#fff;padding:3px 9px;border-radius:5px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.8px">Guide</span>
+      <span>&#128337; {e(time)} read</span>
+      <span style="background:#10b981;color:#fff;padding:3px 9px;border-radius:5px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.8px">How-To Guide</span>
     </div>
-    <figure>
-      <img src="../assets/fallback.jpg" alt="{e(title)}" loading="eager">
-      <figcaption>The Streamic — Site Asset</figcaption>
-    </figure>
-    <div class="art-body">{body}</div>
+    <div class="art-body">
+{body_sections}
+    </div>
     <div class="art-author">
       <strong>About this guide</strong>
-      Practical workflow guidance from The Streamic for broadcast engineers, editors, and media operations teams.
-      <a href="../about.html" style="color:var(--blue);margin-left:6px;">About The Streamic &rarr;</a>
+      Written by The Streamic Editorial Team. Practical broadcast and post-production workflow guide for engineers and media operations teams.
+      <a href="/about.html" style="color:var(--blue);margin-left:6px;">About The Streamic &rarr;</a>
     </div>
     <div class="art-more">
-      <h3>Continue Reading</h3>
-      <a href="../howto.html">🛠 All How-To Guides</a>
-      <a href="../featured.html">⭐ Featured Stories</a>
+      <h3>More How-To Guides</h3>
+      <a href="../howto.html">&#128295; All How-To Guides</a>
+      <a href="../featured.html">&#11088; Featured Stories</a>
     </div>
   </div>
 </main>
+<script type="application/ld+json">{schema}</script>
 {footer(base="../")}
 {_cookie_banner()}
-</body></html>"""
+</body>
+</html>"""
+
+
 def howto_page():
     guides = [
         {
@@ -2541,168 +2358,171 @@ def howto_page():
 {_cookie_banner()}
 </body></html>"""
 
-def _nab_bento_section():
+def _deep_dives_section():
+    """Homepage 'Technical Deep Dives' — 2 premium editorial cards below hero.
+
+    Layout matches the reference: 2 side-by-side cards on desktop, stacked on mobile.
+    Each card links to a full hand-authored article page under /docs/articles/.
+    Images expected at /docs/assets/deepdives/ — upload media-composer-edit.png and ms-server-datacenter.png.
     """
-    NAB 2026 Highlights — premium cinematic banner header + bento-grid cards.
+    cards = [
+        {
+            "kicker": "Automation",
+            "title": "The Death of the &quot;Black Box&quot;: Why Pebble and Harmonic are Winning the Playout War",
+            "lead": "The \"Black Box\" era is officially over. Pebble's JT-DMF interoperability push and Harmonic's SMPTE ST 2110-native Spectrum X are collapsing the decades-old hardware lock-in.",
+            "img": "assets/deepdives/media-composer-edit.png",
+            "img_alt": "Avid Media Composer editing interface showing multi-clip timeline and source monitor",
+            "img_caption": "Software-Defined Playout",
+            "href": "articles/deepdive-pebble-harmonic-playout-war-nab-2026.html",
+            "cta": "Read analysis",
+        },
+        {
+            "kicker": "Infrastructure",
+            "title": "From Bots to Agents: How AWS and Google Cloud are Actually Solving the Newsroom Headache",
+            "lead": "2025 was AI that created stuff. 2026 is Agentic AI — AI that does stuff. AWS Elemental Inference and the Google Cloud / Avid partnership signal a real shift from demo to deployment.",
+            "img": "assets/deepdives/ms-server-datacenter.png",
+            "img_alt": "Hyperscale data center server aisle with illuminated racks extending to vanishing point",
+            "img_caption": "Agentic Cloud Infrastructure",
+            "href": "articles/deepdive-aws-google-cloud-agentic-ai-nab-2026.html",
+            "cta": "Read analysis",
+        },
+    ]
 
-    Banner design: dark deep-space purple/indigo (matches NAB_SHOW_BANNER image
-    palette) with the image as a blended background layer, heavy overlay so text
-    is always legible, and a large high-contrast H2.
+    card_html = ""
+    for c in cards:
+        card_html += f'''<a class="dd-card" href="{c['href']}" aria-label="Read deep dive: {c['title']}">
+  <div class="dd-card-body">
+    <span class="dd-kicker">{c['kicker']}</span>
+    <h3 class="dd-title">{c['title']}</h3>
+    <p class="dd-lead">{c['lead']}</p>
+    <span class="dd-cta">{c['cta']} <span class="dd-arrow" aria-hidden="true">&#8594;</span></span>
+  </div>
+  <figure class="dd-figure">
+    <img class="dd-img" src="{c['img']}" alt="{c['img_alt']}" loading="lazy" onerror="this.style.opacity='0'">
+    <figcaption class="dd-figcap">{c['img_caption']}</figcaption>
+  </figure>
+</a>'''
 
-    Image path: /assets/NAB_SHOW_BANNER_NEWS_HEADLINE_HERO.png
-    Fallback: pure CSS gradient so layout never breaks if image is missing.
+    return f'''<section class="dd-section" aria-labelledby="dd-h2">
+  <div class="dd-hdr">
+    <span class="dd-eyebrow">The 2026 Collection</span>
+    <h2 id="dd-h2" class="dd-h2">Technical Deep Dives</h2>
+    <p class="dd-intro">Moving beyond the headlines into the architecture of the modern media supply chain.</p>
+  </div>
+  <div class="dd-grid">
+    {card_html}
+  </div>
+</section>'''
 
-    Build-safe: pure string, no disk I/O, no external dependencies.
-    AdSense-safe: semantic HTML5, no deceptive elements, descriptive alt text.
-    CSS-safe: all classes prefixed nab- — zero collision with existing hp- classes.
+
+def _nab_bento_section(mode="all"):
+    """Homepage NAB 2026 hero + moonlight horizontal cards with Show-more accordion.
+
+    mode:
+      "all"   → hero banner + 4 vendor cards (default, legacy behaviour)
+      "hero"  → hero banner only (for new homepage order: hero → deep dives → cards)
+      "cards" → 4 vendor cards only
+
+    Cards use <details>/<summary> for accordion — pure HTML, zero JavaScript,
+    AdSense-safe, fully indexed by Google (expanded content is in the DOM).
+    'teaser_html' is the always-visible first 5 lines.
+    'more_html' is the hidden-until-expanded rest.
     """
     cards = [
         {
             "cat": "AI & Post-Production",
-            "cat_color": "#ff6b8a",
-            "slug": "2026-04-17-ai-post-production-avid-google-cloud-agentic-ai-media-produ",
-            "title": "Avid & Google Cloud: Agentic AI and Content Core",
-            "img_alt": "Avid Content Core SaaS platform integrating Google Vertex AI and Gemini with Media Composer for agentic broadcast post-production",
-            "summary": "Avid launches Content Core — a cloud-native intelligence layer embedding Google Gemini directly into Media Composer. Agentic assistants handle B-roll sourcing, natural-language archive search, and temp shot generation. Hybrid architecture preserves existing NEXIS storage. Available April 2026.",
-            "tag": "🎬",
-            "is_hero": True,
-        },
-        {
-            "cat": "Cloud Production",
-            "cat_color": "#a89bff",
-            "slug": "2026-04-01-cloud-tedial-agentic-ai-media-lifecycle-nab-2026",
-            "title": "Dalet Dalia: Conversational AI Across the Media Supply Chain",
-            "img_alt": "Dalet Dalia agentic AI interface orchestrating media workflows across Dalet Flex, Pyramid, and Galaxy five broadcast platforms",
-            "summary": "Dalia is a multi-agent framework acting as a conversational orchestration layer across Dalet Flex, Pyramid, and Galaxy five. Natural language triggers structured workflows — tagging, clipping, social packaging. Early data shows 60% reduction in repetitive task time. Commercially available April 8, 2026.",
-            "tag": "☁️",
-            "is_hero": False,
-        },
-        {
-            "cat": "Playout",
-            "cat_color": "#5dde8a",
-            "slug": "2026-04-01-playout-harmonic-spectrum-x-plus-playout-economics",
-            "title": "BCNEXXT Vipe: Live UHD HLG HDR and BCE Media-as-a-Service",
-            "img_alt": "BCNEXXT Vipe cloud-native playout platform supporting UHD 2160p BT.2100 HLG live ingest with parallel SDR output for broadcast distribution",
-            "summary": "BCNEXXT adds UHD 2160p BT.2100 HLG live playout to Vipe with simultaneous SDR output. Integrated into BCE Media-as-a-Service. Pay-per-play model removes infrastructure overhead. Channel launch drops to days. Pre-rendered HLG pre-processing keeps commercial files in sync with live HDR feeds.",
-            "tag": "▶️",
-            "is_hero": False,
-        },
-        {
-            "cat": "Newsroom",
-            "cat_color": "#ffd166",
-            "slug": "2026-04-01-newsroom-dalet-flex-2512-semantic-search-dalia-ai",
-            "title": "Mediagenix: Semantic Intelligence for FAST Channel Scheduling",
-            "img_alt": "Mediagenix Scheduling Artist AI generating automated linear channel schedules using semantic content intelligence and audience behaviour signals",
-            "summary": "Mediagenix deploys a Semantic Intelligence layer — combining Spideo AI with rights metadata — to automate scheduling and discovery. Scheduling Artist cuts manual scheduling effort by 80%, playlist prep by 85%. Humanized Semantic Search interprets intent, not keywords. Won 2025 NAB Product of Year.",
-            "tag": "📰",
-            "is_hero": False,
+            "cat_color": "#8b5cf6",
+            "slug": "2026-04-17-ai-post-production-avid-google-cloud-agentic-ai-media-production",
+            "title": "Avid Content Core: Agentic AI, Google Gemini, and a Unified Media Intelligence Layer",
+            "eyebrow": "Avid Technology",
+            "teaser_html": "<strong>Avid Partners with Google Cloud to Integrate Agentic AI and Launch &quot;Content Core&quot;.</strong> Avid is introducing Content Core &mdash; a cloud-native SaaS platform that acts as a unified data layer for media assets, bringing identity, ingest, and storage into a single data platform.",
+            "more_html": "<p><strong>Google Gemini Integration:</strong> Deeply embeds Google&#39;s AI into Media Composer, the industry-standard non-linear editing system used across professional film and television post-production.</p><p><strong>Agentic AI Assistants:</strong> Digital agents autonomously manage complex tasks like matching visual styles and identifying emotional cues.</p><p><strong>Natural Language Search:</strong> Production teams can now query entire archives using conversational language instead of manual metadata tags.</p><p><strong>Zero-Disruption Migration:</strong> Designed to work with existing Avid NEXIS and MediaCentral infrastructure, avoiding rip-and-replace overhauls. Hybrid deployment across Google Cloud and AWS. Commercially available April 2026.</p>",
         },
         {
             "cat": "AI & Post-Production",
-            "cat_color": "#ff6b8a",
-            "slug": "2026-04-01-ai-post-production-telestream-adobe-frameio-creative-delive",
-            "title": "Telestream: Oracle OCI Multi-Cloud and Adobe Frame.io V4",
-            "img_alt": "Telestream Vantage workflow panel inside Adobe Premiere Pro submitting to Oracle Cloud Infrastructure OCI for multi-cloud broadcast media processing",
-            "summary": "Telestream optimises Vantage, UP platform, and SENTRY QoS for Oracle Cloud Infrastructure, cutting egress costs. New Premiere Pro panel submits sequences directly to Vantage pipelines. Frame.io V4 connector ensures seamless API migration. Hybrid, on-prem, and multi-cloud deployments supported.",
-            "tag": "🎬",
-            "is_hero": False,
+            "cat_color": "#b45309",
+            "slug": "2026-04-01-newsroom-dalet-flex-2512-semantic-search-dalia-ai",
+            "title": "Dalet Dalia: Conversational Agentic AI for Enterprise Production",
+            "eyebrow": "Dalet",
+            "teaser_html": "<strong>Commercial Launch of Dalia: Media-Aware Agentic AI for Enterprise Production.</strong> Dalet&#39;s multi-agent framework translates conversational requests into structured media workflows including content discovery and clip creation, available across Dalet Flex, Pyramid, and Galaxy five.",
+            "more_html": "<p><strong>Agentic AI:</strong> Uses a natural-language interface to simplify complex media supply chain tasks.</p><p><strong>Ecosystem Integration:</strong> Works across Dalet Flex (cloud-native media logistics and orchestration) and Dalet Pyramid (collaborative web-based news production).</p><p><strong>Human-in-the-Loop:</strong> Keeps users in control of critical creative and editorial validation &mdash; human validation required for downstream actions.</p><p><strong>Efficiency Gains:</strong> Early data shows a 60% reduction in time spent on repetitive tasks like tagging and clipping.</p><p><strong>Unified UI:</strong> Consolidates fragmented tools into a single conversational interface. Commercially available April 8, 2026.</p>",
         },
         {
-            "cat": "Streaming",
-            "cat_color": "#60b4ff",
+            "cat": "AI & Post-Production",
+            "cat_color": "#2563eb",
+            "slug": "2026-04-01-ai-post-production-telestream-adobe-frameio-creative-delivery-automation",
+            "title": "Telestream + Adobe + Oracle OCI: Creative-to-Delivery Automation Gets Sharper",
+            "eyebrow": "Telestream",
+            "teaser_html": "<strong>Telestream Scales Multi-Cloud with Oracle and Enhances Adobe Workflows.</strong> Cloud services are now optimized for Oracle Cloud Infrastructure, bringing high-performance compute and low-cost data egress to media workloads, while Premiere Pro users can submit sequences directly into automated pipelines.",
+            "more_html": "<p><strong>Vantage Adobe Panel:</strong> Submit Premiere Pro sequences directly to automated delivery pipelines using the Vantage enterprise media processing and workflow automation platform.</p><p><strong>UP Platform:</strong> Capture, orchestration, and review are now OCI-ready via Telestream&#39;s unified cloud-native ingest and supply chain monitoring platform.</p><p><strong>Frame.io V4 Readiness:</strong> A new connector ensures seamless migration to Adobe Frame.io&#39;s redesigned API architecture.</p><p><strong>SENTRY Monitoring:</strong> Real-time QoS monitoring &mdash; including video/audio quality, ad marker validation, and caption compliance &mdash; is now available within OCI. Available April 2026. Supports hybrid, on-premises, and multi-cloud deployment.</p>",
+        },
+        {
+            "cat": "Distribution",
+            "cat_color": "#0ea5e9",
             "slug": "2026-04-01-cloud-tedial-agentic-ai-media-lifecycle-nab-2026",
-            "title": "Vubiquity & Eluvio: Zero-Copy Distribution Economics",
-            "img_alt": "Eluvio Content Fabric protocol showing zero-copy just-in-time media packaging eliminating CDN duplication costs for global streaming distribution",
-            "summary": "Vubiquity and Eluvio replace fragmented file pipelines with a single Content Fabric object — one source, global reach. Zero-copy JIT packaging eliminates per-region duplication. EVIE AI enables frame-accurate archive search without file movement. Sub-500ms global latency replaces satellite links.",
-            "tag": "📡",
-            "is_hero": False,
+            "title": "Vubiquity + Eluvio Content Fabric: Rewriting Distribution Economics",
+            "eyebrow": "Vubiquity &amp; Eluvio",
+            "teaser_html": "<strong>Vubiquity adopts the Eluvio Content Fabric to redefine media distribution economics.</strong> The partnership replaces traditional file-based delivery with a blockchain-backed content fabric that streams the exact requested version on demand &mdash; eliminating the transcoding, storage, and CDN costs baked into conventional supply chains.",
+            "more_html": "<p><strong>Content Fabric Protocol:</strong> A decentralized media protocol built on a verifiable content-addressable storage layer. Masters are stored once and dynamically assembled per request &mdash; versions, subtitles, and territorial variants generated at the edge.</p><p><strong>Zero Egress Duplication:</strong> Removes the need to pre-transcode and pre-store every distribution version. Reduces storage footprint by up to 80% and eliminates redundant CDN fills.</p><p><strong>Rights-Aware Delivery:</strong> Territorial rights, version control, and edit compliance are enforced at the protocol layer, not the application layer &mdash; faster rights clearance, no misdelivery.</p><p><strong>Operator Impact:</strong> For distributors like Vubiquity, this collapses the delivery cost curve and makes long-tail catalog monetization economically viable again. Active in production workflows as of Q2 2026.</p>",
         },
     ]
 
-    hero = next((c for c in cards if c["is_hero"]), cards[0])
-    others = [c for c in cards if not c["is_hero"]]
-    fb = "assets/fallback.jpg"
-
-    # ── Hero card — wide horizontal ───────────────────────────────────────
-    hero_html = f'''<article class="nab-card nab-card-hero" itemprop="itemListElement" itemscope itemtype="https://schema.org/Article">
-  <a href="articles/{hero["slug"]}.html" class="nab-card-link" aria-label="Read full NAB 2026 analysis: {hero["title"]}">
-    <div class="nab-card-img nab-card-img-hero" aria-hidden="true">
-      <div class="nab-card-img-placeholder nab-card-img-placeholder--ai"></div>
+    card_html = []
+    for c in cards:
+        card_html.append(f'''<article class="nab-card nab-card-horizontal" itemprop="itemListElement" itemscope itemtype="https://schema.org/Article">
+  <div class="nab-card-body nab-card-body-horizontal">
+    <div class="nab-card-meta-row">
+      <span class="nab-card-eyebrow">{c['eyebrow']}</span>
+      <span class="nab-cat" style="--nab-cat-c:{c['cat_color']}">{c['cat']}</span>
     </div>
-    <div class="nab-card-body">
-      <span class="nab-featured-badge">&#9733; Lead Story</span>
-      <span class="nab-cat" style="--nab-cat-c:{hero["cat_color"]}">{hero["tag"]} {hero["cat"]}</span>
-      <h3 class="nab-title" itemprop="headline">{hero["title"]}</h3>
-      <p class="nab-summary" itemprop="description">{hero["summary"]}</p>
-      <span class="nab-cta">Read Full Analysis <span class="nab-cta-arrow" aria-hidden="true">&#8594;</span></span>
+    <h3 class="nab-title" itemprop="headline"><a href="articles/{c['slug']}.html" class="nab-title-link">{c['title']}</a></h3>
+    <div class="nab-summary nab-summary-rich" itemprop="description">
+      <div class="nab-teaser">{c['teaser_html']}</div>
+      <details class="nab-more">
+        <summary class="nab-more-toggle"><span class="nab-more-label-open">Show more</span><span class="nab-more-label-close">Show less</span><span class="nab-more-chev" aria-hidden="true">&#9662;</span></summary>
+        <div class="nab-more-body">{c['more_html']}</div>
+      </details>
     </div>
-  </a>
-</article>'''
+    <a href="articles/{c['slug']}.html" class="nab-cta nab-cta-btn" aria-label="Read full article: {c['title']}">Read full article <span class="nab-cta-arrow" aria-hidden="true">&#8594;</span></a>
+  </div>
+</article>''')
 
-    # ── Standard cards ────────────────────────────────────────────────────
-    std_cards = ""
-    placeholders = ["--ai", "--cloud", "--playout", "--news", "--stream"]
-    for i, c in enumerate(others):
-        ph = placeholders[i % len(placeholders)]
-        std_cards += f'''<article class="nab-card nab-card-std" itemprop="itemListElement" itemscope itemtype="https://schema.org/Article">
-  <a href="articles/{c["slug"]}.html" class="nab-card-link" aria-label="NAB 2026: {c["title"]}">
-    <div class="nab-card-img nab-card-img-std" aria-hidden="true">
-      <div class="nab-card-img-placeholder nab-card-img-placeholder{ph}"></div>
-    </div>
-    <div class="nab-card-body">
-      <span class="nab-cat" style="--nab-cat-c:{c["cat_color"]}">{c["tag"]} {c["cat"]}</span>
-      <h3 class="nab-title" itemprop="headline">{c["title"]}</h3>
-      <p class="nab-summary" itemprop="description">{c["summary"]}</p>
-      <span class="nab-cta">Read Analysis <span class="nab-cta-arrow" aria-hidden="true">&#8594;</span></span>
-    </div>
-  </a>
-</article>
-'''
-
-    return f'''<section class="nab-section" aria-labelledby="nab-h2" itemscope itemtype="https://schema.org/ItemList">
-  <meta itemprop="name" content="NAB Show 2026 Broadcast Technology Updates — The Streamic">
-
-  <!-- ── CINEMATIC BANNER HEADER ──────────────────────────────────── -->
-  <header class="nab-banner" role="banner" aria-label="NAB Show 2026 section header">
+    hero_html = '''<section class="nab-section nab-section-hero-only" aria-labelledby="nab-h2">
+  <header class="nab-banner nab-banner-image" role="banner" aria-label="NAB Show 2026 section header">
     <div class="nab-banner-bg" aria-hidden="true">
-      <img
-        class="nab-banner-img"
-        src="assets/NAB_SHOW_BANNER_NEWS_HEADLINE_HERO.png"
-        alt=""
-        loading="lazy"
-        onerror="this.style.display=&apos;none&apos;"
-      >
+      <img class="nab-banner-hero-img" src="assets/gfx-hero-nab-floor.png" alt="" loading="eager" onerror="this.style.display='none'">
       <div class="nab-banner-overlay" aria-hidden="true"></div>
-      <div class="nab-banner-grain" aria-hidden="true"></div>
+      <div class="nab-banner-vignette" aria-hidden="true"></div>
     </div>
     <div class="nab-banner-content">
       <div class="nab-banner-eyebrow">
         <span class="nab-live-pulse" aria-hidden="true"></span>
-        <span class="nab-banner-label">LIVE COVERAGE</span>
+        <span class="nab-banner-label">Field Report &middot; April 2026</span>
         <span class="nab-banner-sep" aria-hidden="true">&middot;</span>
-        <span class="nab-banner-location">Las Vegas &bull; April 18&ndash;22, 2026</span>
+        <span class="nab-banner-location">Las Vegas &bull; NAB Show 2026</span>
       </div>
-      <h2 id="nab-h2" class="nab-banner-h2">
-        <span class="nab-banner-h2-nab">NAB 2026</span>
-        <span class="nab-banner-h2-hl">Highlights</span>
-      </h2>
-      <p class="nab-banner-sub">Independent editorial analysis of the technology announcements that will reshape broadcast infrastructure, AI-driven production, and streaming distribution through 2027.</p>
-      <a href="ai-post-production.html" class="nab-banner-cta" aria-label="View all NAB 2026 coverage">
-        View all coverage <span aria-hidden="true">&#8594;</span>
-      </a>
+      <h1 id="nab-h2" class="nab-banner-h2 nab-banner-h2-premium">
+        <span class="nab-banner-kicker">Practical Takeaways from NAB 2026</span>
+        <span class="nab-banner-headline">The Year of <em>Hybrid Technology</em></span>
+      </h1>
+      <p class="nab-banner-sub">Beyond the hype: agentic AI, IP 2110 migration, cloud-to-post bridges, and the vendor partnerships that are quietly rewriting the broadcast stack.</p>
+      <a href="articles/nab-2026-hybrid-technology-year.html" class="nab-banner-cta nab-banner-cta-premium" aria-label="Read the full NAB 2026 field report">Read the Field Report <span aria-hidden="true">&#8594;</span></a>
     </div>
   </header>
-  <!-- ── END BANNER ────────────────────────────────────────────────── -->
-
-  <div class="nab-bento">
-    {hero_html}
-    <div class="nab-std-grid">
-      {std_cards}
-    </div>
-  </div>
-
 </section>'''
 
+    cards_wrapper = f'''<section class="nab-section nab-section-cards-only" aria-label="NAB 2026 vendor announcements" itemscope itemtype="https://schema.org/ItemList">
+  <meta itemprop="name" content="NAB Show 2026 Broadcast Technology Updates — The Streamic">
+  <div class="nab-bento nab-bento-stack">
+    {''.join(card_html)}
+  </div>
+</section>'''
+
+    if mode == "hero":
+        return hero_html
+    if mode == "cards":
+        return cards_wrapper
+    return hero_html + cards_wrapper
 
 def editorsdesk_page():
     """Editor's Desk landing page.
@@ -2802,6 +2622,31 @@ def editorsdesk_page():
 <section class="strmc-ed-grid">
 {cards_html}
 </section>
+<section class="hp-flagship-section hp-flagship-section--vlog">
+  <div class="w">
+    <div class="hp-flagship-section__hdr">
+      <div class="hp-sec-hdr">
+        <h2>Flagship Long-Read</h2>
+      </div>
+      <p class="hp-section-intro">A dedicated spotlight for technology concepts that deserve a cleaner, slower read.</p>
+    </div>
+    <a href="articles/quic-http3-video-delivery-streaming-2026.html" class="hp-flagship" aria-label="Read full insight: Beyond TCP">
+      <div class="hp-flagship__body">
+        <span class="hp-flagship__tag">📡 Infrastructure &amp; Streaming</span>
+        <h2 class="hp-flagship__hl">Beyond TCP: Why QUIC Is Redefining Video Delivery</h2>
+        <p class="hp-flagship__summary">Faster video start, fewer buffering issues, and smoother playback — even on weak networks. HTTP/3 and QUIC are quietly improving streaming performance across OTT platforms and live broadcasting.</p>
+        <p class="hp-flagship__body-text">For years, streaming relied on TCP. QUIC improves connection setup, packet loss recovery, and mobility handling, which makes it more relevant to live events, mobile viewing, and premium OTT delivery than many operations teams first assume.</p>
+        <div class="hp-flagship__footer">
+          <div class="hp-flagship__meta"><span class="hp-flagship__author">Prerak K Mehta</span><span class="hp-flagship__role">Broadcast Technology and Media IT Analyst</span><span class="hp-flagship__readtime">⏱ 5 min read</span></div>
+          <span class="hp-flagship__cta">Read Full Insight <span class="hp-flagship__cta-arrow">→</span></span>
+        </div>
+      </div>
+      <div class="hp-flagship__image-wrap">
+        <img class="hp-flagship__img" src="assets/insight-quic-infographic.jpg" alt="QUIC vs TCP streaming performance infographic" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+      </div>
+    </a>
+  </div>
+</section>
 </main>"""
     else:
         # Fallback: no hand-authored articles on disk yet. Show the old
@@ -2868,7 +2713,7 @@ def main():
     print(f"  After slug dedup: {len(arts)} unique articles")
 
     # ── Jaccard near-duplicate cleanup (retroactive) ──────────────────────
-    # Catches cross-feed story re-runs that slipped through rewrite_feed.py
+    # Catches cross-topic story re-runs
     # before the 3-pass dedup was introduced. E.g. "Bitcentral to Showcase
     # Connected Media Workflows" and "Bitcentral To Feature Connected
     # Media Workflows" both about the same NAB press release.
@@ -2967,131 +2812,25 @@ def main():
             if fallback:
                 a["body_html"] = f"<p>{fallback}</p>"
 
-    # ── QUALITY GATE — TWO-TIER SYSTEM ─────────────────────────────────────
-    #
-    # Tier 1 (page exists, internal link works): 400+ words + 2 broadcast terms
-    #   → article HTML page is generated, used by Intelligence section, etc.
-    #   → gets noindex,nofollow (not visible to Google)
-    #
-    # Tier 2 (SEO-visible, fully indexed): 800+ words OR gpt_manual_editorial
-    #   → gets index,follow — the high-quality articles Google sees
-    #
-    # HOMEPAGE PROTECTION: articles hardcoded into the homepage layout
-    # (hero, Latest Insights, Professional Media Systems Guide) always survive.
-    # ─────────────────────────────────────────────────────────────────────────
-
-    MIN_FEED_WORDS = 400   # Word-count floor only.
-                           # Kept at 400 because Groq TPM rate limits cause
-                           # scaffold upgrades to lag — raising the gate
-                           # before upgrades complete strips ~120 articles
-                           # from the visible site (verified in pipeline log
-                           # 2026-04-11 13:22 UTC: 62 pass / 122 rejected).
-                           # The 180-term BROADCAST_TERMS relevance gate
-                           # below is unchanged and remains the primary
-                           # quality protection.
-
-    HOMEPAGE_PROTECTED_SLUGS = {
-        # Hero
-        "ai-reducing-broadcast-operational-costs-2026",
-        # Professional Media Systems Guide
-        "broadcast-automation-systems-guide-2026",
-        "ip-broadcasting-smpte-st2110-engineering-guide-2026",
-        "cloud-broadcast-workflows-remote-production-2026",
-        "media-asset-management-ai-era-monetisation-2026",
-        # Latest Insights
-        "beyond-the-chatbot-operational-ai-newsroom-2026",
-        "st-2110-small-market-hybrid-ip-broadcasters-2026",
-        "paris-2024-cloud-production-legacy-global-events-2026",
-        "c2pa-deepfake-news-credibility-digital-provenance-2026",
-        # Flagship / pillar articles
-        "studio-grade-video-workflow-post-production-2026",
-        "green-broadcast-cloud-carbon-footprint-sustainability-2026",
-    }
-
-    quality_pass, quality_fail = [], []
-    for a in arts:
-        slug = a.get("slug", "")
-
-        # Homepage-protected articles always pass
-        if slug in HOMEPAGE_PROTECTED_SLUGS:
-            quality_pass.append(a)
-            continue
-
-        # Manual editorials: 400-word floor (they're hand-curated)
-        is_manual = a.get("generated_by") == "gpt_manual_editorial"
-        body = a.get("body_html", "") or ""
-        plain = re.sub(r"<[^>]+>", " ", body)
-        plain = re.sub(r"\s+", " ", plain).strip()
-        wc = len(plain.split())
-
-        if is_manual and wc < MIN_FEED_WORDS:
-            quality_fail.append((slug, f"editorial too short ({wc}w, need {MIN_FEED_WORDS})"))
-            continue
-
-        # Auto-generated: need MIN_FEED_WORDS (400) to get a page at all
-        if not is_manual and wc < MIN_FEED_WORDS:
-            quality_fail.append((slug, f"too short ({wc}w, need {MIN_FEED_WORDS})"))
-            continue
-
-        # Broadcast relevance: need 2+ matching terms
-        search_text = (a.get("title", "") + " " + plain).lower()
-        matched = set()
-        for term in BROADCAST_TERMS:
-            if term in search_text:
-                matched.add(term)
-            if len(matched) >= 2:
-                break
-        if len(matched) < 2:
-            quality_fail.append((slug, f"low relevance ({len(matched)} terms)"))
-            continue
-
-        quality_pass.append(a)
-
-    if quality_fail:
-        print(f"  Quality gate: {len(quality_pass)} pass, {len(quality_fail)} rejected")
-        for slug, reason in quality_fail[:10]:
-            print(f"    ✗ {slug[:60]}  — {reason}")
-        if len(quality_fail) > 10:
-            print(f"    … and {len(quality_fail)-10} more")
-    arts = quality_pass
+    # ── PUBLISH EVERYTHING ────────────────────────────────────────────────
+    # All articles in generated_articles.json are hand-curated editorial content.
+    # No word-count gate, no relevance gate, no skip logic.
+    # Future articles added to the JSON will publish automatically.
+    print(f"  Publishing all {len(arts)} articles (gate removed — 100% editorial corpus)")
 
     print(f"  Total articles after quality gate: {len(arts)}")
 
     # ── Fix images: replace typewriters/newspapers with broadcast visuals ──
     _fix_article_images(arts)
 
-    # ── Select top MAX_ARTICLES by quality — editorial always first ───────
-    # SAFE DESIGN: AdSense quality affects index/noindex status, NOT visibility.
-    # Category pages always show articles. Only the robots meta tag differs.
-    # This means cloud.html, streaming.html etc always have content.
-
-    ed_arts  = [a for a in arts if a.get("is_editorial") or a.get("editorial")]
-    rss_pool = [a for a in arts if not a.get("is_editorial") and not a.get("editorial")]
-
-    # Score all RSS articles — high scorers get indexed, others get noindex
-    # but are still rendered on category pages (never blank)
-    rss_pool.sort(key=lambda a: -_score_art(a))
-
-    # Top RSS by score — these get index,follow
-    # Use a per-category quota to ensure diversity: 3 per cat max
-    cat_quota = {}
-    rss_indexed = []
-    for a in rss_pool:
-        cat = a.get("category", "featured")
-        if cat_quota.get(cat, 0) < 3:
-            rss_indexed.append(a)
-            cat_quota[cat] = cat_quota.get(cat, 0) + 1
-        if len(rss_indexed) >= 22:   # max 22 industry briefing indexed slots
-            break
-
-    visible_list  = (ed_arts + rss_indexed)[:MAX_ARTICLES]
+    # ── VISIBILITY: ALL articles are visible and indexed ──────────────────
+    # Editorial-only corpus means every article in JSON is hand-curated,
+    # so every article gets index,follow and full visibility.
+    visible_list  = arts[:MAX_ARTICLES]
     visible_slugs = {a["slug"] for a in visible_list}
+    ed_arts = [a for a in arts if a.get("is_editorial") or a.get("editorial")]
 
-    # Diagnostic
-    rss_indexed_count = len(rss_indexed)
-    rss_noindex_count = len(rss_pool) - rss_indexed_count
-    print(f"  Visible (indexed): {len(visible_slugs)} | Hidden (noindex): {len(arts)-len(visible_slugs)}")
-    print(f"  RSS: {rss_indexed_count} indexed + {rss_noindex_count} noindex (appear on pages, not in search)")
+    print(f"  Visible &amp; indexed: {len(visible_slugs)} articles")
 
     os.makedirs(ARTS_D, exist_ok=True)
 
@@ -3217,15 +2956,18 @@ def main():
     w(os.path.join(DOCS,"howto.html"),            howto_page())
     w(os.path.join(DOCS,"insights.html"),         insights_page())
     w(os.path.join(DOCS,"post-production-workflows.html"), post_production_workflows_page())
-    # Write Editor's Desk to editorsdesk.html (new canonical name).
-    w(os.path.join(DOCS, "editorsdesk.html"), editorsdesk_page())
+    # Write Editor's Desk to editorsdesk.html and vlog.html for the QUIC landing.
+    ed_html = editorsdesk_page()
+    w(os.path.join(DOCS, "editorsdesk.html"), ed_html)
+    vlog_html = ed_html.replace("Editor's Desk — The Streamic", "Vlog — The Streamic", 1)
+    w(os.path.join(DOCS, "vlog.html"), vlog_html)
+    w(os.path.join(ROOT, "vlog.html"), vlog_html)
 
     # ── AdSense compliance: delete thin redirect stubs + template junk ────
     # AdSense flags 4-word <meta refresh> redirect pages as "low-value
     # content." Soft-redirect stubs and thin template pages have no unique
     # content — they must return 404, not render with AdSense scripts.
     _ADSENSE_PURGE = [
-        "vlog.html",                   # redirect stub (old)
         "how-to.html",                 # redirect stub → howto.html
         "broadcast-systems-hub.html",  # 4-word redirect stub → index.html
         "featured_priority.html",      # 276w template junk (data-layer artifact)
@@ -3263,11 +3005,12 @@ def main():
         if os.path.isfile(src_f): shutil.copy2(src_f, os.path.join(ROOT, fn))
 
     # ── How-to guide article pages — always write from HOWTO_GUIDE_CONTENT ──
+    # Self-healing: overwrites any 410-stub or missing file in docs/articles/
     guide_written = 0
     for g_slug, g_data in HOWTO_GUIDE_CONTENT.items():
         g_html = howto_article_page(g_slug, g_data)
         g_dest = os.path.join(ARTS_D, f"{g_slug}.html")
-        w(g_dest, g_html)          # always overwrite — self-heals any 410 stubs
+        w(g_dest, g_html)
         guide_written += 1
     print(f"  &#10003; {guide_written} how-to guide article pages written (self-healing 410 stubs)")
 
@@ -3299,23 +3042,6 @@ def main():
     # ── docs/data/ for client-side JS — only visible articles ────────────
     docs_data_dir = os.path.join(DOCS, "data")
     os.makedirs(docs_data_dir, exist_ok=True)
-
-    news_src = os.path.join(ROOT, "data", "news.json")
-    if os.path.exists(news_src):
-        with open(news_src,encoding="utf-8") as f: raw = json.load(f)
-        if isinstance(raw,list):
-            out = {"featured_priority":raw[:6],"items":raw[6:]}
-        elif isinstance(raw,dict) and "items" in raw:
-            out = raw
-        else:
-            flat=[]
-            for cat,lst in raw.items():
-                for it in (lst or []): it.setdefault("category",cat); flat.append(it)
-            flat.sort(key=lambda x:x.get("pubDate",""),reverse=True)
-            out = {"featured_priority":flat[:6],"items":flat[6:]}
-        with open(os.path.join(docs_data_dir,"news.json"),"w",encoding="utf-8") as f:
-            json.dump(out,f,ensure_ascii=False)
-        print(f"  &#10003; docs/data/news.json ({len(out.get('items',[]))} items)")
 
     gen_src = os.path.join(ROOT, "data", "generated_articles.json")
     if os.path.exists(gen_src):
