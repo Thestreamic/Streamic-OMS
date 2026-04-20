@@ -929,49 +929,6 @@ def load_homepage_feed(arts, limit=14):
         wc = len(re.sub(r'<[^>]+>',' ',body).split())
         return (a.get('published',''), wc)
 
-    mapped.sort(key=_feed_sort, reverse=True)
-
-    # Fallback (never empty)
-    if not mapped:
-        mapped = sorted(
-            [a for a in arts if a.get("slug")],
-            key=lambda a: a.get("published",""),
-            reverse=True
-        )
-
-    return mapped[:limit]
-        url = item.get('link') or item.get('url') or item.get('guid')
-        title_key = (item.get('title') or '').strip().lower()
-        art = by_url.get(url) or by_title.get(title_key)
-        if not art or not art.get('slug'):
-            continue  # skip items without internal article — no external links
-        merged = dict(art)
-        merged.update({
-            'title': item.get('title') or merged.get('title',''),
-            'category': item.get('category') or merged.get('category','featured'),
-            'source_domain': item.get('source') or item.get('source_domain') or _source_name(url) or merged.get('source_domain',''),
-            'published': item.get('pubDate') or item.get('published') or merged.get('published',''),
-            'source_url': url or merged.get('source_url',''),
-            'url': url or merged.get('url',''),
-            # COPYRIGHT FIX: prefer the article's pool-normalized image_url
-            # over any legacy thumbnail. The previous order
-            # shipped copyrighted vendor PR photos into Breaking News,
-            # bypassing _fix_article_images() entirely.
-            'image_url': merged.get('image_url') or item.get('image') or '',
-            'slug': art['slug'],
-        })
-        key = merged['slug']
-        if key not in seen:
-            seen.add(key)
-            mapped.append(merged)
-
-    # Sort: newest first, then by body length (prefer longer articles)
-    def _feed_sort(a):
-        body = a.get('body_html','') or ''
-        wc = len(re.sub(r'<[^>]+>',' ',body).split())
-        return (a.get('published',''), wc)
-    mapped.sort(key=_feed_sort, reverse=True)
-
     if not mapped:
         mapped = sorted([a for a in arts if not a.get('is_editorial') and not a.get('editorial')], key=lambda a: a.get('published',''), reverse=True)[:limit]
     return mapped[:limit]
