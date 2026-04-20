@@ -2616,7 +2616,7 @@ def main():
             if fallback:
                 a["body_html"] = f"<p>{fallback}</p>"
 
-    # ── QUALITY GATE — TWO-TIER SYSTEM ─────────────────────────────────────
+       # ── QUALITY GATE — TWO-TIER SYSTEM ─────────────────────────────────────
     #
     # Tier 1 (page exists, internal link works): 400+ words + 2 broadcast terms
     #   → article HTML page is generated, used by Intelligence section, etc.
@@ -2657,7 +2657,6 @@ def main():
         "green-broadcast-cloud-carbon-footprint-sustainability-2026",
     }
 
-     quality_pass, quality_fail = [], []
     GUIDE_EXEMPT_SLUGS = {
         "guide-premiere-to-avid",
         "guide-vantage-nas-transcode",
@@ -2670,6 +2669,8 @@ def main():
         "guide-windows11-upgrade",
         "guide-macos-upgrade",
     }
+
+    quality_pass, quality_fail = [], []
 
     for a in arts:
         slug = a.get("slug", "")
