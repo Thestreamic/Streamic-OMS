@@ -2030,11 +2030,11 @@ def post_production_workflows_page():
   </a>
 
   <!-- CARD 2 -->
-  <a href="articles/studio-di-pipeline-workflow-2026.html"
+  <a href="articles/2026-04-01-ai-post-production-frameio-workfront-review-approval-workflow.html"
      style="position:relative;display:block;overflow:hidden;border-radius:20px;min-height:200px;background:#111;text-decoration:none;color:#fff;box-shadow:0 10px 28px rgba(0,0,0,.12)">
 
-    <img src="assets/images/post_production/color-grading-suite.jpg"
-         alt="DI Pipeline Workflow"
+    <img src="assets/images/post_production/cloud-review-workflow.jpg"
+         alt="Frame.io Workfront Review Workflow"
          loading="lazy"
          onerror="this.onerror=null;this.src='assets/fallback.jpg'"
          style="width:100%;height:100%;object-fit:cover;opacity:.9">
@@ -2042,16 +2042,15 @@ def post_production_workflows_page():
     <div style="position:absolute;inset:0;background:linear-gradient(to top, rgba(0,0,0,.85), rgba(0,0,0,.2))"></div>
 
     <div style="position:absolute;bottom:0;padding:18px">
-      <span style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;opacity:.8">DI Pipeline</span>
+      <span style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;opacity:.8">Cloud Collaboration</span>
       <h3 style="margin:6px 0 6px;font-family:var(--serif);font-size:20px;line-height:1.25">
-        Studio DI Pipeline Workflow 2026
+        Frame.io + Workfront Review Workflow
       </h3>
       <p style="font-size:13px;opacity:.85;line-height:1.5">
-        How modern DI pipelines connect grading, review, versioning, and finishing without workflow friction.
+        How AI-assisted review and approval workflows connect creative teams, stakeholders, and delivery pipelines.
       </p>
     </div>
   </a>
-
 </div>
 <h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">Related Streamic sections</h2>
 <ul style="font-size:15px;color:var(--ink3);line-height:1.9;padding-left:22px;margin-bottom:20px">
