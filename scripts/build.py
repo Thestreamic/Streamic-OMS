@@ -2657,32 +2657,32 @@ def main():
         "green-broadcast-cloud-carbon-footprint-sustainability-2026",
     }
 
-    quality_pass, quality_fail = [], []
+     quality_pass, quality_fail = [], []
     GUIDE_EXEMPT_SLUGS = {
-    "guide-premiere-to-avid",
-    "guide-vantage-nas-transcode",
-    "guide-vantage-aws-transcode",
-    "guide-avid-strawberry",
-    "guide-audio-conform-avid-protools",
-    "guide-media-central-cache",
-    "guide-avid-media-central-health-check",
-    "guide-vizrt-avid-integration",
-    "guide-windows11-upgrade",
-    "guide-macos-upgrade",
-}
+        "guide-premiere-to-avid",
+        "guide-vantage-nas-transcode",
+        "guide-vantage-aws-transcode",
+        "guide-avid-strawberry",
+        "guide-audio-conform-avid-protools",
+        "guide-media-central-cache",
+        "guide-avid-media-central-health-check",
+        "guide-vizrt-avid-integration",
+        "guide-windows11-upgrade",
+        "guide-macos-upgrade",
+    }
 
-for a in arts:
-    slug = a.get("slug", "")
+    for a in arts:
+        slug = a.get("slug", "")
 
-    # Homepage-protected articles always pass
-    if slug in HOMEPAGE_PROTECTED_SLUGS:
-        quality_pass.append(a)
-        continue
+        # Homepage-protected articles always pass
+        if slug in HOMEPAGE_PROTECTED_SLUGS:
+            quality_pass.append(a)
+            continue
 
-    # Hand-made / evergreen how-to guides must stay live
-    if slug in GUIDE_EXEMPT_SLUGS:
-        quality_pass.append(a)
-        continue
+        # Hand-made / evergreen how-to guides must stay live
+        if slug in GUIDE_EXEMPT_SLUGS:
+            quality_pass.append(a)
+            continue
 
         # Manual editorials: 400-word floor (they're hand-curated)
         is_manual = a.get("generated_by") == "gpt_manual_editorial"
