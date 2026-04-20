@@ -11,20 +11,20 @@
   <script>gtag('js',new Date());gtag('config','G-0VSHDN3ZR6');</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Strawberry PAM + Avid Media Composer Workflow | The Streamic</title>
-  <meta name="description" content="Configure Production Flow's Strawberry for collaborative editing with Avid Media Composer. Shared storage, ingest hot folders, version control, and automated delivery.">
+  <title>Strawberry PAM + Avid Media Composer: Collaborative Editing Setup | The Streamic</title>
+  <meta name="description" content="Configure Production Flow Strawberry for collaborative Avid Media Composer editing: shared storage, hot-folder ingest, version control, and automated delivery.">
   <meta name="robots" content="index,follow">
   <meta name="author" content="The Streamic Editorial Team">
   <link rel="canonical" href="https://www.thestreamic.in/articles/guide-avid-strawberry.html">
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="The Streamic">
-  <meta property="og:title" content="Strawberry PAM + Avid Media Composer Workflow | The Streamic">
-  <meta property="og:description" content="Configure Production Flow's Strawberry for collaborative editing with Avid Media Composer. Shared storage, ingest hot folders, version control, and automated delivery.">
+  <meta property="og:title" content="Strawberry PAM + Avid Media Composer: Collaborative Editing Setup | The Streamic">
+  <meta property="og:description" content="Configure Production Flow Strawberry for collaborative Avid Media Composer editing: shared storage, hot-folder ingest, version control, and automated delivery.">
   <meta property="og:url" content="https://www.thestreamic.in/articles/guide-avid-strawberry.html">
-  <meta property="og:image" content="https://www.thestreamic.in/assets/fallback.jpg">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../homepage-layout.css">
 </head>
 <body>
 <nav class="nav">
@@ -55,59 +55,65 @@
       <span>›</span>
       <a href="../howto.html" style="color:var(--blue)">How-To Guides</a>
     </div>
-    <span class="art-tag" style="background:var(--blue)">How-To Guide</span>
-    <h1>Strawberry PAM + Avid Media Composer Workflow</h1>
-    <p class="art-dek">Configure Production Flow's Strawberry for collaborative editing with Avid Media Composer. Shared storage, ingest hot folders, version control, and automated delivery.</p>
+    <span class="art-tag" style="background:var(--blue)">&#128295; Strawberry PAM · Avid</span>
+    <h1>Strawberry PAM + Avid Media Composer: Collaborative Editing Setup</h1>
+    <p class="art-dek">Configure Production Flow Strawberry for collaborative Avid Media Composer editing: shared storage, hot-folder ingest, version control, and automated delivery.</p>
     <div class="art-byline">
       <strong>The Streamic Editorial Team</strong>
-      <span>10 min</span>
-      <span>671 words · 3 min read</span>
-      <span style="background:var(--blue);color:#fff;padding:3px 9px;border-radius:5px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.8px">Guide</span>
+      <span>&#128337; 10 min read</span>
+      <span style="background:#10b981;color:#fff;padding:3px 9px;border-radius:5px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.8px">How-To Guide</span>
     </div>
-    <figure>
-      <img src="../assets/fallback.jpg" alt="Strawberry PAM + Avid Media Composer Workflow" loading="eager">
-      <figcaption>The Streamic — Site Asset</figcaption>
-    </figure>
     <div class="art-body">
-<p>Strawberry PAM + Avid Media Composer Workflow is a practical operations guide focused on production asset management with collaborative Avid editorial. In many broadcast and post environments, the failure point is not the headline feature itself. It is the handoff between systems, the small configuration mismatch that is left undocumented, or the assumption that the next team in the chain sees the same metadata and media state you do. This guide is written to reduce those avoidable failures and to make the workflow repeatable for engineering, editorial, and support teams.</p>
+<h2>What Strawberry adds to an Avid shop</h2>
+<p>Strawberry from Production Flow is a Production Asset Management (PAM) layer that sits on top of Avid Nexis (or an SMB share) and gives editors a web UI for browsing, tagging, and handing off projects. It&#39;s not a replacement for MediaCentral — it&#39;s a lightweight alternative for facilities that need collaborative workflow but don&#39;t want the MediaCentral licensing overhead. The sweet spot is a 5–15 seat post facility.</p>
+<h2>Shared storage architecture</h2>
+<p>Strawberry needs one &quot;workspace root&quot; — a shared volume visible to every editor at the same mount path (e.g. <code>/Volumes/shared</code> on macOS, <code>Z:\</code> on Windows). Avid Nexis workspaces work fine; so do SMB shares served from a TrueNAS or Synology box. For workstations connecting over 10GbE, a SSD-backed NAS can sustain 4–6 concurrent HD streams without stuttering. For remote editors, add a caching layer or switch to proxy-based editing.</p>
+<h2>Avid project structure</h2>
+<p>Strawberry expects each Avid project to live in its own folder under the workspace root: <code>/Volumes/shared/ProjectName/</code>. Inside, standard Avid subfolders: <code>Avid Projects/</code>, <code>Avid MediaFiles/MXF/1/</code>, and a Strawberry-specific <code>_Strawberry/</code> that holds metadata. Editors open projects via Media Composer&#39;s normal open dialog; Strawberry runs alongside as a web UI in a browser tab.</p>
+<h2>Ingest hot folders</h2>
+<p>Configure Strawberry&#39;s ingest rules in the web admin. Create a &quot;Rushes&quot; hot folder at <code>/Volumes/shared/_ingest/</code>. Rules: incoming files tagged by date, transcoded to DNxHD 36 (proxy) + DNxHD 120 (online), attached as AMA-linked or fully imported based on size. For XDCAM EX or AVCHD source, enable the auto-transcode rule — playback in Avid is much smoother after transcode than via AMA on these codecs.</p>
+<h2>Version control &amp; project locking</h2>
+<p>Strawberry&#39;s killer feature is project-level locking. When Editor A opens a project, Strawberry marks it locked in its database and other editors see a read-only indicator. When A closes the project, the lock releases. For finer granularity, use bins rather than whole projects — multi-editor concurrent editing on separate bins of the same project is supported. Avoid two editors editing the same bin at the same time; Avid&#39;s internal bin locking is per-file and conflicts produce silent data loss.</p>
+<h2>Automated delivery</h2>
+<p>Strawberry can trigger downstream workflows when an editor tags a sequence &quot;Delivered&quot;. Typical pattern: tag fires a webhook to Telestream Vantage, which picks up the sequence&#39;s export, transcodes it to delivery spec, and pushes to S3 or the client&#39;s MAM. This closes the loop from edit bay to CDN without a human re-exporting files. Monitor the webhook queue in Strawberry&#39;s admin — failed hand-offs are the most common break point and easy to miss.</p>
+<h2>Editor adoption and training</h2>
+<p>The hardest part of a Strawberry deployment is not the technical setup — it&#39;s getting editors to adopt the web UI instead of reverting to the Finder or Windows Explorer. Budget a dedicated half-day training session per editor that covers: browsing the rushes folder via Strawberry rather than the OS file browser, tagging sequences with delivery-ready metadata, using the metadata search to find shots across old projects, and proper locking etiquette when multiple editors work on adjacent bins. The payoff is measurable: facilities that fully adopt Strawberry workflow typically reclaim 20 to 30 minutes per editor per day that was previously spent manually hunting for files. Track adoption metrics for the first month and coach the stragglers individually rather than hoping they&#39;ll catch up on their own.</p>
 
-<p>The workflow surface here spans Production Flow Strawberry, Avid Media Composer, shared storage, ingest orchestration, and version-aware post workflows. That means the right approach is never just to click through a setup screen and hope for the best. You need to confirm media paths, naming discipline, timecode consistency, codec expectations, permissions, and rollback options before a change touches live or deadline-driven work. The safer mindset is to treat every workflow as a chain. If one link is weak, the issue usually appears downstream where it is harder to diagnose.</p>
-
-<h2>What this guide is designed to solve</h2>
-<p>Configure Production Flow's Strawberry for collaborative editing with Avid Media Composer. Shared storage, ingest hot folders, version control, and automated delivery. The goal is not just to complete a one-time setup. The goal is to build a method that another operator, engineer, or assistant editor can follow later without re-learning the environment from scratch. That is what makes a workflow operationally useful. A reliable guide should tell you what to validate before you begin, where the common breakpoints are, and what evidence proves the workflow is actually healthy.</p>
-
-<p>On The Streamic, we treat workflow documentation as part of media systems engineering. That means checking whether the process preserves timecode, metadata, file naming, path mapping, and output predictability. It also means thinking about what happens when something goes wrong: a missing plugin, a stale cache, a storage permission mismatch, or a job that appears complete but lands in the wrong format or wrong location.</p>
-
-<h2>Operational checkpoints</h2>
-<p>Before applying any of the steps in this guide, confirm the environment baseline. Verify software versions, plugin compatibility, storage visibility, account permissions, and any required service health. If the workflow touches shared storage or cloud targets, confirm write access and naming conventions first. If the workflow passes between editorial and engineering teams, decide who owns validation at each stage so an error is caught early instead of after delivery.</p>
-
-<ul>
-  <li>Confirm source and destination paths before testing with real material.</li>
-  <li>Validate timecode, audio mapping, and expected file format on a short reference asset.</li>
-  <li>Check logs, job history, or status panels rather than relying only on UI success messages.</li>
-  <li>Document the rollback step before changing a working production workflow.</li>
-</ul>
-
-<h2>Why this matters in real broadcast operations</h2>
-<p>Broadcast and media teams rarely fail because they lack features. They fail because a workflow behaves differently under deadline pressure than it did in a controlled test. A post pipeline may appear stable until a late metadata change, a path remap, or a codec exception forces manual intervention. That is why the most valuable workflow guides are explicit, boring, and repeatable. They reduce heroics. They reduce assumptions. They make the system easier to support at 02:00 when a deadline leaves no room for guesswork.</p>
-
-<p>This guide therefore sits in the practical middle ground between vendor documentation and real facility operations. Vendor documentation explains what the product can do. An operational guide explains what the facility must confirm so the workflow holds together under real usage. That distinction matters for post-production, newsroom support, and any environment where one missed detail can cascade into rework.</p>
-
-<h2>Engineering note</h2>
-<p>Use this guide as a baseline and adapt it to your own site standards. If your facility already has naming rules, storage tiering, approval gates, or service-monitoring practices, map the workflow into those rather than creating one more isolated exception. The best workflow is the one your team can support consistently. That is the standard this page is intended to support.</p>
-</div>
+    </div>
     <div class="art-author">
       <strong>About this guide</strong>
-      Practical workflow guidance from The Streamic for broadcast engineers, editors, and media operations teams.
-      <a href="../about.html" style="color:var(--blue);margin-left:6px;">About The Streamic &rarr;</a>
+      Written by The Streamic Editorial Team. Practical broadcast and post-production workflow guide for engineers and media operations teams.
+      <a href="/about.html" style="color:var(--blue);margin-left:6px;">About The Streamic &rarr;</a>
     </div>
     <div class="art-more">
-      <h3>Continue Reading</h3>
-      <a href="../howto.html">🛠 All How-To Guides</a>
-      <a href="../featured.html">⭐ Featured Stories</a>
+      <h3>More How-To Guides</h3>
+      <a href="../howto.html">&#128295; All How-To Guides</a>
+      <a href="../featured.html">&#11088; Featured Stories</a>
     </div>
   </div>
 </main>
+<script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Strawberry PAM + Avid Media Composer: Collaborative Editing Setup",
+  "description": "Configure Production Flow Strawberry for collaborative Avid Media Composer editing: shared storage, hot-folder ingest, version control, and automated delivery.",
+  "datePublished": "2026-01-15",
+  "dateModified": "2026-01-15",
+  "author": {
+    "@type": "Organization",
+    "name": "The Streamic Editorial Team"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "The Streamic",
+    "url": "https://www.thestreamic.in",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://www.thestreamic.in/assets/logo.png"
+    }
+  },
+  "mainEntityOfPage": "https://www.thestreamic.in/articles/guide-avid-strawberry.html"
+}</script>
 <footer class="footer">
   <div class="footer-gold" aria-hidden="true"></div>
   <div class="footer-grid">
@@ -182,4 +188,5 @@
     ad_user_data:'denied',ad_personalization:'denied'});
 })();
 </script>
-</body></html>
+</body>
+</html>

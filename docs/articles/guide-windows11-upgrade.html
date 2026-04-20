@@ -11,20 +11,20 @@
   <script>gtag('js',new Date());gtag('config','G-0VSHDN3ZR6');</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Upgrade to Windows 11 | The Streamic</title>
-  <meta name="description" content="Step-by-step upgrade guide for broadcast workstations and edit suites. Compatibility checks, driver verification, and rollback procedure.">
+  <title>Upgrading Broadcast Workstations to Windows 11 | The Streamic</title>
+  <meta name="description" content="Pre-upgrade compatibility checks, driver verification, and rollback procedure for upgrading post and broadcast IT workstations to Windows 11.">
   <meta name="robots" content="index,follow">
   <meta name="author" content="The Streamic Editorial Team">
   <link rel="canonical" href="https://www.thestreamic.in/articles/guide-windows11-upgrade.html">
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="The Streamic">
-  <meta property="og:title" content="Upgrade to Windows 11 | The Streamic">
-  <meta property="og:description" content="Step-by-step upgrade guide for broadcast workstations and edit suites. Compatibility checks, driver verification, and rollback procedure.">
+  <meta property="og:title" content="Upgrading Broadcast Workstations to Windows 11 | The Streamic">
+  <meta property="og:description" content="Pre-upgrade compatibility checks, driver verification, and rollback procedure for upgrading post and broadcast IT workstations to Windows 11.">
   <meta property="og:url" content="https://www.thestreamic.in/articles/guide-windows11-upgrade.html">
-  <meta property="og:image" content="https://www.thestreamic.in/assets/fallback.jpg">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../homepage-layout.css">
 </head>
 <body>
 <nav class="nav">
@@ -55,59 +55,65 @@
       <span>›</span>
       <a href="../howto.html" style="color:var(--blue)">How-To Guides</a>
     </div>
-    <span class="art-tag" style="background:var(--blue)">How-To Guide</span>
-    <h1>Upgrade to Windows 11</h1>
-    <p class="art-dek">Step-by-step upgrade guide for broadcast workstations and edit suites. Compatibility checks, driver verification, and rollback procedure.</p>
+    <span class="art-tag" style="background:var(--blue)">&#128295; IT · Windows</span>
+    <h1>Upgrading Broadcast Workstations to Windows 11</h1>
+    <p class="art-dek">Pre-upgrade compatibility checks, driver verification, and rollback procedure for upgrading post and broadcast IT workstations to Windows 11.</p>
     <div class="art-byline">
       <strong>The Streamic Editorial Team</strong>
-      <span>5 min</span>
-      <span>661 words · 3 min read</span>
-      <span style="background:var(--blue);color:#fff;padding:3px 9px;border-radius:5px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.8px">Guide</span>
+      <span>&#128337; 5 min read</span>
+      <span style="background:#10b981;color:#fff;padding:3px 9px;border-radius:5px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.8px">How-To Guide</span>
     </div>
-    <figure>
-      <img src="../assets/fallback.jpg" alt="Upgrade to Windows 11" loading="eager">
-      <figcaption>The Streamic — Site Asset</figcaption>
-    </figure>
     <div class="art-body">
-<p>Upgrade to Windows 11 is a practical operations guide focused on operating system upgrade planning for broadcast workstations. In many broadcast and post environments, the failure point is not the headline feature itself. It is the handoff between systems, the small configuration mismatch that is left undocumented, or the assumption that the next team in the chain sees the same metadata and media state you do. This guide is written to reduce those avoidable failures and to make the workflow repeatable for engineering, editorial, and support teams.</p>
+<h2>Should you upgrade at all?</h2>
+<p>Windows 10 extended support ended in October 2025; Windows 11 is now effectively mandatory for any workstation on a Microsoft-supported track. For broadcast workstations, the real question isn&#39;t whether to upgrade but when — the answer is &quot;after your NLE vendor has certified their version against Windows 11&quot;. Avid Media Composer 2024.6+ is certified; DaVinci Resolve 19+ is certified; older versions may run but without vendor support.</p>
+<h2>Hardware compatibility</h2>
+<p>Windows 11 mandates TPM 2.0, Secure Boot, and a supported CPU (Intel 8th-gen+, AMD Zen 2+). Most broadcast-grade HP Z-series and Dell Precision workstations from 2019 onwards meet this. Older boxes — particularly custom-built edit stations from the mid-2010s — often fail the CPU check even if the TPM is present. Use Microsoft&#39;s <strong>PC Health Check</strong> tool first; don&#39;t try to upgrade a machine that fails and hope for the best.</p>
+<h2>Pre-upgrade backup</h2>
+<p>Full disk image first, always. <strong>Macrium Reflect Free</strong> does this well. Back up Avid project folders separately to a second drive (not the Windows system drive). Export any licensed software&#39;s activation state where supported — some broadcast tools use node-locked licences that can be a pain to re-activate after a Windows reinstall. Document all installed plugins and their version numbers before starting.</p>
+<h2>Driver verification</h2>
+<p>Before the upgrade, download Windows 11 drivers for the GPU (Nvidia Studio driver, not Game-Ready), audio interface (RME, Focusrite, whichever), any SDI or NDI capture cards (AJA, Blackmagic), and any USB dongles used for software licensing (iLok, Sentinel, SafeNet). Stage these on a USB stick. Post-upgrade, install these in order: GPU first, capture cards second, audio last — this avoids conflicts in the driver store.</p>
+<h2>The upgrade itself</h2>
+<p>Use the in-place upgrade path via Windows Update or the Media Creation Tool. For a 10-person post department, stage the upgrade: do one workstation first, run it for a week in production, only then roll out to the rest. Expect the upgrade to take 60–90 minutes per workstation plus 30 minutes of post-upgrade driver installs and NLE re-authorisation.</p>
+<h2>Rollback</h2>
+<p>If something breaks badly, Windows 11 keeps a <code>Windows.old</code> folder for 10 days; you can revert from Settings &gt; System &gt; Recovery &gt; Go back. After 10 days or if you&#39;ve freed up disk space, you&#39;re committed — which is why the Macrium image matters. Keep the image for 30 days post-upgrade before deleting. Any serious regression that shows up later probably relates to a specific app/driver combination and is fixable in-place without a full rollback.</p>
+<h2>Post-upgrade validation</h2>
+<p>Once upgraded, run through a rigorous validation checklist on each workstation before returning it to production use. Verify: your primary NLE opens a real project without warnings; playback of 1080p DNxHD files runs without any dropped frames over a 5-minute test; SDI or NDI capture card input shows up correctly in the NLE source list; audio I/O devices appear in the NLE&#39;s audio settings and route correctly; all licensed plugins appear in the effects browser with no red warnings. Any &quot;missing plugin&quot; warning means you&#39;re relying on an old binary that won&#39;t actually work under the new OS — fix it before going live. Keep the post-upgrade validation results in a shared document so IT can cross-check workstation configurations six months later when an editor reports &quot;it was working fine yesterday.&quot;</p>
 
-<p>The workflow surface here spans Windows 11, broadcast device drivers, workstation validation, rollback planning, and post-production support. That means the right approach is never just to click through a setup screen and hope for the best. You need to confirm media paths, naming discipline, timecode consistency, codec expectations, permissions, and rollback options before a change touches live or deadline-driven work. The safer mindset is to treat every workflow as a chain. If one link is weak, the issue usually appears downstream where it is harder to diagnose.</p>
-
-<h2>What this guide is designed to solve</h2>
-<p>Step-by-step upgrade guide for broadcast workstations and edit suites. Compatibility checks, driver verification, and rollback procedure. The goal is not just to complete a one-time setup. The goal is to build a method that another operator, engineer, or assistant editor can follow later without re-learning the environment from scratch. That is what makes a workflow operationally useful. A reliable guide should tell you what to validate before you begin, where the common breakpoints are, and what evidence proves the workflow is actually healthy.</p>
-
-<p>On The Streamic, we treat workflow documentation as part of media systems engineering. That means checking whether the process preserves timecode, metadata, file naming, path mapping, and output predictability. It also means thinking about what happens when something goes wrong: a missing plugin, a stale cache, a storage permission mismatch, or a job that appears complete but lands in the wrong format or wrong location.</p>
-
-<h2>Operational checkpoints</h2>
-<p>Before applying any of the steps in this guide, confirm the environment baseline. Verify software versions, plugin compatibility, storage visibility, account permissions, and any required service health. If the workflow touches shared storage or cloud targets, confirm write access and naming conventions first. If the workflow passes between editorial and engineering teams, decide who owns validation at each stage so an error is caught early instead of after delivery.</p>
-
-<ul>
-  <li>Confirm source and destination paths before testing with real material.</li>
-  <li>Validate timecode, audio mapping, and expected file format on a short reference asset.</li>
-  <li>Check logs, job history, or status panels rather than relying only on UI success messages.</li>
-  <li>Document the rollback step before changing a working production workflow.</li>
-</ul>
-
-<h2>Why this matters in real broadcast operations</h2>
-<p>Broadcast and media teams rarely fail because they lack features. They fail because a workflow behaves differently under deadline pressure than it did in a controlled test. A post pipeline may appear stable until a late metadata change, a path remap, or a codec exception forces manual intervention. That is why the most valuable workflow guides are explicit, boring, and repeatable. They reduce heroics. They reduce assumptions. They make the system easier to support at 02:00 when a deadline leaves no room for guesswork.</p>
-
-<p>This guide therefore sits in the practical middle ground between vendor documentation and real facility operations. Vendor documentation explains what the product can do. An operational guide explains what the facility must confirm so the workflow holds together under real usage. That distinction matters for post-production, newsroom support, and any environment where one missed detail can cascade into rework.</p>
-
-<h2>Engineering note</h2>
-<p>Use this guide as a baseline and adapt it to your own site standards. If your facility already has naming rules, storage tiering, approval gates, or service-monitoring practices, map the workflow into those rather than creating one more isolated exception. The best workflow is the one your team can support consistently. That is the standard this page is intended to support.</p>
-</div>
+    </div>
     <div class="art-author">
       <strong>About this guide</strong>
-      Practical workflow guidance from The Streamic for broadcast engineers, editors, and media operations teams.
-      <a href="../about.html" style="color:var(--blue);margin-left:6px;">About The Streamic &rarr;</a>
+      Written by The Streamic Editorial Team. Practical broadcast and post-production workflow guide for engineers and media operations teams.
+      <a href="/about.html" style="color:var(--blue);margin-left:6px;">About The Streamic &rarr;</a>
     </div>
     <div class="art-more">
-      <h3>Continue Reading</h3>
-      <a href="../howto.html">🛠 All How-To Guides</a>
-      <a href="../featured.html">⭐ Featured Stories</a>
+      <h3>More How-To Guides</h3>
+      <a href="../howto.html">&#128295; All How-To Guides</a>
+      <a href="../featured.html">&#11088; Featured Stories</a>
     </div>
   </div>
 </main>
+<script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Upgrading Broadcast Workstations to Windows 11",
+  "description": "Pre-upgrade compatibility checks, driver verification, and rollback procedure for upgrading post and broadcast IT workstations to Windows 11.",
+  "datePublished": "2026-01-15",
+  "dateModified": "2026-01-15",
+  "author": {
+    "@type": "Organization",
+    "name": "The Streamic Editorial Team"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "The Streamic",
+    "url": "https://www.thestreamic.in",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://www.thestreamic.in/assets/logo.png"
+    }
+  },
+  "mainEntityOfPage": "https://www.thestreamic.in/articles/guide-windows11-upgrade.html"
+}</script>
 <footer class="footer">
   <div class="footer-gold" aria-hidden="true"></div>
   <div class="footer-grid">
@@ -182,4 +188,5 @@
     ad_user_data:'denied',ad_personalization:'denied'});
 })();
 </script>
-</body></html>
+</body>
+</html>

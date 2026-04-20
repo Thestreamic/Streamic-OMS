@@ -12,19 +12,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Avid MediaCentral Health Check: Services, Connections, and Logs | The Streamic</title>
-  <meta name="description" content="Run a full pre-air health check - verify MCPS services, Interplay and iNEWS connections, licensing, and system logs before going on air.">
+  <meta name="description" content="Run a full pre-air health check — verify MCPS services, Interplay and iNEWS connections, licensing, and system logs before going on air.">
   <meta name="robots" content="index,follow">
   <meta name="author" content="The Streamic Editorial Team">
   <link rel="canonical" href="https://www.thestreamic.in/articles/guide-avid-media-central-health-check.html">
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="The Streamic">
   <meta property="og:title" content="Avid MediaCentral Health Check: Services, Connections, and Logs | The Streamic">
-  <meta property="og:description" content="Run a full pre-air health check - verify MCPS services, Interplay and iNEWS connections, licensing, and system logs before going on air.">
+  <meta property="og:description" content="Run a full pre-air health check — verify MCPS services, Interplay and iNEWS connections, licensing, and system logs before going on air.">
   <meta property="og:url" content="https://www.thestreamic.in/articles/guide-avid-media-central-health-check.html">
-  <meta property="og:image" content="https://www.thestreamic.in/assets/fallback.jpg">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../homepage-layout.css">
 </head>
 <body>
 <nav class="nav">
@@ -55,59 +55,65 @@
       <span>›</span>
       <a href="../howto.html" style="color:var(--blue)">How-To Guides</a>
     </div>
-    <span class="art-tag" style="background:var(--blue)">How-To Guide</span>
+    <span class="art-tag" style="background:var(--blue)">&#128295; MediaCentral · Admin</span>
     <h1>Avid MediaCentral Health Check: Services, Connections, and Logs</h1>
-    <p class="art-dek">Run a full pre-air health check - verify MCPS services, Interplay and iNEWS connections, licensing, and system logs before going on air.</p>
+    <p class="art-dek">Run a full pre-air health check — verify MCPS services, Interplay and iNEWS connections, licensing, and system logs before going on air.</p>
     <div class="art-byline">
       <strong>The Streamic Editorial Team</strong>
-      <span>12 min</span>
-      <span>671 words · 3 min read</span>
-      <span style="background:var(--blue);color:#fff;padding:3px 9px;border-radius:5px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.8px">Guide</span>
+      <span>&#128337; 7 min read</span>
+      <span style="background:#10b981;color:#fff;padding:3px 9px;border-radius:5px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.8px">How-To Guide</span>
     </div>
-    <figure>
-      <img src="../assets/fallback.jpg" alt="Avid MediaCentral Health Check: Services, Connections, and Logs" loading="eager">
-      <figcaption>The Streamic — Site Asset</figcaption>
-    </figure>
     <div class="art-body">
-<p>Avid MediaCentral Health Check: Services, Connections, and Logs is a practical operations guide focused on pre-air health validation for a MediaCentral estate. In many broadcast and post environments, the failure point is not the headline feature itself. It is the handoff between systems, the small configuration mismatch that is left undocumented, or the assumption that the next team in the chain sees the same metadata and media state you do. This guide is written to reduce those avoidable failures and to make the workflow repeatable for engineering, editorial, and support teams.</p>
+<h2>Why pre-air health checks matter</h2>
+<p>MediaCentral is a stack of interlocking services: MongoDB for user/session data, Elasticsearch for search, a WebSocket service for real-time UI, the MCPS media proxy server, plus bridges to Interplay and iNEWS. Any one can fail silently — the UI stays up while the feature behind it returns errors. A disciplined 15-minute health check before each live newscast catches 80% of production-breaking issues before they break anything.</p>
+<h2>Service status check</h2>
+<p>SSH to the MCS master node and run <code>mc-status</code> (Avid ships this). Every service should report &quot;running&quot; and &quot;healthy&quot;. Red flags: <code>avid-ics</code> listed but not responding, MongoDB replica set out of sync, Elasticsearch cluster status &quot;yellow&quot; (usable) or &quot;red&quot; (degraded search). For a cluster, repeat on every node — split-brain is a common Friday-evening failure mode.</p>
+<h2>Interplay / MediaCentral Production Services</h2>
+<p>From the admin UI, check <strong>System &gt; Integrations &gt; Interplay</strong>. The connection should show &quot;Connected&quot; and the last heartbeat within the last 60 seconds. Common failure: certificate expired, visible as authentication failure in <code>/opt/avid/logs/interplay-bridge.log</code>. Rotate the cert per Avid&#39;s published procedure; don&#39;t wait for the production outage.</p>
+<h2>iNEWS and MOS connections</h2>
+<p>For newsrooms, iNEWS is the heartbeat. In MediaCentral admin, confirm iNEWS appears under <strong>NRCS Integrations</strong> and shows &quot;Active&quot;. Test by opening a rundown in MediaCentral — it should render story list within 2 seconds. Slower than that and the MOS Gateway needs inspection. Check <code>/opt/avid/logs/mos-gateway.log</code> for timeout warnings; if present, the upstream iNEWS server may be under load.</p>
+<h2>Licensing</h2>
+<p>Check licensing under <strong>System &gt; Licensing</strong>. Expired or near-expiry licenses (within 30 days) should trigger a ticket to Avid. Concurrent-use licenses should show usage below ceiling; if you&#39;re regularly hitting 90%+ of concurrent seats, plan a licence top-up before the next big show.</p>
+<h2>Log review</h2>
+<p>Last step: scan the last 24 hours of logs for ERROR and CRITICAL entries. Useful commands: <code>journalctl --since &quot;24 hours ago&quot; -p err</code> at OS level, plus <code>grep -i error /opt/avid/logs/*.log | tail -50</code> for MediaCentral specifics. Common ignorables: WebSocket disconnect/reconnect cycles from flaky browsers. Real concerns: repeated MongoDB connection errors, MCPS transcode failures, or Interplay authentication loops.</p>
+<h2>Automate the health check</h2>
+<p>Once your manual health check procedure is reliable and well-documented, automate it. A small shell script running <code>mc-status</code>, performing <code>curl</code> probes of key MediaCentral endpoints, checking service PID files, and scanning the last hour of log files for new ERROR entries can run every 5 minutes via cron and post its results to a monitoring dashboard like Grafana or Datadog. The human pre-air check then becomes a 2-minute glance at the dashboard rather than a 15-minute manual ritual. Set alert thresholds generously — an Elasticsearch yellow status for 10 minutes is fine, 60 minutes is not. Tune thresholds over time based on your specific environment&#39;s normal noise level. Most facilities find that within 3 months the automated check catches real problems 10-20 minutes earlier than humans would. Document every incident fully including symptoms, diagnostic steps, and resolution so institutional knowledge doesn&#39;t walk out the door when engineers change jobs. MediaCentral troubleshooting is the kind of skill that takes months to build and weeks to lose if not actively maintained through regular health-check discipline.</p>
 
-<p>The workflow surface here spans Avid MediaCentral, MCPS services, Interplay, iNEWS, licensing, logs, and operational readiness checks. That means the right approach is never just to click through a setup screen and hope for the best. You need to confirm media paths, naming discipline, timecode consistency, codec expectations, permissions, and rollback options before a change touches live or deadline-driven work. The safer mindset is to treat every workflow as a chain. If one link is weak, the issue usually appears downstream where it is harder to diagnose.</p>
-
-<h2>What this guide is designed to solve</h2>
-<p>Run a full pre-air health check - verify MCPS services, Interplay and iNEWS connections, licensing, and system logs before going on air. The goal is not just to complete a one-time setup. The goal is to build a method that another operator, engineer, or assistant editor can follow later without re-learning the environment from scratch. That is what makes a workflow operationally useful. A reliable guide should tell you what to validate before you begin, where the common breakpoints are, and what evidence proves the workflow is actually healthy.</p>
-
-<p>On The Streamic, we treat workflow documentation as part of media systems engineering. That means checking whether the process preserves timecode, metadata, file naming, path mapping, and output predictability. It also means thinking about what happens when something goes wrong: a missing plugin, a stale cache, a storage permission mismatch, or a job that appears complete but lands in the wrong format or wrong location.</p>
-
-<h2>Operational checkpoints</h2>
-<p>Before applying any of the steps in this guide, confirm the environment baseline. Verify software versions, plugin compatibility, storage visibility, account permissions, and any required service health. If the workflow touches shared storage or cloud targets, confirm write access and naming conventions first. If the workflow passes between editorial and engineering teams, decide who owns validation at each stage so an error is caught early instead of after delivery.</p>
-
-<ul>
-  <li>Confirm source and destination paths before testing with real material.</li>
-  <li>Validate timecode, audio mapping, and expected file format on a short reference asset.</li>
-  <li>Check logs, job history, or status panels rather than relying only on UI success messages.</li>
-  <li>Document the rollback step before changing a working production workflow.</li>
-</ul>
-
-<h2>Why this matters in real broadcast operations</h2>
-<p>Broadcast and media teams rarely fail because they lack features. They fail because a workflow behaves differently under deadline pressure than it did in a controlled test. A post pipeline may appear stable until a late metadata change, a path remap, or a codec exception forces manual intervention. That is why the most valuable workflow guides are explicit, boring, and repeatable. They reduce heroics. They reduce assumptions. They make the system easier to support at 02:00 when a deadline leaves no room for guesswork.</p>
-
-<p>This guide therefore sits in the practical middle ground between vendor documentation and real facility operations. Vendor documentation explains what the product can do. An operational guide explains what the facility must confirm so the workflow holds together under real usage. That distinction matters for post-production, newsroom support, and any environment where one missed detail can cascade into rework.</p>
-
-<h2>Engineering note</h2>
-<p>Use this guide as a baseline and adapt it to your own site standards. If your facility already has naming rules, storage tiering, approval gates, or service-monitoring practices, map the workflow into those rather than creating one more isolated exception. The best workflow is the one your team can support consistently. That is the standard this page is intended to support.</p>
-</div>
+    </div>
     <div class="art-author">
       <strong>About this guide</strong>
-      Practical workflow guidance from The Streamic for broadcast engineers, editors, and media operations teams.
-      <a href="../about.html" style="color:var(--blue);margin-left:6px;">About The Streamic &rarr;</a>
+      Written by The Streamic Editorial Team. Practical broadcast and post-production workflow guide for engineers and media operations teams.
+      <a href="/about.html" style="color:var(--blue);margin-left:6px;">About The Streamic &rarr;</a>
     </div>
     <div class="art-more">
-      <h3>Continue Reading</h3>
-      <a href="../howto.html">🛠 All How-To Guides</a>
-      <a href="../featured.html">⭐ Featured Stories</a>
+      <h3>More How-To Guides</h3>
+      <a href="../howto.html">&#128295; All How-To Guides</a>
+      <a href="../featured.html">&#11088; Featured Stories</a>
     </div>
   </div>
 </main>
+<script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Avid MediaCentral Health Check: Services, Connections, and Logs",
+  "description": "Run a full pre-air health check \u2014 verify MCPS services, Interplay and iNEWS connections, licensing, and system logs before going on air.",
+  "datePublished": "2026-01-15",
+  "dateModified": "2026-01-15",
+  "author": {
+    "@type": "Organization",
+    "name": "The Streamic Editorial Team"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "The Streamic",
+    "url": "https://www.thestreamic.in",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://www.thestreamic.in/assets/logo.png"
+    }
+  },
+  "mainEntityOfPage": "https://www.thestreamic.in/articles/guide-avid-media-central-health-check.html"
+}</script>
 <footer class="footer">
   <div class="footer-gold" aria-hidden="true"></div>
   <div class="footer-grid">
@@ -182,4 +188,5 @@
     ad_user_data:'denied',ad_personalization:'denied'});
 })();
 </script>
-</body></html>
+</body>
+</html>

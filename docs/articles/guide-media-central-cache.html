@@ -11,20 +11,20 @@
   <script>gtag('js',new Date());gtag('config','G-0VSHDN3ZR6');</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Clearing Cache in Avid MediaCentral Cloud UX (2025) | The Streamic</title>
+  <title>Clearing Cache in Avid MediaCentral Cloud UX (2025 Edition) | The Streamic</title>
   <meta name="description" content="Fix slow loads, stale thumbnails, and playback errors by clearing browser, application, and server-side proxy cache in MediaCentral Cloud UX.">
   <meta name="robots" content="index,follow">
   <meta name="author" content="The Streamic Editorial Team">
   <link rel="canonical" href="https://www.thestreamic.in/articles/guide-media-central-cache.html">
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="The Streamic">
-  <meta property="og:title" content="Clearing Cache in Avid MediaCentral Cloud UX (2025) | The Streamic">
+  <meta property="og:title" content="Clearing Cache in Avid MediaCentral Cloud UX (2025 Edition) | The Streamic">
   <meta property="og:description" content="Fix slow loads, stale thumbnails, and playback errors by clearing browser, application, and server-side proxy cache in MediaCentral Cloud UX.">
   <meta property="og:url" content="https://www.thestreamic.in/articles/guide-media-central-cache.html">
-  <meta property="og:image" content="https://www.thestreamic.in/assets/fallback.jpg">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../homepage-layout.css">
 </head>
 <body>
 <nav class="nav">
@@ -55,59 +55,65 @@
       <span>›</span>
       <a href="../howto.html" style="color:var(--blue)">How-To Guides</a>
     </div>
-    <span class="art-tag" style="background:var(--blue)">How-To Guide</span>
-    <h1>Clearing Cache in Avid MediaCentral Cloud UX (2025)</h1>
+    <span class="art-tag" style="background:var(--blue)">&#128295; MediaCentral · Admin</span>
+    <h1>Clearing Cache in Avid MediaCentral Cloud UX (2025 Edition)</h1>
     <p class="art-dek">Fix slow loads, stale thumbnails, and playback errors by clearing browser, application, and server-side proxy cache in MediaCentral Cloud UX.</p>
     <div class="art-byline">
       <strong>The Streamic Editorial Team</strong>
-      <span>7 min</span>
-      <span>672 words · 3 min read</span>
-      <span style="background:var(--blue);color:#fff;padding:3px 9px;border-radius:5px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.8px">Guide</span>
+      <span>&#128337; 7 min read</span>
+      <span style="background:#10b981;color:#fff;padding:3px 9px;border-radius:5px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.8px">How-To Guide</span>
     </div>
-    <figure>
-      <img src="../assets/fallback.jpg" alt="Clearing Cache in Avid MediaCentral Cloud UX (2025)" loading="eager">
-      <figcaption>The Streamic — Site Asset</figcaption>
-    </figure>
     <div class="art-body">
-<p>Clearing Cache in Avid MediaCentral Cloud UX (2025) is a practical operations guide focused on troubleshooting stale cache and front-end performance in MediaCentral Cloud UX. In many broadcast and post environments, the failure point is not the headline feature itself. It is the handoff between systems, the small configuration mismatch that is left undocumented, or the assumption that the next team in the chain sees the same metadata and media state you do. This guide is written to reduce those avoidable failures and to make the workflow repeatable for engineering, editorial, and support teams.</p>
+<h2>Why cache breaks MediaCentral</h2>
+<p>MediaCentral Cloud UX caches at three layers: the browser (page assets, user prefs), the client application (user bin data, recent searches), and the server-side proxy (thumbnails, lo-res playback streams). When any of these get out of sync with the actual database state, editors see ghost thumbnails, stale asset counts, or playback errors on clips that play fine in Avid Media Composer directly. Ninety percent of &quot;MediaCentral is broken&quot; tickets are cache issues.</p>
+<h2>Browser cache (fastest fix)</h2>
+<p>First, always, before calling support: clear the browser cache. In Chrome: <em>Ctrl+Shift+Delete</em>, select &quot;Cached images and files&quot;, time range &quot;All time&quot;, clear. Alternative: open Dev Tools (F12), go to the Network tab, check &quot;Disable cache&quot;, then hard refresh with <em>Ctrl+Shift+R</em>. This fixes maybe 60% of reported issues.</p>
+<h2>Application cache</h2>
+<p>MediaCentral Cloud UX keeps a per-user session cache under <code>%AppData%\Avid\MediaCentral\</code> on Windows and <code>~/Library/Application Support/Avid/MediaCentral/</code> on macOS. Close MediaCentral completely (check Task Manager — the process can linger), delete the contents of this folder, reopen. User preferences reset to defaults; recent asset lists are rebuilt on next login.</p>
+<h2>Server-side proxy cache</h2>
+<p>This is the administrator-only layer. Log into the MediaCentral Services admin interface (typically <code>https://mcs-01/avid/admin</code>). Navigate to <strong>System Health &gt; Cache Management</strong>. You&#39;ll see cached thumbnails and lo-res proxy files. Selectively clear by asset, or use &quot;Clear all&quot; during a maintenance window. For a full reset, stop the <code>avid-ics</code> service, delete <code>/var/lib/avid-ics/cache/*</code>, restart the service. Expect 15–30 minutes for caches to rebuild on a busy system.</p>
+<h2>Database-level cleanup</h2>
+<p>Occasionally the MongoDB that underpins MediaCentral accumulates orphaned references — entries pointing at deleted assets. Avid ships a <code>mc-repair</code> utility that safely removes these. Schedule this to run monthly during maintenance windows. Never run it during working hours — it locks collections briefly and editors will see timeouts.</p>
+<h2>When to escalate</h2>
+<p>If clearing all three layers plus running <code>mc-repair</code> doesn&#39;t fix the symptom, the issue is probably not cache. Common non-cache culprits: Interplay permissions drift (check user mappings in Avid Access), MCS cluster split-brain (check <code>mc-cluster status</code>), or corrupt MOS gateway state if the symptom is related to MOS plug-ins. At that point, open a proper Avid support ticket with logs from <code>/opt/avid/logs/</code>.</p>
+<h2>Preventive cache hygiene</h2>
+<p>Once you&#39;re out of the immediate emergency, set up an ongoing cache hygiene schedule to prevent the next incident. Document in your onboarding checklist that editors should clear browser cache weekly. Application cache should be cleared monthly, ideally scheduled for Patch Tuesday so it aligns with other maintenance. Server-side proxy cache should be purged quarterly during a proper maintenance window with editors notified in advance. Monitor cache disk usage continuously — the command <code>df -h /var/lib/avid-ics</code> should never exceed 70% full under normal operating conditions. Set up an automated cleanup cron job that deletes proxy cache entries older than 90 days. These three operational disciplines together prevent roughly 95% of MediaCentral cache-related incidents from ever reaching production impact. Keep a running incident log of cache-related tickets so patterns emerge — if the same user repeatedly reports cache symptoms, their browser may be misconfigured or they may be using an unsupported browser version. If the same workstation repeatedly has problems, check its local storage health since cache corruption can indicate a dying SSD.</p>
 
-<p>The workflow surface here spans Avid MediaCentral Cloud UX, browser cache, proxy services, and support-oriented operational checks. That means the right approach is never just to click through a setup screen and hope for the best. You need to confirm media paths, naming discipline, timecode consistency, codec expectations, permissions, and rollback options before a change touches live or deadline-driven work. The safer mindset is to treat every workflow as a chain. If one link is weak, the issue usually appears downstream where it is harder to diagnose.</p>
-
-<h2>What this guide is designed to solve</h2>
-<p>Fix slow loads, stale thumbnails, and playback errors by clearing browser, application, and server-side proxy cache in MediaCentral Cloud UX. The goal is not just to complete a one-time setup. The goal is to build a method that another operator, engineer, or assistant editor can follow later without re-learning the environment from scratch. That is what makes a workflow operationally useful. A reliable guide should tell you what to validate before you begin, where the common breakpoints are, and what evidence proves the workflow is actually healthy.</p>
-
-<p>On The Streamic, we treat workflow documentation as part of media systems engineering. That means checking whether the process preserves timecode, metadata, file naming, path mapping, and output predictability. It also means thinking about what happens when something goes wrong: a missing plugin, a stale cache, a storage permission mismatch, or a job that appears complete but lands in the wrong format or wrong location.</p>
-
-<h2>Operational checkpoints</h2>
-<p>Before applying any of the steps in this guide, confirm the environment baseline. Verify software versions, plugin compatibility, storage visibility, account permissions, and any required service health. If the workflow touches shared storage or cloud targets, confirm write access and naming conventions first. If the workflow passes between editorial and engineering teams, decide who owns validation at each stage so an error is caught early instead of after delivery.</p>
-
-<ul>
-  <li>Confirm source and destination paths before testing with real material.</li>
-  <li>Validate timecode, audio mapping, and expected file format on a short reference asset.</li>
-  <li>Check logs, job history, or status panels rather than relying only on UI success messages.</li>
-  <li>Document the rollback step before changing a working production workflow.</li>
-</ul>
-
-<h2>Why this matters in real broadcast operations</h2>
-<p>Broadcast and media teams rarely fail because they lack features. They fail because a workflow behaves differently under deadline pressure than it did in a controlled test. A post pipeline may appear stable until a late metadata change, a path remap, or a codec exception forces manual intervention. That is why the most valuable workflow guides are explicit, boring, and repeatable. They reduce heroics. They reduce assumptions. They make the system easier to support at 02:00 when a deadline leaves no room for guesswork.</p>
-
-<p>This guide therefore sits in the practical middle ground between vendor documentation and real facility operations. Vendor documentation explains what the product can do. An operational guide explains what the facility must confirm so the workflow holds together under real usage. That distinction matters for post-production, newsroom support, and any environment where one missed detail can cascade into rework.</p>
-
-<h2>Engineering note</h2>
-<p>Use this guide as a baseline and adapt it to your own site standards. If your facility already has naming rules, storage tiering, approval gates, or service-monitoring practices, map the workflow into those rather than creating one more isolated exception. The best workflow is the one your team can support consistently. That is the standard this page is intended to support.</p>
-</div>
+    </div>
     <div class="art-author">
       <strong>About this guide</strong>
-      Practical workflow guidance from The Streamic for broadcast engineers, editors, and media operations teams.
-      <a href="../about.html" style="color:var(--blue);margin-left:6px;">About The Streamic &rarr;</a>
+      Written by The Streamic Editorial Team. Practical broadcast and post-production workflow guide for engineers and media operations teams.
+      <a href="/about.html" style="color:var(--blue);margin-left:6px;">About The Streamic &rarr;</a>
     </div>
     <div class="art-more">
-      <h3>Continue Reading</h3>
-      <a href="../howto.html">🛠 All How-To Guides</a>
-      <a href="../featured.html">⭐ Featured Stories</a>
+      <h3>More How-To Guides</h3>
+      <a href="../howto.html">&#128295; All How-To Guides</a>
+      <a href="../featured.html">&#11088; Featured Stories</a>
     </div>
   </div>
 </main>
+<script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Clearing Cache in Avid MediaCentral Cloud UX (2025 Edition)",
+  "description": "Fix slow loads, stale thumbnails, and playback errors by clearing browser, application, and server-side proxy cache in MediaCentral Cloud UX.",
+  "datePublished": "2026-01-15",
+  "dateModified": "2026-01-15",
+  "author": {
+    "@type": "Organization",
+    "name": "The Streamic Editorial Team"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "The Streamic",
+    "url": "https://www.thestreamic.in",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://www.thestreamic.in/assets/logo.png"
+    }
+  },
+  "mainEntityOfPage": "https://www.thestreamic.in/articles/guide-media-central-cache.html"
+}</script>
 <footer class="footer">
   <div class="footer-gold" aria-hidden="true"></div>
   <div class="footer-grid">
@@ -182,4 +188,5 @@
     ad_user_data:'denied',ad_personalization:'denied'});
 })();
 </script>
-</body></html>
+</body>
+</html>
