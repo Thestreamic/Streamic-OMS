@@ -1236,11 +1236,8 @@ def category_page(cat, arts):
 </section>"""
         rest = sl
     else:
-        hero_html = hero_block(first[0], base="") if first else ""
-                if cat == "ai-post-production" and pg == 0:
-            hero_html = f"""<section class="hero hero--ai-post-custom">
-  <div class="hero-inner">
-    <div class="hero-img">
+                hero_html = hero_block(first[0], base="") if first else ""
+     <div class="hero-img">
       <a href="articles/ai-reducing-broadcast-operational-costs-2026.html">
         <img src="assets/hero-broadcast-male.png" alt="Broadcast production switcher in a modern control room" loading="eager" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
       </a>
