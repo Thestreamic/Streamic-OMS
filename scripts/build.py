@@ -2007,7 +2007,55 @@ def post_production_workflows_page():
   <li><strong>Cloud &amp; hybrid post</strong> &#8212; Frame.io, EditShare Cloud, Blackmagic Cloud, Avid Edit On Demand, and the bandwidth / latency / security trade-offs of each. Real-world remote editing vs. marketing-reel remote editing.</li>
   <li><strong>Archive &amp; restore</strong> &#8212; LTO strategies, object-storage archive tiers, cold-retrieval SLAs, and the dark art of conforming an archived project 18 months later when the original NLE has moved on three versions.</li>
 </ul>
+<h2 style="font-family:var(--serif);font-size:22px;margin:36px 0 14px">Workflow Deep Dives</h2>
 
+<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-bottom:28px">
+
+  <a href="articles/studio-grade-video-workflow-post-production-2026.html"
+     style="position:relative;display:block;overflow:hidden;border-radius:20px;min-height:200px;background:#111;text-decoration:none;color:#fff;box-shadow:0 10px 28px rgba(0,0,0,.12)">
+
+    <img src="assets/images/post_production/post-production-workflow.jpg"
+         alt="Studio Grade Video Workflow"
+         loading="lazy"
+         onerror="this.onerror=null;this.src='assets/fallback.jpg'"
+         style="width:100%;height:100%;object-fit:cover;opacity:.9">
+
+    <div style="position:absolute;inset:0;background:linear-gradient(to top, rgba(0,0,0,.85), rgba(0,0,0,.2))"></div>
+
+    <div style="position:absolute;bottom:0;padding:18px">
+      <span style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;opacity:.8">Post Production</span>
+      <h3 style="margin:6px 0 6px;font-family:var(--serif);font-size:20px;line-height:1.25">
+        Studio Grade Video Workflow 2026
+      </h3>
+      <p style="font-size:13px;opacity:.85;line-height:1.5;margin:0">
+        End-to-end post workflow from ingest to delivery, covering proxy, conform, grading, and final packaging.
+      </p>
+    </div>
+  </a>
+
+  <a href="articles/2026-04-01-ai-post-production-frameio-workfront-review-approval-workflow.html"
+     style="position:relative;display:block;overflow:hidden;border-radius:20px;min-height:200px;background:#111;text-decoration:none;color:#fff;box-shadow:0 10px 28px rgba(0,0,0,.12)">
+
+    <img src="assets/images/post_production/cloud-review-workflow.jpg"
+         alt="Frame.io Workfront Review Workflow"
+         loading="lazy"
+         onerror="this.onerror=null;this.src='assets/fallback.jpg'"
+         style="width:100%;height:100%;object-fit:cover;opacity:.9">
+
+    <div style="position:absolute;inset:0;background:linear-gradient(to top, rgba(0,0,0,.85), rgba(0,0,0,.2))"></div>
+
+    <div style="position:absolute;bottom:0;padding:18px">
+      <span style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;opacity:.8">Cloud Collaboration</span>
+      <h3 style="margin:6px 0 6px;font-family:var(--serif);font-size:20px;line-height:1.25">
+        Frame.io + Workfront Review Workflow
+      </h3>
+      <p style="font-size:13px;opacity:.85;line-height:1.5;margin:0">
+        How AI-assisted review and approval workflows connect creative teams, stakeholders, and delivery pipelines.
+      </p>
+    </div>
+  </a>
+
+</div>
 <h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">Our approach</h2>
 <p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">Post-production technology is drowning in marketing. Every NLE claims seamless interchange, every MAM claims universal metadata, every cloud-collaboration platform claims security-first architecture. Our job is to separate what actually ships from what is still a product roadmap, and to call out the integration gotchas that only surface at 02:00 on a delivery night.</p>
 <p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">Every Streamic article in this area is grounded in real workflow analysis, not vendor-supplied slideware. Where a vendor claims compatibility, we verify by checking against shipping documentation, public API specs, and &#8212; where possible &#8212; the experience of engineering teams running it in production. Where compatibility is partial or conditional, we say so.</p>
