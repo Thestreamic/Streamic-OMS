@@ -1218,7 +1218,7 @@ def category_page(cat, arts):
         rest   = sl[1:]
 
         hero_html = hero_block(first[0], base="") if first else ""
-        if cat == "ai-post-production" and pg == 0:
+                if cat == "ai-post-production" and pg == 0:
             hero_html = f"""<section class="hero hero--ai-post-custom">
   <div class="hero-inner">
     <div class="hero-img">
@@ -1239,7 +1239,11 @@ def category_page(cat, arts):
   <a class="nab-inline-card" href="articles/2026-04-17-ai-post-production-avid-google-cloud-agentic-ai-media-production.html"><span class="nab-inline-kicker">Avid</span><strong>Avid Content Core and Google Gemini</strong><span>Agentic AI, archive search, and hybrid deployment without a rip-and-replace migration.</span></a>
   <a class="nab-inline-card" href="articles/2026-04-01-newsroom-dalet-flex-2512-semantic-search-dalia-ai.html"><span class="nab-inline-kicker">Dalet</span><strong>Dalia moves from idea to operational layer</strong><span>Natural-language workflow triggers with human validation kept in the loop.</span></a>
   <a class="nab-inline-card" href="articles/2026-04-01-ai-post-production-telestream-adobe-frameio-creative-delivery-automation.html"><span class="nab-inline-kicker">Telestream</span><strong>OCI + Adobe workflow acceleration</strong><span>Premiere-to-Vantage automation, Frame.io readiness, and multi-cloud QoS monitoring.</span></a>
-</section>""" + hero_html
+</section>"""
+            rest = sl
+        else:
+            hero_html = hero_block(first[0], base="") if first else ""
+
         grid_html = news_grid(rest, grid_id="catGrid") if rest else ""
 
         pag = _pag_html(cat, pg, total_pages)
