@@ -879,76 +879,32 @@ def _source_name(val):
     return (val or '').replace('https://','').replace('http://','').replace('www.','').split('/')[0]
 
 def load_homepage_feed(arts, limit=14):
-    """Load homepage cards from editorial corpus, mapped to internal articles.
-    
-    Only returns items that map to an internal article (has slug) so all
-    homepage links go to our own analysis pages, never to external sources.
-    Prefers articles with more body content (longer = higher quality).
-    """
-    by_url, by_title = {}, {}
-    for a in arts:
-        for key in (a.get('source_url'), a.get('url'), a.get('link')):
-            if key:
-                by_url[key] = a
-        title = (a.get('title') or '').strip().lower()
-        if title:
-            by_title[title] = a
+    """Load homepage cards directly from the editorial article corpus.
 
-    feed_items = []
-    if os.path.exists(NEWS_F):
-        with open(NEWS_F, 'r', encoding='utf-8') as f:
-            raw = json.load(f)
-        if isinstance(raw, dict) and 'items' in raw:
-            feed_items = (raw.get('featured_priority') or []) + (raw.get('items') or [])
-        elif isinstance(raw, list):
-            feed_items = raw
-        else:
-            flat = []
-            for cat, lst in (raw or {}).items():
-                for it in (lst or []):
-                    if isinstance(it, dict):
-                        item = dict(it)
-                        item.setdefault('category', cat)
-                        flat.append(item)
-            feed_items = sorted(flat, key=lambda x: x.get('pubDate',''), reverse=True)
+    news.json removed — all content comes from generated_articles.json.
+    Returns newest articles sorted by date then body length.
+    """
+    if not arts:
+        return []
 
     mapped = []
     seen = set()
-    for item in feed_items:
-        url = item.get('link') or item.get('url') or item.get('guid')
-        title_key = (item.get('title') or '').strip().lower()
-        art = by_url.get(url) or by_title.get(title_key)
-        if not art or not art.get('slug'):
-            continue  # skip items without internal article — no external links
-        merged = dict(art)
-        merged.update({
-            'title': item.get('title') or merged.get('title',''),
-            'category': item.get('category') or merged.get('category','featured'),
-            'source_domain': item.get('source') or item.get('source_domain') or _source_name(url) or merged.get('source_domain',''),
-            'published': item.get('pubDate') or item.get('published') or merged.get('published',''),
-            'source_url': url or merged.get('source_url',''),
-            'url': url or merged.get('url',''),
-            # COPYRIGHT FIX: prefer the article's pool-normalized image_url
-            # over any legacy thumbnail. The previous order
-            # shipped copyrighted vendor PR photos into Breaking News,
-            # bypassing _fix_article_images() entirely.
-            'image_url': merged.get('image_url') or item.get('image') or '',
-            'slug': art['slug'],
-        })
-        key = merged['slug']
-        if key not in seen:
-            seen.add(key)
-            mapped.append(merged)
 
-    # Sort: newest first, then by body length (prefer longer articles)
+    for a in arts:
+        if not isinstance(a, dict):
+            continue
+        slug = (a.get("slug") or "").strip()
+        if not slug or slug in seen:
+            continue
+        mapped.append(a)
+        seen.add(slug)
+
     def _feed_sort(a):
-        body = a.get('body_html','') or ''
-        wc = len(re.sub(r'<[^>]+>',' ',body).split())
-        return (a.get('published',''), wc)
-    mapped.sort(key=_feed_sort, reverse=True)
+        body = a.get("body_html", "") or ""
+        wc = len(re.sub(r"<[^>]+>", " ", body).split())
+        return (a.get("published", ""), wc)
 
-    if not mapped:
-        mapped = sorted([a for a in arts if not a.get('is_editorial') and not a.get('editorial')], key=lambda a: a.get('published',''), reverse=True)[:limit]
+    mapped.sort(key=_feed_sort, reverse=True)
     return mapped[:limit]
 
 def _item_href(a):
