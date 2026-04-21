@@ -894,40 +894,58 @@ def load_homepage_feed(arts, limit=14):
         if title:
             by_title[title] = a
 
-def load_homepage_feed(arts, limit=14):
-    """Build homepage feed from internal articles only (no NEWS_F)."""
+    feed_items = []
+    if os.path.exists(NEWS_F):
+        with open(NEWS_F, 'r', encoding='utf-8') as f:
+            raw = json.load(f)
+        if isinstance(raw, dict) and 'items' in raw:
+            feed_items = (raw.get('featured_priority') or []) + (raw.get('items') or [])
+        elif isinstance(raw, list):
+            feed_items = raw
+        else:
+            flat = []
+            for cat, lst in (raw or {}).items():
+                for it in (lst or []):
+                    if isinstance(it, dict):
+                        item = dict(it)
+                        item.setdefault('category', cat)
+                        flat.append(item)
+            feed_items = sorted(flat, key=lambda x: x.get('pubDate',''), reverse=True)
 
     mapped = []
     seen = set()
+    for item in feed_items:
+        url = item.get('link') or item.get('url') or item.get('guid')
+        title_key = (item.get('title') or '').strip().lower()
+        art = by_url.get(url) or by_title.get(title_key)
+        if not art or not art.get('slug'):
+            continue  # skip items without internal article — no external links
+        merged = dict(art)
+        merged.update({
+            'title': item.get('title') or merged.get('title',''),
+            'category': item.get('category') or merged.get('category','featured'),
+            'source_domain': item.get('source') or item.get('source_domain') or _source_name(url) or merged.get('source_domain',''),
+            'published': item.get('pubDate') or item.get('published') or merged.get('published',''),
+            'source_url': url or merged.get('source_url',''),
+            'url': url or merged.get('url',''),
+            # COPYRIGHT FIX: prefer the article's pool-normalized image_url
+            # over any legacy thumbnail. The previous order
+            # shipped copyrighted vendor PR photos into Breaking News,
+            # bypassing _fix_article_images() entirely.
+            'image_url': merged.get('image_url') or item.get('image') or '',
+            'slug': art['slug'],
+        })
+        key = merged['slug']
+        if key not in seen:
+            seen.add(key)
+            mapped.append(merged)
 
-    for a in arts:
-        if not isinstance(a, dict):
-            continue
-
-        slug = (a.get("slug") or "").strip()
-        if not slug or slug in seen:
-            continue
-
-        # Skip editorials for feed (keep homepage clean)
-        if a.get("is_editorial") or a.get("editorial"):
-            continue
-
-        merged = dict(a)
-        merged.setdefault("category", merged.get("category", "featured"))
-        merged.setdefault("source_domain", _source_name(merged.get("source_url") or merged.get("url") or ""))
-        merged.setdefault("published", merged.get("published", ""))
-        merged.setdefault("source_url", merged.get("source_url") or merged.get("url") or "")
-        merged.setdefault("url", merged.get("url") or merged.get("source_url") or "")
-        merged.setdefault("image_url", merged.get("image_url") or "")
-
-        mapped.append(merged)
-        seen.add(slug)
-
-    # Sort: newest first, then by body length
+    # Sort: newest first, then by body length (prefer longer articles)
     def _feed_sort(a):
         body = a.get('body_html','') or ''
         wc = len(re.sub(r'<[^>]+>',' ',body).split())
         return (a.get('published',''), wc)
+    mapped.sort(key=_feed_sort, reverse=True)
 
     if not mapped:
         mapped = sorted([a for a in arts if not a.get('is_editorial') and not a.get('editorial')], key=lambda a: a.get('published',''), reverse=True)[:limit]
@@ -2002,56 +2020,7 @@ def post_production_workflows_page():
 
 <h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">Who this is for</h2>
 <p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">Post-production supervisors, assistant editors, technical operators, broadcast IT leads supporting post facilities, and technology directors evaluating MAM / NLE / cloud-post decisions. If you have ever argued with a vendor rep about whether AAF round-trips EQ automation in version 2024.8, this section is for you.</p>
-<h2 style="font-family:var(--serif);font-size:22px;margin:36px 0 14px">Workflow Deep Dives</h2>
 
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:28px">
-
-  <!-- CARD 1 -->
-  <a href="articles/studio-grade-video-workflow-post-production-2026.html"
-     style="position:relative;display:block;overflow:hidden;border-radius:20px;min-height:200px;background:#111;text-decoration:none;color:#fff;box-shadow:0 10px 28px rgba(0,0,0,.12)">
-
-    <img src="assets/images/post_production/post-production-workflow.jpg"
-         alt="Studio Grade Video Workflow"
-         loading="lazy"
-         onerror="this.onerror=null;this.src='assets/fallback.jpg'"
-         style="width:100%;height:100%;object-fit:cover;opacity:.9">
-
-    <div style="position:absolute;inset:0;background:linear-gradient(to top, rgba(0,0,0,.85), rgba(0,0,0,.2))"></div>
-
-    <div style="position:absolute;bottom:0;padding:18px">
-      <span style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;opacity:.8">Post Production</span>
-      <h3 style="margin:6px 0 6px;font-family:var(--serif);font-size:20px;line-height:1.25">
-        Studio Grade Video Workflow 2026
-      </h3>
-      <p style="font-size:13px;opacity:.85;line-height:1.5">
-        End-to-end post workflow from ingest to delivery, covering proxy, conform, grading, and final packaging.
-      </p>
-    </div>
-  </a>
-
-  <!-- CARD 2 -->
-  <a href="articles/2026-04-01-ai-post-production-frameio-workfront-review-approval-workflow.html"
-     style="position:relative;display:block;overflow:hidden;border-radius:20px;min-height:200px;background:#111;text-decoration:none;color:#fff;box-shadow:0 10px 28px rgba(0,0,0,.12)">
-
-    <img src="assets/images/post_production/cloud-review-workflow.jpg"
-         alt="Frame.io Workfront Review Workflow"
-         loading="lazy"
-         onerror="this.onerror=null;this.src='assets/fallback.jpg'"
-         style="width:100%;height:100%;object-fit:cover;opacity:.9">
-
-    <div style="position:absolute;inset:0;background:linear-gradient(to top, rgba(0,0,0,.85), rgba(0,0,0,.2))"></div>
-
-    <div style="position:absolute;bottom:0;padding:18px">
-      <span style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;opacity:.8">Cloud Collaboration</span>
-      <h3 style="margin:6px 0 6px;font-family:var(--serif);font-size:20px;line-height:1.25">
-        Frame.io + Workfront Review Workflow
-      </h3>
-      <p style="font-size:13px;opacity:.85;line-height:1.5">
-        How AI-assisted review and approval workflows connect creative teams, stakeholders, and delivery pipelines.
-      </p>
-    </div>
-  </a>
-</div>
 <h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">Related Streamic sections</h2>
 <ul style="font-size:15px;color:var(--ink3);line-height:1.9;padding-left:22px;margin-bottom:20px">
   <li><a href="howto.html" style="color:var(--blue)">How-To Guides</a> &#8212; step-by-step technical guides: Premiere-to-Avid handoff, Vantage transcoding recipes, MediaCentral health checks, audio conform workflows.</li>
