@@ -1217,6 +1217,25 @@ def category_page(cat, arts):
         first  = sl[:1]
         rest   = sl[1:]
 
+           if cat == "ai-post-production" and pg == 0:
+        hero_html = f"""<section class="hero hero--ai-post-custom">
+<div class="hero-inner">
+  <div class="hero-img">
+    <a href="articles/ai-reducing-broadcast-operational-costs-2026.html">
+      <img src="assets/hero-broadcast-male.png" alt="Broadcast production switcher in a modern control room" loading="eager" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+    </a>
+  </div>
+  <div class="hero-body">
+    <span class="hero-tag" style="background:#FF2D55">🎬 AI &amp; Post-Production</span>
+    <h1 class="hero-hl"><a href="articles/ai-reducing-broadcast-operational-costs-2026.html">Beyond Automation: How AI Can Optimize Broadcast Costs and Scale Human Potential in 2026</a></h1>
+    <p class="hero-dek">This page tracks the NAB 2026 shifts that matter to real production teams.</p>
+    <div class="hero-meta"><span>By {AUTHOR}</span><span>{d(first[0].get('published','') if first else '')}</span></div>
+    <a href="articles/ai-reducing-broadcast-operational-costs-2026.html" class="hero-cta">Read featured analysis</a>
+  </div>
+</div>
+</section>"""
+        rest = sl
+    else:
         hero_html = hero_block(first[0], base="") if first else ""
                 if cat == "ai-post-production" and pg == 0:
             hero_html = f"""<section class="hero hero--ai-post-custom">
