@@ -261,3 +261,38 @@ KEPT   (31):
   c2pa-deepfake-news-credibility-digital-provenance-2026
   green-broadcast-cloud-carbon-footprint-sustainability-2026
 PURGED (0):
+
+=== cleanup.py run @ 2026-04-21 19:13:48Z ===
+KEPT   (31):
+  2026-04-17-ai-post-production-blackmagic-davinci-resolve-21-nab
+  2026-04-17-infrastructure-haivision-falkon-x4-5g-live-sports
+  2026-04-17-newsroom-nab-2026-preview-broadcast-technology
+  2026-04-17-infrastructure-haivision-makito-one-multi-codec-nab-2026
+  2026-04-17-ai-post-production-avid-google-cloud-agentic-ai-media-production
+  2026-04-10-newsroom-bitcentral-to-showcase-connected-media-workfl
+  2026-04-01-ai-post-production-telestream-adobe-frameio-creative-delivery-automation
+  2026-04-01-ai-post-production-frameio-workfront-review-approval-workflow
+  2026-04-01-newsroom-vizrt-viz-one-ai-metadata-archive-strategy
+  2026-04-01-ai-post-production-editshare-analytical-ai-mediasilo-nab-2026
+  2026-04-01-newsroom-dalet-flex-2512-semantic-search-dalia-ai
+  2026-04-01-cloud-tedial-agentic-ai-media-lifecycle-nab-2026
+  2026-04-01-playout-harmonic-spectrum-x-plus-playout-economics
+  2026-04-01-playout-pebble-future-ready-playout-nab-2026
+  2026-04-01-newsroom-aveco-rundown-designer-no-nrcs-studio-automation
+  2026-04-01-infrastructure-smpte-st2110-ai-media-nab-2026
+  telestream-adobe-vantage-premiere-workflow-integration-2026
+  future-of-ai-in-broadcast-deployment-2026
+  cloud-broadcast-workflows-remote-production-2026
+  ai-video-post-production-editing-vfx-automation-2026
+  ip-broadcasting-smpte-st2110-engineering-guide-2026
+  media-asset-management-ai-era-monetisation-2026
+  live-production-ai-automation-real-time-broadcasting-2026
+  broadcast-automation-systems-guide-2026
+  ai-reducing-broadcast-operational-costs-2026
+  ip-transition-2026-practical-guide-broadcast-engineers
+  cloud-playout-economics-2026-build-vs-buy
+  beyond-the-chatbot-operational-ai-newsroom-2026
+  st-2110-small-market-hybrid-ip-broadcasters-2026
+  c2pa-deepfake-news-credibility-digital-provenance-2026
+  green-broadcast-cloud-carbon-footprint-sustainability-2026
+PURGED (0):
