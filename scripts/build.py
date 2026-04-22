@@ -843,78 +843,21 @@ def _hp_img(a, base=""):
 
 def _hp_tag(a):
     cinfo = CAT.get(a.get("category", "featured"), CAT["featured"])
-    return f"Streamic Analysis · {cinfo['label']}"
-
-
-def _plain_text(s):
-    s = re.sub(r"<[^>]+>", " ", str(s or ""))
-    return re.sub(r"\s+", " ", s).strip()
-
-
-def _streamic_preview(a, limit=165):
-    preview = (
-        a.get("card_summary")
-        or a.get("dek")
-        or a.get("meta_description")
-        or smart_dek(a)
-        or ""
-    )
-    preview = _plain_text(preview)
-    if len(preview) <= limit:
-        return preview
-    cut = preview[:limit].rsplit(" ", 1)[0].rstrip(" ,;:-")
-    return f"{cut}…" if cut else preview[:limit].rstrip() + "…"
-
-
-def _streamic_headline(a):
-    raw = _plain_text(a.get("title", ""))
-    if not raw:
-        return "Why This Development Matters for Broadcast Operations"
-
-    cat_label = CAT.get(a.get("category", "featured"), CAT["featured"])["label"]
-
-    if ":" in raw:
-        left, right = [x.strip() for x in raw.split(":", 1)]
-        if left and len(left) <= 44:
-            return f"Why {left} Matters for {cat_label} Teams"
-        if right:
-            trimmed = right.rstrip(".")
-            if len(trimmed) > 88:
-                trimmed = trimmed[:88].rsplit(" ", 1)[0].rstrip(" ,;:-")
-            return f"What This Means for {cat_label}: {trimmed}"
-
-    lowered = raw.lower()
-    if "integration" in lowered:
-        return f"Why This Integration Matters for {cat_label} Workflows"
-    if "ai" in lowered or "automation" in lowered:
-        return f"Where This AI Shift Could Change {cat_label} Operations"
-    if "cloud" in lowered:
-        return f"What This Cloud Move Means for {cat_label} Infrastructure"
-    if "storage" in lowered or "archive" in lowered or "metadata" in lowered:
-        return "Why This Matters for Media Asset and Archive Strategy"
-
-    trimmed = raw.rstrip(".")
-    if len(trimmed) > 86:
-        trimmed = trimmed[:86].rsplit(" ", 1)[0].rstrip(" ,;:-")
-    return f"Streamic View: {trimmed}"
-
+    return f"{cinfo['icon']} {cinfo['label']}"
 
 def _hp_insight_card(a):
     href = f"articles/{a['slug']}.html"
-    raw_title = _plain_text(a.get("title", ""))
-    display_title = e(_streamic_headline(a))
-    dek = e(_streamic_preview(a, limit=160))
+    title = e(a.get("title", ""))
+    dek = e((a.get("dek") or a.get("meta_description") or a.get("card_summary") or "")[:150])
     dt = d(a.get("published", ""))
-    src = e(_source_name(a.get("source_domain", a.get("source", ""))))
-    meta = dt if not src else f"{dt} · Source: {src}"
     return f'''<a href="{href}" class="hp-insight-card">
-  <div class="hp-insight-media"><img src="{_hp_img(a)}" alt="{e(raw_title or _streamic_headline(a))}" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
+  <div class="hp-insight-media"><img src="{_hp_img(a)}" alt="{title}" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-insight-body">
     <span class="hp-insight-tag">{e(_hp_tag(a))}</span>
-    <span class="hp-insight-hl">{display_title}</span>
+    <span class="hp-insight-hl">{title}</span>
     <span class="hp-insight-dek">{dek}</span>
-    <span class="hp-insight-meta">{e(meta)}</span>
-    <span class="hp-insight-read">Read full Streamic analysis &#8594;</span>
+    <span class="hp-insight-meta">{dt}</span>
+    <span class="hp-insight-read">Read analysis &#8594;</span>
   </div>
 </a>'''
 
@@ -980,24 +923,23 @@ def _hp_news_item(a):
     slug = a.get("slug","")
     analysis_href = f"articles/{slug}.html" if slug else "#"
     src_url = e(a.get("source_url","") or a.get("url","") or "")
-    raw_title = _plain_text(a.get("title", ""))
-    display_title = e(_streamic_headline(a))
+    title = e(a.get("title", ""))
     src = e(_source_name(a.get("source_domain", a.get("source", ""))))
     dt = d(a.get("published", ""))
-    dek = e(_streamic_preview(a, limit=125))
+    dek = e((a.get("dek") or a.get("card_summary") or a.get("meta_description") or "")[:120])
     # Source link — only if we have a real URL
     src_link = ""
     if src_url and src:
-        src_link = f'<a href="{src_url}" target="_blank" rel="noopener noreferrer nofollow" class="hp-news-src-link">Original source: {src} &#8599;</a>'
+        src_link = f'<a href="{src_url}" target="_blank" rel="noopener noreferrer nofollow" class="hp-news-src-link">Source: {src} &#8599;</a>'
     return f'''<div class="hp-news-item">
-  <div class="hp-news-thumb"><img src="{_hp_img(a)}" alt="{e(raw_title or _streamic_headline(a))}" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
+  <div class="hp-news-thumb"><img src="{_hp_img(a)}" alt="{title}" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-news-body">
-    <span class="hp-news-src">Streamic Analysis</span>
-    <a href="{analysis_href}" class="hp-news-title">{display_title}</a>
+    <span class="hp-news-src">{src}</span>
+    <a href="{analysis_href}" class="hp-news-title">{title}</a>
     <span class="hp-news-dek">{dek}</span>
     <div class="hp-news-foot">
       <time class="hp-news-date">{dt}</time>
-      <a href="{analysis_href}" class="hp-news-read">Read full analysis &#8594;</a>
+      <a href="{analysis_href}" class="hp-news-read">Read Streamic Analysis &#8594;</a>
     </div>
     {src_link}
   </div>
@@ -1218,7 +1160,7 @@ def featured_page(arts):
           <div class="hp-guide-grid">{guides_html}</div>
         </section>
         <section class="hp-news">
-          <div class="hp-sec-hdr"><h2>The Streamic Intelligence</h2><p class="hp-sec-sub">Original Streamic headlines and concise editorial previews, with credited source links kept secondary to the analysis.</p></div>
+          <div class="hp-sec-hdr"><h2>The Streamic Intelligence</h2><p class="hp-sec-sub">In-depth coverage of playout, MAM/PAM, archive, cloud production, Adobe workflows, SMPTE standards, and AI-driven media operations.</p></div>
           <div class="hp-news-list">{news_html}</div>
         </section>
       </div>
@@ -1875,43 +1817,78 @@ def terms_page():
 {footer()}
 {_cookie_banner()}
 </body></html>"""
-
 def editorial_policy_page():
-    yr = datetime.now().year
-    return f"""{head("Editorial Policy — The Streamic","How The Streamic produces, reviews, and attributes broadcast technology content.",f"{BASE_URL}/editorial-policy.html")}
+    last_updated = datetime.now(timezone.utc).strftime("%B %d, %Y")
+    return f"""{head("Editorial Policy — The Streamic","Editorial approach, coverage focus, experience, and contact information for The Streamic.",f"{BASE_URL}/editorial-policy.html")}
 <body>
-{nav()}
+{nav("editorial-policy.html")}
 <main><div class="w" style="padding:52px 24px 80px;max-width:780px">
 <h1 style="font-family:var(--serif);font-size:clamp(26px,4vw,42px);margin-bottom:16px;letter-spacing:-.5px">Editorial Policy</h1>
-<p style="font-size:13px;color:var(--ink4);margin-bottom:32px">Last updated: {yr}</p>
+<p style="font-size:13px;color:var(--ink4);margin-bottom:32px">Last updated: {last_updated}</p>
 
-<h2 style="font-family:var(--serif);font-size:22px;margin:0 0 12px">Our Editorial Mission</h2>
-<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:20px">The Streamic is an independent broadcast and streaming technology publication. Our mission is to provide clear, practical analysis for broadcast engineers, media operations teams, and streaming professionals — not press release rewrites, and not generic AI summaries.</p>
+<h2 style="font-family:var(--serif);font-size:22px;margin:0 0 12px">About The Streamic</h2>
+<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">The Streamic is an independent publication focused on broadcast technology, media infrastructure, streaming workflows, newsroom systems, and post-production operations.</p>
+<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:20px">The publication is built around a simple idea: most industry coverage explains what is announced — but very little explains what actually works in production. The Streamic focuses on that gap.</p>
+<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:20px">We analyse how systems behave in real environments: how workflows connect, where integrations fail, how standards are implemented, and what operational teams need to consider before deployment.</p>
 
-<h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">How We Use AI Tools</h2>
-<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">Some articles on The Streamic are produced with the assistance of AI language models (Google Gemini and Groq/Llama). These tools are used to:</p>
+<h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">Editorial Focus</h2>
+<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:14px">The Streamic covers:</p>
 <ul style="font-size:15px;color:var(--ink3);line-height:1.9;padding-left:22px;margin-bottom:20px">
-  <li>Draft initial analysis from source-grounded industry news</li>
-  <li>Identify domain-specific technical signals and implications</li>
-  <li>Structure content into our editorial framework (domain extraction, technology intelligence, engineering takeaways)</li>
+  <li>Broadcast infrastructure and IP workflows (including SMPTE ST 2110 environments)</li>
+  <li>Streaming and OTT delivery systems (HLS, DASH, CDN workflows)</li>
+  <li>Post-production pipelines (NLE interoperability, conform, grading, delivery)</li>
+  <li>Media asset management (MAM/PAM) and archive strategies</li>
+  <li>Cloud and hybrid production workflows</li>
+  <li>Newsroom systems and editorial operations</li>
+  <li>Monitoring, automation, and operational reliability</li>
 </ul>
-<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:20px">AI-generated drafts are reviewed against our quality standards. Articles that pass a minimum word count, structural depth, and domain terminology threshold are published. Those that do not are regenerated or withheld.</p>
+<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:20px">Coverage is technical, vendor-aware, and grounded in real-world implementation rather than marketing narratives.</p>
 
-<h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">Human Review Process</h2>
-<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:20px">All published editorial content is reviewed by Prerak K Mehta, Founder and Editor-in-Chief, or a designated editorial team member. Review covers factual accuracy relative to the source material, domain relevance, and tone. Articles found to contain generic or misleading content are not published.</p>
+<h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">Experience Behind The Publication</h2>
+<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:14px">The Streamic is founded and operated by a broadcast and media systems professional based in Dublin, Ireland.</p>
+<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:14px">The editorial direction is informed by:</p>
+<ul style="font-size:15px;color:var(--ink3);line-height:1.9;padding-left:22px;margin-bottom:20px">
+  <li>20+ years of experience in broadcast and media technology environments in India, across installation, maintenance, and troubleshooting of production and post-production systems</li>
+  <li>4+ years working within broadcast operations in Dublin, supporting modern media workflows in live and production environments</li>
+  <li>Hands-on exposure to newsroom systems, playout infrastructure, post-production pipelines, and evolving IP-based media systems</li>
+</ul>
+<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:20px">This background shapes the editorial approach — practical, systems-focused, and aligned with how technology behaves under real operational pressure.</p>
 
-<h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">Source Attribution</h2>
-<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:20px">Industry news briefings always credit and link to their original source. We do not reproduce original articles verbatim. All external links to source material carry <code>rel="nofollow noopener"</code>. Source-grounded briefs are differentiated from original long-form editorial analysis.</p>
+<h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">How We Work</h2>
+<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">The Streamic is not a press-release publication.</p>
+<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:14px">Each article is written as independent editorial analysis based on:</p>
+<ul style="font-size:15px;color:var(--ink3);line-height:1.9;padding-left:22px;margin-bottom:20px">
+  <li>publicly available technical information</li>
+  <li>industry announcements and documentation</li>
+  <li>observed workflow patterns across broadcast and post-production environments</li>
+</ul>
+<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">The goal is to extract operational insight, not repeat vendor messaging.</p>
+<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:20px">Where information is incomplete or evolving, that uncertainty is acknowledged rather than assumed.</p>
 
-<h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">Corrections Policy</h2>
-<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:20px">We correct factual errors promptly. If you identify an error, please contact us at <a href="mailto:technodate3@gmail.com" style="color:var(--blue)">technodate3@gmail.com</a> with the article URL and the specific correction. Significant corrections are noted inline on the article.</p>
+<h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">Editorial Independence</h2>
+<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:14px">The Streamic operates independently.</p>
+<ul style="font-size:15px;color:var(--ink3);line-height:1.9;padding-left:22px;margin-bottom:20px">
+  <li>We do not accept paid editorial coverage</li>
+  <li>Vendor mentions are based on relevance, not commercial relationships</li>
+  <li>Advertising, where present, does not influence editorial decisions</li>
+</ul>
 
-<h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">Independence &amp; Advertising</h2>
-<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:20px">The Streamic is independently owned. Advertising (served via Google AdSense) does not influence editorial decisions. We do not accept sponsored articles or paid coverage. Vendor mentions reflect genuine editorial relevance, not commercial arrangements.</p>
+<h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">Who This Is For</h2>
+<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:14px">The Streamic is written for:</p>
+<ul style="font-size:15px;color:var(--ink3);line-height:1.9;padding-left:22px;margin-bottom:20px">
+  <li>Broadcast engineers and system integrators</li>
+  <li>Post-production supervisors and technical operators</li>
+  <li>Media IT and infrastructure teams</li>
+  <li>Technology decision-makers in broadcast and streaming environments</li>
+</ul>
+<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:20px">If your work involves keeping media systems running reliably under real constraints, this publication is built for you.</p>
 
-<h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">Contact the Editor</h2>
-<p style="font-size:15px;color:var(--ink3);line-height:1.75">Editorial enquiries, corrections, and feedback: <a href="mailto:technodate3@gmail.com" style="color:var(--blue)">technodate3@gmail.com</a> &nbsp;|&nbsp; <a href="contact.html" style="color:var(--blue)">Use our contact form &rarr;</a></p>
+<h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">Location</h2>
+<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:20px">Dublin, Ireland</p>
 
+<h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">Contact</h2>
+<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">For editorial enquiries, feedback, or corrections:</p>
+<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px"><a href="mailto:technodate3@gmail.com" style="color:var(--blue)">technodate3@gmail.com</a> or use the <a href="contact.html" style="color:var(--blue)">contact form</a> on this site.</p>
 </div></main>
 {footer()}
 {_cookie_banner()}
@@ -2030,7 +2007,55 @@ def post_production_workflows_page():
   <li><strong>Cloud &amp; hybrid post</strong> &#8212; Frame.io, EditShare Cloud, Blackmagic Cloud, Avid Edit On Demand, and the bandwidth / latency / security trade-offs of each. Real-world remote editing vs. marketing-reel remote editing.</li>
   <li><strong>Archive &amp; restore</strong> &#8212; LTO strategies, object-storage archive tiers, cold-retrieval SLAs, and the dark art of conforming an archived project 18 months later when the original NLE has moved on three versions.</li>
 </ul>
+<h2 style="font-family:var(--serif);font-size:22px;margin:36px 0 14px">Workflow Deep Dives</h2>
 
+<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-bottom:28px">
+
+  <a href="articles/studio-grade-video-workflow-post-production-2026.html"
+     style="position:relative;display:block;overflow:hidden;border-radius:20px;min-height:200px;background:#111;text-decoration:none;color:#fff;box-shadow:0 10px 28px rgba(0,0,0,.12)">
+
+    <img src="assets/images/post_production/post-production-workflow.jpg"
+         alt="Studio Grade Video Workflow"
+         loading="lazy"
+         onerror="this.onerror=null;this.src='assets/fallback.jpg'"
+         style="width:100%;height:100%;object-fit:cover;opacity:.9">
+
+    <div style="position:absolute;inset:0;background:linear-gradient(to top, rgba(0,0,0,.85), rgba(0,0,0,.2))"></div>
+
+    <div style="position:absolute;bottom:0;padding:18px">
+      <span style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;opacity:.8">Post Production</span>
+      <h3 style="margin:6px 0 6px;font-family:var(--serif);font-size:20px;line-height:1.25">
+        Studio Grade Video Workflow 2026
+      </h3>
+      <p style="font-size:13px;opacity:.85;line-height:1.5;margin:0">
+        End-to-end post workflow from ingest to delivery, covering proxy, conform, grading, and final packaging.
+      </p>
+    </div>
+  </a>
+
+  <a href="articles/2026-04-01-ai-post-production-frameio-workfront-review-approval-workflow.html"
+     style="position:relative;display:block;overflow:hidden;border-radius:20px;min-height:200px;background:#111;text-decoration:none;color:#fff;box-shadow:0 10px 28px rgba(0,0,0,.12)">
+
+    <img src="assets/images/post_production/cloud-review-workflow.jpg"
+         alt="Frame.io Workfront Review Workflow"
+         loading="lazy"
+         onerror="this.onerror=null;this.src='assets/fallback.jpg'"
+         style="width:100%;height:100%;object-fit:cover;opacity:.9">
+
+    <div style="position:absolute;inset:0;background:linear-gradient(to top, rgba(0,0,0,.85), rgba(0,0,0,.2))"></div>
+
+    <div style="position:absolute;bottom:0;padding:18px">
+      <span style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;opacity:.8">Cloud Collaboration</span>
+      <h3 style="margin:6px 0 6px;font-family:var(--serif);font-size:20px;line-height:1.25">
+        Frame.io + Workfront Review Workflow
+      </h3>
+      <p style="font-size:13px;opacity:.85;line-height:1.5;margin:0">
+        How AI-assisted review and approval workflows connect creative teams, stakeholders, and delivery pipelines.
+      </p>
+    </div>
+  </a>
+
+</div>
 <h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">Our approach</h2>
 <p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">Post-production technology is drowning in marketing. Every NLE claims seamless interchange, every MAM claims universal metadata, every cloud-collaboration platform claims security-first architecture. Our job is to separate what actually ships from what is still a product roadmap, and to call out the integration gotchas that only surface at 02:00 on a delivery night.</p>
 <p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">Every Streamic article in this area is grounded in real workflow analysis, not vendor-supplied slideware. Where a vendor claims compatibility, we verify by checking against shipping documentation, public API specs, and &#8212; where possible &#8212; the experience of engineering teams running it in production. Where compatibility is partial or conditional, we say so.</p>
