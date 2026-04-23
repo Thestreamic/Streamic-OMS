@@ -889,31 +889,102 @@ def _plain_text(html):
     return t
 
 
-def _streamic_headline(a):
-    """Return an editorial-style headline for The Streamic Intelligence cards.
+def _extract_core_subject(title):
+    """Extract a clean editorial noun phrase from any article title style.
 
-    If the existing title already reads as editorial analysis (Why/What/How/Where…),
-    it is passed through unchanged — no transformation needed.
-    Press-release-style titles (launch/announce patterns or colon-split vendor lines)
-    are reframed with a Why/What pattern.  Falls back to the original title on any
-    uncertainty to preserve meaning and avoid broken output.
+    Handles four title shapes, in order:
+      1. Already-wrapped editorial  "Why X Matters for Y"  → "X"
+      2. Infinitive press release   "Vendor to Showcase X at NAB"  → "Vendor's X"
+      3. Finite launch verb         "Vendor Launches Product"  → "Vendor's Product"
+      4. Colon-split                "Vendor: Detail"  → "Vendor"
+
+    Falls back to the trimmed title when no pattern matches.
+    Subject is capped at 55 chars (word boundary) to keep headlines readable.
+    """
+    t = title.strip().rstrip(".")
+
+    # 1. Strip editorial wrappers — "Why X Matters/Signals/Means for Y"
+    m = re.match(
+        r'^(?:Why|What|How)\s+(.+?)\s+(?:[Mm]atters?|[Ss]ignals?|[Mm]eans?)\s+for\s+.+$', t
+    )
+    if m:
+        subject = m.group(1).strip()
+        return subject[:55].rsplit(" ", 1)[0] if len(subject) > 55 else subject
+
+    # "How X Is/Are/Will/Can …"
+    m = re.match(r'^How\s+(.+?)\s+(?:Is|Are|Will|Can)\s+.+$', t)
+    if m:
+        subject = m.group(1).strip()
+        return subject[:55].rsplit(" ", 1)[0] if len(subject) > 55 else subject
+
+    # 2. Infinitive: "Vendor to Showcase X at Event"
+    m = re.match(
+        r'^(.+?)\s+to\s+(?:showcase|demonstrate|present|exhibit|announce|reveal'
+        r'|unveil|launch|introduce|highlight|display)\s+(.+?)(?:\s+at\s+\w.+)?$',
+        t, re.IGNORECASE
+    )
+    if m:
+        vendor = m.group(1).strip()
+        detail = re.sub(
+            r'\s+at\s+(NAB|IBC|CES|ISE|BroadcastAsia)[\w\s]*$', '',
+            m.group(2), flags=re.IGNORECASE
+        ).strip()
+        raw = f"{vendor}\u2019s {detail}" if detail and len(detail) < 40 else vendor
+        return raw[:55].rsplit(" ", 1)[0] if len(raw) > 55 else raw
+
+    # 3. Finite launch verb: "Vendor Launches/Announces Product"
+    m = re.match(
+        r'^(.+?)\s+(?:launches?|announces?|releases?|unveils?|introduces?'
+        r'|ships?|debuts?|presents?|rolls? out)\s+(.+)$',
+        t, re.IGNORECASE
+    )
+    if m:
+        vendor = m.group(1).strip()
+        product = m.group(2).strip()
+        raw = f"{vendor}\u2019s {product}" if len(product) < 45 else vendor
+        return raw[:55].rsplit(" ", 1)[0] if len(raw) > 55 else raw
+
+    # 4. Colon split — take the left side
+    if ":" in t:
+        left = t.split(":", 1)[0].strip()
+        if left:
+            return left[:55].rsplit(" ", 1)[0] if len(left) > 55 else left
+
+    # No pattern matched — return trimmed title, capped
+    return t[:55].rsplit(" ", 1)[0] if len(t) > 55 else t
+
+
+def _streamic_headline(a):
+    """Return a varied editorial headline for The Streamic Intelligence cards.
+
+    Five rotating patterns (A–E) are selected via a deterministic, build-stable
+    integer derived from the article slug — no PYTHONHASHSEED dependency.
+    Only Pattern A begins with "Why", so at most 1 in 5 cards starts that way,
+    preventing the repetitive all-Why look.
+
+    Pattern A — Why it matters
+      "Why {subject} Matters for {team}"
+    Pattern B — What this means (two sub-variants)
+      "What {subject} Means for {context}"
+      "What {subject} Signals for {team}"
+    Pattern C — The shift / bigger picture (two sub-variants)
+      "The Workflow Shift Behind {subject}"
+      "The Bigger Picture Behind {subject}"
+    Pattern D — Inside / How (two sub-variants)
+      "Inside {subject}'s Impact on {team}"
+      "How {subject} Is Reshaping {context}"
+    Pattern E — Subject-led editorial summary
+      "{subject} and the Road to {context_noun}"
     """
     title = (a.get("title") or "").strip()
     if not title:
         return "Streamic Analysis"
 
-    t_lower = title.lower()
+    cat  = (a.get("category") or "featured").lower()
+    slug = (a.get("slug") or title)
 
-    # Already sounds editorial — pass through as-is
-    _ED_STARTERS = (
-        "why ", "what ", "how ", "where ", "when ",
-        "is ", "are ", "will ", "inside ", "behind ",
-        "the case for", "understanding ",
-    )
-    if any(t_lower.startswith(s) for s in _ED_STARTERS):
-        return title
-
-    # Map category → audience label used in reframe
+    # Category → audience label, context phrase, and pre-built title-case context
+    # (title-case stored explicitly to avoid str.title() mis-capitalising "IP" etc.)
     _TEAM_MAP = {
         "newsroom":           "Newsroom Teams",
         "cloud":              "Cloud Production Teams",
@@ -924,26 +995,67 @@ def _streamic_headline(a):
         "ai-post-production": "AI and Post-Production Teams",
         "featured":           "Broadcast Operations Teams",
     }
-    cat  = (a.get("category") or "featured").lower()
-    team = _TEAM_MAP.get(cat, "Broadcast Operations Teams")
+    _CONTEXT_TITLE_MAP = {
+        "newsroom":           "Newsroom Workflows and Operations",
+        "cloud":              "Cloud Broadcast Infrastructure",
+        "graphics":           "Live Graphics and Studio Production",
+        "playout":            "Playout and Channel Automation",
+        "infrastructure":     "IP and Infrastructure Engineering",
+        "streaming":          "Streaming and Media Delivery",
+        "ai-post-production": "AI-Driven Post-Production",
+        "featured":           "Broadcast Media Operations",
+    }
+    _CONTEXT_NOUN_MAP = {
+        "newsroom":           "Smarter Newsroom Operations",
+        "cloud":              "Cloud-First Production",
+        "graphics":           "Live Graphics Modernisation",
+        "playout":            "Leaner Channel Automation",
+        "infrastructure":     "IP Infrastructure Convergence",
+        "streaming":          "Scalable Media Delivery",
+        "ai-post-production": "AI-Driven Post-Production",
+        "featured":           "Modern Broadcast Operations",
+    }
 
-    # Press-release launch/announce verbs → "Why This Update Matters for…"
-    _LAUNCH_WORDS = (
-        "launches", "announces", "releases", "unveils",
-        "introduces", "presents", "rolls out", "ships", "debuts",
-    )
-    if any(w in t_lower for w in _LAUNCH_WORDS):
-        clean = title.rstrip(".")
-        return f"Why This Matters for {team}: {clean}"
+    team          = _TEAM_MAP.get(cat, "Broadcast Operations Teams")
+    context_title = _CONTEXT_TITLE_MAP.get(cat, "Broadcast Media Operations")
+    context_noun  = _CONTEXT_NOUN_MAP.get(cat, "Modern Broadcast Operations")
 
-    # Vendor colon-split titles ("VendorName: Product Does Thing")
-    if ":" in title:
-        subject = title.split(":", 1)[0].strip()
-        if subject:
-            return f"Why {subject} Matters for {team}"
+    subject = _extract_core_subject(title)
 
-    # Default reframe — conservative, preserves meaning
-    return f"Why {title} Matters for {team}"
+    # Deterministic integer — stable across builds regardless of PYTHONHASHSEED
+    _n = sum(ord(c) * (i + 1) for i, c in enumerate(slug[:20]))
+
+    pattern    = _n % 5          # primary pattern selector   (0–4)
+    sub_choice = (_n // 5) % 2  # sub-variant within pattern (0–1)
+
+    if pattern == 0:
+        # A — Why it matters
+        return f"Why {subject} Matters for {team}"
+
+    elif pattern == 1:
+        # B — What this means / signals
+        if sub_choice == 0:
+            return f"What {subject} Means for {context_title}"
+        else:
+            return f"What {subject} Signals for {team}"
+
+    elif pattern == 2:
+        # C — The shift / bigger picture
+        if sub_choice == 0:
+            return f"The Workflow Shift Behind {subject}"
+        else:
+            return f"The Bigger Picture Behind {subject}"
+
+    elif pattern == 3:
+        # D — How (two compact sub-variants; no possessive to avoid grammar edge-cases)
+        if sub_choice == 0:
+            return f"How {subject} Is Reshaping {context_title}"
+        else:
+            return f"How {subject} Changes the Picture for {team}"
+
+    else:
+        # E — Subject-led editorial summary
+        return f"{subject} and the Road to {context_noun}"
 
 
 def _streamic_preview(a):
