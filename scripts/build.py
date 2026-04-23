@@ -878,6 +878,99 @@ def _hp_guide_card(a, sub):
 def _source_name(val):
     return (val or '').replace('https://','').replace('http://','').replace('www.','').split('/')[0]
 
+# ── Streamic Intelligence helpers ─────────────────────────────────────────────
+
+def _plain_text(html):
+    """Strip HTML tags and collapse whitespace to plain text."""
+    if not html:
+        return ""
+    t = re.sub(r"<[^>]+>", " ", html)
+    t = re.sub(r"\s+", " ", t).strip()
+    return t
+
+
+def _streamic_headline(a):
+    """Return an editorial-style headline for The Streamic Intelligence cards.
+
+    If the existing title already reads as editorial analysis (Why/What/How/Where…),
+    it is passed through unchanged — no transformation needed.
+    Press-release-style titles (launch/announce patterns or colon-split vendor lines)
+    are reframed with a Why/What pattern.  Falls back to the original title on any
+    uncertainty to preserve meaning and avoid broken output.
+    """
+    title = (a.get("title") or "").strip()
+    if not title:
+        return "Streamic Analysis"
+
+    t_lower = title.lower()
+
+    # Already sounds editorial — pass through as-is
+    _ED_STARTERS = (
+        "why ", "what ", "how ", "where ", "when ",
+        "is ", "are ", "will ", "inside ", "behind ",
+        "the case for", "understanding ",
+    )
+    if any(t_lower.startswith(s) for s in _ED_STARTERS):
+        return title
+
+    # Map category → audience label used in reframe
+    _TEAM_MAP = {
+        "newsroom":           "Newsroom Teams",
+        "cloud":              "Cloud Production Teams",
+        "graphics":           "Graphics and Studio Teams",
+        "playout":            "Playout and Automation Teams",
+        "infrastructure":     "Infrastructure Teams",
+        "streaming":          "Streaming and Delivery Teams",
+        "ai-post-production": "AI and Post-Production Teams",
+        "featured":           "Broadcast Operations Teams",
+    }
+    cat  = (a.get("category") or "featured").lower()
+    team = _TEAM_MAP.get(cat, "Broadcast Operations Teams")
+
+    # Press-release launch/announce verbs → "Why This Update Matters for…"
+    _LAUNCH_WORDS = (
+        "launches", "announces", "releases", "unveils",
+        "introduces", "presents", "rolls out", "ships", "debuts",
+    )
+    if any(w in t_lower for w in _LAUNCH_WORDS):
+        clean = title.rstrip(".")
+        return f"Why This Matters for {team}: {clean}"
+
+    # Vendor colon-split titles ("VendorName: Product Does Thing")
+    if ":" in title:
+        subject = title.split(":", 1)[0].strip()
+        if subject:
+            return f"Why {subject} Matters for {team}"
+
+    # Default reframe — conservative, preserves meaning
+    return f"Why {title} Matters for {team}"
+
+
+def _streamic_preview(a):
+    """Return a concise editorial preview for The Streamic Intelligence cards.
+
+    Priority: dek > card_summary > meta_description > body_html first sentence > smart_dek.
+    Capped at 160 chars, broken at a word boundary.  Never returns an empty string.
+    """
+    MAX = 160
+
+    for field in ("dek", "card_summary", "meta_description"):
+        val = _plain_text(a.get(field) or "").strip()
+        if len(val) > 20:
+            if len(val) <= MAX:
+                return val
+            return val[:MAX].rsplit(" ", 1)[0] + "..."
+
+    body = _plain_text(a.get("body_html") or "").strip()
+    if len(body) > 40:
+        if len(body) <= MAX:
+            return body
+        return body[:MAX].rsplit(" ", 1)[0] + "..."
+
+    # Final fallback — always produces a non-empty string
+    return smart_dek(a)[:MAX]
+
+
 def load_homepage_feed(arts, limit=14):
     """Load homepage cards directly from the editorial article corpus.
 
@@ -920,28 +1013,45 @@ def _item_target(a):
     return ''
 
 def _hp_news_item(a):
-    slug = a.get("slug","")
+    """Render one card in The Streamic Intelligence section.
+
+    Hierarchy (analysis-first):
+      1. STREAMIC ANALYSIS label
+      2. Streamic editorial headline
+      3. Editorial preview
+      4. Date
+      5. Original source credit (secondary)
+      6. Internal CTA
+    """
+    slug         = a.get("slug", "")
     analysis_href = f"articles/{slug}.html" if slug else "#"
-    src_url = e(a.get("source_url","") or a.get("url","") or "")
-    title = e(a.get("title", ""))
-    src = e(_source_name(a.get("source_domain", a.get("source", ""))))
-    dt = d(a.get("published", ""))
-    dek = e((a.get("dek") or a.get("card_summary") or a.get("meta_description") or "")[:120])
-    # Source link — only if we have a real URL
-    src_link = ""
+    src_url      = e(a.get("source_url", "") or a.get("url", "") or "")
+    src          = e(_source_name(a.get("source_domain", a.get("source", ""))))
+    dt           = d(a.get("published", ""))
+    headline     = e(_streamic_headline(a))
+    preview      = e(_streamic_preview(a))
+
+    # Source attribution — secondary; rendered only when data is available
+    src_attr = ""
     if src_url and src:
-        src_link = f'<a href="{src_url}" target="_blank" rel="noopener noreferrer nofollow" class="hp-news-src-link">Source: {src} &#8599;</a>'
+        src_attr = (
+            f'<a href="{src_url}" target="_blank" rel="noopener noreferrer nofollow"'
+            f' class="hp-news-src-link">Original source: {src} &#8599;</a>'
+        )
+    elif src:
+        src_attr = f'<span class="hp-news-src-link">Original source: {src}</span>'
+
     return f'''<div class="hp-news-item">
-  <div class="hp-news-thumb"><img src="{_hp_img(a)}" alt="{title}" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
+  <div class="hp-news-thumb"><img src="{_hp_img(a)}" alt="{headline}" loading="lazy" onerror="this.onerror=null;this.src=\'assets/fallback.jpg\'"></div>
   <div class="hp-news-body">
-    <span class="hp-news-src">{src}</span>
-    <a href="{analysis_href}" class="hp-news-title">{title}</a>
-    <span class="hp-news-dek">{dek}</span>
+    <span class="hp-news-src">STREAMIC ANALYSIS</span>
+    <a href="{analysis_href}" class="hp-news-title">{headline}</a>
+    <span class="hp-news-dek">{preview}</span>
     <div class="hp-news-foot">
       <time class="hp-news-date">{dt}</time>
-      <a href="{analysis_href}" class="hp-news-read">Read Streamic Analysis &#8594;</a>
+      <a href="{analysis_href}" class="hp-news-read">Read full analysis &#8594;</a>
     </div>
-    {src_link}
+    {src_attr}
   </div>
 </div>'''
 def _hp_sidebar_pick(a):
@@ -1160,7 +1270,7 @@ def featured_page(arts):
           <div class="hp-guide-grid">{guides_html}</div>
         </section>
         <section class="hp-news">
-          <div class="hp-sec-hdr"><h2>The Streamic Intelligence</h2><p class="hp-sec-sub">In-depth coverage of playout, MAM/PAM, archive, cloud production, Adobe workflows, SMPTE standards, and AI-driven media operations.</p></div>
+          <div class="hp-sec-hdr"><h2>The Streamic Intelligence</h2><p class="hp-sec-sub">Original Streamic headlines and concise editorial previews, with credited source links kept secondary to the analysis.</p></div>
           <div class="hp-news-list">{news_html}</div>
         </section>
       </div>
@@ -1174,7 +1284,7 @@ def featured_page(arts):
           {howto_html}
         </div>
         <div class="hp-sb-section">
-          <div class="hp-sb-hdr">Breaking Media Tech News</div>
+          <div class="hp-sb-hdr">Latest Media IT Updates</div>
           {sb_news_html}
         </div>
       </aside>
