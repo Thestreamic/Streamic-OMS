@@ -10,39 +10,64 @@
   <script>gtag('js',new Date());gtag('config','G-0VSHDN3ZR6');</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Editor's Desk — The Streamic</title>
-  <meta name="description" content="Commentary, perspective, and engineering analysis from the editorial team at The Streamic.">
+  <title>Editorial Insights — The Streamic</title>
+  <meta name="description" content="Commentary, perspective, and engineering analysis from the Streamic editorial team.">
   <meta name="robots" content="index,follow">
   <meta name="author" content="The Streamic Editorial Team">
   <link rel="canonical" href="https://www.thestreamic.in/editorsdesk.html">
-  <meta property="og:type" content="article">
+  <meta property="og:type" content="website">
   <meta property="og:site_name" content="The Streamic">
-  <meta property="og:title" content="Editor's Desk — The Streamic">
-  <meta property="og:description" content="Commentary, perspective, and engineering analysis from the editorial team at The Streamic.">
+  <meta property="og:title" content="Editorial Insights — The Streamic">
+  <meta property="og:description" content="Commentary, perspective, and engineering analysis from the Streamic editorial team.">
   <meta property="og:url" content="https://www.thestreamic.in/editorsdesk.html">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="homepage-layout.css">
-
-<style>
-.strmc-ed-hero{max-width:920px;margin:40px auto 16px;padding:0 24px}
-.strmc-ed-hero h1{font-family:'DM Serif Display',Georgia,serif;font-size:48px;line-height:1.1;margin:0 0 10px;color:#111 !important}
-.strmc-ed-hero p.lede{font-size:18px;color:#555;line-height:1.55;max-width:700px;margin:0}
-.strmc-ed-watching{max-width:920px;margin:24px auto 32px;padding:22px 26px;background:#f6f3ec;border-left:4px solid #D4AF37;border-radius:6px}
-.strmc-ed-watching strong{display:block;font-family:'DM Serif Display',Georgia,serif;font-size:20px;color:#111 !important;margin-bottom:8px;font-weight:normal}
-.strmc-ed-watching p{margin:0;font-size:15px;color:#555;line-height:1.65}
-.strmc-ed-grid{max-width:1100px;margin:0 auto 72px;padding:0 24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:24px}
-.strmc-ed-card{display:block;background:#fff;border:1px solid #e5e0d1;border-radius:8px;padding:26px 24px;text-decoration:none !important;transition:border-color .2s,transform .2s,box-shadow .2s}
-.strmc-ed-card:hover{border-color:#D4AF37;transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.06)}
-.strmc-ed-card .cat{display:block;font-size:11px;letter-spacing:1.4px;color:#D4AF37 !important;font-weight:700;text-transform:uppercase;margin:0 0 12px}
-.strmc-ed-card .title{display:block;font-family:'DM Serif Display',Georgia,serif;font-size:22px;line-height:1.28;color:#111 !important;margin:0 0 12px;font-weight:normal}
-.strmc-ed-card:hover .title{color:#D4AF37 !important}
-.strmc-ed-card .dek{display:block;font-size:14px;color:#555 !important;line-height:1.6;margin:0 0 14px}
-.strmc-ed-card .read{display:inline-block;font-size:13px;color:#D4AF37 !important;font-weight:600}
-</style>
 </head>
-<body>
+<style>
+/* ── Streamic static article cards ──────────────────────────── */
+.sc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin:24px 0 40px}
+.sc-card{display:flex;flex-direction:column;background:#fff;border:1px solid rgba(0,0,0,.07);
+  border-radius:14px;overflow:hidden;text-decoration:none;color:inherit;
+  transition:transform .28s cubic-bezier(.2,.8,.2,1),box-shadow .28s cubic-bezier(.2,.8,.2,1),border-color .2s}
+.sc-card:hover{transform:translateY(-3px);box-shadow:0 14px 36px rgba(0,0,0,.10);border-color:rgba(0,0,0,.13)}
+.sc-card-img{aspect-ratio:16/10;overflow:hidden;background:#e8e8ed;flex-shrink:0}
+.sc-card-img img{width:100%;height:100%;object-fit:cover;object-position:center;display:block;
+  transition:transform .45s ease}
+.sc-card:hover .sc-card-img img{transform:scale(1.04)}
+.sc-card-body{display:flex;flex-direction:column;flex:1;padding:18px 18px 16px;gap:8px}
+.sc-card-tag{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+.sc-card-title{font-family:'DM Serif Display',Georgia,serif;font-size:18px;line-height:1.25;
+  letter-spacing:-.015em;color:#1d1d1f;display:-webkit-box;-webkit-line-clamp:3;
+  -webkit-box-orient:vertical;overflow:hidden}
+.sc-card:hover .sc-card-title{color:#0066cc}
+.sc-card-desc{font-size:13.5px;line-height:1.55;color:#6e6e73;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
+  flex:1}
+.sc-card-foot{display:flex;align-items:center;justify-content:space-between;
+  padding-top:12px;border-top:1px solid rgba(0,0,0,.06);margin-top:auto}
+.sc-card-date{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+  color:#86868b}
+.sc-card-read{font-size:12px;font-weight:600;color:#0066cc}
+/* Section headers */
+.sc-sec-hdr{display:flex;align-items:baseline;justify-content:space-between;
+  gap:16px;padding-bottom:10px;border-bottom:2px solid #1d1d1f;margin-bottom:6px}
+.sc-sec-hdr h2{font-family:'DM Serif Display',Georgia,serif;font-size:18px;
+  letter-spacing:-.03em;margin:0}
+.sc-sec-intro{font-size:13px;color:#6e6e73;margin-bottom:20px;line-height:1.55}
+/* Cat header */
+.sc-cat-hdr{padding:40px 0 8px}
+.sc-cat-hdr h1{font-family:'DM Serif Display',Georgia,serif;
+  font-size:clamp(28px,4vw,42px);letter-spacing:-.03em;margin-bottom:8px}
+.sc-cat-hdr p{font-size:15px;color:#6e6e73;max-width:700px;line-height:1.65}
+/* Responsive */
+@media(max-width:900px){.sc-grid{grid-template-columns:repeat(2,1fr);gap:18px}}
+@media(max-width:580px){.sc-grid{grid-template-columns:1fr;gap:14px}
+  .sc-card-title{font-size:17px}
+  .sc-card-img{aspect-ratio:3/2}}
+</style>
+<body data-category="editorsdesk">
 <nav class="nav">
   <div class="nav-inner">
     <a href="/" class="nav-logo">
@@ -65,82 +90,13 @@
   <div class="nav-mob"><a href="/">Home</a><a href="ai-post-production.html">AI in Broadcasting</a><a href="howto.html">How-To Guides</a><a href="post-production-workflows.html">Post Production Workflows</a><a href="insights.html">Expert Insights</a><a href="editorsdesk.html">Editorial Insights</a><a href="about.html">About</a><a href="contact.html">Contact</a></div>
 </nav>
 <main>
-<section class="strmc-ed-hero">
-  <h1>Editor's Desk</h1>
-  <p class="lede">Commentary, perspective, and engineering analysis from the editorial team at The Streamic. Technical reads that go beyond the news cycle &mdash; honest trade-off analysis for broadcast engineers, CTOs, and media IT architects who actually have to deploy this stuff.</p>
-</section>
-<section class="strmc-ed-watching">
-  <strong>What we're watching in 2026</strong>
-  <p>The ST 2110 adoption curve in small-market broadcasters. The real TCO of cloud playout post-NAB 2026. How C2PA is quietly becoming a newsroom compliance surface. The gap between AI-tagged MAMs in demos and AI-tagged MAMs in production.</p>
-</section>
-<section class="strmc-ed-grid">
-<a class="strmc-ed-card" href="articles/st-2110-7-seamless-protection-redundancy-math-2026.html">
-<span class="cat">INFRASTRUCTURE</span>
-<span class="title">ST 2110-7 Seamless Protection: The Redundancy Math Every IP Broadcaster Gets Wrong</span>
-<span class="dek">Hitless failover is the headline promise of ST 2110-7. The Red/Blue network math, PTP boundary clock placement, and the control plane gap are where 2026 IP migrations quietly fail.</span>
-<span class="read">Read the analysis &rarr;</span>
-</a><a class="strmc-ed-card" href="articles/cloud-playout-tco-trap-medialive-economics-2026.html">
-<span class="cat">CLOUD PRODUCTION</span>
-<span class="title">The Cloud Playout TCO Trap: Why AWS MediaLive Looks Cheap Until It Isn't</span>
-<span class="dek">Cloud playout pricing looks linear on the slide deck and exponential on the invoice. The real cost curve for MediaLive + MediaPackage, and where the break-even with Grass Valley Ignite actually sits.</span>
-<span class="read">Read the analysis &rarr;</span>
-</a><a class="strmc-ed-card" href="articles/ai-metadata-mam-accuracy-broadcast-2026.html">
-<span class="cat">AI IN BROADCASTING</span>
-<span class="title">AI Metadata in the MAM: Why 95% Accuracy Is Still a Failing Grade</span>
-<span class="dek">Every MAM vendor ships AI auto-tagging in 2026. The accuracy numbers describe benchmarks editors never hit. The gap between '95% correct' and 'useful for an editor on deadline' is where these systems still fail.</span>
-<span class="read">Read the analysis &rarr;</span>
-</a><a class="strmc-ed-card" href="articles/ndi-6-vs-st-2110-india-mid-market-2026.html">
-<span class="cat">INFRASTRUCTURE</span>
-<span class="title">NDI 6 vs ST 2110 for India's Mid-Market Broadcasters: The Pragmatic Read</span>
-<span class="dek">ST 2110 is the standard. NDI 6 is what most Indian regional broadcasters will actually deploy. The honest engineering comparison — latency, compression, network cost, and where each earns its place.</span>
-<span class="read">Read the analysis &rarr;</span>
-</a><a class="strmc-ed-card" href="articles/c2pa-provenance-newsroom-broadcast-mandate-2027.html">
-<span class="cat">AI IN BROADCASTING</span>
-<span class="title">C2PA in the Newsroom: The Provenance Standard Nobody Can Afford to Ignore by 2027</span>
-<span class="dek">C2PA content provenance has been a compliance side-project since 2023. Synthetic media incidents and EU regulation mean 2026 is the last year it stays a side-project.</span>
-<span class="read">Read the analysis &rarr;</span>
-</a><a class="strmc-ed-card" href="articles/beyond-the-chatbot-operational-ai-newsroom-2026.html">
-<span class="cat">EDITORIAL</span>
-<span class="title">Beyond the Chatbot: Operational AI in the Newsroom</span>
-<span class="dek">The interesting AI in newsrooms isn't the one writing copy. It's the one routing video, tagging rushes, and quietly replacing three roles in the ingest workflow.</span>
-<span class="read">Read the analysis &rarr;</span>
-</a><a class="strmc-ed-card" href="articles/green-broadcast-cloud-carbon-footprint-sustainability-2026.html">
-<span class="cat">EDITORIAL</span>
-<span class="title">Green Broadcast: The Cloud Carbon Footprint Conversation Nobody's Having Honestly</span>
-<span class="dek">The industry's sustainability numbers are almost all scope-1 and scope-2. Scope-3 is where the real emissions hide.</span>
-<span class="read">Read the analysis &rarr;</span>
-</a><a class="strmc-ed-card" href="articles/ai-reducing-broadcast-operational-costs-2026.html">
-<span class="cat">EDITORIAL</span>
-<span class="title">AI as an OpEx Lever: Where the Savings Are Real and Where They're Theatre</span>
-<span class="dek">Vendors are selling AI as cost reduction. Some claims are real. Some are creative accounting. Here's how to tell which is which.</span>
-<span class="read">Read the analysis &rarr;</span>
-</a>
-</section>
-<section class="hp-flagship-section hp-flagship-section--vlog">
   <div class="w">
-    <div class="hp-flagship-section__hdr">
-      <div class="hp-sec-hdr">
-        <h2>Flagship Long-Read</h2>
-      </div>
-      <p class="hp-section-intro">A dedicated spotlight for technology concepts that deserve a cleaner, slower read.</p>
+    <div class="sc-cat-hdr">
+      <h1>✍️ Editorial Insights</h1>
+      <p>Commentary, perspective, and engineering analysis from the Streamic editorial team.</p>
     </div>
-    <a href="articles/quic-http3-video-delivery-streaming-2026.html" class="hp-flagship" aria-label="Read full insight: Beyond TCP">
-      <div class="hp-flagship__body">
-        <span class="hp-flagship__tag">📡 Infrastructure &amp; Streaming</span>
-        <h2 class="hp-flagship__hl">Beyond TCP: Why QUIC Is Redefining Video Delivery</h2>
-        <p class="hp-flagship__summary">Faster video start, fewer buffering issues, and smoother playback — even on weak networks. HTTP/3 and QUIC are quietly improving streaming performance across OTT platforms and live broadcasting.</p>
-        <p class="hp-flagship__body-text">For years, streaming relied on TCP. QUIC improves connection setup, packet loss recovery, and mobility handling, which makes it more relevant to live events, mobile viewing, and premium OTT delivery than many operations teams first assume.</p>
-        <div class="hp-flagship__footer">
-          <div class="hp-flagship__meta"><span class="hp-flagship__author">Prerak K Mehta</span><span class="hp-flagship__role">Broadcast Technology and Media IT Analyst</span><span class="hp-flagship__readtime">⏱ 5 min read</span></div>
-          <span class="hp-flagship__cta">Read Full Insight <span class="hp-flagship__cta-arrow">→</span></span>
-        </div>
-      </div>
-      <div class="hp-flagship__image-wrap">
-        <img class="hp-flagship__img" src="assets/insight-quic-infographic.jpg" alt="QUIC vs TCP streaming performance infographic" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
-      </div>
-    </a>
+    <div class="sc-grid"><p style="color:var(--ink4);padding:40px 0">No articles published yet in this category.</p></div>
   </div>
-</section>
 </main>
 <footer class="footer">
   <div class="footer-gold" aria-hidden="true"></div>
@@ -216,4 +172,6 @@
     ad_user_data:'denied',ad_personalization:'denied'});
 })();
 </script>
-</body></html>
+<script src="main.js" defer></script>
+</body>
+</html>
