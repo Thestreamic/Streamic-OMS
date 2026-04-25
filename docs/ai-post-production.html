@@ -10,22 +10,63 @@
   <script>gtag('js',new Date());gtag('config','G-0VSHDN3ZR6');</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>AI &amp; Post-Production — The Streamic</title>
+  <title>AI in Broadcasting — The Streamic</title>
   <meta name="description" content="AI-driven editing tools, automated QC, intelligent MAM, colour grading.">
   <meta name="robots" content="index,follow">
   <meta name="author" content="The Streamic Editorial Team">
   <link rel="canonical" href="https://www.thestreamic.in/ai-post-production.html">
-  <meta property="og:type" content="article">
+  <meta property="og:type" content="website">
   <meta property="og:site_name" content="The Streamic">
-  <meta property="og:title" content="AI &amp; Post-Production — The Streamic">
+  <meta property="og:title" content="AI in Broadcasting — The Streamic">
   <meta property="og:description" content="AI-driven editing tools, automated QC, intelligent MAM, colour grading.">
   <meta property="og:url" content="https://www.thestreamic.in/ai-post-production.html">
-  <meta property="og:image" content="/assets/newsroom-anchor.png">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="homepage-layout.css">
 </head>
+<style>
+/* ── Streamic static article cards ──────────────────────────── */
+.sc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin:24px 0 40px}
+.sc-card{display:flex;flex-direction:column;background:#fff;border:1px solid rgba(0,0,0,.07);
+  border-radius:14px;overflow:hidden;text-decoration:none;color:inherit;
+  transition:transform .28s cubic-bezier(.2,.8,.2,1),box-shadow .28s cubic-bezier(.2,.8,.2,1),border-color .2s}
+.sc-card:hover{transform:translateY(-3px);box-shadow:0 14px 36px rgba(0,0,0,.10);border-color:rgba(0,0,0,.13)}
+.sc-card-img{aspect-ratio:16/10;overflow:hidden;background:#e8e8ed;flex-shrink:0}
+.sc-card-img img{width:100%;height:100%;object-fit:cover;object-position:center;display:block;
+  transition:transform .45s ease}
+.sc-card:hover .sc-card-img img{transform:scale(1.04)}
+.sc-card-body{display:flex;flex-direction:column;flex:1;padding:18px 18px 16px;gap:8px}
+.sc-card-tag{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+.sc-card-title{font-family:'DM Serif Display',Georgia,serif;font-size:18px;line-height:1.25;
+  letter-spacing:-.015em;color:#1d1d1f;display:-webkit-box;-webkit-line-clamp:3;
+  -webkit-box-orient:vertical;overflow:hidden}
+.sc-card:hover .sc-card-title{color:#0066cc}
+.sc-card-desc{font-size:13.5px;line-height:1.55;color:#6e6e73;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
+  flex:1}
+.sc-card-foot{display:flex;align-items:center;justify-content:space-between;
+  padding-top:12px;border-top:1px solid rgba(0,0,0,.06);margin-top:auto}
+.sc-card-date{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+  color:#86868b}
+.sc-card-read{font-size:12px;font-weight:600;color:#0066cc}
+/* Section headers */
+.sc-sec-hdr{display:flex;align-items:baseline;justify-content:space-between;
+  gap:16px;padding-bottom:10px;border-bottom:2px solid #1d1d1f;margin-bottom:6px}
+.sc-sec-hdr h2{font-family:'DM Serif Display',Georgia,serif;font-size:18px;
+  letter-spacing:-.03em;margin:0}
+.sc-sec-intro{font-size:13px;color:#6e6e73;margin-bottom:20px;line-height:1.55}
+/* Cat header */
+.sc-cat-hdr{padding:40px 0 8px}
+.sc-cat-hdr h1{font-family:'DM Serif Display',Georgia,serif;
+  font-size:clamp(28px,4vw,42px);letter-spacing:-.03em;margin-bottom:8px}
+.sc-cat-hdr p{font-size:15px;color:#6e6e73;max-width:700px;line-height:1.65}
+/* Responsive */
+@media(max-width:900px){.sc-grid{grid-template-columns:repeat(2,1fr);gap:18px}}
+@media(max-width:580px){.sc-grid{grid-template-columns:1fr;gap:14px}
+  .sc-card-title{font-size:17px}
+  .sc-card-img{aspect-ratio:3/2}}
+</style>
 <body data-category="ai-post-production">
 <nav class="nav">
   <div class="nav-inner">
@@ -48,278 +89,492 @@
   <div class="nav-gold" aria-hidden="true"></div>
   <div class="nav-mob"><a href="/">Home</a><a href="ai-post-production.html">AI in Broadcasting</a><a href="howto.html">How-To Guides</a><a href="post-production-workflows.html">Post Production Workflows</a><a href="insights.html">Expert Insights</a><a href="editorsdesk.html">Editorial Insights</a><a href="about.html">About</a><a href="contact.html">Contact</a></div>
 </nav>
-
 <main>
   <div class="w">
-    <div class="cat-hdr">
-      <h1>🎬 AI & Post-Production</h1>
+    <div class="sc-cat-hdr">
+      <h1>🎬 AI in Broadcasting</h1>
       <p>AI-driven editing tools, automated QC, intelligent MAM, colour grading.</p>
     </div>
-    <section class="hero hero--ai-post-custom">
-  <div class="hero-inner">
-    <div class="hero-img">
-      <a href="articles/ai-reducing-broadcast-operational-costs-2026.html">
-        <img src="assets/hero-broadcast-male.png" alt="Broadcast production switcher in a modern control room" loading="eager" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
-      </a>
-    </div>
-    <div class="hero-body">
-      <span class="hero-tag" style="background:#FF2D55">🎬 AI &amp; Post-Production</span>
-      <h1 class="hero-hl"><a href="articles/ai-reducing-broadcast-operational-costs-2026.html">Beyond Automation: How AI Can Optimize Broadcast Costs and Scale Human Potential in 2026</a></h1>
-      <p class="hero-dek">This page tracks the NAB 2026 shifts that matter to real production teams: agentic assistants inside edit systems, natural-language archive search, faster creative-to-delivery automation, and practical cloud bridges that do not force a full rip-and-replace.</p>
-      <div class="hero-meta"><span>By The Streamic Editorial Team</span><span>April 17, 2026</span><span>Curated NAB landing page</span></div>
-      <a href="articles/ai-reducing-broadcast-operational-costs-2026.html" class="hero-cta">Read featured analysis</a>
-    </div>
+    <div class="sc-grid"><a href="articles/dynamic-media-facilities-dmf-broadcast-infrastructure-2026.html" class="sc-card">
+  <div class="sc-card-img">
+    <img src="assets/articles/dmf-traditional-vs-dynamic-facility.png" alt="Dynamic Media Facilities (DMF): The Future of Flexible Broadcast Infrastructure" loading="lazy"
+         onerror="this.onerror=null;this.src='assets/fallback.jpg'">
   </div>
-</section>
-<section class="nab-inline-grid" aria-label="Featured NAB vendor updates">
-  <a class="nab-inline-card" href="articles/2026-04-17-ai-post-production-avid-google-cloud-agentic-ai-media-production.html"><span class="nab-inline-kicker">Avid</span><strong>Avid Content Core and Google Gemini</strong><span>Agentic AI, archive search, and hybrid deployment without a rip-and-replace migration.</span></a>
-  <a class="nab-inline-card" href="articles/2026-04-01-newsroom-dalet-flex-2512-semantic-search-dalia-ai.html"><span class="nab-inline-kicker">Dalet</span><strong>Dalia moves from idea to operational layer</strong><span>Natural-language workflow triggers with human validation kept in the loop.</span></a>
-  <a class="nab-inline-card" href="articles/2026-04-01-ai-post-production-telestream-adobe-frameio-creative-delivery-automation.html"><span class="nab-inline-kicker">Telestream</span><strong>OCI + Adobe workflow acceleration</strong><span>Premiere-to-Vantage automation, Frame.io readiness, and multi-cloud QoS monitoring.</span></a>
-</section>
-    
-    <section class="latest"><ul id="catGrid" class="bento-grid-large">
-<li class="bento-grid-item">
-  <div class="bento-img-wrap bento-img-featured">
-    <a href="articles/2026-04-17-ai-post-production-blackmagic-davinci-resolve-21-nab.html" tabindex="-1" aria-hidden="true">
-      <img src="/assets/newsroom-anchor.png" alt="Blackmagic Design Launches DaVinci Resolve 21 at NAB 2026" loading="eager" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
-    </a>
-  </div>
-  <div class="bento-body bento-body-featured">
-    <span class="bento-cat-tag">AI & Post-Production</span>
-    <h2 class="bento-hl bento-hl-featured"><a href="articles/2026-04-17-ai-post-production-blackmagic-davinci-resolve-21-nab.html">Blackmagic Design Launches DaVinci Resolve 21 at NAB 2026</a></h2>
-    <div class="bento-foot">
-      <span class="bento-source">SPORTS VIDEO GROUP</span>
-      <time style="font-size:11px;color:var(--ink4)">April 17, 2026</time>
-      <a href="articles/2026-04-17-ai-post-production-blackmagic-davinci-resolve-21-nab.html" class="bento-cta-featured">Read Full Article &rarr;</a>
+  <div class="sc-card-body">
+    <span class="sc-card-tag" style="color:#FF2D55">🎬 AI in Broadcasting</span>
+    <h3 class="sc-card-title">Dynamic Media Facilities (DMF): The Future of Flexible Broadcast Infrastructure</h3>
+    <p class="sc-card-desc">Dynamic Media Facilities explained — what it is, how it works, and why it became a key topic at NAB Show 2026 for modern broadcast infrastructure.</p>
+    <div class="sc-card-foot">
+      <time class="sc-card-date">April 24, 2026</time>
+      <span class="sc-card-read">Read analysis &#8594;</span>
     </div>
   </div>
-</li>
-<li class="bento-grid-item bento-standard">
-  <div class="bento-img-wrap bento-img-std">
-    <a href="articles/2026-04-17-ai-post-production-avid-google-cloud-agentic-ai-media-production.html" tabindex="-1" aria-hidden="true">
-      <img src="/assets/images/_fallback/streamic-default.jpg" alt="Avid and Google Cloud Partner to Deliver Agentic AI to Media Production" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
-    </a>
+</a>
+<a href="articles/2026-04-17-ai-post-production-avid-google-cloud-agentic-ai-media-production.html" class="sc-card">
+  <div class="sc-card-img">
+    <img src="assets/images/nab2026/avid-content-core.png" alt="Avid and Google Cloud Partner to Deliver Agentic AI to Media Production" loading="lazy"
+         onerror="this.onerror=null;this.src='assets/fallback.jpg'">
   </div>
-  <div class="bento-body bento-body-std">
-    <span class="bento-cat-tag">AI & Post-Production</span>
-    <h3 class="bento-hl bento-hl-std"><a href="articles/2026-04-17-ai-post-production-avid-google-cloud-agentic-ai-media-production.html">Avid and Google Cloud Partner to Deliver Agentic AI to Media Production</a></h3>
-    <div class="bento-foot">
-      <span class="bento-source">TV TECHNOLOGY</span>
-      <time style="font-size:11px;color:var(--ink4)">April 17, 2026</time>
-      <a href="articles/2026-04-17-ai-post-production-avid-google-cloud-agentic-ai-media-production.html" class="bento-cta">Read Full Article &rarr;</a>
+  <div class="sc-card-body">
+    <span class="sc-card-tag" style="color:#FF2D55">🎬 AI in Broadcasting</span>
+    <h3 class="sc-card-title">Avid and Google Cloud Partner to Deliver Agentic AI to Media Production</h3>
+    <p class="sc-card-desc">Avid integrates Google Gemini and Vertex AI into Media Composer and Content Core, enabling agentic AI workflows for post-production teams.</p>
+    <div class="sc-card-foot">
+      <time class="sc-card-date">April 17, 2026</time>
+      <span class="sc-card-read">Read analysis &#8594;</span>
     </div>
   </div>
-</li>
-<li class="bento-grid-item bento-standard">
-  <div class="bento-img-wrap bento-img-std">
-    <a href="articles/2026-04-01-ai-post-production-telestream-adobe-frameio-creative-delivery-automation.html" tabindex="-1" aria-hidden="true">
-      <img src="/assets/avid-setup-audio.png" alt="Telestream + Adobe + Frame.io: Why Creative-to-Delivery Automation Is Becoming a Core Broadcast Workflow" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
-    </a>
+</a>
+<a href="articles/2026-04-17-ai-post-production-blackmagic-davinci-resolve-21-nab.html" class="sc-card">
+  <div class="sc-card-img">
+    <img src="assets/media-composer-edit.png" alt="Blackmagic Design Launches DaVinci Resolve 21 at NAB 2026" loading="lazy"
+         onerror="this.onerror=null;this.src='assets/fallback.jpg'">
   </div>
-  <div class="bento-body bento-body-std">
-    <span class="bento-cat-tag">AI & Post-Production</span>
-    <h3 class="bento-hl bento-hl-std"><a href="articles/2026-04-01-ai-post-production-telestream-adobe-frameio-creative-delivery-automation.html">Telestream + Adobe + Frame.io: Why Creative-to-Delivery Automation Is Becoming a Core Broadcast Workflow</a></h3>
-    <div class="bento-foot">
-      <span class="bento-source">TELESTREAM</span>
-      <time style="font-size:11px;color:var(--ink4)">April 01, 2026</time>
-      <a href="articles/2026-04-01-ai-post-production-telestream-adobe-frameio-creative-delivery-automation.html" class="bento-cta">Read Full Article &rarr;</a>
+  <div class="sc-card-body">
+    <span class="sc-card-tag" style="color:#FF2D55">🎬 AI in Broadcasting</span>
+    <h3 class="sc-card-title">Blackmagic Design Launches DaVinci Resolve 21 at NAB 2026</h3>
+    <p class="sc-card-desc">DaVinci Resolve 21 launches alongside new hardware at NAB 2026, continuing Blackmagic's approach of bundling professional tools with accessible pricing.</p>
+    <div class="sc-card-foot">
+      <time class="sc-card-date">April 17, 2026</time>
+      <span class="sc-card-read">Read analysis &#8594;</span>
     </div>
   </div>
-</li>
-<li class="bento-grid-item bento-standard">
-  <div class="bento-img-wrap bento-img-std">
-    <a href="articles/2026-04-01-ai-post-production-frameio-workfront-review-approval-workflow.html" tabindex="-1" aria-hidden="true">
-      <img src="/assets/lasvegas.png" alt="Frame.io Workfront Integration: Adobe’s Quiet Workflow Move With Big Consequences for Review, Approval, and Version Control" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
-    </a>
+</a>
+<a href="articles/2026-04-17-infrastructure-haivision-falkon-x4-5g-live-sports.html" class="sc-card">
+  <div class="sc-card-img">
+    <img src="assets/nab-show-floor.png" alt="Haivision Falkon X4: Four-Modem 5G Contribution for Live Sports and News" loading="lazy"
+         onerror="this.onerror=null;this.src='assets/fallback.jpg'">
   </div>
-  <div class="bento-body bento-body-std">
-    <span class="bento-cat-tag">AI & Post-Production</span>
-    <h3 class="bento-hl bento-hl-std"><a href="articles/2026-04-01-ai-post-production-frameio-workfront-review-approval-workflow.html">Frame.io Workfront Integration: Adobe’s Quiet Workflow Move With Big Consequences for Review, Approval, and Version Control</a></h3>
-    <div class="bento-foot">
-      <span class="bento-source">FRAME.IO</span>
-      <time style="font-size:11px;color:var(--ink4)">April 01, 2026</time>
-      <a href="articles/2026-04-01-ai-post-production-frameio-workfront-review-approval-workflow.html" class="bento-cta">Read Full Article &rarr;</a>
+  <div class="sc-card-body">
+    <span class="sc-card-tag" style="color:#FF2D55">🎬 AI in Broadcasting</span>
+    <h3 class="sc-card-title">Haivision Falkon X4: Four-Modem 5G Contribution for Live Sports and News</h3>
+    <p class="sc-card-desc">Haivision's Falkon X4 brings four independent cellular modems with eight antennas to mobile live production, targeting sports and news contribution.</p>
+    <div class="sc-card-foot">
+      <time class="sc-card-date">April 17, 2026</time>
+      <span class="sc-card-read">Read analysis &#8594;</span>
     </div>
   </div>
-</li>
-<li class="bento-grid-item bento-standard">
-  <div class="bento-img-wrap bento-img-std">
-    <a href="articles/2026-04-01-ai-post-production-editshare-analytical-ai-mediasilo-nab-2026.html" tabindex="-1" aria-hidden="true">
-      <img src="/assets/audio-setup.png" alt="EditShare at NAB 2026: Analytical AI, MediaSilo Intelligence, and NVMe Storage Point to a More Searchable Supply Chain" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
-    </a>
+</a>
+<a href="articles/2026-04-17-newsroom-nab-2026-preview-broadcast-technology.html" class="sc-card">
+  <div class="sc-card-img">
+    <img src="assets/nab-show-banner-news-headline-hero.png" alt="NAB 2026 Preview: What Broadcast Engineers Should Be Watching This Week" loading="lazy"
+         onerror="this.onerror=null;this.src='assets/fallback.jpg'">
   </div>
-  <div class="bento-body bento-body-std">
-    <span class="bento-cat-tag">AI & Post-Production</span>
-    <h3 class="bento-hl bento-hl-std"><a href="articles/2026-04-01-ai-post-production-editshare-analytical-ai-mediasilo-nab-2026.html">EditShare at NAB 2026: Analytical AI, MediaSilo Intelligence, and NVMe Storage Point to a More Searchable Supply Chain</a></h3>
-    <div class="bento-foot">
-      <span class="bento-source">EDITSHARE</span>
-      <time style="font-size:11px;color:var(--ink4)">April 01, 2026</time>
-      <a href="articles/2026-04-01-ai-post-production-editshare-analytical-ai-mediasilo-nab-2026.html" class="bento-cta">Read Full Article &rarr;</a>
+  <div class="sc-card-body">
+    <span class="sc-card-tag" style="color:#FF2D55">🎬 AI in Broadcasting</span>
+    <h3 class="sc-card-title">NAB 2026 Preview: What Broadcast Engineers Should Be Watching This Week</h3>
+    <p class="sc-card-desc">NAB Show 2026 opens this week. From Avid's agentic AI partnership with Google Cloud to Harmonic's IP playout push — here's what engineers should watch.</p>
+    <div class="sc-card-foot">
+      <time class="sc-card-date">April 17, 2026</time>
+      <span class="sc-card-read">Read analysis &#8594;</span>
     </div>
   </div>
-</li>
-<li class="bento-grid-item bento-standard">
-  <div class="bento-img-wrap bento-img-std">
-    <a href="articles/telestream-adobe-vantage-premiere-workflow-integration-2026.html" tabindex="-1" aria-hidden="true">
-      <img src="/assets/anchor.png" alt="Telestream + Adobe: How Vantage Integration Removes the Gap Between Edit and Delivery" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
-    </a>
+</a>
+<a href="articles/2026-04-17-infrastructure-haivision-makito-one-multi-codec-nab-2026.html" class="sc-card">
+  <div class="sc-card-img">
+    <img src="assets/high-end-server-room.jpeg" alt="Haivision Makito ONE: Multi-Codec Encoding and Decoding on a Single Blade" loading="lazy"
+         onerror="this.onerror=null;this.src='assets/fallback.jpg'">
   </div>
-  <div class="bento-body bento-body-std">
-    <span class="bento-cat-tag">AI & Post-Production</span>
-    <h3 class="bento-hl bento-hl-std"><a href="articles/telestream-adobe-vantage-premiere-workflow-integration-2026.html">Telestream + Adobe: How Vantage Integration Removes the Gap Between Edit and Delivery</a></h3>
-    <div class="bento-foot">
-      
-      <time style="font-size:11px;color:var(--ink4)">March 30, 2026</time>
-      <a href="articles/telestream-adobe-vantage-premiere-workflow-integration-2026.html" class="bento-cta">Read Full Article &rarr;</a>
+  <div class="sc-card-body">
+    <span class="sc-card-tag" style="color:#FF2D55">🎬 AI in Broadcasting</span>
+    <h3 class="sc-card-title">Haivision Makito ONE: Multi-Codec Encoding and Decoding on a Single Blade</h3>
+    <p class="sc-card-desc">Haivision's Makito ONE consolidates H.264, HEVC, and AVC encoding and decoding onto a single blade, simplifying contribution infrastructure for broadcasters.</p>
+    <div class="sc-card-foot">
+      <time class="sc-card-date">April 17, 2026</time>
+      <span class="sc-card-read">Read analysis &#8594;</span>
     </div>
   </div>
-</li>
-<li class="bento-grid-item bento-standard">
-  <div class="bento-img-wrap bento-img-std">
-    <a href="articles/future-of-ai-in-broadcast-deployment-2026.html" tabindex="-1" aria-hidden="true">
-      <img src="/assets/the-streamic-studio-1.jpeg" alt="The Future of AI in Broadcast: From Experimentation to Full-Scale Deployment (2026)" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
-    </a>
+</a>
+<a href="articles/2026-04-10-newsroom-bitcentral-to-showcase-connected-media-workfl.html" class="sc-card">
+  <div class="sc-card-img">
+    <img src="assets/newsroom-anchor.png" alt="Bitcentral to Showcase Connected Media Workflows at NAB 2026" loading="lazy"
+         onerror="this.onerror=null;this.src='assets/fallback.jpg'">
   </div>
-  <div class="bento-body bento-body-std">
-    <span class="bento-cat-tag">AI & Post-Production</span>
-    <h3 class="bento-hl bento-hl-std"><a href="articles/future-of-ai-in-broadcast-deployment-2026.html">The Future of AI in Broadcast: From Experimentation to Full-Scale Deployment (2026)</a></h3>
-    <div class="bento-foot">
-      <span class="bento-source">THESTREAMIC.IN</span>
-      <time style="font-size:11px;color:var(--ink4)">March 25, 2026</time>
-      <a href="articles/future-of-ai-in-broadcast-deployment-2026.html" class="bento-cta">Read Full Article &rarr;</a>
+  <div class="sc-card-body">
+    <span class="sc-card-tag" style="color:#FF2D55">🎬 AI in Broadcasting</span>
+    <h3 class="sc-card-title">Bitcentral to Showcase Connected Media Workflows at NAB 2026</h3>
+    <p class="sc-card-desc">Bitcentral will demonstrate connected media workflows at NAB 2026, highlighting integrations between newsroom, production, and distribution systems.</p>
+    <div class="sc-card-foot">
+      <time class="sc-card-date">April 10, 2026</time>
+      <span class="sc-card-read">Read analysis &#8594;</span>
     </div>
   </div>
-</li>
-<li class="bento-grid-item bento-standard">
-  <div class="bento-img-wrap bento-img-std">
-    <a href="articles/cloud-broadcast-workflows-remote-production-2026.html" tabindex="-1" aria-hidden="true">
-      <img src="/assets/nab-show-floor.png" alt="Cloud-Based Broadcast Workflows: Remote Production and Virtualization in 2026" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
-    </a>
+</a>
+<a href="articles/2026-04-01-ai-post-production-telestream-adobe-frameio-creative-delivery-automation.html" class="sc-card">
+  <div class="sc-card-img">
+    <img src="assets/telestream-adobe-frameio-why-creative-to-delivery-automation-is-becoming-a-core-broadcast-workflow.png" alt="Telestream, Adobe and Frame.io: Why Creative-to-Delivery Automation Is Becoming a Core Broadcast Workflow" loading="lazy"
+         onerror="this.onerror=null;this.src='assets/fallback.jpg'">
   </div>
-  <div class="bento-body bento-body-std">
-    <span class="bento-cat-tag">AI & Post-Production</span>
-    <h3 class="bento-hl bento-hl-std"><a href="articles/cloud-broadcast-workflows-remote-production-2026.html">Cloud-Based Broadcast Workflows: Remote Production and Virtualization in 2026</a></h3>
-    <div class="bento-foot">
-      <span class="bento-source">THESTREAMIC.IN</span>
-      <time style="font-size:11px;color:var(--ink4)">March 25, 2026</time>
-      <a href="articles/cloud-broadcast-workflows-remote-production-2026.html" class="bento-cta">Read Full Article &rarr;</a>
+  <div class="sc-card-body">
+    <span class="sc-card-tag" style="color:#FF2D55">🎬 AI in Broadcasting</span>
+    <h3 class="sc-card-title">Telestream, Adobe and Frame.io: Why Creative-to-Delivery Automation Is Becoming a Core Broadcast Workflow</h3>
+    <p class="sc-card-desc">Telestream OCI integration with Adobe Premiere and Frame.io signals a new era of creative-to-delivery automation that removes manual handoff steps.</p>
+    <div class="sc-card-foot">
+      <time class="sc-card-date">April 01, 2026</time>
+      <span class="sc-card-read">Read analysis &#8594;</span>
     </div>
   </div>
-</li>
-<li class="bento-grid-item bento-standard">
-  <div class="bento-img-wrap bento-img-std">
-    <a href="articles/ai-video-post-production-editing-vfx-automation-2026.html" tabindex="-1" aria-hidden="true">
-      <img src="/assets/telestream-adobe-frameio-why-creative-to-delivery-automation-is-becoming-a-core-broadcast-workflow.png" alt="AI in Video Post-Production: Editing, VFX, and Automation in 2026" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
-    </a>
+</a>
+<a href="articles/2026-04-01-ai-post-production-frameio-workfront-review-approval-workflow.html" class="sc-card">
+  <div class="sc-card-img">
+    <img src="assets/studio-image-4.png" alt="Frame.io and Workfront: How AI-Assisted Review Is Changing Broadcast Approval Workflows" loading="lazy"
+         onerror="this.onerror=null;this.src='assets/fallback.jpg'">
   </div>
-  <div class="bento-body bento-body-std">
-    <span class="bento-cat-tag">AI & Post-Production</span>
-    <h3 class="bento-hl bento-hl-std"><a href="articles/ai-video-post-production-editing-vfx-automation-2026.html">AI in Video Post-Production: Editing, VFX, and Automation in 2026</a></h3>
-    <div class="bento-foot">
-      <span class="bento-source">THESTREAMIC.IN</span>
-      <time style="font-size:11px;color:var(--ink4)">March 25, 2026</time>
-      <a href="articles/ai-video-post-production-editing-vfx-automation-2026.html" class="bento-cta">Read Full Article &rarr;</a>
+  <div class="sc-card-body">
+    <span class="sc-card-tag" style="color:#FF2D55">🎬 AI in Broadcasting</span>
+    <h3 class="sc-card-title">Frame.io and Workfront: How AI-Assisted Review Is Changing Broadcast Approval Workflows</h3>
+    <p class="sc-card-desc">Adobe's Frame.io V4 and Workfront integration brings AI-assisted review and approval to broadcast post workflows, reducing turnaround time significantly.</p>
+    <div class="sc-card-foot">
+      <time class="sc-card-date">April 01, 2026</time>
+      <span class="sc-card-read">Read analysis &#8594;</span>
     </div>
   </div>
-</li>
-<li class="bento-grid-item bento-standard">
-  <div class="bento-img-wrap bento-img-std">
-    <a href="articles/ip-broadcasting-smpte-st2110-engineering-guide-2026.html" tabindex="-1" aria-hidden="true">
-      <img src="/assets/the-streamic-studio-1.png" alt="IP-Based Broadcasting and SMPTE ST 2110: Complete Engineering Guide for 2026" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
-    </a>
+</a>
+<a href="articles/2026-04-01-newsroom-vizrt-viz-one-ai-metadata-archive-strategy.html" class="sc-card">
+  <div class="sc-card-img">
+    <img src="assets/pcr-room.png" alt="Vizrt Viz One: AI Metadata and the New Archive Strategy for Newsrooms" loading="lazy"
+         onerror="this.onerror=null;this.src='assets/fallback.jpg'">
   </div>
-  <div class="bento-body bento-body-std">
-    <span class="bento-cat-tag">AI & Post-Production</span>
-    <h3 class="bento-hl bento-hl-std"><a href="articles/ip-broadcasting-smpte-st2110-engineering-guide-2026.html">IP-Based Broadcasting and SMPTE ST 2110: Complete Engineering Guide for 2026</a></h3>
-    <div class="bento-foot">
-      <span class="bento-source">THESTREAMIC.IN</span>
-      <time style="font-size:11px;color:var(--ink4)">March 25, 2026</time>
-      <a href="articles/ip-broadcasting-smpte-st2110-engineering-guide-2026.html" class="bento-cta">Read Full Article &rarr;</a>
+  <div class="sc-card-body">
+    <span class="sc-card-tag" style="color:#FF2D55">🎬 AI in Broadcasting</span>
+    <h3 class="sc-card-title">Vizrt Viz One: AI Metadata and the New Archive Strategy for Newsrooms</h3>
+    <p class="sc-card-desc">Vizrt's Viz One AI metadata capabilities are reshaping how newsrooms manage archives, enabling faster search, retrieval, and content repurposing.</p>
+    <div class="sc-card-foot">
+      <time class="sc-card-date">April 01, 2026</time>
+      <span class="sc-card-read">Read analysis &#8594;</span>
     </div>
   </div>
-</li>
-<li class="bento-grid-item bento-standard">
-  <div class="bento-img-wrap bento-img-std">
-    <a href="articles/media-asset-management-ai-era-monetisation-2026.html" tabindex="-1" aria-hidden="true">
-      <img src="/assets/satellite-image-2.png" alt="Media Asset Management (MAM) in the AI Era: Smarter Content and Faster Monetisation in 2026" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
-    </a>
+</a>
+<a href="articles/2026-04-01-ai-post-production-editshare-analytical-ai-mediasilo-nab-2026.html" class="sc-card">
+  <div class="sc-card-img">
+    <img src="assets/media-composer-edit.png" alt="EditShare Analytical AI and MediaSilo at NAB 2026" loading="lazy"
+         onerror="this.onerror=null;this.src='assets/fallback.jpg'">
   </div>
-  <div class="bento-body bento-body-std">
-    <span class="bento-cat-tag">AI & Post-Production</span>
-    <h3 class="bento-hl bento-hl-std"><a href="articles/media-asset-management-ai-era-monetisation-2026.html">Media Asset Management (MAM) in the AI Era: Smarter Content and Faster Monetisation in 2026</a></h3>
-    <div class="bento-foot">
-      <span class="bento-source">THESTREAMIC.IN</span>
-      <time style="font-size:11px;color:var(--ink4)">March 25, 2026</time>
-      <a href="articles/media-asset-management-ai-era-monetisation-2026.html" class="bento-cta">Read Full Article &rarr;</a>
+  <div class="sc-card-body">
+    <span class="sc-card-tag" style="color:#FF2D55">🎬 AI in Broadcasting</span>
+    <h3 class="sc-card-title">EditShare Analytical AI and MediaSilo at NAB 2026</h3>
+    <p class="sc-card-desc">EditShare brings analytical AI to MediaSilo at NAB 2026, adding intelligent search, tagging, and workflow automation to collaborative media management.</p>
+    <div class="sc-card-foot">
+      <time class="sc-card-date">April 01, 2026</time>
+      <span class="sc-card-read">Read analysis &#8594;</span>
     </div>
   </div>
-</li>
-<li class="bento-grid-item bento-standard">
-  <div class="bento-img-wrap bento-img-std">
-    <a href="articles/live-production-ai-automation-real-time-broadcasting-2026.html" tabindex="-1" aria-hidden="true">
-      <img src="/assets/abstracs-mix.png" alt="Live Production and AI: How Automation Is Redefining Real-Time Broadcasting in 2026" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
-    </a>
+</a>
+<a href="articles/2026-04-01-newsroom-dalet-flex-2512-semantic-search-dalia-ai.html" class="sc-card">
+  <div class="sc-card-img">
+    <img src="assets/abstracts.png" alt="Dalet Flex 25.12 and Dalia AI: Semantic Search Comes to Broadcast MAM" loading="lazy"
+         onerror="this.onerror=null;this.src='assets/fallback.jpg'">
   </div>
-  <div class="bento-body bento-body-std">
-    <span class="bento-cat-tag">AI & Post-Production</span>
-    <h3 class="bento-hl bento-hl-std"><a href="articles/live-production-ai-automation-real-time-broadcasting-2026.html">Live Production and AI: How Automation Is Redefining Real-Time Broadcasting in 2026</a></h3>
-    <div class="bento-foot">
-      <span class="bento-source">THESTREAMIC.IN</span>
-      <time style="font-size:11px;color:var(--ink4)">March 25, 2026</time>
-      <a href="articles/live-production-ai-automation-real-time-broadcasting-2026.html" class="bento-cta">Read Full Article &rarr;</a>
+  <div class="sc-card-body">
+    <span class="sc-card-tag" style="color:#FF2D55">🎬 AI in Broadcasting</span>
+    <h3 class="sc-card-title">Dalet Flex 25.12 and Dalia AI: Semantic Search Comes to Broadcast MAM</h3>
+    <p class="sc-card-desc">Dalet Flex 25.12 introduces Dalia AI with semantic search capabilities, transforming how broadcast teams find and repurpose content inside the MAM.</p>
+    <div class="sc-card-foot">
+      <time class="sc-card-date">April 01, 2026</time>
+      <span class="sc-card-read">Read analysis &#8594;</span>
     </div>
   </div>
-</li>
-<li class="bento-grid-item bento-standard">
-  <div class="bento-img-wrap bento-img-std">
-    <a href="articles/broadcast-automation-systems-guide-2026.html" tabindex="-1" aria-hidden="true">
-      <img src="/assets/pcr-room.png" alt="The Complete Guide to Broadcast Automation Systems in 2026" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
-    </a>
+</a>
+<a href="articles/2026-04-01-cloud-tedial-agentic-ai-media-lifecycle-nab-2026.html" class="sc-card">
+  <div class="sc-card-img">
+    <img src="assets/ms-server-data-center.png" alt="Tedial Agentic AI: Automating the Full Media Lifecycle at NAB 2026" loading="lazy"
+         onerror="this.onerror=null;this.src='assets/fallback.jpg'">
   </div>
-  <div class="bento-body bento-body-std">
-    <span class="bento-cat-tag">AI & Post-Production</span>
-    <h3 class="bento-hl bento-hl-std"><a href="articles/broadcast-automation-systems-guide-2026.html">The Complete Guide to Broadcast Automation Systems in 2026</a></h3>
-    <div class="bento-foot">
-      <span class="bento-source">THESTREAMIC.IN</span>
-      <time style="font-size:11px;color:var(--ink4)">March 25, 2026</time>
-      <a href="articles/broadcast-automation-systems-guide-2026.html" class="bento-cta">Read Full Article &rarr;</a>
+  <div class="sc-card-body">
+    <span class="sc-card-tag" style="color:#FF2D55">🎬 AI in Broadcasting</span>
+    <h3 class="sc-card-title">Tedial Agentic AI: Automating the Full Media Lifecycle at NAB 2026</h3>
+    <p class="sc-card-desc">Tedial demonstrates agentic AI that automates media lifecycle tasks from ingest to distribution, reducing operator workload in broadcast operations.</p>
+    <div class="sc-card-foot">
+      <time class="sc-card-date">April 01, 2026</time>
+      <span class="sc-card-read">Read analysis &#8594;</span>
     </div>
   </div>
-</li>
-<li class="bento-grid-item bento-standard">
-  <div class="bento-img-wrap bento-img-std">
-    <a href="articles/ai-reducing-broadcast-operational-costs-2026.html" tabindex="-1" aria-hidden="true">
-      <img src="/assets/the-streamic-studio-3.png" alt="Beyond Automation: How Can AI Optimize Broadcast Costs and Scales Human Potential in 2026" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
-    </a>
+</a>
+<a href="articles/2026-04-01-playout-harmonic-spectrum-x-plus-playout-economics.html" class="sc-card">
+  <div class="sc-card-img">
+    <img src="assets/the-streamic-studio-1.png" alt="Harmonic Spectrum X+: The Economics of Software-Defined Playout in 2026" loading="lazy"
+         onerror="this.onerror=null;this.src='assets/fallback.jpg'">
   </div>
-  <div class="bento-body bento-body-std">
-    <span class="bento-cat-tag">AI & Post-Production</span>
-    <h3 class="bento-hl bento-hl-std"><a href="articles/ai-reducing-broadcast-operational-costs-2026.html">Beyond Automation: How Can AI Optimize Broadcast Costs and Scales Human Potential in 2026</a></h3>
-    <div class="bento-foot">
-      
-      <time style="font-size:11px;color:var(--ink4)">March 24, 2026</time>
-      <a href="articles/ai-reducing-broadcast-operational-costs-2026.html" class="bento-cta">Read Full Article &rarr;</a>
+  <div class="sc-card-body">
+    <span class="sc-card-tag" style="color:#FF2D55">🎬 AI in Broadcasting</span>
+    <h3 class="sc-card-title">Harmonic Spectrum X+: The Economics of Software-Defined Playout in 2026</h3>
+    <p class="sc-card-desc">Harmonic's Spectrum X+ reframes the playout economics debate — software-defined infrastructure is no longer a compromise on reliability or cost.</p>
+    <div class="sc-card-foot">
+      <time class="sc-card-date">April 01, 2026</time>
+      <span class="sc-card-read">Read analysis &#8594;</span>
     </div>
   </div>
-</li>
-<li class="bento-grid-item bento-standard">
-  <div class="bento-img-wrap bento-img-std">
-    <a href="articles/beyond-the-chatbot-operational-ai-newsroom-2026.html" tabindex="-1" aria-hidden="true">
-      <img src="/assets/avid-setup-audio.png" alt="Beyond the Chatbot: Why 2026 is the Year of Invisible Operational AI in the Newsroom" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
-    </a>
+</a>
+<a href="articles/2026-04-01-playout-pebble-future-ready-playout-nab-2026.html" class="sc-card">
+  <div class="sc-card-img">
+    <img src="assets/the-streamic-studio-2.png" alt="Pebble Future-Ready Playout: What NAB 2026 Reveals About the Next Decade" loading="lazy"
+         onerror="this.onerror=null;this.src='assets/fallback.jpg'">
   </div>
-  <div class="bento-body bento-body-std">
-    <span class="bento-cat-tag">AI & Post-Production</span>
-    <h3 class="bento-hl bento-hl-std"><a href="articles/beyond-the-chatbot-operational-ai-newsroom-2026.html">Beyond the Chatbot: Why 2026 is the Year of Invisible Operational AI in the Newsroom</a></h3>
-    <div class="bento-foot">
-      
-      <time style="font-size:11px;color:var(--ink4)">March 20, 2026</time>
-      <a href="articles/beyond-the-chatbot-operational-ai-newsroom-2026.html" class="bento-cta">Read Full Article &rarr;</a>
+  <div class="sc-card-body">
+    <span class="sc-card-tag" style="color:#FF2D55">🎬 AI in Broadcasting</span>
+    <h3 class="sc-card-title">Pebble Future-Ready Playout: What NAB 2026 Reveals About the Next Decade</h3>
+    <p class="sc-card-desc">Pebble's NAB 2026 presence signals a clear direction: open, interoperable playout platforms built for hybrid IP and cloud-native broadcast operations.</p>
+    <div class="sc-card-foot">
+      <time class="sc-card-date">April 01, 2026</time>
+      <span class="sc-card-read">Read analysis &#8594;</span>
     </div>
   </div>
-</li>
-</ul></section>
-    
+</a>
+<a href="articles/2026-04-01-newsroom-aveco-rundown-designer-no-nrcs-studio-automation.html" class="sc-card">
+  <div class="sc-card-img">
+    <img src="assets/newsroom-anchor.png" alt="Aveco Rundown Designer: Studio Automation Without an NRCS" loading="lazy"
+         onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+  </div>
+  <div class="sc-card-body">
+    <span class="sc-card-tag" style="color:#FF2D55">🎬 AI in Broadcasting</span>
+    <h3 class="sc-card-title">Aveco Rundown Designer: Studio Automation Without an NRCS</h3>
+    <p class="sc-card-desc">Aveco's Rundown Designer enables studio automation to operate independently of a traditional NRCS, lowering the barrier for smaller broadcast operations.</p>
+    <div class="sc-card-foot">
+      <time class="sc-card-date">April 01, 2026</time>
+      <span class="sc-card-read">Read analysis &#8594;</span>
+    </div>
+  </div>
+</a>
+<a href="articles/2026-04-01-infrastructure-smpte-st2110-ai-media-nab-2026.html" class="sc-card">
+  <div class="sc-card-img">
+    <img src="assets/cables.png" alt="SMPTE ST 2110 and AI Media at NAB 2026: The Infrastructure Layer Is Catching Up" loading="lazy"
+         onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+  </div>
+  <div class="sc-card-body">
+    <span class="sc-card-tag" style="color:#FF2D55">🎬 AI in Broadcasting</span>
+    <h3 class="sc-card-title">SMPTE ST 2110 and AI Media at NAB 2026: The Infrastructure Layer Is Catching Up</h3>
+    <p class="sc-card-desc">SMPTE ST 2110 infrastructure is evolving to support AI-driven media workflows — NAB 2026 shows how the network layer is finally catching up with software.</p>
+    <div class="sc-card-foot">
+      <time class="sc-card-date">April 01, 2026</time>
+      <span class="sc-card-read">Read analysis &#8594;</span>
+    </div>
+  </div>
+</a>
+<a href="articles/telestream-adobe-vantage-premiere-workflow-integration-2026.html" class="sc-card">
+  <div class="sc-card-img">
+    <img src="assets/audio-console.png" alt="Telestream Vantage and Adobe Premiere: Workflow Integration for Broadcast Teams" loading="lazy"
+         onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+  </div>
+  <div class="sc-card-body">
+    <span class="sc-card-tag" style="color:#FF2D55">🎬 AI in Broadcasting</span>
+    <h3 class="sc-card-title">Telestream Vantage and Adobe Premiere: Workflow Integration for Broadcast Teams</h3>
+    <p class="sc-card-desc">Telestream Vantage and Adobe Premiere integration delivers a direct creative-to-delivery pipeline, reducing manual steps in broadcast post workflows.</p>
+    <div class="sc-card-foot">
+      <time class="sc-card-date">March 30, 2026</time>
+      <span class="sc-card-read">Read analysis &#8594;</span>
+    </div>
+  </div>
+</a>
+<a href="articles/future-of-ai-in-broadcast-deployment-2026.html" class="sc-card">
+  <div class="sc-card-img">
+    <img src="assets/the-streamic-studio-3.png" alt="The Future of AI in Broadcast Deployment" loading="lazy"
+         onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+  </div>
+  <div class="sc-card-body">
+    <span class="sc-card-tag" style="color:#FF2D55">🎬 AI in Broadcasting</span>
+    <h3 class="sc-card-title">The Future of AI in Broadcast Deployment</h3>
+    <p class="sc-card-desc">A strategic look at how AI deployment in broadcast is shifting from experimentation to production — and what that means for engineering teams in 2026.</p>
+    <div class="sc-card-foot">
+      <time class="sc-card-date">March 25, 2026</time>
+      <span class="sc-card-read">Read analysis &#8594;</span>
+    </div>
+  </div>
+</a>
+<a href="articles/cloud-broadcast-workflows-remote-production-2026.html" class="sc-card">
+  <div class="sc-card-img">
+    <img src="assets/satellite-image-1.png" alt="Cloud-Based Broadcast Workflows: Remote Production and Virtualization in 2026" loading="lazy"
+         onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+  </div>
+  <div class="sc-card-body">
+    <span class="sc-card-tag" style="color:#FF2D55">🎬 AI in Broadcasting</span>
+    <h3 class="sc-card-title">Cloud-Based Broadcast Workflows: Remote Production and Virtualization in 2026</h3>
+    <p class="sc-card-desc">How cloud-based broadcast workflows and virtualization are reshaping remote production — covering architecture, latency, and real-world deployment patterns.</p>
+    <div class="sc-card-foot">
+      <time class="sc-card-date">March 25, 2026</time>
+      <span class="sc-card-read">Read analysis &#8594;</span>
+    </div>
+  </div>
+</a>
+<a href="articles/ai-video-post-production-editing-vfx-automation-2026.html" class="sc-card">
+  <div class="sc-card-img">
+    <img src="assets/studio-image-5.png" alt="AI in Video Post-Production: Editing, VFX, and Automation in 2026" loading="lazy"
+         onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+  </div>
+  <div class="sc-card-body">
+    <span class="sc-card-tag" style="color:#FF2D55">🎬 AI in Broadcasting</span>
+    <h3 class="sc-card-title">AI in Video Post-Production: Editing, VFX, and Automation in 2026</h3>
+    <p class="sc-card-desc">AI tools are reshaping video post-production — from intelligent editing assistants to automated VFX workflows and quality-control pipelines.</p>
+    <div class="sc-card-foot">
+      <time class="sc-card-date">March 25, 2026</time>
+      <span class="sc-card-read">Read analysis &#8594;</span>
+    </div>
+  </div>
+</a>
+<a href="articles/ip-broadcasting-smpte-st2110-engineering-guide-2026.html" class="sc-card">
+  <div class="sc-card-img">
+    <img src="assets/cables.png" alt="IP-Based Broadcasting and SMPTE ST 2110: Complete Engineering Guide for 2026" loading="lazy"
+         onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+  </div>
+  <div class="sc-card-body">
+    <span class="sc-card-tag" style="color:#FF2D55">🎬 AI in Broadcasting</span>
+    <h3 class="sc-card-title">IP-Based Broadcasting and SMPTE ST 2110: Complete Engineering Guide for 2026</h3>
+    <p class="sc-card-desc">A comprehensive engineering guide to IP-based broadcasting and SMPTE ST 2110, covering architecture, timing, redundancy, and practical migration strategy.</p>
+    <div class="sc-card-foot">
+      <time class="sc-card-date">March 25, 2026</time>
+      <span class="sc-card-read">Read analysis &#8594;</span>
+    </div>
+  </div>
+</a>
+<a href="articles/media-asset-management-ai-era-monetisation-2026.html" class="sc-card">
+  <div class="sc-card-img">
+    <img src="assets/high-end-server-room.jpeg" alt="Media Asset Management (MAM) in the AI Era: Smarter Content and Faster Monetisation" loading="lazy"
+         onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+  </div>
+  <div class="sc-card-body">
+    <span class="sc-card-tag" style="color:#FF2D55">🎬 AI in Broadcasting</span>
+    <h3 class="sc-card-title">Media Asset Management (MAM) in the AI Era: Smarter Content and Faster Monetisation</h3>
+    <p class="sc-card-desc">How AI is transforming MAM platforms — from metadata enrichment and search to automated rights management and accelerated content monetisation.</p>
+    <div class="sc-card-foot">
+      <time class="sc-card-date">March 25, 2026</time>
+      <span class="sc-card-read">Read analysis &#8594;</span>
+    </div>
+  </div>
+</a>
+<a href="articles/live-production-ai-automation-real-time-broadcasting-2026.html" class="sc-card">
+  <div class="sc-card-img">
+    <img src="assets/nab-show-floor.png" alt="Live Production AI Automation and Real-Time Broadcasting in 2026" loading="lazy"
+         onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+  </div>
+  <div class="sc-card-body">
+    <span class="sc-card-tag" style="color:#FF2D55">🎬 AI in Broadcasting</span>
+    <h3 class="sc-card-title">Live Production AI Automation and Real-Time Broadcasting in 2026</h3>
+    <p class="sc-card-desc">AI automation is entering live production — from camera control and replay to real-time graphics and multi-platform distribution workflows.</p>
+    <div class="sc-card-foot">
+      <time class="sc-card-date">March 25, 2026</time>
+      <span class="sc-card-read">Read analysis &#8594;</span>
+    </div>
+  </div>
+</a>
+<a href="articles/broadcast-automation-systems-guide-2026.html" class="sc-card">
+  <div class="sc-card-img">
+    <img src="assets/pcr-room.png" alt="The Complete Guide to Broadcast Automation Systems in 2026" loading="lazy"
+         onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+  </div>
+  <div class="sc-card-body">
+    <span class="sc-card-tag" style="color:#FF2D55">🎬 AI in Broadcasting</span>
+    <h3 class="sc-card-title">The Complete Guide to Broadcast Automation Systems in 2026</h3>
+    <p class="sc-card-desc">Everything broadcast engineers need to know about automation systems in 2026 — architecture, vendor landscape, playout, and integration patterns.</p>
+    <div class="sc-card-foot">
+      <time class="sc-card-date">March 25, 2026</time>
+      <span class="sc-card-read">Read analysis &#8594;</span>
+    </div>
+  </div>
+</a>
+<a href="articles/ai-reducing-broadcast-operational-costs-2026.html" class="sc-card">
+  <div class="sc-card-img">
+    <img src="assets/the-streamic-studio-1.jpeg" alt="How AI Is Reducing Broadcast Operational Costs in 2026" loading="lazy"
+         onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+  </div>
+  <div class="sc-card-body">
+    <span class="sc-card-tag" style="color:#FF2D55">🎬 AI in Broadcasting</span>
+    <h3 class="sc-card-title">How AI Is Reducing Broadcast Operational Costs in 2026</h3>
+    <p class="sc-card-desc">A strategic editorial analysis of how AI is driving real operational cost reductions in broadcast — from automated QC to intelligent resource scheduling.</p>
+    <div class="sc-card-foot">
+      <time class="sc-card-date">March 24, 2026</time>
+      <span class="sc-card-read">Read analysis &#8594;</span>
+    </div>
+  </div>
+</a>
+<a href="articles/ip-transition-2026-practical-guide-broadcast-engineers.html" class="sc-card">
+  <div class="sc-card-img">
+    <img src="assets/cables.png" alt="IP Transition 2026: A Practical Guide for Broadcast Engineers" loading="lazy"
+         onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+  </div>
+  <div class="sc-card-body">
+    <span class="sc-card-tag" style="color:#FF2D55">🎬 AI in Broadcasting</span>
+    <h3 class="sc-card-title">IP Transition 2026: A Practical Guide for Broadcast Engineers</h3>
+    <p class="sc-card-desc">A practical engineering guide to navigating the IP transition in 2026 — SDI migration, NMOS implementation, and real-world lessons from early adopters.</p>
+    <div class="sc-card-foot">
+      <time class="sc-card-date">March 22, 2026</time>
+      <span class="sc-card-read">Read analysis &#8594;</span>
+    </div>
+  </div>
+</a>
+<a href="articles/cloud-playout-economics-2026-build-vs-buy.html" class="sc-card">
+  <div class="sc-card-img">
+    <img src="assets/satellite-image-2.png" alt="Cloud Playout Economics in 2026: Build vs Buy" loading="lazy"
+         onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+  </div>
+  <div class="sc-card-body">
+    <span class="sc-card-tag" style="color:#FF2D55">🎬 AI in Broadcasting</span>
+    <h3 class="sc-card-title">Cloud Playout Economics in 2026: Build vs Buy</h3>
+    <p class="sc-card-desc">The build vs buy decision for cloud playout in 2026 — TCO analysis, operational trade-offs, and what the vendor landscape actually looks like.</p>
+    <div class="sc-card-foot">
+      <time class="sc-card-date">March 22, 2026</time>
+      <span class="sc-card-read">Read analysis &#8594;</span>
+    </div>
+  </div>
+</a>
+<a href="articles/beyond-the-chatbot-operational-ai-newsroom-2026.html" class="sc-card">
+  <div class="sc-card-img">
+    <img src="assets/newsroom-anchor.png" alt="Beyond the Chatbot: Operational AI in the Newsroom" loading="lazy"
+         onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+  </div>
+  <div class="sc-card-body">
+    <span class="sc-card-tag" style="color:#FF2D55">🎬 AI in Broadcasting</span>
+    <h3 class="sc-card-title">Beyond the Chatbot: Operational AI in the Newsroom</h3>
+    <p class="sc-card-desc">Operational AI in the newsroom goes well beyond chat interfaces — how AI is being deployed for ingest routing, metadata, QC, and distribution decisions.</p>
+    <div class="sc-card-foot">
+      <time class="sc-card-date">March 20, 2026</time>
+      <span class="sc-card-read">Read analysis &#8594;</span>
+    </div>
+  </div>
+</a>
+<a href="articles/st-2110-small-market-hybrid-ip-broadcasters-2026.html" class="sc-card">
+  <div class="sc-card-img">
+    <img src="assets/cables.png" alt="ST 2110 for Small-Market and Hybrid IP Broadcasters in 2026" loading="lazy"
+         onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+  </div>
+  <div class="sc-card-body">
+    <span class="sc-card-tag" style="color:#FF2D55">🎬 AI in Broadcasting</span>
+    <h3 class="sc-card-title">ST 2110 for Small-Market and Hybrid IP Broadcasters in 2026</h3>
+    <p class="sc-card-desc">SMPTE ST 2110 is no longer just for large broadcasters — how small-market and hybrid IP facilities are adopting the standard practically and affordably.</p>
+    <div class="sc-card-foot">
+      <time class="sc-card-date">March 19, 2026</time>
+      <span class="sc-card-read">Read analysis &#8594;</span>
+    </div>
+  </div>
+</a>
+<a href="articles/c2pa-deepfake-news-credibility-digital-provenance-2026.html" class="sc-card">
+  <div class="sc-card-img">
+    <img src="assets/anchor.png" alt="C2PA, Deepfakes, and News Credibility: Digital Provenance in 2026" loading="lazy"
+         onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+  </div>
+  <div class="sc-card-body">
+    <span class="sc-card-tag" style="color:#FF2D55">🎬 AI in Broadcasting</span>
+    <h3 class="sc-card-title">C2PA, Deepfakes, and News Credibility: Digital Provenance in 2026</h3>
+    <p class="sc-card-desc">How the C2PA standard for digital content provenance is becoming critical infrastructure for broadcast newsrooms fighting deepfakes and misinformation.</p>
+    <div class="sc-card-foot">
+      <time class="sc-card-date">March 17, 2026</time>
+      <span class="sc-card-read">Read analysis &#8594;</span>
+    </div>
+  </div>
+</a>
+<a href="articles/green-broadcast-cloud-carbon-footprint-sustainability-2026.html" class="sc-card">
+  <div class="sc-card-img">
+    <img src="assets/satellite-image-1.png" alt="Green Broadcast: Cloud Carbon Footprint and Sustainability in 2026" loading="lazy"
+         onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+  </div>
+  <div class="sc-card-body">
+    <span class="sc-card-tag" style="color:#FF2D55">🎬 AI in Broadcasting</span>
+    <h3 class="sc-card-title">Green Broadcast: Cloud Carbon Footprint and Sustainability in 2026</h3>
+    <p class="sc-card-desc">Broadcast's cloud carbon footprint is growing — how media organisations are measuring, reporting, and reducing the environmental impact of cloud production.</p>
+    <div class="sc-card-foot">
+      <time class="sc-card-date">March 16, 2026</time>
+      <span class="sc-card-read">Read analysis &#8594;</span>
+    </div>
+  </div>
+</a></div>
   </div>
 </main>
 <footer class="footer">
