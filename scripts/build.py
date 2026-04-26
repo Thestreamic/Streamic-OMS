@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 
 ROOT      = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 ARTS_F    = os.path.join(ROOT, "data", "generated_articles.json")
+MANUAL_F  = os.path.join(ROOT, "data", "manual_articles.json")
 DOCS      = os.path.join(ROOT, "docs")
 ARTS_D    = os.path.join(DOCS, "articles")
 BASE_URL  = os.environ.get("SITE_BASE_URL", "https://www.thestreamic.in").rstrip("/")
@@ -657,189 +658,210 @@ def is_high_value(article: dict) -> bool:
     # Any article with a title passes (never blank)
     return bool(article.get("title", "").strip())
 
-# ── BROADCAST IMAGE SYSTEM ──────────────────────────────────────────────────
-# Curated Unsplash images: server rooms, control rooms, vision mixers, cameras,
-# edit suites, studio equipment, network infrastructure. NO typewriters, newspapers.
+# ── LOCAL IMAGE SYSTEM ───────────────────────────────────────────────────────
+# ALL images served from docs/assets/. NO Unsplash, NO external URLs.
+# assign_images.py populates image fields. build.py resolves from local disk.
 
-_BAD_IMAGE_IDS = {
-    "photo-1495020689067-958852a7765e",   # person reading newspaper
-    "photo-1504711434969-e33886168f5c",   # newspaper stack
-    "photo-1432821596592-e2c18b78144f",   # TYPEWRITER
-    "photo-1453738773917-9c3eff1db985",   # old newspaper on wooden desk
-    "photo-1557804506-669a67965ba0",      # generic business meeting room
+_RESERVED_ASSETS = {
+    "logo.png", "fallback.jpg",
+    "gfx-hero-nab-floor.png", "gfx-hero-nab-floor.jpg",
+    "hero-broadcast-male.png",
+    "nab-show-banner-news-headline-hero.png",
+    "insight-quic-infographic.jpg",
+    "neil-sadwelkar.jpg",
+    "studio-grade-ott-workflow-2026.png",
 }
 
-# 30 unique broadcast/media IT images — no repeats, all relevant
-_BROADCAST_IMAGES = [
-    # Server rooms & data centers
-    "photo-1558494949-ef010cbdcc31",      # server room blue LED racks
-    "photo-1544197150-b99a580bb7a8",      # data center corridor
-    "photo-1573164713988-8665fc963095",   # fiber optic cables glowing
-    "photo-1504384308090-c894fdcc538d",   # server room ceiling view
-    "photo-1451187580459-43490279c0fa",   # global network data visualization
-    # Broadcast control rooms & production
-    "photo-1598488035139-bdbb2231ce04",   # audio/broadcast mixing console
-    "photo-1478737270239-2f02b77fc618",   # control room buttons & panels
-    "photo-1524253482453-3fed8d2fe12b",   # video editing workstation
-    "photo-1616401784845-180882ba9ba8",   # camera / video production gear
-    "photo-1492619375914-88005aa9e8fb",   # video production multi-cam setup
-    # Post-production & edit suites
-    "photo-1535016120720-40c646be5580",   # video editing timeline on monitor
-    "photo-1547658719-da2b51169166",      # multi-monitor edit workstation
-    "photo-1605106702734-205df224ecce",   # VFX / tech screen
-    "photo-1581092918056-0c4c3acd3789",   # tech lab equipment
-    "photo-1611532736597-de2d4265fba3",   # broadcast / streaming setup
-    # AI & technology
-    "photo-1677442135703-1787eea5ce01",   # AI neural network visualization
-    "photo-1620712943543-bcc4688e7485",   # AI / machine learning
-    "photo-1593642632559-0c6d3fc62b89",   # circuit board close-up
-    "photo-1518770660439-4636190af475",   # circuit board macro
-    "photo-1515879218367-8466d910aaa4",   # code on dark screen
-    # Network & infrastructure
-    "photo-1545987796-200677ee1011",      # network fiber connections
-    "photo-1551288049-bebda4e38f71",      # data analytics dashboard
-    "photo-1504639725590-34d0984388bd",   # programming / code screen
-    "photo-1516321497487-e288fb19713f",   # tech workspace monitors
-    "photo-1497366754035-f200968a6e72",   # modern tech office
-    # Streaming & media
-    "photo-1586788680434-30d324b2d46f",   # live streaming / video
-    "photo-1560472355-536de3962603",      # video / media content
-    "photo-1561736778-92e52a7769ef",      # graphics workstation
-    "photo-1516321318423-f06f85e504b3",   # monitoring screens
-    "photo-1517694712202-14dd9538aa97",   # tech laptop workspace
-]
+# Category → preferred local image (meaningful editorial match)
+_CAT_IMAGE = {
+    "ai-post-production":        "media-composer-edit.png",
+    "infrastructure":             "cables.png",
+    "newsroom":                   "newsroom-anchor.png",
+    "cloud":                      "ms-server-data-center.png",
+    "playout":                    "pcr-room.png",
+    "graphics":                   "studio-image-4.png",
+    "streaming":                  "the-streamic-studio-2.png",
+    "featured":                   "the-streamic-studio-1.png",
+    "post-production-workflows":  "avid-setup-audio.png",
+    "insights":                   "production-room-of-news.png",
+    "editorsdesk":                "abstracts.png",
+}
 
+
+def _local_image_exists(url: str) -> bool:
+    """True if an assets/... path resolves to a real file under docs/.
+    Accepts both 'assets/...' and '/assets/...' forms."""
+    if not url:
+        return False
+    rel = url.lstrip("/")
+    return os.path.isfile(os.path.join(DOCS, rel))
+
+
+def _scan_local_images() -> list:
+    """Return list of relative 'assets/filename.ext' paths for every usable image in docs/assets/.
+    Uses relative paths (no leading slash) so they work on both root and subdirectory deployments."""
+    found = []
+    try:
+        for fn in sorted(os.listdir(os.path.join(DOCS, "assets"))):
+            if not fn.lower().endswith((".png", ".jpg", ".jpeg", ".webp")):
+                continue
+            if fn in _RESERVED_ASSETS:
+                continue
+            # Skip uppercase originals if a sanitized lowercase copy exists
+            sanitized = fn.lower().replace(" ", "-").replace("(", "").replace(")", "")
+            if fn != sanitized and os.path.isfile(os.path.join(DOCS, "assets", sanitized)):
+                continue
+            found.append(f"assets/{fn}")   # relative, no leading slash
+    except Exception:
+        pass
+    return found if found else ["assets/fallback.jpg"]
+
+
+def _best_local_image_for(a: dict, pool: list, used: set) -> str:
+    """Pick the best unused local image for an article.
+    Returns a relative path like 'assets/filename.png' (no leading slash)."""
+    cat = (a.get("category") or "featured").lower()
+    pref = _CAT_IMAGE.get(cat)
+    if pref:
+        pref_url = f"assets/{pref}"   # relative
+        if _local_image_exists(pref_url) and pref_url not in used:
+            used.add(pref_url)
+            return pref_url
+    for img in pool:
+        if img not in used:
+            used.add(img)
+            return img
+    used.clear()
+    if pool:
+        used.add(pool[0])
+        return pool[0]
+    return "assets/fallback.jpg"
+
+
+# Backward-compat stubs (legacy code paths reference these — safe to keep)
 def _unsplash_url(photo_id):
-    return f"https://images.unsplash.com/{photo_id}?w=1200&auto=format&fit=crop&q=80"
+    return "/assets/fallback.jpg"
 
 def _is_bad_image(url):
-    """Check if an image URL is in the blacklist."""
     if not url:
         return True
-    return any(bad_id in url for bad_id in _BAD_IMAGE_IDS)
-
-_POOL_IDS = set(_BROADCAST_IMAGES)
+    return url.startswith("http://") or url.startswith("https://")
 
 def _image_is_from_pool(url: str) -> bool:
-    """True only if URL is an images.unsplash.com link to a pool photo ID."""
-    if not url:
-        return False
-    if "images.unsplash.com" not in url:
-        return False
-    if "photo-" not in url:
-        return False
-    try:
-        pid = "photo-" + url.split("photo-", 1)[1].split("?", 1)[0]
-    except IndexError:
-        return False
-    return pid in _POOL_IDS
+    return False   # Unsplash pool is retired — local images only
+
 
 def _fix_article_images(arts):
-    """Enforce broadcast-image policy across ALL article records.
+    """Resolve final image_url for every article — LOCAL IMAGES ONLY.
 
-    Copyright rule: third-party thumbnails (TV Technology, Motionographer,
-    Haivision, vendor PR photos, etc.) are never shipped on the live site.
-    Every image_url must resolve to an entry in the curated _BROADCAST_IMAGES
-    pool on images.unsplash.com, which Streamic licenses via Unsplash terms.
+    Stores RELATIVE paths (assets/filename.png, no leading slash) so images
+    work on both root deployments (thestreamic.in/) and GitHub Pages
+    subdirectory deployments (om-lasa.github.io/ganesh/).
 
-    Rules applied in order:
-      1. Any non-pool image (external CDN, vendor press photo,
-         blacklisted ID, empty, or malformed) is replaced with a pool image.
-      2. Any pool image already used in this run is replaced so the homepage
-         and category pages never show the same visual twice in a row.
-      3. Replacements are drawn round-robin from _BROADCAST_IMAGES for a
-         stable, deterministic distribution across the ~35 visible slugs.
+    Priority:
+      1. Manual article: preserve image_url confirmed on disk.
+      2. Existing image_url if valid local assets/ path on disk.
+      3. "image" field if valid local assets/ path on disk.
+      4. Assign from local pool (category-preferred, then round-robin).
+      5. Hard fallback: assets/fallback.jpg.
     """
-    used_images = set()
-    pool_idx = 0
+    BROKEN = "/assets/images/_fallback/streamic-default.jpg"
+    pool = _scan_local_images()
+    used: set = set()
 
-    def _next_image():
-        nonlocal pool_idx
-        for _ in range(len(_BROADCAST_IMAGES)):
-            img_id = _BROADCAST_IMAGES[pool_idx % len(_BROADCAST_IMAGES)]
-            pool_idx += 1
-            if img_id not in used_images:
-                used_images.add(img_id)
-                return _unsplash_url(img_id)
-        # All pool IDs consumed — reset and continue round-robin.
-        used_images.clear()
-        img_id = _BROADCAST_IMAGES[pool_idx % len(_BROADCAST_IMAGES)]
-        pool_idx += 1
-        used_images.add(img_id)
-        return _unsplash_url(img_id)
+    def _rel(path):
+        """Strip leading slash → relative path 'assets/...'"""
+        return path.lstrip("/")
 
-    replaced_non_pool = 0
-    replaced_duplicate = 0
-    taxonomy_applied = 0
+    local_assigned = 0
+    fallback_used  = 0
+
     for a in arts:
-        # PRIORITY 1: local taxonomy image from assign_images.py if present.
-        # These are deterministic, copyright-safe local files matched to
-        # the article's topic by the Streamic visual taxonomy.
-        taxonomy_img = a.get("image") or ""
-        if taxonomy_img and taxonomy_img.startswith("/assets/images/"):
-            a["image_url"] = taxonomy_img
-            a["image_credit"] = "The Streamic"
-            a["image_license"] = "Site License"
-            a["image_license_url"] = ""
-            taxonomy_applied += 1
+        # PRIORITY 1: manual article — already resolved, normalise to relative
+        if a.get("_source") == "manual":
+            a.setdefault("image_credit",     "The Streamic")
+            a.setdefault("image_license",    "Site Asset")
+            a.setdefault("image_license_url","")
+            img = _rel(a.get("image_url", ""))
+            if img:
+                a["image_url"] = img
+                used.add(img)
             continue
 
-        img = a.get("image_url", "") or ""
-
-        # Preserve approved local site assets used for curated hero/editorial art.
-        if img.startswith("/assets/") or img.startswith("assets/"):
-            a["image_credit"] = a.get("image_credit") or "The Streamic"
-            a["image_license"] = a.get("image_license") or "Site Asset"
+        # PRIORITY 2: existing image_url if valid local file
+        img_url = (a.get("image_url") or "").strip()
+        if (img_url
+                and img_url != BROKEN
+                and not img_url.startswith("http")
+                and (img_url.startswith("/assets/") or img_url.startswith("assets/"))
+                and _local_image_exists(img_url)):
+            a["image_url"]         = _rel(img_url)
+            a["image_credit"]      = a.get("image_credit") or "The Streamic"
+            a["image_license"]     = a.get("image_license") or "Site Asset"
             a["image_license_url"] = a.get("image_license_url") or ""
+            used.add(a["image_url"])
             continue
 
-        if not _image_is_from_pool(img):
-            # Non-pool image (external/vendor/invalid) — force replacement.
-            a["image_url"] = _next_image()
-            # Attribution: pool images are Unsplash-licensed.
-            a["image_credit"] = "Unsplash"
-            a["image_license"] = "Unsplash License"
-            a["image_license_url"] = "https://unsplash.com/license"
-            replaced_non_pool += 1
+        # PRIORITY 3: "image" field if valid local file
+        img_field = (a.get("image") or "").strip()
+        if (img_field
+                and img_field != BROKEN
+                and not img_field.startswith("http")
+                and (img_field.startswith("/assets/") or img_field.startswith("assets/"))
+                and _local_image_exists(img_field)):
+            a["image_url"]         = _rel(img_field)
+            a["image_credit"]      = "The Streamic"
+            a["image_license"]     = "Site Asset"
+            a["image_license_url"] = ""
+            used.add(a["image_url"])
             continue
 
-        # Pool image — track uniqueness; replace if already used in this run.
-        try:
-            photo_id = "photo-" + img.split("photo-", 1)[1].split("?", 1)[0]
-        except IndexError:
-            photo_id = ""
+        # PRIORITY 4: assign from local pool
+        if pool and pool != ["/assets/fallback.jpg"]:
+            chosen = _rel(_best_local_image_for(a, pool, used))
+            a["image_url"]         = chosen
+            a["image_credit"]      = "The Streamic"
+            a["image_license"]     = "Site Asset"
+            a["image_license_url"] = ""
+            local_assigned += 1
+            continue
 
-        if photo_id and photo_id in used_images:
-            a["image_url"] = _next_image()
-            a["image_credit"] = "Unsplash"
-            a["image_license"] = "Unsplash License"
-            a["image_license_url"] = "https://unsplash.com/license"
-            replaced_duplicate += 1
-        elif photo_id:
-            used_images.add(photo_id)
+        # PRIORITY 5: hard fallback
+        a["image_url"]         = "assets/fallback.jpg"
+        a["image_credit"]      = "The Streamic"
+        a["image_license"]     = "Site Asset"
+        a["image_license_url"] = ""
+        fallback_used += 1
 
-    total = replaced_non_pool + replaced_duplicate
-    if total:
-        print(f"  Image fixer: {total} images normalized to broadcast pool "
-              f"({replaced_non_pool} non-pool, {replaced_duplicate} duplicates)")
+    if local_assigned:
+        print(f"  Image fixer: {local_assigned} articles assigned local images from pool")
+    if fallback_used:
+        print(f"  Image fixer: {fallback_used} articles using fallback.jpg")
+    ext = [a.get("image_url","") for a in arts if (a.get("image_url","") or "").startswith("http")]
+    if ext:
+        print(f"  ⚠ WARNING: {len(ext)} articles still have external image_url")
 
 
 def _hp_img(a, base=""):
-    img = eu(a.get("image_url", "") or a.get("image", ""))
-    if img:
-        return img
+    """Resolve a card image URL — LOCAL ONLY, relative path (no leading slash).
+
+    Returns relative paths like 'assets/filename.png' so the image works
+    whether the site is served from a domain root (thestreamic.in/) or a
+    GitHub Pages subdirectory (om-lasa.github.io/ganesh/).
+    """
+    img = (a.get("image_url", "") or a.get("image", "") or "").strip()
+    if img and not img.startswith("http"):
+        # Normalise: strip leading slash to get relative path
+        rel = img.lstrip("/")
+        if rel.startswith("assets/") and _local_image_exists("/" + rel):
+            return rel   # e.g. "assets/media-composer-edit.png"
     cat = (a.get("category") or "featured").lower()
-    fallbacks = {
-        "featured": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&auto=format&fit=crop&q=80",
-        "newsroom": "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=1200&auto=format&fit=crop&q=80",
-        "cloud": "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=1200&auto=format&fit=crop&q=80",
-        "infrastructure": "https://images.unsplash.com/photo-1545987796-200677ee1011?w=1200&auto=format&fit=crop&q=80",
-        "graphics": "https://images.unsplash.com/photo-1547658719-da2b51169166?w=1200&auto=format&fit=crop&q=80",
-        "streaming": "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=1200&auto=format&fit=crop&q=80",
-        "ai-post-production": "https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=1200&auto=format&fit=crop&q=80",
-        "playout": "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1200&auto=format&fit=crop&q=80",
-    }
-    return fallbacks.get(cat, fallbacks["featured"])
+    pref = _CAT_IMAGE.get(cat, "the-streamic-studio-1.png")
+    pref_url = f"/assets/{pref}"
+    if _local_image_exists(pref_url):
+        return f"assets/{pref}"
+    return "assets/fallback.jpg"
+
 
 def _hp_tag(a):
     cinfo = CAT.get(a.get("category", "featured"), CAT["featured"])
@@ -1444,7 +1466,7 @@ def category_page(cat, arts):
   <div class="hero-inner">
     <div class="hero-img">
       <a href="articles/ai-reducing-broadcast-operational-costs-2026.html">
-        <img src="assets/hero-broadcast-male.png" alt="Broadcast production switcher in a modern control room" loading="eager" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+        <img src="assets/ai-post-production-hero.png" alt="AI-driven post-production control room with multi-screen workflow and editorial team" loading="eager" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
       </a>
     </div>
     <div class="hero-body">
@@ -1476,7 +1498,17 @@ def category_page(cat, arts):
         pg_robots = "index,follow" if pg==0 else "noindex,follow"
 
         latest_section = f'<section class="latest">{grid_html}</section>' if grid_html else ""
-        html = f"""{head(pg_title, desc, pg_canon, og_img=(first[0].get('image_url','') if first else ''), robots=pg_robots)}
+        _page_head = head(pg_title, desc, pg_canon, og_img=(first[0].get('image_url','') if first else ''), robots=pg_robots)
+        # Inject scoped size-fix for the ai-post-production hero ONLY
+        if cat == "ai-post-production" and pg == 0:
+            _ai_hero_css = """<style>
+.hero--ai-post-custom .hero-inner{min-height:0;align-items:center}
+.hero--ai-post-custom .hero-img{max-height:400px;aspect-ratio:16/9}
+.hero--ai-post-custom .hero-img img{height:100%;max-height:400px;object-fit:cover;object-position:center top}
+@media(max-width:900px){.hero--ai-post-custom .hero-img{max-height:240px;aspect-ratio:16/9}}
+</style>"""
+            _page_head = _page_head.replace("</head>", _ai_hero_css + "\n</head>")
+        html = f"""{_page_head}
 <body data-category="{cat}">
 {nav(cpg)}
 {catbar(cat)}
@@ -2963,6 +2995,96 @@ def sitemap(arts):
     return "\n".join(lines)
 
 # ── MAIN
+def load_manual_articles():
+    """Return list of article dicts from data/manual_articles.json.
+
+    Manual articles override generated_articles.json on slug collision.
+    Image resolution priority:
+      1. entry["image"] if file exists on disk under docs/
+      2. /assets/fallback.jpg
+    Each returned dict carries _source="manual" for build-log reporting.
+    """
+    if not os.path.isfile(MANUAL_F):
+        return []
+
+    try:
+        with open(MANUAL_F, "r", encoding="utf-8") as _f:
+            raw = json.load(_f)
+    except Exception as exc:
+        print(f"  ⚠ Could not read manual_articles.json: {exc}")
+        return []
+
+    results = []
+    skipped = 0
+
+    for entry in raw:
+        slug = (entry.get("slug") or "").strip()
+        if not slug:
+            print("  ⚠ manual_articles.json: entry missing slug — skipped")
+            skipped += 1
+            continue
+
+        if entry.get("status") != "published":
+            skipped += 1
+            continue
+
+        html_path = os.path.join(ARTS_D, f"{slug}.html")
+        if not os.path.isfile(html_path):
+            print(f"  ⚠ manual '{slug}': docs/articles/{slug}.html not found — skipped")
+            skipped += 1
+            continue
+
+        title    = (entry.get("title") or "").strip()
+        date     = (entry.get("date") or "2026-01-01")[:10]
+        category = (entry.get("category") or "ai-post-production").strip()
+        desc     = (entry.get("description") or "").strip()
+
+        # Image resolution: file on disk, or /assets/fallback.jpg
+        raw_img = (entry.get("image") or "").strip()
+        if raw_img and not raw_img.startswith("/"):
+            raw_img = "/" + raw_img
+        img = ""
+        if raw_img:
+            img_disk = os.path.join(DOCS, raw_img.lstrip("/"))
+            if os.path.isfile(img_disk):
+                img = raw_img
+            else:
+                print(f"  ⚠ manual '{slug}': image {raw_img!r} not found on disk — using fallback")
+        if not img:
+            img = "/assets/fallback.jpg"
+
+        results.append({
+            "slug":              slug,
+            "title":             title,
+            "published":         date,
+            "category":          category,
+            "dek":               desc,
+            "meta_description":  desc,
+            "card_summary":      desc,
+            "image_url":         img,
+            "image_credit":      "The Streamic",
+            "image_license":     "Site Asset",
+            "image_license_url": "",
+            "word_count":        900,
+            "generated_by":      "gpt_manual_editorial",
+            "is_editorial":      True,
+            "editorial":         True,
+            "source_url":        "",
+            "source_domain":     "The Streamic",
+            "quality_score":     90,
+            "body_html":         f"<p>{desc}</p>" if desc else "",
+            "_source":           "manual",
+        })
+
+    if results:
+        print(f"  ✓ manual_articles.json: {len(results)} loaded"
+              f"{f', {skipped} skipped' if skipped else ''}")
+    elif skipped:
+        print(f"  ℹ manual_articles.json: 0 loaded, {skipped} skipped")
+
+    return results
+
+
 def main():
     with open(ARTS_F,"r",encoding="utf-8") as f: arts = json.load(f)
     if not arts: raise SystemExit("No articles")
@@ -3060,6 +3182,21 @@ def main():
     arts = kept
     print(f"  After near-dup dedup: {len(arts)} unique articles "
           f"(removed {dropped_near_dup} near-duplicates)")
+
+    # ── Merge manual_articles.json (overrides generated on slug collision) ──
+    generated_arts = arts
+    manual_arts    = load_manual_articles()
+    by_slug = {}
+    for a in generated_arts:
+        by_slug[a.get("slug", "")] = a
+    for a in manual_arts:
+        by_slug[a.get("slug", "")] = a   # manual overrides generated
+    arts = sorted(by_slug.values(), key=lambda a: a.get("published", ""), reverse=True)
+    if manual_arts:
+        m_slugs = {a.get("slug") for a in manual_arts}
+        manual_count    = sum(1 for a in arts if a.get("slug") in m_slugs)
+        generated_count = len(arts) - manual_count
+        print(f"  Merged: {manual_count} manual + {generated_count} generated = {len(arts)} total")
 
     # ── Ensure all articles have a slug ──────────────────────────────────
     def _slugify(title):
