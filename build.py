@@ -2655,60 +2655,136 @@ def howto_page():
 </body></html>"""
 
 def _deep_dives_section():
-    """Homepage 'Technical Deep Dives' — 2 premium editorial cards below hero.
+    """Homepage Technical Deep Dives - 3-card bento (XR featured left, Pebble + AWS right).
 
-    Layout matches the reference: 2 side-by-side cards on desktop, stacked on mobile.
-    Each card links to a full hand-authored article page under /docs/articles/.
-    Images expected at /docs/assets/deepdives/ — upload media-composer-edit.png and ms-server-datacenter.png.
+    Layout (desktop):
+      [XR - featured, full-height left]  [Pebble card - right top   ]
+                                         [AWS card    - right bottom ]
+
+    XR is the new first card. Pebble and AWS are unchanged, moved to right column.
     """
-    cards = [
+    xr = {
+        "kicker":  "XR \u00b7 Virtual Production",
+        "title":   "XR is Becoming the New Broadcast Studio Layer",
+        "lead":    ("Extended Reality is moving into newsrooms, sports studios, election "
+                    "coverage and live production. A 2026 landscape guide: LED volumes, "
+                    "Unreal Engine Avalanche, Disguise Chrono, Vizrt AI Keyer and Mo-Sys tracking."),
+        "img":     "assets/xr-broadcast-newsroom-hero.png",
+        "img_alt": ("XR newsroom studio with LED virtual set, camera crew, "
+                    "green screen area and real-time broadcast graphics overlays"),
+        "cap":     "XR \u00b7 Broadcast Studio",
+        "href":    "articles/xr-virtual-production-broadcast-newsroom-guide-2026.html",
+        "cta":     "Read the guide",
+    }
+
+    right_cards = [
         {
-            "kicker": "Automation",
-            "title": "The Death of the &quot;Black Box&quot;: Why Pebble and Harmonic are Winning the Playout War",
-            "lead": "The \"Black Box\" era is officially over. Pebble's JT-DMF interoperability push and Harmonic's SMPTE ST 2110-native Spectrum X are collapsing the decades-old hardware lock-in.",
-            "img": "assets/deepdives/media-composer-edit.png",
+            "kicker":  "Automation",
+            "title":   "The Death of the &quot;Black Box&quot;: Why Pebble and Harmonic are Winning the Playout War",
+            "lead":    ("The \"Black Box\" era is officially over. Pebble\u2019s JT-DMF "
+                        "interoperability push and Harmonic\u2019s SMPTE ST 2110-native "
+                        "Spectrum X are collapsing the decades-old hardware lock-in."),
+            "img":     "assets/deepdives/media-composer-edit.png",
             "img_alt": "Avid Media Composer editing interface showing multi-clip timeline and source monitor",
-            "img_caption": "Software-Defined Playout",
-            "href": "articles/deepdive-pebble-harmonic-playout-war-nab-2026.html",
-            "cta": "Read analysis",
+            "cap":     "Software-Defined Playout",
+            "href":    "articles/deepdive-pebble-harmonic-playout-war-nab-2026.html",
+            "cta":     "Read analysis",
         },
         {
-            "kicker": "Infrastructure",
-            "title": "From Bots to Agents: How AWS and Google Cloud are Actually Solving the Newsroom Headache",
-            "lead": "2025 was AI that created stuff. 2026 is Agentic AI — AI that does stuff. AWS Elemental Inference and the Google Cloud / Avid partnership signal a real shift from demo to deployment.",
-            "img": "assets/deepdives/ms-server-datacenter.png",
+            "kicker":  "Infrastructure",
+            "title":   "From Bots to Agents: How AWS and Google Cloud are Actually Solving the Newsroom Headache",
+            "lead":    ("2025 was AI that created stuff. 2026 is Agentic AI \u2014 AI that does stuff. "
+                        "AWS Elemental Inference and the Google Cloud / Avid partnership "
+                        "signal a real shift from demo to deployment."),
+            "img":     "assets/deepdives/ms-server-datacenter.png",
             "img_alt": "Hyperscale data center server aisle with illuminated racks extending to vanishing point",
-            "img_caption": "Agentic Cloud Infrastructure",
-            "href": "articles/deepdive-aws-google-cloud-agentic-ai-nab-2026.html",
-            "cta": "Read analysis",
+            "cap":     "Agentic Cloud Infrastructure",
+            "href":    "articles/deepdive-aws-google-cloud-agentic-ai-nab-2026.html",
+            "cta":     "Read analysis",
         },
     ]
 
-    card_html = ""
-    for c in cards:
-        card_html += f'''<a class="dd-card" href="{c['href']}" aria-label="Read deep dive: {c['title']}">
-  <div class="dd-card-body">
-    <span class="dd-kicker">{c['kicker']}</span>
-    <h3 class="dd-title">{c['title']}</h3>
-    <p class="dd-lead">{c['lead']}</p>
-    <span class="dd-cta">{c['cta']} <span class="dd-arrow" aria-hidden="true">&#8594;</span></span>
-  </div>
-  <figure class="dd-figure">
-    <img class="dd-img" src="{c['img']}" alt="{c['img_alt']}" loading="lazy" onerror="this.style.opacity='0'">
-    <figcaption class="dd-figcap">{c['img_caption']}</figcaption>
-  </figure>
-</a>'''
+    css = (
+        "<style>"
+        # Outer grid: single column — XR hero spans full width, compact row below
+        ".dd-grid--trio{display:grid;grid-template-columns:1fr;gap:22px}"
+        # XR hero card: horizontal split — text left, wide cinematic image right
+        ".dd-card--featured{display:grid;grid-template-columns:1fr 1.4fr;min-height:360px}"
+        ".dd-card--featured .dd-card-body{padding:38px 38px 34px;justify-content:center}"
+        ".dd-card--featured .dd-title--featured{font-size:clamp(22px,2.6vw,32px);line-height:1.18;margin:10px 0 16px}"
+        ".dd-card--featured .dd-lead{font-size:15px;line-height:1.72}"
+        # Right row: Pebble + AWS side-by-side (original horizontal card layout)
+        ".dd-grid--trio .dd-col-right{display:grid;grid-template-columns:1fr 1fr;gap:22px}"
+        ".dd-card--compact{display:grid;grid-template-columns:1.05fr .95fr}"
+        # Mobile: stack all three, XR image moves above text
+        "@media(max-width:860px){"
+        ".dd-grid--trio{gap:16px}"
+        ".dd-card--featured{grid-template-columns:1fr;min-height:auto}"
+        ".dd-card--featured .dd-figure--featured{order:-1;aspect-ratio:16/9;min-height:200px}"
+        ".dd-card--featured .dd-card-body{padding:22px 20px 20px}"
+        ".dd-card--featured .dd-title--featured{font-size:clamp(20px,5vw,26px)}"
+        ".dd-grid--trio .dd-col-right{grid-template-columns:1fr}"
+        ".dd-card--compact{grid-template-columns:1fr}"
+        ".dd-card--compact .dd-figure{order:-1;aspect-ratio:16/9;min-height:160px}"
+        "}"
+        "</style>"
+    )
 
-    return f'''<section class="dd-section" aria-labelledby="dd-h2">
-  <div class="dd-hdr">
-    <span class="dd-eyebrow">The 2026 Collection</span>
-    <h2 id="dd-h2" class="dd-h2">Technical Deep Dives</h2>
-    <p class="dd-intro">Moving beyond the headlines into the architecture of the modern media supply chain.</p>
-  </div>
-  <div class="dd-grid">
-    {card_html}
-  </div>
-</section>'''
+    onerror = "this.style.opacity='0'"
+
+    xr_card = (
+        '<a class="dd-card dd-card--featured" href="' + xr["href"] + '" '
+        'aria-label="Read deep dive: ' + xr["title"] + '">'
+          '<div class="dd-card-body">'
+            '<span class="dd-kicker">' + xr["kicker"] + '</span>'
+            '<h3 class="dd-title dd-title--featured">' + xr["title"] + '</h3>'
+            '<p class="dd-lead">' + xr["lead"] + '</p>'
+            '<span class="dd-cta">' + xr["cta"] + ' <span class="dd-arrow" aria-hidden="true">&#8594;</span></span>'
+          '</div>'
+          '<figure class="dd-figure dd-figure--featured">'
+            '<img class="dd-img" src="' + xr["img"] + '" alt="' + xr["img_alt"] + '" '
+            'loading="lazy" onerror="' + onerror + '">'
+            '<figcaption class="dd-figcap">' + xr["cap"] + '</figcaption>'
+          '</figure>'
+        '</a>'
+    )
+
+    right_html = ""
+    for c in right_cards:
+        right_html += (
+            '<a class="dd-card dd-card--compact" href="' + c["href"] + '" '
+            'aria-label="Read deep dive: ' + c["title"] + '">'
+              '<div class="dd-card-body">'
+                '<span class="dd-kicker">' + c["kicker"] + '</span>'
+                '<h3 class="dd-title">' + c["title"] + '</h3>'
+                '<p class="dd-lead">' + c["lead"] + '</p>'
+                '<span class="dd-cta">' + c["cta"] + ' <span class="dd-arrow" aria-hidden="true">&#8594;</span></span>'
+              '</div>'
+              '<figure class="dd-figure">'
+                '<img class="dd-img" src="' + c["img"] + '" alt="' + c["img_alt"] + '" '
+                'loading="lazy" onerror="' + onerror + '">'
+                '<figcaption class="dd-figcap">' + c["cap"] + '</figcaption>'
+              '</figure>'
+            '</a>'
+        )
+
+    section = (
+        '<section class="dd-section" aria-labelledby="dd-h2">'
+          '<div class="dd-hdr">'
+            '<span class="dd-eyebrow">The 2026 Collection</span>'
+            '<h2 id="dd-h2" class="dd-h2">Technical Deep Dives</h2>'
+            '<p class="dd-intro">Moving beyond the headlines into the architecture of the modern media supply chain.</p>'
+          '</div>'
+          '<div class="dd-grid dd-grid--trio">'
+            + xr_card +
+            '<div class="dd-col-right">'
+              + right_html +
+            '</div>'
+          '</div>'
+        '</section>'
+    )
+
+    return css + "\n" + section
 
 
 def _nab_bento_section(mode="all"):
