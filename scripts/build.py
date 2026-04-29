@@ -1371,7 +1371,6 @@ def featured_page(arts):
           <a href="articles/guide-vantage-aws-transcode.html" class="hp-sb-guide-item"><span class="hp-sb-guide-cat">Cloud</span><span class="hp-sb-guide-title">Vantage: Output to AWS S3</span><span class="hp-sb-guide-time">&#128337; 6 min</span></a>
           <a href="articles/guide-avid-media-central-health-check.html" class="hp-sb-guide-item"><span class="hp-sb-guide-cat">Avid</span><span class="hp-sb-guide-title">MediaCentral Health Check</span><span class="hp-sb-guide-time">&#128337; 7 min</span></a>
           <a href="articles/guide-audio-conform-avid-protools.html" class="hp-sb-guide-item"><span class="hp-sb-guide-cat">Audio</span><span class="hp-sb-guide-title">Audio Conform: Avid to Pro Tools</span><span class="hp-sb-guide-time">&#128337; 9 min</span></a>
-          <a href="articles/guide-avid-strawberry.html" class="hp-sb-guide-item"><span class="hp-sb-guide-cat">MAM</span><span class="hp-sb-guide-title">Strawberry PAM + Avid Workflow</span><span class="hp-sb-guide-time">&#128337; 10 min</span></a>
         </div>'''
 
     return f'''{homepage_head}
@@ -2382,21 +2381,6 @@ HOWTO_GUIDE_CONTENT = {
                     ("CloudWatch monitoring", "Add CloudWatch alarms on your target S3 bucket: one for unexpectedly large object uploads (potential runaway transcode producing oversized files), one for excessive daily egress (potential unauthorised download activity), and one for failed PutObject calls (IAM permission drift after credential rotation). Route alerts to a Slack or PagerDuty channel your operations team monitors. For broadcast operations where S3 delivery is mission-critical, add a synthetic health check that uploads a 1MB test file every 15 minutes via Lambda and alerts if it fails — this catches credential rotation problems, bucket permission drift, or network-level issues before a real broadcast delivery fails and your downstream partners complain. For heavy delivery volumes, investigate AWS CloudFront origination from S3 as an alternative delivery architecture — egress pricing through CloudFront is often significantly cheaper than direct S3 egress at scale, and the added caching layer improves delivery latency for international audiences. Always set up AWS billing alerts at sensible thresholds so unexpected cost spikes get caught early."),
         ],
     },
-    "guide-avid-strawberry": {
-        "tag": "Strawberry PAM · Avid",
-        "time": "10 min",
-        "title": "Strawberry PAM + Avid Media Composer: Collaborative Editing Setup",
-        "dek": "Configure Projective Strawberry for collaborative Avid Media Composer editing: shared storage, hot-folder ingest, version control, and automated delivery.",
-        "sections": [
-            ("What Strawberry adds to an Avid shop", "Strawberry from Projective is a Production Asset Management (PAM) layer that sits on top of Avid Nexis (or an SMB share) and gives editors a web UI for browsing, tagging, and handing off projects. It&#39;s not a replacement for MediaCentral — it&#39;s a lightweight alternative for facilities that need collaborative workflow but don&#39;t want the MediaCentral licensing overhead. The sweet spot is a 5–15 seat post facility."),
-            ("Shared storage architecture", "Strawberry needs one &quot;workspace root&quot; — a shared volume visible to every editor at the same mount path (e.g. <code>/Volumes/shared</code> on macOS, <code>Z:\\</code> on Windows). Avid Nexis workspaces work fine; so do SMB shares served from a TrueNAS or Synology box. For workstations connecting over 10GbE, a SSD-backed NAS can sustain 4–6 concurrent HD streams without stuttering. For remote editors, add a caching layer or switch to proxy-based editing."),
-            ("Avid project structure", "Strawberry expects each Avid project to live in its own folder under the workspace root: <code>/Volumes/shared/ProjectName/</code>. Inside, standard Avid subfolders: <code>Avid Projects/</code>, <code>Avid MediaFiles/MXF/1/</code>, and a Strawberry-specific <code>_Strawberry/</code> that holds metadata. Editors open projects via Media Composer&#39;s normal open dialog; Strawberry runs alongside as a web UI in a browser tab."),
-            ("Ingest hot folders", "Configure Strawberry&#39;s ingest rules in the web admin. Create a &quot;Rushes&quot; hot folder at <code>/Volumes/shared/_ingest/</code>. Rules: incoming files tagged by date, transcoded to DNxHD 36 (proxy) + DNxHD 120 (online), attached as AMA-linked or fully imported based on size. For XDCAM EX or AVCHD source, enable the auto-transcode rule — playback in Avid is much smoother after transcode than via AMA on these codecs."),
-            ("Version control &amp; project locking", "Strawberry&#39;s killer feature is project-level locking. When Editor A opens a project, Strawberry marks it locked in its database and other editors see a read-only indicator. When A closes the project, the lock releases. For finer granularity, use bins rather than whole projects — multi-editor concurrent editing on separate bins of the same project is supported. Avoid two editors editing the same bin at the same time; Avid&#39;s internal bin locking is per-file and conflicts produce silent data loss."),
-            ("Automated delivery", "Strawberry can trigger downstream workflows when an editor tags a sequence &quot;Delivered&quot;. Typical pattern: tag fires a webhook to Telestream Vantage, which picks up the sequence&#39;s export, transcodes it to delivery spec, and pushes to S3 or the client&#39;s MAM. This closes the loop from edit bay to CDN without a human re-exporting files. Monitor the webhook queue in Strawberry&#39;s admin — failed hand-offs are the most common break point and easy to miss."),
-                    ("Editor adoption and training", "The hardest part of a Strawberry deployment is not the technical setup — it&#39;s getting editors to adopt the web UI instead of reverting to the Finder or Windows Explorer. Budget a dedicated half-day training session per editor that covers: browsing the rushes folder via Strawberry rather than the OS file browser, tagging sequences with delivery-ready metadata, using the metadata search to find shots across old projects, and proper locking etiquette when multiple editors work on adjacent bins. The payoff is measurable: facilities that fully adopt Strawberry workflow typically reclaim 20 to 30 minutes per editor per day that was previously spent manually hunting for files. Track adoption metrics for the first month and coach the stragglers individually rather than hoping they&#39;ll catch up on their own."),
-        ],
-    },
     "guide-audio-conform-avid-protools": {
         "tag": "Avid · Pro Tools · Audio",
         "time": "9 min",
@@ -2576,13 +2560,6 @@ def howto_page():
             "href": "articles/guide-vantage-aws-transcode.html",
             "tag": "Vantage · AWS",
             "time": "9 min",
-        },
-        {
-            "title": "Strawberry PAM + Avid Media Composer Workflow",
-            "desc": "Configure Projective's Strawberry for collaborative editing with Avid Media Composer. Shared storage, ingest hot folders, version control, and automated delivery.",
-            "href": "articles/guide-avid-strawberry.html",
-            "tag": "PAM · Avid",
-            "time": "10 min",
         },
         {
             "title": "Audio Conform: Avid Media Composer to Pro Tools and Back",
