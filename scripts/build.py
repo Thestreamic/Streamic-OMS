@@ -325,7 +325,7 @@ def footer(base=""):
     </div>
     <div class="footer-col">
       <h4>Dublin, Ireland</h4>
-      <a href="mailto:technodate3@gmail.com" style="color:var(--blue)">technodate3@gmail.com</a>
+      <a href="mailto:thestreamic@gmail.com" style="color:var(--blue)">thestreamic@gmail.com</a>
       <span style="font-size:12px;color:#bbb;display:block;margin-top:4px">Adamstown, Lucan</span>
     </div>
   </div>
@@ -1909,7 +1909,7 @@ def about_page():
   </a>
 </div>
 <h2 style="font-family:var(--serif);font-size:22px;margin:36px 0 12px">Contact</h2>
-<p style="font-size:15px;color:var(--ink3);line-height:1.7">For editorial enquiries, corrections, or advertising: <a href="mailto:technodate3@gmail.com" style="color:var(--blue)">technodate3@gmail.com</a> &nbsp;|&nbsp; <a href="contact.html" style="color:var(--blue)">Use our contact form &rarr;</a></p>
+<p style="font-size:15px;color:var(--ink3);line-height:1.7">For editorial enquiries, corrections, or advertising: <a href="mailto:thestreamic@gmail.com" style="color:var(--blue)">thestreamic@gmail.com</a> &nbsp;|&nbsp; <a href="contact.html" style="color:var(--blue)">Use our contact form &rarr;</a></p>
 </div></main>
 {footer()}
 {_cookie_banner()}
@@ -1942,12 +1942,12 @@ def contact_page():
     Adamstown, Lucan<br>
     Dublin, Ireland
   </address>
-  <p style="font-size:14px;color:var(--ink3);margin-top:14px;margin-bottom:4px"><strong style="color:var(--ink)">Email:</strong> <a href="mailto:technodate3@gmail.com" style="color:var(--blue)">technodate3@gmail.com</a></p>
+  <p style="font-size:14px;color:var(--ink3);margin-top:14px;margin-bottom:4px"><strong style="color:var(--ink)">Email:</strong> <a href="mailto:thestreamic@gmail.com" style="color:var(--blue)">thestreamic@gmail.com</a></p>
   <p style="font-size:14px;color:var(--ink3);margin-bottom:4px"><strong style="color:var(--ink)">Editorial:</strong> Story tips, corrections, press releases</p>
   <p style="font-size:14px;color:var(--ink3)"><strong style="color:var(--ink)">Advertising:</strong> Include &#34;Advertising&#34; in your subject line</p>
 </div>
 <h2 style="font-family:var(--serif);font-size:22px;margin-bottom:20px">Send us a message</h2>
-<form action="https://formsubmit.co/technodate3@gmail.com" method="POST" style="display:flex;flex-direction:column;gap:16px">
+<form action="https://formsubmit.co/thestreamic@gmail.com" method="POST" style="display:flex;flex-direction:column;gap:16px">
   <input type="hidden" name="_subject" value="New contact form enquiry from The Streamic">
   <input type="hidden" name="_template" value="table">
   <input type="hidden" name="_next" value="https://www.thestreamic.in/contact.html?sent=1">
@@ -1977,7 +1977,7 @@ def contact_page():
     Send Message
   </button>
 </form>
-<p style="font-size:12px;color:var(--ink4);margin-top:14px;line-height:1.6">On first use, FormSubmit sends a one-time activation email to <strong>technodate3@gmail.com</strong>. After you confirm it once, future submissions go directly to your inbox.</p>
+<p style="font-size:12px;color:var(--ink4);margin-top:14px;line-height:1.6">On first use, FormSubmit sends a one-time activation email to <strong>thestreamic@gmail.com</strong>. After you confirm it once, future submissions go directly to your inbox.</p>
 </div></main>
 {footer()}
 {_cookie_banner()}
@@ -2014,7 +2014,7 @@ def privacy_page():
 <p style="margin-bottom:16px">We do not collect names, postal addresses, phone numbers, payment details, or other personal data unless you voluntarily provide it by contacting us directly. We do not sell, rent, or trade any data we hold. We do not maintain a marketing mailing list.</p>
 
 <h2 style="font-family:var(--serif);font-size:20px;color:var(--ink);margin:28px 0 10px">Your rights under GDPR</h2>
-<p style="margin-bottom:16px">If you are located in the UK or EU, you have the right to access, rectify, erase, restrict, or object to the processing of any personal data we hold about you. To exercise any of these rights, email <a href="mailto:technodate3@gmail.com" style="color:var(--blue)">technodate3@gmail.com</a>. We will respond within 30 days. You also have the right to lodge a complaint with the Irish Data Protection Commission at <a href="https://www.dataprotection.ie" rel="nofollow" style="color:var(--blue)">dataprotection.ie</a>.</p>
+<p style="margin-bottom:16px">If you are located in the UK or EU, you have the right to access, rectify, erase, restrict, or object to the processing of any personal data we hold about you. To exercise any of these rights, email <a href="mailto:thestreamic@gmail.com" style="color:var(--blue)">thestreamic@gmail.com</a>. We will respond within 30 days. You also have the right to lodge a complaint with the Irish Data Protection Commission at <a href="https://www.dataprotection.ie" rel="nofollow" style="color:var(--blue)">dataprotection.ie</a>.</p>
 
 <h2 style="font-family:var(--serif);font-size:20px;color:var(--ink);margin:28px 0 10px">Data retention</h2>
 <p style="margin-bottom:16px">Analytics data is retained for up to 14 months as configured in Google Analytics 4. Email correspondence is retained for as long as is reasonably necessary to handle the enquiry, typically no more than 24 months.</p>
@@ -2023,7 +2023,7 @@ def privacy_page():
 <p style="margin-bottom:16px">We may update this Privacy Policy to reflect changes to our data processing practices or to comply with new regulatory requirements. Substantive changes will be noted at the top of this page with an updated &quot;last modified&quot; date.</p>
 
 <h2 style="font-family:var(--serif);font-size:20px;color:var(--ink);margin:28px 0 10px">Contact</h2>
-<p>Privacy queries, data access requests, or correction requests: <a href="mailto:technodate3@gmail.com" style="color:var(--blue)">technodate3@gmail.com</a></p>
+<p>Privacy queries, data access requests, or correction requests: <a href="mailto:thestreamic@gmail.com" style="color:var(--blue)">thestreamic@gmail.com</a></p>
 </div>
 </div></main>
 {footer()}
@@ -2064,7 +2064,7 @@ def terms_page():
 <p style="margin-bottom:16px">We may update these Terms of Use from time to time. Continued use of the site after changes are published constitutes acceptance of the revised terms. Substantive changes will be noted at the top of this page with an updated &quot;last modified&quot; date.</p>
 
 <h2 style="font-family:var(--serif);font-size:20px;color:var(--ink);margin:28px 0 10px">Contact</h2>
-<p style="margin-bottom:16px">For questions about these Terms, please email <a href="mailto:technodate3@gmail.com" style="color:var(--blue)">technodate3@gmail.com</a>.</p>
+<p style="margin-bottom:16px">For questions about these Terms, please email <a href="mailto:thestreamic@gmail.com" style="color:var(--blue)">thestreamic@gmail.com</a>.</p>
 </div>
 </div></main>
 {footer()}
@@ -2141,7 +2141,7 @@ def editorial_policy_page():
 
 <h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">Contact</h2>
 <p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">For editorial enquiries, feedback, or corrections:</p>
-<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px"><a href="mailto:technodate3@gmail.com" style="color:var(--blue)">technodate3@gmail.com</a> or use the <a href="contact.html" style="color:var(--blue)">contact form</a> on this site.</p>
+<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px"><a href="mailto:thestreamic@gmail.com" style="color:var(--blue)">thestreamic@gmail.com</a> or use the <a href="contact.html" style="color:var(--blue)">contact form</a> on this site.</p>
 </div></main>
 {footer()}
 {_cookie_banner()}
@@ -2264,7 +2264,7 @@ def insights_page():
 <h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">Read our latest analysis</h2>
 <p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">Browse our complete archive on the <a href="index.html" style="color:var(--blue)">homepage</a>, our AI-focused coverage on the <a href="ai-post-production.html" style="color:var(--blue)">AI in Broadcasting</a> page, or curated picks on the <a href="editorsdesk.html" style="color:var(--blue)">Editor&#39;s Desk</a>.</p>
 
-<p style="font-size:13px;color:var(--ink4);line-height:1.7;margin-top:36px;padding-top:20px;border-top:1px solid var(--line)">Reach the editorial team at <a href="mailto:technodate3@gmail.com" style="color:var(--blue)">technodate3@gmail.com</a>.</p>
+<p style="font-size:13px;color:var(--ink4);line-height:1.7;margin-top:36px;padding-top:20px;border-top:1px solid var(--line)">Reach the editorial team at <a href="mailto:thestreamic@gmail.com" style="color:var(--blue)">thestreamic@gmail.com</a>.</p>
 </div></main>
 {footer()}
 {_cookie_banner()}
@@ -2354,7 +2354,7 @@ def post_production_workflows_page():
   <li><a href="editorsdesk.html" style="color:var(--blue)">Editor&#39;s Desk</a> &#8212; curated editorial picks across the Streamic archive.</li>
 </ul>
 
-<p style="font-size:13px;color:var(--ink4);line-height:1.7;margin-top:36px;padding-top:20px;border-top:1px solid var(--line)">Post team working on an integration we should cover? Tell us: <a href="mailto:technodate3@gmail.com" style="color:var(--blue)">technodate3@gmail.com</a> or <a href="contact.html" style="color:var(--blue)">contact form</a>.</p>
+<p style="font-size:13px;color:var(--ink4);line-height:1.7;margin-top:36px;padding-top:20px;border-top:1px solid var(--line)">Post team working on an integration we should cover? Tell us: <a href="mailto:thestreamic@gmail.com" style="color:var(--blue)">thestreamic@gmail.com</a> or <a href="contact.html" style="color:var(--blue)">contact form</a>.</p>
 </div></main>
 {footer()}
 {_cookie_banner()}
