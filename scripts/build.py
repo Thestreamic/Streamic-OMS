@@ -2241,7 +2241,7 @@ def insights_page():
 {nav()}
 <main><div class="w" style="padding:52px 24px 80px;max-width:820px">
 <h1 style="font-family:var(--serif);font-size:clamp(28px,4vw,44px);margin-bottom:16px;letter-spacing:-.5px">Expert Insights</h1>
-<p style="font-size:17px;color:var(--ink2);line-height:1.65;margin-bottom:32px">Long-form broadcast and media technology analysis from the Streamic editorial team — plus exclusive interviews with veteran engineers, colourists, DITs, and media-IT architects.</p>
+<p style="font-size:17px;color:var(--ink2);line-height:1.65;margin-bottom:32px">Long-form broadcast and media technology analysis from the Streamic editorial team &mdash; plus exclusive interviews with veteran engineers, colourists, DITs, and media-IT architects.</p>
 
 <style>
 .insights-feat-wrap{{display:flex;flex-direction:column;gap:20px;margin:28px 0 40px}}
