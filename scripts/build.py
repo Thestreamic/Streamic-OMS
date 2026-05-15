@@ -2149,11 +2149,10 @@ def editorial_policy_page():
 
 def insights_page():
     """Expert Insights landing page logic."""
-    # Ensure this list is indented exactly 4 spaces
     _interviews = [
         {
             "href": "articles/Venki Ji-1.html",
-            "series": "The Veteran's Lens · Part 1",
+            "series": "The Veteran's Lens &middot; Part 1",
             "title": "Venkatakrishna A on the Philosophy of Invisible Restoration",
             "dek": "Authenticity over perfection: Why the goal of film and video restoration should be preservation rather than modernization.",
             "expert_name": "Venkatakrishna A",
@@ -2163,9 +2162,9 @@ def insights_page():
         },
         {
             "href": "", 
-            "series": "The Veteran's Lens · Part 2",
+            "series": "The Veteran's Lens &middot; Part 2",
             "title": "Venkatakrishna A on Grain Management and the Hybrid Future",
-            "dek": "Debunking myths in restoration and why Quality Control remains the ultimate barrier against over-processing in the age of automation.",
+            "dek": "Debunking myths in restoration and why Quality Control remains the ultimate barrier against over-processing.",
             "expert_name": "Venkatakrishna A",
             "expert_role": "Domain Expert & Senior Colorist",
             "read_time": "8 min read",
@@ -2175,7 +2174,7 @@ def insights_page():
             "href": "articles/Expertinsight1.html",
             "series": "The Veteran's Lens",
             "title": "Neil Sadwelkar on AI and the Future of Digital Imaging",
-            "dek": "From negative cutting to AI-assisted colour grading — a candid conversation with one of India's foremost DI pioneers.",
+            "dek": "From negative cutting to AI-assisted colour grading &mdash; a candid conversation with one of India's foremost DI pioneers.",
             "expert_name": "Neil B. Sadwelkar",
             "expert_role": "Digital Imaging Technician & Post-Production Pioneer",
             "read_time": "12 min read",
@@ -2183,11 +2182,9 @@ def insights_page():
         },
     ]
 
-    # The loop must also be indented 4 spaces
     interview_cards_html = ""
     for iv in _interviews:
         if iv['href']:
-            # Indent this block 8 spaces (4 for 'for', 4 for 'if')
             interview_cards_html += f"""
 <a class="insights-feat-card" href="{iv['href']}">
   <span class="insights-feat-series">&#10022; {iv['series']}</span>
@@ -2202,7 +2199,6 @@ def insights_page():
   </div>
 </a>"""
         else:
-            # Indent this block 8 spaces (4 for 'for', 4 for 'else')
             interview_cards_html += f"""
 <div class="insights-feat-card" style="opacity: 0.7; border-style: dashed; cursor: default; background: #f9f9f9;">
   <span class="insights-feat-series" style="color: #999;">&#10022; {iv['series']}</span>
@@ -2217,68 +2213,60 @@ def insights_page():
   </div>
 </div>"""
 
-    # The return statement should be indented 4 spaces
-    return f"""..."""
-</a>"""
-        else:
-            # Placeholder Card (No Link, Style for Pending/Coming Soon)
-            interview_cards_html += f"""
-<div class="insights-feat-card" style="opacity: 0.7; border-style: dashed; cursor: default; background: #f9f9f9;">
-  <span class="insights-feat-series" style="color: #999;">&#10022; {iv['series']}</span>
-  <h3 class="insights-feat-title" style="color: #666;">{iv['title']}</h3>
-  <p class="insights-feat-dek">{iv['dek']}</p>
-  <div class="insights-feat-meta">
-    <span class="insights-feat-expert"><strong>{iv['expert_name']}</strong> &middot; {iv['expert_role']}</span>
-  </div>
-  <div class="insights-feat-footer">
-    <span class="insights-feat-details" style="font-weight: 700; color: #b8860b;">PUBLISHING {iv['published'].upper()}</span>
-    <span class="insights-feat-cta" style="color: #999;">Coming Soon</span>
-  </div>
-</div>"""
+    # We declare the CSS outside the f-string to prevent parsing errors
+    css_styles = """
+<style>
+.insights-feat-wrap{display:flex;flex-direction:column;gap:20px;margin:28px 0 40px}
+.insights-feat-card{display:block;padding:26px 28px;background:linear-gradient(180deg,#fffdf7 0%,#f8f2e6 100%);border:1px solid #e6dcc2;border-radius:14px;box-shadow:0 10px 28px rgba(63,47,22,.08);text-decoration:none;color:inherit;transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}
+.insights-feat-card:hover{transform:translateY(-2px);box-shadow:0 16px 36px rgba(63,47,22,.12);border-color:#d4af37}
+.insights-feat-series{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#8b6b3f;margin-bottom:12px}
+.insights-feat-title{font-family:var(--serif);font-size:clamp(20px,2.6vw,26px);line-height:1.25;letter-spacing:-.01em;color:#17120f;margin:0 0 12px;font-weight:400}
+.insights-feat-dek{font-family:Georgia,"Times New Roman",serif;font-size:15.5px;line-height:1.7;color:#3a322a;margin:0 0 16px}
+.insights-feat-meta{font-size:13px;color:#5a4f40;line-height:1.55;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid rgba(139,107,63,.18)}
+.insights-feat-meta strong{color:#17120f}
+.insights-feat-footer{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.insights-feat-details{font-size:12px;color:#7a6f5e}
+.insights-feat-cta{font-size:13px;font-weight:700;color:#5f3b13;letter-spacing:.02em}
+.insights-feat-card:hover .insights-feat-cta{color:#17120f}
+@media (max-width:640px){.insights-feat-card{padding:22px 20px}}
+</style>
+"""
 
-    return f"""{head("Expert Insights — The Streamic","Long-form broadcast technology analysis and expert interviews: AI colour grading, ST 2110 rollouts, cloud production, post-production workflows, and operational engineering for media teams.",f"{BASE_URL}/insights.html")}
+    return f"""{head("Expert Insights &mdash; The Streamic", "Long-form broadcast technology analysis and expert interviews.", f"{BASE_URL}/insights.html")}
 <body>
 {nav()}
 <main><div class="w" style="padding:52px 24px 80px;max-width:820px">
 <h1 style="font-family:var(--serif);font-size:clamp(28px,4vw,44px);margin-bottom:16px;letter-spacing:-.5px">Expert Insights</h1>
 <p style="font-size:17px;color:var(--ink2);line-height:1.65;margin-bottom:32px">Long-form broadcast and media technology analysis from the Streamic editorial team &mdash; plus exclusive interviews with veteran engineers, colourists, DITs, and media-IT architects.</p>
 
-<style>
-.insights-feat-wrap{{display:flex;flex-direction:column;gap:20px;margin:28px 0 40px}}
-.insights-feat-card{{display:block;padding:26px 28px;background:linear-gradient(180deg,#fffdf7 0%,#f8f2e6 100%);border:1px solid #e6dcc2;border-radius:14px;box-shadow:0 10px 28px rgba(63,47,22,.08);text-decoration:none;color:inherit;transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}}
-.insights-feat-card:hover{{transform:translateY(-2px);box-shadow:0 16px 36px rgba(63,47,22,.12);border-color:#d4af37}}
-.insights-feat-series{{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#8b6b3f;margin-bottom:12px}}
-.insights-feat-title{{font-family:var(--serif);font-size:clamp(20px,2.6vw,26px);line-height:1.25;letter-spacing:-.01em;color:#17120f;margin:0 0 12px;font-weight:400}}
-.insights-feat-dek{{font-family:Georgia,"Times New Roman",serif;font-size:15.5px;line-height:1.7;color:#3a322a;margin:0 0 16px}}
-.insights-feat-meta{{font-size:13px;color:#5a4f40;line-height:1.55;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid rgba(139,107,63,.18)}}
-.insights-feat-meta strong{{color:#17120f}}
-.insights-feat-footer{{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}}
-.insights-feat-details{{font-size:12px;color:#7a6f5e}}
-.insights-feat-cta{{font-size:13px;font-weight:700;color:#5f3b13;letter-spacing:.02em}}
-.insights-feat-card:hover .insights-feat-cta{{color:#17120f}}
-@media (max-width:640px){{.insights-feat-card{{padding:22px 20px}}}}
-</style>
+{css_styles}
 
 <h2 style="font-family:var(--serif);font-size:22px;margin:8px 0 12px">Featured interviews</h2>
-<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">In-depth conversations with the engineers, colourists, and technology leaders shaping broadcast and post-production. Each interview is a first-person account of the workflow shifts and standards transitions these veterans are living through.</p>
-<div class="insights-feat-wrap">{interview_cards_html}
+<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">In-depth conversations with the engineers, colourists, and technology leaders shaping broadcast and post-production.</p>
+<div class="insights-feat-wrap">
+{interview_cards_html}
 </div>
 
 <h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">What Expert Insights covers</h2>
+<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">Every piece is grounded in verifiable source material, quotes technical specifications accurately, and calls out what vendors have not disclosed. Topics we return to repeatedly:</p>
 <ul style="font-size:15px;color:var(--ink3);line-height:1.9;padding-left:22px;margin-bottom:20px">
-  <li><strong>IP infrastructure deep-dives</strong> &#8212; SMPTE ST 2110 rollouts, NMOS registry patterns, and AES67 audio-over-IP.</li>
-  <li><strong>Cloud production &amp; playout</strong> &#8212; REMI architectures, cloud-based channel origination, and CDN strategies.</li>
-  <li><strong>Operational AI</strong> &#8212; Automated QC, metadata extraction, and compliance logging.</li>
-  <li><strong>Post-production workflows</strong> &#8212; DaVinci Resolve interoperability, MAM/PAM integration, and proxy pipelines.</li>
+  <li><strong>IP infrastructure deep-dives</strong> &mdash; SMPTE ST 2110 rollouts, NMOS IS-04 / IS-05 registry patterns, AES67 audio-over-IP, PTP timing validation, redundant media networks, and migration strategies from SDI to IP.</li>
+  <li><strong>Cloud production &amp; playout</strong> &mdash; REMI architectures, cloud-based channel origination, CDN strategies, egress cost management, edge media caching, and multi-region disaster-recovery models.</li>
+  <li><strong>Operational AI</strong> &mdash; how newsroom and post teams are actually using AI in production today, beyond the demo reel: automated QC, metadata extraction, rough-cut generation, compliance logging, and the integration burden each imposes.</li>
+  <li><strong>Post-production workflows</strong> &mdash; Avid Media Composer / DaVinci Resolve / Premiere Pro interoperability, MAM and PAM integration, proxy pipelines, archive architectures, and the practical trade-offs between on-prem, hybrid, and cloud post.</li>
+  <li><strong>Engineering playbooks</strong> &mdash; reference architectures for ingest-to-playout chains, integration patterns for vendor-neutral newsrooms, and honest post-mortems of standards-migration projects.</li>
 </ul>
 
 <h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">Editorial standard</h2>
-<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">Every published piece is reviewed by a human editor before going live. Technical claims that cannot be traced to a primary source are flagged. See our <a href="editorial-policy.html" style="color:var(--blue)">Editorial Policy</a>.</p>
+<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">Expert Insights pieces go through a stricter review pass than our daily industry news briefings. We do not publish press-release rewrites under this banner. Technical claims that cannot be traced to a primary source are either removed or flagged. See our <a href="editorial-policy.html" style="color:var(--blue)">Editorial Policy</a> for the full methodology on AI-assisted drafting, source attribution, and corrections.</p>
+
+<h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">Who writes for us</h2>
+<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">Streamic editorial is led by Prerak K Mehta, with 25+ years of IT experience and 20 years in media / post-production / broadcast IT systems. Guest contributions from broadcast engineers, vendor technical staff, and media operations leaders are welcome &mdash; email <a href="mailto:technodate3@gmail.com" style="color:var(--blue)">technodate3@gmail.com</a> with a short pitch outline and any relevant technical credentials.</p>
 
 <h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">Read our latest analysis</h2>
-<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">Browse our complete archive on the <a href="index.html" style="color:var(--blue)">homepage</a>, our AI-focused coverage on the <a href="ai-post-production.html" style="color:var(--blue)">AI in Broadcasting</a> page, or curated picks on the <a href="editorsdesk.html" style="color:var(--blue)">Editor&#39;s Desk</a>.</p>
+<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">Browse our complete archive on the <a href="index.html" style="color:var(--blue)">homepage</a>, our AI-focused coverage on the <a href="ai-post-production.html" style="color:var(--blue)">AI in Broadcasting</a> page, practical guides on the <a href="howto.html" style="color:var(--blue)">How-To Guides</a> page, or curated editorial picks on the <a href="editorsdesk.html" style="color:var(--blue)">Editor&#39;s Desk</a>.</p>
 
-<p style="font-size:13px;color:var(--ink4);line-height:1.7;margin-top:36px;padding-top:20px;border-top:1px solid var(--line)">Reach the editorial team at <a href="mailto:thestreamic@gmail.com" style="color:var(--blue)">thestreamic@gmail.com</a>.</p>
+<p style="font-size:13px;color:var(--ink4);line-height:1.7;margin-top:36px;padding-top:20px;border-top:1px solid var(--line)">Have a story tip or a topic we should cover in depth? Reach the editorial team at <a href="mailto:technodate3@gmail.com" style="color:var(--blue)">technodate3@gmail.com</a> or via our <a href="contact.html" style="color:var(--blue)">contact form</a>.</p>
 </div></main>
 {footer()}
 {_cookie_banner()}
