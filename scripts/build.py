@@ -2156,9 +2156,10 @@ def insights_page():
     To show 'Coming Soon', leave 'href' empty.
     """
     # Featured expert interviews
+    # Update these specific lines in your _interviews list:
     _interviews = [
         {
-            "href": "", # Approval pending: Part 1 is now a placeholder
+            "href": "articles/Venki Ji-1.html", # Updated from "" to the filename
             "series": "The Veteran's Lens · Part 1",
             "title": "Venkatakrishna A on the Philosophy of Invisible Restoration",
             "dek": "Authenticity over perfection: Why the goal of film and video restoration should be preservation rather than modernization.",
@@ -2168,7 +2169,7 @@ def insights_page():
             "published": "May 9, 2026",
         },
         {
-            "href": "", # Part 2 remains a placeholder
+            "href": "", # Keep this empty so Part 2 stays 'Coming Soon'
             "series": "The Veteran's Lens · Part 2",
             "title": "Venkatakrishna A on Grain Management and the Hybrid Future",
             "dek": "Debunking myths in restoration and why Quality Control remains the ultimate barrier against over-processing in the age of automation.",
@@ -2177,6 +2178,8 @@ def insights_page():
             "read_time": "8 min read",
             "published": "May 16, 2026",
         },
+        # ... Neil Sadwelkar entry remains the same below
+    ]
         {
             "href": "articles/Expertinsight1.html",
             "series": "The Veteran's Lens",
