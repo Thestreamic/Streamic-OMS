@@ -2148,18 +2148,11 @@ def editorial_policy_page():
 </body></html>"""
 
 def insights_page():
-    """Expert Insights landing page — AdSense-compliant substantive content (~800w)
-    with featured expert-interview cards linking to hand-authored Q&A pages.
-
-    The cards below link to HAND_AUTHORED files under docs/articles/ that are
-    protected from the automated build. To activate a card, add the 'href' path.
-    To show 'Coming Soon', leave 'href' empty.
-    """
-    # Featured expert interviews
-    # Update these specific lines in your _interviews list:
+    """Expert Insights landing page logic."""
+    # Ensure this list is indented exactly 4 spaces
     _interviews = [
         {
-            "href": "articles/Venki Ji-1.html", # Updated from "" to the filename
+            "href": "articles/Venki Ji-1.html",
             "series": "The Veteran's Lens · Part 1",
             "title": "Venkatakrishna A on the Philosophy of Invisible Restoration",
             "dek": "Authenticity over perfection: Why the goal of film and video restoration should be preservation rather than modernization.",
@@ -2169,7 +2162,7 @@ def insights_page():
             "published": "May 9, 2026",
         },
         {
-            "href": "", # Keep this empty so Part 2 stays 'Coming Soon'
+            "href": "", 
             "series": "The Veteran's Lens · Part 2",
             "title": "Venkatakrishna A on Grain Management and the Hybrid Future",
             "dek": "Debunking myths in restoration and why Quality Control remains the ultimate barrier against over-processing in the age of automation.",
@@ -2178,24 +2171,23 @@ def insights_page():
             "read_time": "8 min read",
             "published": "May 16, 2026",
         },
-        # ... Neil Sadwelkar entry remains the same below
-    ]
-      {
+        {
             "href": "articles/Expertinsight1.html",
             "series": "The Veteran's Lens",
             "title": "Neil Sadwelkar on AI and the Future of Digital Imaging",
-            "dek": "From negative cutting to AI-assisted colour grading — a candid conversation with one of India's foremost DI pioneers on what the technology revolution really means.",
+            "dek": "From negative cutting to AI-assisted colour grading — a candid conversation with one of India's foremost DI pioneers.",
             "expert_name": "Neil B. Sadwelkar",
-            "expert_role": "Digital Imaging Technician &amp; Post-Production Pioneer",
+            "expert_role": "Digital Imaging Technician & Post-Production Pioneer",
             "read_time": "12 min read",
             "published": "April 2, 2026",
         },
     ]
 
+    # The loop must also be indented 4 spaces
     interview_cards_html = ""
     for iv in _interviews:
         if iv['href']:
-            # Active Card with Link
+            # Indent this block 8 spaces (4 for 'for', 4 for 'if')
             interview_cards_html += f"""
 <a class="insights-feat-card" href="{iv['href']}">
   <span class="insights-feat-series">&#10022; {iv['series']}</span>
@@ -2208,6 +2200,25 @@ def insights_page():
     <span class="insights-feat-details">{iv['published']} &middot; {iv['read_time']}</span>
     <span class="insights-feat-cta">Read the interview &rarr;</span>
   </div>
+</a>"""
+        else:
+            # Indent this block 8 spaces (4 for 'for', 4 for 'else')
+            interview_cards_html += f"""
+<div class="insights-feat-card" style="opacity: 0.7; border-style: dashed; cursor: default; background: #f9f9f9;">
+  <span class="insights-feat-series" style="color: #999;">&#10022; {iv['series']}</span>
+  <h3 class="insights-feat-title" style="color: #666;">{iv['title']}</h3>
+  <p class="insights-feat-dek">{iv['dek']}</p>
+  <div class="insights-feat-meta">
+    <span class="insights-feat-expert"><strong>{iv['expert_name']}</strong> &middot; {iv['expert_role']}</span>
+  </div>
+  <div class="insights-feat-footer">
+    <span class="insights-feat-details" style="font-weight: 700; color: #b8860b;">PUBLISHING {iv['published'].upper()}</span>
+    <span class="insights-feat-cta" style="color: #999;">Coming Soon</span>
+  </div>
+</div>"""
+
+    # The return statement should be indented 4 spaces
+    return f"""..."""
 </a>"""
         else:
             # Placeholder Card (No Link, Style for Pending/Coming Soon)
