@@ -2180,7 +2180,7 @@ def insights_page():
         },
         # ... Neil Sadwelkar entry remains the same below
     ]
-        {
+      {
             "href": "articles/Expertinsight1.html",
             "series": "The Veteran's Lens",
             "title": "Neil Sadwelkar on AI and the Future of Digital Imaging",
