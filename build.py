@@ -1226,112 +1226,406 @@ ASSETVISTA_DOWNLOAD_URL = (
 
 
 def _assetvista_home_hero_styles():
-    """Split hero CSS for homepage — scoped so site body styles are unchanged."""
+    """Production-grade split-hero CSS — scoped with .av-hero-split."""
     return """<style>
-.av-hero-split.hero{background:#030303;color:#fff;overflow:hidden;margin:32px -24px 0;border-radius:0}
-.av-hero-split .hero-content{max-width:1440px;margin:0 auto;display:grid;grid-template-columns:minmax(280px,.85fr) 1.15fr;max-height:520px;overflow:hidden}
-.av-hero-split .hero-text{padding:36px clamp(20px,5vw,48px);display:flex;flex-direction:column;justify-content:center;background:linear-gradient(90deg,#030303 78%,rgba(3,3,3,.45))}
-.av-hero-split .badge{font-size:11px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#ffdf9a;margin:0 0 12px}
-.av-hero-split .badge span{color:#fff;font-weight:600;opacity:.88;margin-left:6px}
-.av-hero-split h1{font-family:'DM Serif Display',var(--serif),Georgia,serif;font-size:clamp(28px,3.2vw,46px);line-height:1.08;letter-spacing:-.03em;margin:0 0 16px;font-weight:400}
-.av-hero-split .standfirst{font-size:clamp(14px,1.45vw,17px);color:#e7e1d8;line-height:1.55;margin:0 0 20px;max-width:520px}
-.av-hero-split .hero-buttons{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px}
-.av-hero-split .btn-primary{display:inline-flex;align-items:center;padding:12px 22px;background:#b21f24;color:#fff;border-radius:999px;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;border:1px solid rgba(255,255,255,.12);transition:background .18s ease}
-.av-hero-split .btn-primary:hover{background:#c62828}
-.av-hero-split .btn-secondary{display:inline-flex;align-items:center;padding:12px 22px;background:transparent;color:#fff;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:.05em;text-decoration:none;border:1px solid rgba(255,255,255,.32);transition:border-color .18s ease,background .18s ease}
-.av-hero-split .btn-secondary:hover{border-color:rgba(255,255,255,.55);background:rgba(255,255,255,.08)}
-.av-hero-split .hero-meta{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:12px;color:#c8c2b8;line-height:1.5}
-.av-hero-split .hero-image{margin:0;overflow:hidden;max-height:520px;background:#0a0a0f}
-.av-hero-split .hero-image img{width:100%;height:100%;min-height:320px;max-height:520px;object-fit:contain;object-position:center center;display:block}
-@media(max-width:980px){.av-hero-split .hero-content{grid-template-columns:1fr;max-height:none}.av-hero-split .hero-image{min-height:260px;max-height:340px}.av-hero-split .hero-text{padding:32px 24px 28px}}
-@media(max-width:600px){.av-hero-split{margin:20px -16px 0}.av-hero-split h1{font-size:clamp(24px,6vw,32px)}.av-hero-split .hero-buttons{flex-direction:column;align-items:flex-start}}
+/* ─────────────────────────────────────────────────────────────
+   AssetVista Hero  ·  scoped to .av-hero-split
+   Design system: #111 bg, #c5a46d gold, DM Serif, DM Sans
+───────────────────────────────────────────────────────────── */
+
+.av-hero-split.hero {
+  background: #111;
+  color: #fff;
+  margin: 0 -24px;
+  overflow: hidden;
+}
+
+/* Two-column grid — text left, image right */
+.av-hero-split .hero-content {
+  max-width: 1340px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1.05fr;
+  gap: 60px;
+  align-items: center;
+  padding: 96px clamp(24px, 5vw, 72px);
+  box-sizing: border-box;
+}
+
+/* Text column — fade-up entrance */
+.av-hero-split .hero-text {
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  transform: translateY(10px);
+  animation: avTextReveal .5s .1s cubic-bezier(.22,1,.36,1) forwards;
+}
+@keyframes avTextReveal {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Label — "ASSETVISTA · BETA" */
+.av-hero-split .badge {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: #c5a46d;
+  margin: 0 0 16px;
+}
+.av-hero-split .badge .sep {
+  color: rgba(255,255,255,.35);
+  margin: 0 4px;
+  font-weight: 300;
+}
+.av-hero-split .badge .rel {
+  color: rgba(255,255,255,.5);
+  font-weight: 500;
+}
+
+/* Headline */
+.av-hero-split h1 {
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-size: clamp(32px, 3.5vw, 52px);
+  line-height: 1.15;
+  letter-spacing: -.03em;
+  font-weight: 600;
+  color: #fff;
+  margin: 0 0 18px;
+}
+
+/* Subheadline */
+.av-hero-split .standfirst {
+  font-size: clamp(15px, 1.45vw, 18px);
+  color: #888;
+  line-height: 1.65;
+  margin: 0 0 28px;
+  max-width: 440px;
+}
+
+/* CTA row — primary button + quiet text link */
+.av-hero-split .hero-cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px 20px;
+  margin-bottom: 20px;
+}
+
+/* Primary — gold */
+.av-hero-split .btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 28px;
+  background: #c5a46d;
+  color: #111;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: .01em;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(197,164,109,.28);
+  transition: background .2s ease, transform .2s ease, box-shadow .2s ease;
+}
+.av-hero-split .btn-primary:hover {
+  background: #d3b37c;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(197,164,109,.38);
+}
+.av-hero-split .btn-primary:active { transform: translateY(0); }
+
+/* Secondary — quiet text link */
+.av-hero-split .btn-link {
+  font-size: 14px;
+  color: #888;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255,255,255,.18);
+  padding-bottom: 1px;
+  transition: color .18s ease, border-color .18s ease;
+}
+.av-hero-split .btn-link:hover { color: #c5a46d; border-color: #c5a46d; }
+
+/* Trust line */
+.av-hero-split .hero-trust {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+  font-size: 12px;
+  color: #666;
+  line-height: 1.7;
+}
+.av-hero-split .hero-trust span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.av-hero-split .hero-trust a {
+  color: #666;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color .15s ease;
+}
+.av-hero-split .hero-trust a:hover { color: #c5a46d; }
+
+/* Image column */
+.av-hero-split .hero-image {
+  margin: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 24px 64px rgba(0,0,0,.55);
+  opacity: 0;
+  transform: scale(.97);
+  animation: avImgReveal .6s .25s cubic-bezier(.22,1,.36,1) forwards;
+}
+@keyframes avImgReveal {
+  to { opacity: 1; transform: scale(1); }
+}
+.av-hero-split .hero-image:hover { transform: scale(1.015); transition: transform .4s ease; }
+.av-hero-split .hero-image img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ── Tablet (stack) ── */
+@media (max-width: 900px) {
+  .av-hero-split .hero-content {
+    grid-template-columns: 1fr;
+    gap: 40px;
+    padding: 64px 24px 52px;
+  }
+  .av-hero-split .standfirst { max-width: 100%; }
+}
+
+/* ── Mobile ── */
+@media (max-width: 600px) {
+  .av-hero-split { margin: 0 -16px; }
+  .av-hero-split h1 { font-size: clamp(28px, 8vw, 36px); }
+  .av-hero-split .hero-content { padding: 48px 18px 40px; gap: 32px; }
+  .av-hero-split .hero-cta-row { flex-direction: column; align-items: flex-start; gap: 14px; }
+  .av-hero-split .btn-primary { width: 100%; justify-content: center; }
+  .av-hero-split .hero-trust { gap: 4px 14px; }
+}
 </style>"""
 
 
 def _assetvista_split_hero_html(features_href="features.html", secondary_label="View Features"):
-    """Text-left / UI-right split hero (matches XR editorial article pattern)."""
+    """Production-grade split hero — single gold CTA + quiet text link + trust line."""
+    _vt = "https://www.virustotal.com/gui/file/5966fcf9ced1ccfb7fc094fdd5e7544f598cfaa116b82a29b583ae77fdc261c7"
     return f"""<header class="hero av-hero-split" aria-label="AssetVista product spotlight">
   <div class="hero-content">
     <div class="hero-text">
-      <div class="badge">AssetVista <span>Beta</span></div>
-      <h1>Media Intelligence Engine for Creators</h1>
-      <p class="standfirst">Organize videos, searchable transcripts, PDFs, and assets — all in one standalone workspace.</p>
-      <div class="hero-buttons">
-        <a href="{ASSETVISTA_DOWNLOAD_URL}" class="btn-primary" rel="noopener noreferrer" download>Download for Windows →</a>
-        <a href="{features_href}" class="btn-secondary">{e(secondary_label)}</a>
+      <p class="badge">AssetVista <span class="sep">&middot;</span> <span class="rel">Beta</span></p>
+      <h1>Media Intelligence Engine for&nbsp;Creators</h1>
+      <p class="standfirst">Organize videos, searchable transcripts, PDFs, and assets &mdash; all in one standalone workspace.</p>
+      <div class="hero-cta-row">
+        <a href="{ASSETVISTA_DOWNLOAD_URL}"
+           class="btn-primary"
+           rel="noopener noreferrer"
+           download
+           onclick="if(typeof gtag!=='undefined'){{gtag('event','download_click',{{event_category:'AssetVista',event_label:'hero'}})}}">
+          Download for Windows &rarr;
+        </a>
+        <a href="{features_href}" class="btn-link">{e(secondary_label)}</a>
       </div>
-      <div class="hero-meta">
-        <span>✔ Free 1‑month beta access</span>
-        <span>✔ Searchable transcripts (Beta)</span>
-        <span>✔ Works locally — no cloud required</span>
+      <div class="hero-trust" aria-label="Release trust signals">
+        <span>&#10004;&nbsp;Free 1&#8209;month beta</span>
+        <span>&#10004;&nbsp;<a href="{_vt}" target="_blank" rel="noopener noreferrer">Verified clean (0/65)</a></span>
+        <span>&#10004;&nbsp;Runs locally &mdash; no cloud required</span>
       </div>
     </div>
-    <figure class="hero-image">
-      <img src="assets/screenshot-grid.png" alt="AssetVista Vault media library — grid of local video assets with search and folder navigation" loading="eager" fetchpriority="high" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+    <figure class="hero-image" aria-label="AssetVista UI screenshot">
+      <img src="assets/screenshot-grid.png"
+           alt="AssetVista Vault — media library grid showing local video assets with search, folder navigation, and metadata"
+           loading="eager"
+           fetchpriority="high"
+           onerror="this.onerror=null;this.src='assets/fallback.jpg'">
     </figure>
   </div>
 </header>"""
 
 
 def _assetvista_xr_page_styles():
-    """Full-page editorial CSS — aligned with xr-virtual-production HAND_AUTHORED article."""
+    """Production-grade feature page CSS — light editorial design system."""
     return """<style>
-:root{--bg:#f7f4ef;--paper:#fffaf2;--ink:#111111;--muted:#6d6258;--line:rgba(17,17,17,.12);--accent:#b21f24;--accent2:#091018;--gold:#c6a15b;--soft:#ede5d8;--shadow:0 24px 70px rgba(0,0,0,.16);--serif:'DM Serif Display',Georgia,serif;--sans:'DM Sans',system-ui,-apple-system,Segoe UI,sans-serif}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.65}a{color:inherit;text-decoration:none}img{max-width:100%;display:block}
-.nav{position:sticky;top:0;z-index:50;background:rgba(5,5,5,.92);backdrop-filter:blur(16px);color:#fff;border-bottom:1px solid rgba(255,255,255,.08)}
-.nav-inner{max-width:1240px;margin:auto;padding:18px 22px;display:flex;align-items:center;justify-content:space-between;gap:28px}
-.brand{font-weight:800;font-size:26px;letter-spacing:-.04em}.brand small{display:block;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:#ccc;font-weight:600}
-.nav-links{display:flex;gap:24px;font-size:14px;color:#ddd;flex-wrap:wrap}.nav-links a:hover{color:#fff}
-.hero{background:#030303;color:#fff;overflow:hidden}
-.hero-content{max-width:1440px;margin:auto;display:grid;grid-template-columns:minmax(300px,.85fr) 1.15fr;max-height:500px;overflow:hidden}
-.hero-text{padding:36px clamp(20px,5vw,48px);display:flex;flex-direction:column;justify-content:center;background:linear-gradient(90deg,#030303 72%,rgba(3,3,3,.55))}
-.badge{color:#ffdf9a;font-size:11px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;margin:0 0 12px}
-.badge span{color:#fff;font-weight:600;margin-left:6px}
-.hero h1{font-family:var(--serif);font-size:clamp(34px,3.8vw,52px);line-height:1.05;letter-spacing:-.03em;margin:0 0 16px;font-weight:400}
-.standfirst{font-size:clamp(15px,1.5vw,18px);color:#e7e1d8;line-height:1.55;margin:0 0 20px;max-width:560px}
-.hero-buttons{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px}
-.btn-primary{display:inline-flex;align-items:center;padding:12px 24px;background:var(--accent);color:#fff;border-radius:999px;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;border:1px solid rgba(255,255,255,.1)}
-.btn-primary:hover{background:#c62828}
-.btn-secondary{display:inline-flex;align-items:center;padding:12px 24px;color:#fff;border-radius:999px;font-size:12px;font-weight:700;border:1px solid rgba(255,255,255,.32)}
-.btn-secondary:hover{border-color:rgba(255,255,255,.55);background:rgba(255,255,255,.08)}
-.hero-meta{display:flex;flex-wrap:wrap;gap:8px 16px;color:#c8c2b8;font-size:12px}
-.hero-image{margin:0;overflow:hidden;max-height:500px;background:#0a0a0f}
-.hero-image img{width:100%;height:100%;max-height:500px;min-height:300px;object-fit:contain;object-position:center center}
-.feat-shell{max-width:1240px;margin:0 auto;padding:0 22px 80px}
-.feat-intro{font-size:22px;color:#201a16;line-height:1.5;margin:48px 0 12px;font-family:var(--serif);letter-spacing:-.02em}
-.feat-lead{color:var(--muted);font-size:17px;margin:0 0 40px;max-width:720px}
-.feat-row{display:grid;grid-template-columns:minmax(280px,1fr) minmax(300px,1.05fr);gap:44px;align-items:center;margin:56px 0;padding:40px;background:var(--paper);border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow)}
-.feat-row--flip{direction:rtl}.feat-row--flip > *{direction:ltr}
-.feat-copy h2{font-family:var(--serif);font-size:clamp(28px,3vw,38px);line-height:1.08;letter-spacing:-.03em;margin:0 0 14px}
-.feat-copy > p{font-size:18px;color:#2b2723;margin:0 0 18px;line-height:1.65}
-.feat-copy ul{margin:0;padding-left:20px;color:#2b2723;font-size:16px;line-height:1.75}
-.feat-copy li{margin-bottom:8px}
-.feat-media{margin:0;border-radius:18px;overflow:hidden;border:1px solid var(--line);box-shadow:0 16px 48px rgba(0,0,0,.12)}
+/* ─────────────────────────────────────────────────────────────
+   AssetVista Features Page  ·  Design System
+   Palette: #F5F6F8 bg · #fff cards · #111/#555/#777 text
+   Accent:  #c5a46d  ·  Fonts: DM Serif Display + DM Sans
+───────────────────────────────────────────────────────────── */
+
+/* Reset + base */
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#F5F6F8;color:#111;font-family:'DM Sans',system-ui,-apple-system,sans-serif;line-height:1.65;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+
+/* Nav */
+.av-nav{position:sticky;top:0;z-index:50;background:rgba(10,10,10,.94);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);color:#fff;border-bottom:1px solid rgba(255,255,255,.07)}
+.av-nav-inner{max-width:1240px;margin:auto;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;gap:24px}
+.av-brand{font-weight:800;font-size:22px;letter-spacing:-.04em;color:#fff}
+.av-brand small{display:block;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.45);font-weight:500;margin-top:1px}
+.av-nav-links{display:flex;gap:22px;font-size:13.5px;color:rgba(255,255,255,.65)}
+.av-nav-links a:hover{color:#fff}
+
+/* Hero — inherits .av-hero-split styles from homepage */
+.hero{background:#111;color:#fff;overflow:hidden}
+.hero-content{max-width:1340px;margin:auto;display:grid;grid-template-columns:1fr 1.05fr;gap:60px;align-items:center;padding:96px clamp(24px,5vw,72px);box-sizing:border-box}
+.hero-text{display:flex;flex-direction:column;opacity:0;transform:translateY(10px);animation:avTextReveal .5s .1s cubic-bezier(.22,1,.36,1) forwards}
+@keyframes avTextReveal{to{opacity:1;transform:translateY(0)}}
+.badge{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#c5a46d;margin:0 0 16px}
+.badge .sep{color:rgba(255,255,255,.3);margin:0 4px;font-weight:300}
+.badge .rel{color:rgba(255,255,255,.5);font-weight:500}
+.hero h1{font-family:'DM Serif Display',Georgia,serif;font-size:clamp(32px,3.5vw,52px);line-height:1.15;letter-spacing:-.03em;font-weight:600;color:#fff;margin:0 0 18px}
+.standfirst{font-size:clamp(15px,1.45vw,18px);color:#888;line-height:1.65;margin:0 0 28px;max-width:440px}
+.hero-cta-row{display:flex;flex-wrap:wrap;align-items:center;gap:16px 20px;margin-bottom:20px}
+.btn-primary{display:inline-flex;align-items:center;gap:8px;padding:14px 28px;background:#c5a46d;color:#111;border-radius:10px;font-size:14px;font-weight:600;text-decoration:none;border:none;cursor:pointer;box-shadow:0 4px 16px rgba(197,164,109,.28);transition:background .2s,transform .2s,box-shadow .2s}
+.btn-primary:hover{background:#d3b37c;transform:translateY(-2px);box-shadow:0 8px 24px rgba(197,164,109,.38)}
+.btn-link{font-size:14px;color:#888;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.18);padding-bottom:1px;transition:color .18s,border-color .18s}
+.btn-link:hover{color:#c5a46d;border-color:#c5a46d}
+.hero-trust{display:flex;flex-wrap:wrap;gap:4px 20px;font-size:12px;color:#666;line-height:1.7}
+.hero-trust span{display:inline-flex;align-items:center;gap:5px}
+.hero-trust a{color:#666;text-decoration:underline;text-underline-offset:2px;transition:color .15s}
+.hero-trust a:hover{color:#c5a46d}
+.hero-image{margin:0;border-radius:12px;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.55);opacity:0;transform:scale(.97);animation:avImgReveal .6s .25s cubic-bezier(.22,1,.36,1) forwards}
+@keyframes avImgReveal{to{opacity:1;transform:scale(1)}}
+.hero-image img{width:100%;height:auto;display:block}
+.hero-image:hover{transform:scale(1.015);transition:transform .4s ease}
+
+/* Feature sections shell */
+.feat-shell{max-width:1100px;margin:0 auto;padding:72px 22px 96px}
+
+/* Section header */
+.feat-header{margin:0 0 64px;max-width:640px}
+.feat-header h2{font-family:'DM Serif Display',Georgia,serif;font-size:clamp(30px,3vw,42px);line-height:1.1;letter-spacing:-.03em;color:#111;margin:0 0 14px;font-weight:600}
+.feat-header p{font-size:17px;color:#555;line-height:1.7}
+
+/* Feature rows */
+.feat-row{
+  display:grid;
+  grid-template-columns:1fr 1.08fr;
+  gap:56px;
+  align-items:center;
+  margin:0 0 72px;
+  opacity:0;
+  transform:translateY(10px);
+  transition:opacity .5s ease,transform .5s ease;
+}
+.feat-row.av-visible{opacity:1;transform:translateY(0)}
+.feat-row--flip{direction:rtl}
+.feat-row--flip > *{direction:ltr}
+
+/* Copy side */
+.feat-copy{}
+.feat-eyebrow{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#c5a46d;margin:0 0 10px}
+.feat-copy h3{font-family:'DM Serif Display',Georgia,serif;font-size:clamp(24px,2.6vw,32px);line-height:1.15;letter-spacing:-.025em;color:#111;margin:0 0 14px;font-weight:600}
+.feat-copy p{font-size:17px;color:#555;line-height:1.7;margin:0 0 20px;max-width:420px}
+.feat-copy ul{list-style:none;padding:0;margin:0}
+.feat-copy li{font-size:15px;color:#444;line-height:1.65;padding:7px 0 7px 20px;border-bottom:1px solid #ebebeb;position:relative}
+.feat-copy li:last-child{border-bottom:none}
+.feat-copy li::before{content:"";position:absolute;left:0;top:50%;transform:translateY(-50%);width:6px;height:6px;border-radius:50%;background:#c5a46d}
+
+/* Media side */
+.feat-media{
+  border-radius:12px;
+  overflow:hidden;
+  border:1px solid rgba(0,0,0,.07);
+  box-shadow:0 12px 36px rgba(0,0,0,.1);
+  background:#fff;
+  transition:box-shadow .3s ease;
+}
+.feat-media:hover{box-shadow:0 20px 52px rgba(0,0,0,.14)}
 .feat-media img{width:100%;height:auto;display:block}
-.feat-cta{background:#111;color:#fff;border-radius:28px;padding:48px 40px;text-align:center;margin:64px 0 0}
-.feat-cta h2{font-family:var(--serif);font-size:clamp(28px,3vw,40px);margin:0 0 16px;line-height:1.1}
-.feat-cta p{color:#ddd;margin:16px 0 0;font-size:15px}
-.footer{background:#050505;color:#bbb;margin-top:70px}.footer-inner{max-width:1240px;margin:auto;padding:46px 22px;display:flex;justify-content:space-between;gap:28px;flex-wrap:wrap}.footer a{color:#fff}
-@media(max-width:980px){.hero-content{grid-template-columns:1fr;max-height:none}.hero-text{padding:40px 24px}.hero-image{min-height:280px;max-height:360px}.feat-row,.feat-row--flip{grid-template-columns:1fr;direction:ltr;padding:28px 22px}.nav-links{display:none}.footer-inner{display:block}.hero h1{font-size:clamp(28px,7vw,40px)}}
+
+/* Product Hunt strip */
+.av-ph-strip{
+  background:#fff;
+  border:1px solid #ebebeb;
+  border-radius:16px;
+  padding:40px 48px;
+  margin:0 0 64px;
+}
+.av-ph-strip h2{font-family:'DM Serif Display',Georgia,serif;font-size:28px;color:#111;margin:0 0 10px;letter-spacing:-.02em}
+.av-ph-strip .av-ph-lead{font-size:16px;color:#555;margin:0 0 24px;max-width:600px;line-height:1.7}
+.av-ph-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px 20px;list-style:none;margin:0;padding:0}
+.av-ph-list li{font-size:15px;color:#333;padding:10px 14px 10px 22px;background:#F5F6F8;border-radius:8px;position:relative}
+.av-ph-list li::before{content:"";position:absolute;left:8px;top:50%;transform:translateY(-50%);width:5px;height:5px;border-radius:50%;background:#c5a46d}
+
+/* Bottom CTA */
+.feat-cta-block{
+  background:#111;
+  color:#fff;
+  border-radius:20px;
+  padding:52px 48px;
+  text-align:center;
+  margin:0;
+}
+.feat-cta-block h2{font-family:'DM Serif Display',Georgia,serif;font-size:clamp(28px,3vw,40px);line-height:1.1;margin:0 0 14px}
+.feat-cta-block p{font-size:15px;color:rgba(255,255,255,.6);margin:0 0 28px}
+.feat-cta-block .btn-primary{margin:0 auto}
+.feat-trust-bottom{display:flex;justify-content:center;flex-wrap:wrap;gap:6px 20px;font-size:12px;color:#666;margin-top:18px}
+.feat-trust-bottom span{display:inline-flex;align-items:center;gap:5px}
+.feat-trust-bottom a{color:#666;text-decoration:underline;text-underline-offset:2px;transition:color .15s}
+.feat-trust-bottom a:hover{color:#c5a46d}
+
+/* Footer */
+.av-footer{background:#0a0a0a;color:rgba(255,255,255,.55);margin-top:0}
+.av-footer-inner{max-width:1240px;margin:auto;padding:40px 24px;display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap}
+.av-footer a{color:rgba(255,255,255,.65);transition:color .15s}
+.av-footer a:hover{color:#fff}
+.av-footer-links{display:flex;gap:20px;font-size:13px}
+
+/* Responsive */
+@media(max-width:900px){
+  .hero-content{grid-template-columns:1fr;gap:40px;padding:64px 24px 52px}
+  .standfirst{max-width:100%}
+  .feat-row,.feat-row--flip{grid-template-columns:1fr;direction:ltr;gap:32px}
+  .av-ph-strip{padding:32px 24px}
+  .feat-cta-block{padding:40px 24px}
+  .av-nav-links{display:none}
+}
+@media(max-width:600px){
+  .hero{margin:0 -16px}
+  .hero h1{font-size:clamp(28px,8vw,36px)}
+  .hero-content{padding:48px 18px 40px;gap:28px}
+  .hero-cta-row{flex-direction:column;align-items:flex-start;gap:14px}
+  .btn-primary{width:100%;justify-content:center}
+  .hero-trust{gap:4px 14px}
+  .feat-shell{padding:48px 18px 72px}
+  .av-ph-list{grid-template-columns:1fr}
+}
 </style>"""
 
 
 def _assetvista_xr_nav():
-    return """<nav class="nav" aria-label="Primary navigation">
-  <div class="nav-inner">
-    <a class="brand" href="/">The Streamic <small>Broadcast | Streaming | Tech</small></a>
-    <div class="nav-links">
-      <a href="/">Home</a><a href="ai-post-production.html">AI in Broadcasting</a><a href="post-production-workflows.html">Post Production</a><a href="insights.html">Insights</a><a href="about.html">About</a>
+    return """<nav class="av-nav" aria-label="Site navigation">
+  <div class="av-nav-inner">
+    <a class="av-brand" href="/">The Streamic <small>Broadcast &middot; Streaming &middot; Tech</small></a>
+    <div class="av-nav-links">
+      <a href="/">Home</a>
+      <a href="ai-post-production.html">AI in Broadcasting</a>
+      <a href="post-production-workflows.html">Post Production</a>
+      <a href="insights.html">Insights</a>
+      <a href="about.html">About</a>
     </div>
   </div>
 </nav>"""
 
 
 def _assetvista_xr_footer():
-    return """<footer class="footer">
-  <div class="footer-inner">
-    <div><strong>The Streamic</strong><br>Independent broadcast, streaming and media technology analysis.</div>
-    <div><a href="about.html">About</a> &nbsp; <a href="editorial-policy.html">Editorial Policy</a> &nbsp; <a href="privacy.html">Privacy Policy</a> &nbsp; <a href="contact.html">Contact</a></div>
+    return """<footer class="av-footer" aria-label="Site footer">
+  <div class="av-footer-inner">
+    <div style="font-size:13px"><strong style="color:#fff;font-size:14px">The Streamic</strong><br>Independent broadcast &amp; media technology analysis.</div>
+    <nav class="av-footer-links" aria-label="Footer navigation">
+      <a href="about.html">About</a>
+      <a href="editorial-policy.html">Editorial Policy</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="contact.html">Contact</a>
+    </nav>
   </div>
 </footer>"""
 
@@ -2119,83 +2413,107 @@ def contact_page():
 {_cookie_banner()}
 </body></html>"""
 
-def _assetvista_feature_block(title, lead, bullets, img_file, img_alt, flip=False):
-    """One feature row for features.html — XR editorial layout."""
+def _assetvista_feature_block(eyebrow, title, lead, bullets, img_file, img_alt, flip=False):
+    """One alternating feature row — clean editorial card."""
     flip_cls = " feat-row--flip" if flip else ""
-    items = "".join(f"<li>{e(b)}</li>" for b in bullets)
-    return f'''<section class="feat-row{flip_cls}">
+    items = "".join(f"<li>{b}</li>" for b in bullets)
+    return f'''<div class="feat-row{flip_cls}">
   <div class="feat-copy">
-    <h2>{title}</h2>
+    <p class="feat-eyebrow">{eyebrow}</p>
+    <h3>{title}</h3>
     <p>{e(lead)}</p>
     <ul>{items}</ul>
   </div>
   <figure class="feat-media">
-    <img src="assets/{img_file}" alt="{e(img_alt)}" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+    <img src="assets/{img_file}" alt="{e(img_alt)}" loading="lazy"
+         onerror="this.onerror=null;this.src='assets/fallback.jpg'">
   </figure>
-</section>'''
+</div>'''
 
 
 def features_page():
-    """AssetVista features — XR editorial layout (matches HAND_AUTHORED deep-dive articles)."""
+    """AssetVista features — production editorial layout with PH strip and scroll animations."""
     _og = f"{BASE_URL}/assets/screenshot-grid.png"
+    _vt = "https://www.virustotal.com/gui/file/5966fcf9ced1ccfb7fc094fdd5e7544f598cfaa116b82a29b583ae77fdc261c7"
     _desc = (
-        "AssetVista features: media library, search and indexing, review player, "
-        "vertical editing, Pure-Cuts editor, export, and document indexing — local Windows beta."
+        "AssetVista: organize video, search transcripts, review footage, "
+        "reframe for Shorts, assemble rough cuts, and export — standalone, local, no cloud."
     )
     _blocks = [
         (
             "Media Library",
-            "Organize video, audio, images, and documents in a single indexed library.",
-            ["Grid, list, and BENTO layouts", "Unified browsing across media and documents", "Smart grouping by type, time, and folders"],
+            "Media Library",
+            "One indexed library for video, audio, images, and documents.",
+            ["Grid, list, and BENTO browse layouts",
+             "Unified view across media types and folders",
+             "Smart grouping by type, date, and drive"],
             "screenshot-library.png",
             "AssetVista Vault media library grid with folder navigation and video thumbnails",
         ),
         (
+            "Search",
             "Search &amp; Indexing",
-            "Find assets instantly across your entire library.",
-            ["Search by filename, tags, and metadata", "Transcript-based search (Beta)", "Document text indexing (PDF, text)"],
+            "Find any asset in seconds — by filename, tag, metadata, or spoken word.",
+            ["Filename, tag, and metadata search",
+             "Transcript-based search (Beta)",
+             "Document text indexing for PDFs"],
             "screenshot-search.png",
-            "AssetVista search for zurich across photos and documents",
+            "AssetVista search results showing video and document assets",
         ),
         (
+            "Review",
             "Review &amp; Player Workspace",
-            "Review footage with precise playback and annotations.",
-            ["Timecode playback + frame controls", "Markers with notes and color", "Scene detection and navigation"],
+            "Precise playback with timecode, markers, and scene navigation.",
+            ["Frame-accurate playback controls",
+             "Color-coded markers with notes",
+             "Scene detection and thumbnail navigation"],
             "screenshot-player.png",
-            "AssetVista player with markers, technical metadata, and asset grid",
+            "AssetVista player showing timecoded video with marker panel",
         ),
         (
             "Vertical Editing",
-            "Reframe horizontal video into vertical formats for modern platforms.",
-            ["9:16 preview inside player", "Adjust framing interactively", "Prepare content for Shorts &amp; Reels"],
+            "Vertical Reframing",
+            "Prepare horizontal footage for Shorts and Reels without leaving your library.",
+            ["9:16 crop preview inside the player",
+             "Interactive framing adjustment",
+             "Export-ready vertical output"],
             "screenshot-vertical.png",
-            "AssetVista vertical edit mode with 9:16 crop overlay on footage",
+            "AssetVista vertical edit mode with 9:16 crop overlay",
         ),
         (
+            "Editing",
             "Pure-Cuts Editor",
-            "Assemble rough edits without leaving your library.",
-            ["Source + record monitors", "Mark In / Out editing", "Multi-track timeline"],
+            "Assemble a rough cut without switching applications.",
+            ["Source and record monitor view",
+             "Mark In / Out on source clips",
+             "Multi-track timeline for assembly"],
             "screenshot-editor.png",
-            "AssetVista Pure-Cuts editor with source and record monitors and timeline",
+            "AssetVista Pure-Cuts editor with dual monitors and timeline",
         ),
         (
-            "Export &amp; Delivery",
-            "Export media with flexible settings and NLE integration.",
-            ["Format, resolution, bitrate control", "Preset-based export workflows", "Send to Premiere, FCP, Avid"],
+            "Export",
+            "Export &amp; NLE Delivery",
+            "Output to local storage, YouTube, or professional NLEs.",
+            ["Preset-based export (1080p, 4K, web)",
+             "Format, bitrate, and codec control",
+             "Send to Premiere Pro, Final Cut Pro, Avid"],
             "screenshot-export.png",
-            "AssetVista export dialog with YouTube and social presets",
+            "AssetVista export dialog with platform presets",
         ),
         (
-            "Document Indexing",
-            "Manage production documents alongside media.",
-            ["PDF and text indexing", "Searchable content", "Unified library view"],
+            "Documents",
+            "Document &amp; Transcript Indexing",
+            "Keep scripts, briefings, and transcripts alongside your media.",
+            ["PDF and plain-text indexing",
+             "Full-text search across documents",
+             "Unified library view — media and docs together"],
             "screenshot-documents.png",
-            "AssetVista transcript panel with searchable timestamped dialogue",
+            "AssetVista transcript panel with timestamped searchable dialogue",
         ),
     ]
     sections = "".join(
-        _assetvista_feature_block(title, lead, bullets, img, alt, flip=(i % 2 == 1))
-        for i, (title, lead, bullets, img, alt) in enumerate(_blocks)
+        _assetvista_feature_block(ey, title, lead, bullets, img, alt, flip=(i % 2 == 1))
+        for i, (ey, title, lead, bullets, img, alt) in enumerate(_blocks)
     )
     return f"""<!DOCTYPE html>
 <html lang="en">
@@ -2220,19 +2538,76 @@ def features_page():
 </head>
 <body>
 {_assetvista_xr_nav()}
+
 {_assetvista_split_hero_html(features_href="/", secondary_label="The Streamic Home")}
-<main class="feat-shell">
-  <p class="feat-intro">AssetVista Features</p>
-  <p class="feat-lead">A standalone media and document intelligence workspace built for creators — browse, search, review, reframe, edit, and export without leaving your local library.</p>
+
+<main class="feat-shell" id="features">
+
+  <!-- Section intro -->
+  <header class="feat-header">
+    <h2>What AssetVista does</h2>
+    <p>A local workspace that handles the parts of the media workflow that exist before the edit &mdash; browsing, searching, reviewing, reframing, and delivering. No account, no upload, no latency.</p>
+  </header>
+
+  <!-- Feature rows (alternating) -->
   {sections}
-  <div class="feat-cta">
-    <h2>Start using AssetVista</h2>
-    <a href="{ASSETVISTA_DOWNLOAD_URL}" class="btn-primary" rel="noopener noreferrer" download>Download for Windows →</a>
-    <p>Free 1‑month beta · No signup required · Works locally — no cloud required</p>
+
+  <!-- Product Hunt strip -->
+  <div class="av-ph-strip">
+    <h2>What you can do with AssetVista</h2>
+    <p class="av-ph-lead">Capabilities at a glance &mdash; factual, without marketing language.</p>
+    <ul class="av-ph-list">
+      <li>Search inside video transcripts for spoken words and phrases</li>
+      <li>Organize media and production documents in one indexed library</li>
+      <li>Review footage with timecode, markers, and scene navigation</li>
+      <li>Prepare vertical content for Shorts and Reels using 9:16 reframing</li>
+      <li>Assemble rough cuts with a lightweight dual-monitor editor</li>
+      <li>Export to MP4, YouTube preset, or send XML to Premiere / FCP / Avid</li>
+      <li>Run entirely locally &mdash; no cloud, no account, no upload required</li>
+    </ul>
   </div>
+
+  <!-- CTA -->
+  <div class="feat-cta-block">
+    <h2>Download AssetVista</h2>
+    <p>Free 1&#8209;month beta &middot; Windows &middot; No signup required</p>
+    <a href="{ASSETVISTA_DOWNLOAD_URL}"
+       class="btn-primary"
+       rel="noopener noreferrer"
+       download
+       onclick="if(typeof gtag!=='undefined'){{gtag('event','download_click',{{event_category:'AssetVista',event_label:'features_cta'}})}}">
+      Download for Windows &rarr;
+    </a>
+    <div class="feat-trust-bottom">
+      <span>&#10004;&nbsp;Free 1&#8209;month beta</span>
+      <span>&#10004;&nbsp;<a href="{_vt}" target="_blank" rel="noopener noreferrer">Verified clean (0/65 on VirusTotal)</a></span>
+      <span>&#10004;&nbsp;Runs locally &mdash; no cloud required</span>
+    </div>
+  </div>
+
 </main>
+
 {_assetvista_xr_footer()}
 {_cookie_banner()}
+
+<!-- Intersection Observer: reveal .feat-row on scroll -->
+<script>
+(function(){{
+  var items = document.querySelectorAll('.feat-row');
+  if(!items.length) return;
+  var io = new IntersectionObserver(function(entries){{
+    entries.forEach(function(entry, i){{
+      if(entry.isIntersecting){{
+        setTimeout(function(){{
+          entry.target.classList.add('av-visible');
+        }}, i * 70);
+        io.unobserve(entry.target);
+      }}
+    }});
+  }}, {{threshold: 0.12}});
+  items.forEach(function(el){{ io.observe(el); }});
+}})();
+</script>
 </body></html>"""
 
 def privacy_page():
