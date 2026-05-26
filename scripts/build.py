@@ -666,6 +666,10 @@ _RESERVED_ASSETS = {
     "logo.png", "fallback.jpg",
     "gfx-hero-nab-floor.png", "gfx-hero-nab-floor.jpg",
     "hero-broadcast-male.png",
+    "assetvista-hero.png",
+    "screenshot-library.png", "screenshot-search.png", "screenshot-player.png",
+    "screenshot-vertical.png", "screenshot-editor.png", "screenshot-export.png",
+    "screenshot-documents.png",
     "nab-show-banner-news-headline-hero.png",
     "insight-quic-infographic.jpg",
     "neil-sadwelkar.jpg",
@@ -1269,21 +1273,107 @@ def featured_page(arts):
         "publisher": {"@type": "Organization", "name": "The Streamic", "url": BASE_URL}
     })
 
-    custom_hero_path = os.path.join(DOCS, 'assets', 'hero-broadcast-male.png')
-    hero_img = f"{BASE_URL}/assets/hero-broadcast-male.png" if os.path.exists(custom_hero_path) else (_hp_img(hero_art) if hero_art else '')
+    _assetvista_hero_file = "assetvista-hero.png"
+    assetvista_hero_path = os.path.join(DOCS, "assets", _assetvista_hero_file)
+    _use_assetvista_hero = os.path.exists(assetvista_hero_path)
+    hero_img = (
+        f"{BASE_URL}/assets/{_assetvista_hero_file}"
+        if _use_assetvista_hero
+        else (_hp_img(hero_art) if hero_art else "")
+    )
     homepage_head = head(title, desc, canon, og_img=hero_img)
 
     cinfo = CAT.get((hero_art or {}).get("category", "featured"), CAT["featured"])
-    # Hero title overrides — edit here to control displayed title without touching JSON
-    HERO_TITLE_OVERRIDES = {
-        "ai-reducing-broadcast-operational-costs-2026": "Beyond Automation: How AI Can Optimize Broadcast Costs and Scale Human Potential in 2026",
-    }
+    _ASSETVISTA_DOWNLOAD = (
+        "https://github.com/Thestreamic/AssetVista/releases/download/v2026.6/"
+        "AssetVista_Setup_2026.6_Build141.exe"
+    )
+    _ASSETVISTA_FEATURES_HREF = "features.html"
 
     hero_html = ""
-    if hero_art:
+    if _use_assetvista_hero:
+        hero_html = f'''<section class="hp-hero hp-hero--assetvista" aria-label="AssetVista product spotlight">
+<style>
+.hp-hero--assetvista .hp-hero-img {{
+  object-position: center 8%;
+  filter: brightness(1.06) contrast(1.05) saturate(1.04);
+}}
+.hp-hero-deck {{
+  font-size: clamp(13px, 1.45vw, 15px);
+  line-height: 1.55;
+  color: rgba(255, 255, 255, .78);
+  margin: 0 0 20px;
+  max-width: 560px;
+  letter-spacing: .01em;
+}}
+.hp-hero-actions {{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 18px;
+}}
+.hp-hero-cta--primary {{
+  background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%);
+  border-color: rgba(147, 197, 253, .55);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .22), 0 4px 18px rgba(37, 99, 235, .45);
+}}
+.hp-hero-cta--primary:hover {{
+  background: linear-gradient(180deg, #60a5fa 0%, #3b82f6 100%);
+  border-color: rgba(191, 219, 254, .7);
+}}
+.hp-hero-perks {{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, .72);
+  letter-spacing: .02em;
+}}
+.hp-hero-perk {{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}}
+.hp-hero-perk-icon {{
+  color: #7dd3fc;
+  font-size: 12px;
+  line-height: 1;
+}}
+</style>
+  <img class="hp-hero-img" src="assets/{_assetvista_hero_file}" alt="AssetVista Vault media library — grid of local video assets with search and folder navigation" loading="eager" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+  <div class="hp-hero-overlay" aria-hidden="true"></div>
+  <div class="hp-hero-body">
+    <span class="hp-hero-tag">Creator Tools · Beta</span>
+    <h1 class="hp-hero-hl">AssetVista [Beta] Media Intelligence Engine for Creators</h1>
+    <p class="hp-hero-deck">Organize videos, searchable transcripts, PDFs, and assets — all in one standalone workspace.</p>
+    <div class="hp-hero-actions">
+      <a href="{_ASSETVISTA_DOWNLOAD}" class="hp-hero-cta hp-hero-cta--primary" rel="noopener noreferrer" download>Download for Windows</a>
+      <a href="{_ASSETVISTA_FEATURES_HREF}" class="hp-hero-cta">View Features <span class="hp-hero-cta__arrow">→</span></a>
+    </div>
+    <ul class="hp-hero-perks" aria-label="AssetVista highlights">
+      <li class="hp-hero-perk"><span class="hp-hero-perk-icon" aria-hidden="true">✔</span> Free 1‑month beta access</li>
+      <li class="hp-hero-perk"><span class="hp-hero-perk-icon" aria-hidden="true">✔</span> Searchable transcripts (Beta)</li>
+      <li class="hp-hero-perk"><span class="hp-hero-perk-icon" aria-hidden="true">✔</span> Works locally — no cloud required</li>
+    </ul>
+  </div>
+</section>'''
+    elif hero_art:
+        HERO_TITLE_OVERRIDES = {
+            "ai-reducing-broadcast-operational-costs-2026": "Beyond Automation: How AI Can Optimize Broadcast Costs and Scale Human Potential in 2026",
+        }
+        custom_hero_path = os.path.join(DOCS, "assets", "hero-broadcast-male.png")
         _hero_title = HERO_TITLE_OVERRIDES.get(hero_art.get("slug", ""), hero_art.get("title", ""))
-        _hero_img_src = 'assets/hero-broadcast-male.png' if os.path.exists(custom_hero_path) else _hp_img(hero_art)
-        _hero_img_alt = "Broadcast production switcher in a modern control room with illuminated buttons and blurred monitoring screens" if os.path.exists(custom_hero_path) else e(_hero_title)
+        _hero_img_src = "assets/hero-broadcast-male.png" if os.path.exists(custom_hero_path) else _hp_img(hero_art)
+        _hero_img_alt = (
+            "Broadcast production switcher in a modern control room with illuminated buttons and blurred monitoring screens"
+            if os.path.exists(custom_hero_path)
+            else e(_hero_title)
+        )
         hero_html = f'''<section class="hp-hero" aria-label="Featured story">
   <a href="articles/{hero_art['slug']}.html" class="hp-hero-img-link" tabindex="-1" aria-hidden="true">
     <img class="hp-hero-img" src="{_hero_img_src}" alt="{_hero_img_alt}" loading="eager" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
@@ -1377,7 +1467,7 @@ def featured_page(arts):
 <body data-category="featured">
 {nav("/")}
 <main>
-  {_nab_bento_section(mode="hero")}
+  {hero_html}
   <div class="w">
     {_deep_dives_section()}
     {_nab_bento_section(mode="cards")}
@@ -1981,6 +2071,261 @@ def contact_page():
 </div></main>
 {footer()}
 {_cookie_banner()}
+</body></html>"""
+
+def _assetvista_feature_block(title, lead, bullets, img_file, img_alt):
+    """One feature row for features.html (AssetVista product page)."""
+    items = "".join(f"<li>{e(b)}</li>" for b in bullets)
+    return f'''<div class="av-feat-section">
+  <div class="av-feat-text">
+    <h2>{title}</h2>
+    <p>{e(lead)}</p>
+    <div class="av-feat-card"><ul>{items}</ul></div>
+  </div>
+  <div class="av-feat-image">
+    <img src="assets/{img_file}" alt="{e(img_alt)}" loading="lazy" width="960" height="540" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+  </div>
+</div>'''
+
+
+def features_page():
+    """AssetVista product features — linked from homepage hero."""
+    _dl = (
+        "https://github.com/Thestreamic/AssetVista/releases/download/v2026.6/"
+        "AssetVista_Setup_2026.6_Build141.exe"
+    )
+    _og = f"{BASE_URL}/assets/assetvista-hero.png"
+    _desc = (
+        "AssetVista features: media library, search and indexing, review player, "
+        "vertical editing, Pure-Cuts editor, export, and document indexing — local Windows beta."
+    )
+    sections = (
+        _assetvista_feature_block(
+            "🗂 Media Library",
+            "Organize video, audio, images, and documents in a single indexed library.",
+            [
+                "Grid, list, and BENTO layouts",
+                "Unified browsing across media and documents",
+                "Smart grouping by type, time, and folders",
+            ],
+            "screenshot-library.png",
+            "AssetVista Vault media library grid with folder navigation and video thumbnails",
+        )
+        + _assetvista_feature_block(
+            "🔍 Search &amp; Indexing",
+            "Find assets instantly across your entire library.",
+            [
+                "Search by filename, tags, and metadata",
+                "Transcript-based search (Beta)",
+                "Document text indexing (PDF, text)",
+            ],
+            "screenshot-search.png",
+            "AssetVista search for zurich across photos and documents",
+        )
+        + _assetvista_feature_block(
+            "🎬 Review &amp; Player Workspace",
+            "Review footage with precise playback and annotations.",
+            [
+                "Timecode playback + frame controls",
+                "Markers with notes and color",
+                "Scene detection and navigation",
+            ],
+            "screenshot-player.png",
+            "AssetVista player with markers, technical metadata, and asset grid",
+        )
+        + _assetvista_feature_block(
+            "📱 Vertical Editing (USP)",
+            "Reframe horizontal video into vertical formats for modern platforms.",
+            [
+                "9:16 preview inside player",
+                "Adjust framing interactively",
+                "Prepare content for Shorts &amp; Reels",
+            ],
+            "screenshot-vertical.png",
+            "AssetVista vertical edit mode with 9:16 crop overlay on footage",
+        )
+        + _assetvista_feature_block(
+            "✂️ Pure-Cuts Editor",
+            "Assemble rough edits without leaving your library.",
+            [
+                "Source + record monitors",
+                "Mark In / Out editing",
+                "Multi-track timeline",
+            ],
+            "screenshot-editor.png",
+            "AssetVista Pure-Cuts editor with source and record monitors and timeline",
+        )
+        + _assetvista_feature_block(
+            "📤 Export &amp; Delivery",
+            "Export media with flexible settings and NLE integration.",
+            [
+                "Format, resolution, bitrate control",
+                "Preset-based export workflows",
+                "Send to Premiere, FCP, Avid",
+            ],
+            "screenshot-export.png",
+            "AssetVista export dialog with YouTube and social presets",
+        )
+        + _assetvista_feature_block(
+            "📄 Document Indexing",
+            "Manage production documents alongside media.",
+            [
+                "PDF and text indexing",
+                "Searchable content",
+                "Unified library view",
+            ],
+            "screenshot-documents.png",
+            "AssetVista transcript panel with searchable timestamped dialogue",
+        )
+    )
+    _feat_head = head("AssetVista Features — The Streamic", _desc, f"{BASE_URL}/features.html", og_img=_og)
+    _feat_css = """<style>
+main.av-features-main {{
+  background: #0b1220;
+  color: #f1f5f9;
+  min-height: 60vh;
+}}
+.av-features-wrap {{
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 40px 20px 80px;
+}}
+.av-features-wrap h1 {{
+  font-family: var(--serif), Georgia, serif;
+  font-size: clamp(1.75rem, 3.5vw, 2.2rem);
+  margin: 0 0 10px;
+  color: #f8fafc;
+  letter-spacing: -.02em;
+}}
+.av-features-lead {{
+  color: #94a3b8;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  max-width: 700px;
+  margin: 0 0 8px;
+}}
+.av-feat-section {{
+  display: flex;
+  gap: 40px;
+  align-items: center;
+  margin-top: 48px;
+  flex-wrap: wrap;
+}}
+.av-feat-text {{
+  flex: 1;
+  min-width: 280px;
+}}
+.av-feat-image {{
+  flex: 1;
+  min-width: 300px;
+}}
+.av-feat-image img {{
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  display: block;
+}}
+.av-feat-section h2 {{
+  margin: 0 0 12px;
+  font-size: clamp(1.2rem, 2.2vw, 1.5rem);
+  color: #f1f5f9;
+  font-family: var(--sans), system-ui, sans-serif;
+}}
+.av-feat-text > p {{
+  color: #94a3b8;
+  line-height: 1.65;
+  margin: 0 0 16px;
+  max-width: 700px;
+}}
+.av-feat-card {{
+  background: #151f2e;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.12);
+}}
+.av-feat-card ul {{
+  margin: 0;
+  padding-left: 20px;
+  color: #cbd5e1;
+  line-height: 1.7;
+}}
+.av-feat-card li {{
+  margin-bottom: 8px;
+}}
+.av-feat-card li:last-child {{
+  margin-bottom: 0;
+}}
+.av-features-cta {{
+  margin-top: 72px;
+  text-align: center;
+  padding-top: 32px;
+  border-top: 1px solid rgba(148, 163, 184, 0.15);
+}}
+.av-features-cta h2 {{
+  font-family: var(--serif), Georgia, serif;
+  font-size: 1.5rem;
+  margin: 0 0 16px;
+  color: #f8fafc;
+}}
+.av-btn-download {{
+  display: inline-block;
+  background: #22d3ee;
+  color: #000;
+  padding: 14px 26px;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: .02em;
+  transition: background 0.18s ease, transform 0.18s ease;
+}}
+.av-btn-download:hover {{
+  background: #67e8f9;
+  transform: translateY(-1px);
+}}
+.av-features-cta p {{
+  color: #94a3b8;
+  margin-top: 16px;
+  font-size: 14px;
+}}
+.av-back-home {{
+  display: inline-block;
+  margin-bottom: 24px;
+  font-size: 13px;
+  color: #7dd3fc;
+  text-decoration: none;
+  font-weight: 500;
+}}
+.av-back-home:hover {{
+  color: #bae6fd;
+}}
+@media (max-width: 720px) {{
+  .av-feat-section {{
+    gap: 24px;
+    margin-top: 40px;
+  }}
+}}
+</style>"""
+    return _feat_head.replace("</head>", _feat_css + "\n</head>") + f"""
+<body data-category="featured">
+{nav("features.html")}
+<main class="av-features-main">
+  <div class="av-features-wrap">
+    <a href="/" class="av-back-home">← Back to The Streamic</a>
+    <h1>AssetVista Features</h1>
+    <p class="av-features-lead">A standalone media and document intelligence workspace built for creators.</p>
+    {sections}
+    <div class="av-features-cta">
+      <h2>Start using AssetVista</h2>
+      <a class="av-btn-download" href="{_dl}" rel="noopener noreferrer" download>Download for Windows →</a>
+      <p>Free 1‑month beta · No signup required</p>
+    </div>
+  </div>
+</main>
+{footer()}
+{_cookie_banner()}
+<script src="main.js" defer></script>
 </body></html>"""
 
 def privacy_page():
@@ -3065,6 +3410,7 @@ def sitemap(arts):
         ("insights.html","weekly","0.88"),
         ("editorsdesk.html","weekly","0.88"),
         ("about.html","monthly","0.6"),("contact.html","monthly","0.5"),
+        ("features.html","weekly","0.85"),
         ("editorial-policy.html","monthly","0.6"),
         ("privacy.html","yearly","0.3"),("terms.html","yearly","0.3"),
     ]
@@ -3436,6 +3782,7 @@ def main():
     # ── Static pages ──────────────────────────────────────────────────────
     w(os.path.join(DOCS,"about.html"),            about_page())
     w(os.path.join(DOCS,"contact.html"),          contact_page())
+    w(os.path.join(DOCS,"features.html"),         features_page())
     w(os.path.join(DOCS,"privacy.html"),          privacy_page())
     w(os.path.join(DOCS,"terms.html"),            terms_page())
     w(os.path.join(DOCS,"editorial-policy.html"), editorial_policy_page())

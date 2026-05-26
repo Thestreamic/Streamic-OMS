@@ -11,16 +11,16 @@
   <script>gtag('js',new Date());gtag('config','G-0VSHDN3ZR6');</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Audio Conform: Avid Media Composer to Pro Tools and Back | The Streamic</title>
-  <meta name="description" content="Export AAF from Avid, open in Pro Tools for audio finishing, and return the mix in sync. Covers sample rates, BWF export, timecode alignment.">
+  <title>Upgrading Broadcast Workstations to Windows 11 | The Streamic</title>
+  <meta name="description" content="Pre-upgrade compatibility checks, driver verification, and rollback procedure for upgrading post and broadcast IT workstations to Windows 11.">
   <meta name="robots" content="index,follow">
   <meta name="author" content="The Streamic Editorial Team">
-  <link rel="canonical" href="https://www.thestreamic.in/articles/guide-audio-conform-avid-protools.html">
+  <link rel="canonical" href="https://www.thestreamic.in/articles/guide-windows11-upgrade.html">
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="The Streamic">
-  <meta property="og:title" content="Audio Conform: Avid Media Composer to Pro Tools and Back | The Streamic">
-  <meta property="og:description" content="Export AAF from Avid, open in Pro Tools for audio finishing, and return the mix in sync. Covers sample rates, BWF export, timecode alignment.">
-  <meta property="og:url" content="https://www.thestreamic.in/articles/guide-audio-conform-avid-protools.html">
+  <meta property="og:title" content="Upgrading Broadcast Workstations to Windows 11 | The Streamic">
+  <meta property="og:description" content="Pre-upgrade compatibility checks, driver verification, and rollback procedure for upgrading post and broadcast IT workstations to Windows 11.">
+  <meta property="og:url" content="https://www.thestreamic.in/articles/guide-windows11-upgrade.html">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../style.css">
@@ -55,29 +55,29 @@
       <span>›</span>
       <a href="../howto.html" style="color:var(--blue)">How-To Guides</a>
     </div>
-    <span class="art-tag" style="background:var(--blue)">&#128295; Avid · Pro Tools · Audio</span>
-    <h1>Audio Conform: Avid Media Composer to Pro Tools and Back</h1>
-    <p class="art-dek">Export AAF from Avid, open in Pro Tools for audio finishing, and return the mix in sync. Covers sample rates, BWF export, timecode alignment.</p>
+    <span class="art-tag" style="background:var(--blue)">&#128295; IT · Windows</span>
+    <h1>Upgrading Broadcast Workstations to Windows 11</h1>
+    <p class="art-dek">Pre-upgrade compatibility checks, driver verification, and rollback procedure for upgrading post and broadcast IT workstations to Windows 11.</p>
     <div class="art-byline">
       <strong>The Streamic Editorial Team</strong>
-      <span>&#128337; 9 min read</span>
+      <span>&#128337; 5 min read</span>
       <span style="background:#10b981;color:#fff;padding:3px 9px;border-radius:5px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.8px">How-To Guide</span>
     </div>
     <div class="art-body">
-<h2>The conform workflow overview</h2>
-<p>In broadcast post, the audio finish almost always happens in Pro Tools — Avid&#39;s built-in audio mixer is adequate for offline but not for a final broadcast mix. The conform is the process of handing off the locked picture edit to the mixer, who finishes the audio, and handing the final mix back to the video edit for deliverable export. Done right, the round trip takes a day. Done wrong, it takes a week of chasing sync drift.</p>
-<h2>Lock the picture before you conform</h2>
-<p>The single most important rule: lock the picture edit before handing off to audio. Every frame change after the conform forces the mixer to re-align every track. Budget a 24-hour &quot;picture lock&quot; period where the director reviews the cut, notes last changes, and signs off. Only then does the editor export for audio.</p>
-<h2>AAF export from Avid</h2>
-<p>From Avid, select the sequence and choose <em>File &gt; Export &gt; AAF</em>. Settings: Embedded Media, 48kHz/24-bit BWF audio, one AAF per reel if the show is broken into reels. Enable &quot;Include handles&quot; and set handle length to 2 seconds — this gives the mixer room to extend fades beyond the cut. Disable &quot;render video&quot; — the mixer doesn&#39;t need picture in the AAF. Export the reference QuickTime separately at a known offset (start at 01:00:00:00 or 10:00:00:00, document which).</p>
-<h2>Opening in Pro Tools</h2>
-<p>Pro Tools imports AAFs cleanly. Choose <em>File &gt; Import &gt; Session Data</em>, select the AAF, match the Pro Tools session sample rate to the AAF (48kHz). Pro Tools will create one track per Avid audio track. Review: mono tracks should stay mono, stereo pairs should come in as two mono tracks panned L/R (not a true stereo track). Import the reference QuickTime via <em>File &gt; Import &gt; Video</em> to the same timecode start.</p>
-<h2>Common sync problems</h2>
-<p><strong>Sample-rate mismatch:</strong> if Avid was 48000Hz and Pro Tools opens at 48048Hz (varispeed), every minute drifts by 3 frames. Always match exactly. <strong>Frame-rate mismatch:</strong> 23.976 vs 24.000 drifts by one frame per second — catastrophic over a half-hour show. <strong>Drop-frame vs non-drop-frame:</strong> US projects that mix both produce apparent sync drift that&#39;s actually labelling confusion — agree drop-frame-or-not upfront and stick with it.</p>
-<h2>Returning the mix</h2>
-<p>When the mixer finishes, they export a stereo or 5.1 mix as a BWF file with embedded timecode matching the original. Back in Avid, the editor imports the BWF via <em>File &gt; Import</em>, selects &quot;Use timecode of source&quot; and places it at the original reel start. Verify sync by scrubbing through 3–4 obvious sync points (dialogue lines, door slams). If anything drifts by even one frame, the frame rate or sample rate is wrong — do not ship.</p>
-<h2>Deliverable stems and loudness</h2>
-<p>For broadcast deliveries, the mixer typically exports multiple audio stems: the full mix (stereo or 5.1 surround), a dialogue-only stem, a music-only stem, an effects-only stem, and a combined M&amp;E (music plus effects, no dialogue) stem for international versions with foreign-language dubbing. Each stem is delivered as a separate BWF file with embedded timecode that matches the master. Document which stem is which in the delivery manifest clearly — a 5.1 stem mislabelled as stereo has ended more than one otherwise-clean post-production timeline. For LKFS-compliant deliveries required by EBU R128 in Europe, ATSC A/85 in the US, or similar regional standards, include the measured integrated loudness and true-peak values in the accompanying delivery paperwork so the broadcaster&#39;s QC system can verify compliance without re-measuring.</p>
+<h2>Should you upgrade at all?</h2>
+<p>Windows 10 extended support ended in October 2025; Windows 11 is now effectively mandatory for any workstation on a Microsoft-supported track. For broadcast workstations, the real question isn&#39;t whether to upgrade but when — the answer is &quot;after your NLE vendor has certified their version against Windows 11&quot;. Avid Media Composer 2024.6+ is certified; DaVinci Resolve 19+ is certified; older versions may run but without vendor support.</p>
+<h2>Hardware compatibility</h2>
+<p>Windows 11 mandates TPM 2.0, Secure Boot, and a supported CPU (Intel 8th-gen+, AMD Zen 2+). Most broadcast-grade HP Z-series and Dell Precision workstations from 2019 onwards meet this. Older boxes — particularly custom-built edit stations from the mid-2010s — often fail the CPU check even if the TPM is present. Use Microsoft&#39;s <strong>PC Health Check</strong> tool first; don&#39;t try to upgrade a machine that fails and hope for the best.</p>
+<h2>Pre-upgrade backup</h2>
+<p>Full disk image first, always. <strong>Macrium Reflect Free</strong> does this well. Back up Avid project folders separately to a second drive (not the Windows system drive). Export any licensed software&#39;s activation state where supported — some broadcast tools use node-locked licences that can be a pain to re-activate after a Windows reinstall. Document all installed plugins and their version numbers before starting.</p>
+<h2>Driver verification</h2>
+<p>Before the upgrade, download Windows 11 drivers for the GPU (Nvidia Studio driver, not Game-Ready), audio interface (RME, Focusrite, whichever), any SDI or NDI capture cards (AJA, Blackmagic), and any USB dongles used for software licensing (iLok, Sentinel, SafeNet). Stage these on a USB stick. Post-upgrade, install these in order: GPU first, capture cards second, audio last — this avoids conflicts in the driver store.</p>
+<h2>The upgrade itself</h2>
+<p>Use the in-place upgrade path via Windows Update or the Media Creation Tool. For a 10-person post department, stage the upgrade: do one workstation first, run it for a week in production, only then roll out to the rest. Expect the upgrade to take 60–90 minutes per workstation plus 30 minutes of post-upgrade driver installs and NLE re-authorisation.</p>
+<h2>Rollback</h2>
+<p>If something breaks badly, Windows 11 keeps a <code>Windows.old</code> folder for 10 days; you can revert from Settings &gt; System &gt; Recovery &gt; Go back. After 10 days or if you&#39;ve freed up disk space, you&#39;re committed — which is why the Macrium image matters. Keep the image for 30 days post-upgrade before deleting. Any serious regression that shows up later probably relates to a specific app/driver combination and is fixable in-place without a full rollback.</p>
+<h2>Post-upgrade validation</h2>
+<p>Once upgraded, run through a rigorous validation checklist on each workstation before returning it to production use. Verify: your primary NLE opens a real project without warnings; playback of 1080p DNxHD files runs without any dropped frames over a 5-minute test; SDI or NDI capture card input shows up correctly in the NLE source list; audio I/O devices appear in the NLE&#39;s audio settings and route correctly; all licensed plugins appear in the effects browser with no red warnings. Any &quot;missing plugin&quot; warning means you&#39;re relying on an old binary that won&#39;t actually work under the new OS — fix it before going live. Keep the post-upgrade validation results in a shared document so IT can cross-check workstation configurations six months later when an editor reports &quot;it was working fine yesterday.&quot;</p>
 
     </div>
     <div class="art-author">
@@ -95,8 +95,8 @@
 <script type="application/ld+json">{
   "@context": "https://schema.org",
   "@type": "TechArticle",
-  "headline": "Audio Conform: Avid Media Composer to Pro Tools and Back",
-  "description": "Export AAF from Avid, open in Pro Tools for audio finishing, and return the mix in sync. Covers sample rates, BWF export, timecode alignment.",
+  "headline": "Upgrading Broadcast Workstations to Windows 11",
+  "description": "Pre-upgrade compatibility checks, driver verification, and rollback procedure for upgrading post and broadcast IT workstations to Windows 11.",
   "datePublished": "2026-01-15",
   "dateModified": "2026-01-15",
   "author": {
@@ -112,7 +112,7 @@
       "url": "https://www.thestreamic.in/assets/logo.png"
     }
   },
-  "mainEntityOfPage": "https://www.thestreamic.in/articles/guide-audio-conform-avid-protools.html"
+  "mainEntityOfPage": "https://www.thestreamic.in/articles/guide-windows11-upgrade.html"
 }</script>
 <footer class="footer">
   <div class="footer-gold" aria-hidden="true"></div>

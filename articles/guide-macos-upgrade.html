@@ -11,16 +11,16 @@
   <script>gtag('js',new Date());gtag('config','G-0VSHDN3ZR6');</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Audio Conform: Avid Media Composer to Pro Tools and Back | The Streamic</title>
-  <meta name="description" content="Export AAF from Avid, open in Pro Tools for audio finishing, and return the mix in sync. Covers sample rates, BWF export, timecode alignment.">
+  <title>Upgrading a Post-Production Mac to macOS Sequoia | The Streamic</title>
+  <meta name="description" content="Pre-upgrade checklist, NLE compatibility matrix, and what to do if your plugins break after upgrading to macOS Sequoia.">
   <meta name="robots" content="index,follow">
   <meta name="author" content="The Streamic Editorial Team">
-  <link rel="canonical" href="https://www.thestreamic.in/articles/guide-audio-conform-avid-protools.html">
+  <link rel="canonical" href="https://www.thestreamic.in/articles/guide-macos-upgrade.html">
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="The Streamic">
-  <meta property="og:title" content="Audio Conform: Avid Media Composer to Pro Tools and Back | The Streamic">
-  <meta property="og:description" content="Export AAF from Avid, open in Pro Tools for audio finishing, and return the mix in sync. Covers sample rates, BWF export, timecode alignment.">
-  <meta property="og:url" content="https://www.thestreamic.in/articles/guide-audio-conform-avid-protools.html">
+  <meta property="og:title" content="Upgrading a Post-Production Mac to macOS Sequoia | The Streamic">
+  <meta property="og:description" content="Pre-upgrade checklist, NLE compatibility matrix, and what to do if your plugins break after upgrading to macOS Sequoia.">
+  <meta property="og:url" content="https://www.thestreamic.in/articles/guide-macos-upgrade.html">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../style.css">
@@ -55,29 +55,29 @@
       <span>›</span>
       <a href="../howto.html" style="color:var(--blue)">How-To Guides</a>
     </div>
-    <span class="art-tag" style="background:var(--blue)">&#128295; Avid · Pro Tools · Audio</span>
-    <h1>Audio Conform: Avid Media Composer to Pro Tools and Back</h1>
-    <p class="art-dek">Export AAF from Avid, open in Pro Tools for audio finishing, and return the mix in sync. Covers sample rates, BWF export, timecode alignment.</p>
+    <span class="art-tag" style="background:var(--blue)">&#128295; IT · macOS</span>
+    <h1>Upgrading a Post-Production Mac to macOS Sequoia</h1>
+    <p class="art-dek">Pre-upgrade checklist, NLE compatibility matrix, and what to do if your plugins break after upgrading to macOS Sequoia.</p>
     <div class="art-byline">
       <strong>The Streamic Editorial Team</strong>
-      <span>&#128337; 9 min read</span>
+      <span>&#128337; 5 min read</span>
       <span style="background:#10b981;color:#fff;padding:3px 9px;border-radius:5px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.8px">How-To Guide</span>
     </div>
     <div class="art-body">
-<h2>The conform workflow overview</h2>
-<p>In broadcast post, the audio finish almost always happens in Pro Tools — Avid&#39;s built-in audio mixer is adequate for offline but not for a final broadcast mix. The conform is the process of handing off the locked picture edit to the mixer, who finishes the audio, and handing the final mix back to the video edit for deliverable export. Done right, the round trip takes a day. Done wrong, it takes a week of chasing sync drift.</p>
-<h2>Lock the picture before you conform</h2>
-<p>The single most important rule: lock the picture edit before handing off to audio. Every frame change after the conform forces the mixer to re-align every track. Budget a 24-hour &quot;picture lock&quot; period where the director reviews the cut, notes last changes, and signs off. Only then does the editor export for audio.</p>
-<h2>AAF export from Avid</h2>
-<p>From Avid, select the sequence and choose <em>File &gt; Export &gt; AAF</em>. Settings: Embedded Media, 48kHz/24-bit BWF audio, one AAF per reel if the show is broken into reels. Enable &quot;Include handles&quot; and set handle length to 2 seconds — this gives the mixer room to extend fades beyond the cut. Disable &quot;render video&quot; — the mixer doesn&#39;t need picture in the AAF. Export the reference QuickTime separately at a known offset (start at 01:00:00:00 or 10:00:00:00, document which).</p>
-<h2>Opening in Pro Tools</h2>
-<p>Pro Tools imports AAFs cleanly. Choose <em>File &gt; Import &gt; Session Data</em>, select the AAF, match the Pro Tools session sample rate to the AAF (48kHz). Pro Tools will create one track per Avid audio track. Review: mono tracks should stay mono, stereo pairs should come in as two mono tracks panned L/R (not a true stereo track). Import the reference QuickTime via <em>File &gt; Import &gt; Video</em> to the same timecode start.</p>
-<h2>Common sync problems</h2>
-<p><strong>Sample-rate mismatch:</strong> if Avid was 48000Hz and Pro Tools opens at 48048Hz (varispeed), every minute drifts by 3 frames. Always match exactly. <strong>Frame-rate mismatch:</strong> 23.976 vs 24.000 drifts by one frame per second — catastrophic over a half-hour show. <strong>Drop-frame vs non-drop-frame:</strong> US projects that mix both produce apparent sync drift that&#39;s actually labelling confusion — agree drop-frame-or-not upfront and stick with it.</p>
-<h2>Returning the mix</h2>
-<p>When the mixer finishes, they export a stereo or 5.1 mix as a BWF file with embedded timecode matching the original. Back in Avid, the editor imports the BWF via <em>File &gt; Import</em>, selects &quot;Use timecode of source&quot; and places it at the original reel start. Verify sync by scrubbing through 3–4 obvious sync points (dialogue lines, door slams). If anything drifts by even one frame, the frame rate or sample rate is wrong — do not ship.</p>
-<h2>Deliverable stems and loudness</h2>
-<p>For broadcast deliveries, the mixer typically exports multiple audio stems: the full mix (stereo or 5.1 surround), a dialogue-only stem, a music-only stem, an effects-only stem, and a combined M&amp;E (music plus effects, no dialogue) stem for international versions with foreign-language dubbing. Each stem is delivered as a separate BWF file with embedded timecode that matches the master. Document which stem is which in the delivery manifest clearly — a 5.1 stem mislabelled as stereo has ended more than one otherwise-clean post-production timeline. For LKFS-compliant deliveries required by EBU R128 in Europe, ATSC A/85 in the US, or similar regional standards, include the measured integrated loudness and true-peak values in the accompanying delivery paperwork so the broadcaster&#39;s QC system can verify compliance without re-measuring.</p>
+<h2>Should you upgrade?</h2>
+<p>The same rule as Windows: don&#39;t upgrade until your primary NLE has certified the new OS. As of early 2026, Final Cut Pro 11 is Sequoia-native and runs well; DaVinci Resolve 19.1+ is certified; Avid Media Composer 2024.12 is certified. Premiere Pro 2025 runs but has known issues with some ProRes RAW workflows on Sequoia — check Adobe&#39;s published issue list before upgrading a working Premiere station.</p>
+<h2>Hardware compatibility</h2>
+<p>Sequoia drops support for pre-2018 Intel Macs and all pre-T2 chip models. Apple Silicon Macs (M1 onwards) are all supported. For mixed facilities, make a compatibility list: which machines can upgrade, which are frozen at Ventura or Sonoma. Workstations that can&#39;t upgrade still get security updates on their current OS for two more years after Sequoia ships — plan their retirement for late 2026 or early 2027.</p>
+<h2>Pre-upgrade backup</h2>
+<p>Time Machine to a dedicated external, then clone with <strong>Carbon Copy Cloner</strong> for a bootable backup. Time Machine is for rollback of documents; CCC is for full system restore if the upgrade corrupts the boot volume. Export licence states for broadcast-specific software that uses node-locked activation.</p>
+<h2>Plugin compatibility</h2>
+<p>This is where post upgrades most often fail. Audio plugins (Waves, iZotope, Universal Audio) must be updated to their Sequoia-compatible versions before you upgrade the OS — check each vendor&#39;s support page. Video plugins (Red Giant, Boris FX, NewBlue) are usually less affected but still check. FxFactory users: update FxFactory itself first, it handles most of the sub-plugin compatibility automatically.</p>
+<h2>Upgrade procedure</h2>
+<p>Backup, update plugins on Ventura/Sonoma, then run <em>System Settings &gt; General &gt; Software Update</em> on the new macOS installer. Expect 45–75 minutes for the upgrade plus 30 minutes of post-install plugin re-authorisation. First reboot after upgrade often takes 10+ minutes — don&#39;t panic, don&#39;t force-restart.</p>
+<h2>If plugins break</h2>
+<p>The most common post-upgrade issue: an audio plugin authorised under the old OS won&#39;t re-authorise under the new one. Fix: open the plugin&#39;s licence manager (Waves Central, iLok License Manager, etc.), de-activate the licence, re-activate it. If the vendor&#39;s licence manager itself won&#39;t launch, update it via the vendor&#39;s website — vendors often ship new licence managers alongside new OS support. Worst case, restore from the CCC clone, sort plugins on the old OS, then upgrade again.</p>
+<h2>Post-upgrade validation</h2>
+<p>After the upgrade, immediately open your main NLE, create a test sequence, play back 30 seconds of 4K ProRes footage, render a title effect, and export a 10-second H.264. Any failure at any step means a compatibility issue that needs fixing before any production work resumes on that machine. Repeat the test sequence in every NLE the facility uses — an editor who jumps between DaVinci Resolve and Premiere Pro across a single day cannot tolerate one tool working and the other failing silently. Document the tested-and-working configuration (macOS version, NLE version, plugin versions, driver versions) in a shared IT runbook so you have a reference point when the next editor reports &quot;it stopped working after that update.&quot; This documentation saves hours of troubleshooting on future upgrades. If a plugin breaks post-upgrade, the most common fix is to open that plugin&#39;s license manager (Waves Central, iLok License Manager, iZotope Product Portal, etc.), deactivate the license, then reactivate it — this forces the plugin to re-validate against the new macOS version. If the vendor&#39;s license manager itself fails to launch, download the latest version from the vendor&#39;s website since vendors routinely ship new license managers alongside new OS support.</p>
 
     </div>
     <div class="art-author">
@@ -95,8 +95,8 @@
 <script type="application/ld+json">{
   "@context": "https://schema.org",
   "@type": "TechArticle",
-  "headline": "Audio Conform: Avid Media Composer to Pro Tools and Back",
-  "description": "Export AAF from Avid, open in Pro Tools for audio finishing, and return the mix in sync. Covers sample rates, BWF export, timecode alignment.",
+  "headline": "Upgrading a Post-Production Mac to macOS Sequoia",
+  "description": "Pre-upgrade checklist, NLE compatibility matrix, and what to do if your plugins break after upgrading to macOS Sequoia.",
   "datePublished": "2026-01-15",
   "dateModified": "2026-01-15",
   "author": {
@@ -112,7 +112,7 @@
       "url": "https://www.thestreamic.in/assets/logo.png"
     }
   },
-  "mainEntityOfPage": "https://www.thestreamic.in/articles/guide-audio-conform-avid-protools.html"
+  "mainEntityOfPage": "https://www.thestreamic.in/articles/guide-macos-upgrade.html"
 }</script>
 <footer class="footer">
   <div class="footer-gold" aria-hidden="true"></div>

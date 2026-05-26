@@ -325,7 +325,7 @@ def footer(base=""):
     </div>
     <div class="footer-col">
       <h4>Dublin, Ireland</h4>
-      <a href="mailto:technodate3@gmail.com" style="color:var(--blue)">technodate3@gmail.com</a>
+      <a href="mailto:thestreamic@gmail.com" style="color:var(--blue)">thestreamic@gmail.com</a>
       <span style="font-size:12px;color:#bbb;display:block;margin-top:4px">Adamstown, Lucan</span>
     </div>
   </div>
@@ -666,6 +666,10 @@ _RESERVED_ASSETS = {
     "logo.png", "fallback.jpg",
     "gfx-hero-nab-floor.png", "gfx-hero-nab-floor.jpg",
     "hero-broadcast-male.png",
+    "assetvista-hero.png",
+    "screenshot-library.png", "screenshot-search.png", "screenshot-player.png",
+    "screenshot-vertical.png", "screenshot-editor.png", "screenshot-export.png",
+    "screenshot-documents.png",
     "nab-show-banner-news-headline-hero.png",
     "insight-quic-infographic.jpg",
     "neil-sadwelkar.jpg",
@@ -1269,21 +1273,107 @@ def featured_page(arts):
         "publisher": {"@type": "Organization", "name": "The Streamic", "url": BASE_URL}
     })
 
-    custom_hero_path = os.path.join(DOCS, 'assets', 'hero-broadcast-male.png')
-    hero_img = f"{BASE_URL}/assets/hero-broadcast-male.png" if os.path.exists(custom_hero_path) else (_hp_img(hero_art) if hero_art else '')
+    _assetvista_hero_file = "assetvista-hero.png"
+    assetvista_hero_path = os.path.join(DOCS, "assets", _assetvista_hero_file)
+    _use_assetvista_hero = os.path.exists(assetvista_hero_path)
+    hero_img = (
+        f"{BASE_URL}/assets/{_assetvista_hero_file}"
+        if _use_assetvista_hero
+        else (_hp_img(hero_art) if hero_art else "")
+    )
     homepage_head = head(title, desc, canon, og_img=hero_img)
 
     cinfo = CAT.get((hero_art or {}).get("category", "featured"), CAT["featured"])
-    # Hero title overrides — edit here to control displayed title without touching JSON
-    HERO_TITLE_OVERRIDES = {
-        "ai-reducing-broadcast-operational-costs-2026": "Beyond Automation: How AI Can Optimize Broadcast Costs and Scale Human Potential in 2026",
-    }
+    _ASSETVISTA_DOWNLOAD = (
+        "https://github.com/Thestreamic/AssetVista/releases/download/v2026.6/"
+        "AssetVista_Setup_2026.6_Build141.exe"
+    )
+    _ASSETVISTA_FEATURES_HREF = "features.html"
 
     hero_html = ""
-    if hero_art:
+    if _use_assetvista_hero:
+        hero_html = f'''<section class="hp-hero hp-hero--assetvista" aria-label="AssetVista product spotlight">
+<style>
+.hp-hero--assetvista .hp-hero-img {{
+  object-position: center 8%;
+  filter: brightness(1.06) contrast(1.05) saturate(1.04);
+}}
+.hp-hero-deck {{
+  font-size: clamp(13px, 1.45vw, 15px);
+  line-height: 1.55;
+  color: rgba(255, 255, 255, .78);
+  margin: 0 0 20px;
+  max-width: 560px;
+  letter-spacing: .01em;
+}}
+.hp-hero-actions {{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 18px;
+}}
+.hp-hero-cta--primary {{
+  background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%);
+  border-color: rgba(147, 197, 253, .55);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .22), 0 4px 18px rgba(37, 99, 235, .45);
+}}
+.hp-hero-cta--primary:hover {{
+  background: linear-gradient(180deg, #60a5fa 0%, #3b82f6 100%);
+  border-color: rgba(191, 219, 254, .7);
+}}
+.hp-hero-perks {{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, .72);
+  letter-spacing: .02em;
+}}
+.hp-hero-perk {{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}}
+.hp-hero-perk-icon {{
+  color: #7dd3fc;
+  font-size: 12px;
+  line-height: 1;
+}}
+</style>
+  <img class="hp-hero-img" src="assets/{_assetvista_hero_file}" alt="AssetVista Vault media library — grid of local video assets with search and folder navigation" loading="eager" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+  <div class="hp-hero-overlay" aria-hidden="true"></div>
+  <div class="hp-hero-body">
+    <span class="hp-hero-tag">Creator Tools · Beta</span>
+    <h1 class="hp-hero-hl">AssetVista [Beta] Media Intelligence Engine for Creators</h1>
+    <p class="hp-hero-deck">Organize videos, searchable transcripts, PDFs, and assets — all in one standalone workspace.</p>
+    <div class="hp-hero-actions">
+      <a href="{_ASSETVISTA_DOWNLOAD}" class="hp-hero-cta hp-hero-cta--primary" rel="noopener noreferrer" download>Download for Windows</a>
+      <a href="{_ASSETVISTA_FEATURES_HREF}" class="hp-hero-cta">View Features <span class="hp-hero-cta__arrow">→</span></a>
+    </div>
+    <ul class="hp-hero-perks" aria-label="AssetVista highlights">
+      <li class="hp-hero-perk"><span class="hp-hero-perk-icon" aria-hidden="true">✔</span> Free 1‑month beta access</li>
+      <li class="hp-hero-perk"><span class="hp-hero-perk-icon" aria-hidden="true">✔</span> Searchable transcripts (Beta)</li>
+      <li class="hp-hero-perk"><span class="hp-hero-perk-icon" aria-hidden="true">✔</span> Works locally — no cloud required</li>
+    </ul>
+  </div>
+</section>'''
+    elif hero_art:
+        HERO_TITLE_OVERRIDES = {
+            "ai-reducing-broadcast-operational-costs-2026": "Beyond Automation: How AI Can Optimize Broadcast Costs and Scale Human Potential in 2026",
+        }
+        custom_hero_path = os.path.join(DOCS, "assets", "hero-broadcast-male.png")
         _hero_title = HERO_TITLE_OVERRIDES.get(hero_art.get("slug", ""), hero_art.get("title", ""))
-        _hero_img_src = 'assets/hero-broadcast-male.png' if os.path.exists(custom_hero_path) else _hp_img(hero_art)
-        _hero_img_alt = "Broadcast production switcher in a modern control room with illuminated buttons and blurred monitoring screens" if os.path.exists(custom_hero_path) else e(_hero_title)
+        _hero_img_src = "assets/hero-broadcast-male.png" if os.path.exists(custom_hero_path) else _hp_img(hero_art)
+        _hero_img_alt = (
+            "Broadcast production switcher in a modern control room with illuminated buttons and blurred monitoring screens"
+            if os.path.exists(custom_hero_path)
+            else e(_hero_title)
+        )
         hero_html = f'''<section class="hp-hero" aria-label="Featured story">
   <a href="articles/{hero_art['slug']}.html" class="hp-hero-img-link" tabindex="-1" aria-hidden="true">
     <img class="hp-hero-img" src="{_hero_img_src}" alt="{_hero_img_alt}" loading="eager" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
@@ -1371,14 +1461,13 @@ def featured_page(arts):
           <a href="articles/guide-vantage-aws-transcode.html" class="hp-sb-guide-item"><span class="hp-sb-guide-cat">Cloud</span><span class="hp-sb-guide-title">Vantage: Output to AWS S3</span><span class="hp-sb-guide-time">&#128337; 6 min</span></a>
           <a href="articles/guide-avid-media-central-health-check.html" class="hp-sb-guide-item"><span class="hp-sb-guide-cat">Avid</span><span class="hp-sb-guide-title">MediaCentral Health Check</span><span class="hp-sb-guide-time">&#128337; 7 min</span></a>
           <a href="articles/guide-audio-conform-avid-protools.html" class="hp-sb-guide-item"><span class="hp-sb-guide-cat">Audio</span><span class="hp-sb-guide-title">Audio Conform: Avid to Pro Tools</span><span class="hp-sb-guide-time">&#128337; 9 min</span></a>
-          <a href="articles/guide-avid-strawberry.html" class="hp-sb-guide-item"><span class="hp-sb-guide-cat">MAM</span><span class="hp-sb-guide-title">Strawberry PAM + Avid Workflow</span><span class="hp-sb-guide-time">&#128337; 10 min</span></a>
         </div>'''
 
     return f'''{homepage_head}
 <body data-category="featured">
 {nav("/")}
 <main>
-  {_nab_bento_section(mode="hero")}
+  {hero_html}
   <div class="w">
     {_deep_dives_section()}
     {_nab_bento_section(mode="cards")}
@@ -1910,7 +1999,7 @@ def about_page():
   </a>
 </div>
 <h2 style="font-family:var(--serif);font-size:22px;margin:36px 0 12px">Contact</h2>
-<p style="font-size:15px;color:var(--ink3);line-height:1.7">For editorial enquiries, corrections, or advertising: <a href="mailto:technodate3@gmail.com" style="color:var(--blue)">technodate3@gmail.com</a> &nbsp;|&nbsp; <a href="contact.html" style="color:var(--blue)">Use our contact form &rarr;</a></p>
+<p style="font-size:15px;color:var(--ink3);line-height:1.7">For editorial enquiries, corrections, or advertising: <a href="mailto:thestreamic@gmail.com" style="color:var(--blue)">thestreamic@gmail.com</a> &nbsp;|&nbsp; <a href="contact.html" style="color:var(--blue)">Use our contact form &rarr;</a></p>
 </div></main>
 {footer()}
 {_cookie_banner()}
@@ -1943,12 +2032,12 @@ def contact_page():
     Adamstown, Lucan<br>
     Dublin, Ireland
   </address>
-  <p style="font-size:14px;color:var(--ink3);margin-top:14px;margin-bottom:4px"><strong style="color:var(--ink)">Email:</strong> <a href="mailto:technodate3@gmail.com" style="color:var(--blue)">technodate3@gmail.com</a></p>
+  <p style="font-size:14px;color:var(--ink3);margin-top:14px;margin-bottom:4px"><strong style="color:var(--ink)">Email:</strong> <a href="mailto:thestreamic@gmail.com" style="color:var(--blue)">thestreamic@gmail.com</a></p>
   <p style="font-size:14px;color:var(--ink3);margin-bottom:4px"><strong style="color:var(--ink)">Editorial:</strong> Story tips, corrections, press releases</p>
   <p style="font-size:14px;color:var(--ink3)"><strong style="color:var(--ink)">Advertising:</strong> Include &#34;Advertising&#34; in your subject line</p>
 </div>
 <h2 style="font-family:var(--serif);font-size:22px;margin-bottom:20px">Send us a message</h2>
-<form action="https://formsubmit.co/technodate3@gmail.com" method="POST" style="display:flex;flex-direction:column;gap:16px">
+<form action="https://formsubmit.co/thestreamic@gmail.com" method="POST" style="display:flex;flex-direction:column;gap:16px">
   <input type="hidden" name="_subject" value="New contact form enquiry from The Streamic">
   <input type="hidden" name="_template" value="table">
   <input type="hidden" name="_next" value="https://www.thestreamic.in/contact.html?sent=1">
@@ -1978,10 +2067,265 @@ def contact_page():
     Send Message
   </button>
 </form>
-<p style="font-size:12px;color:var(--ink4);margin-top:14px;line-height:1.6">On first use, FormSubmit sends a one-time activation email to <strong>technodate3@gmail.com</strong>. After you confirm it once, future submissions go directly to your inbox.</p>
+<p style="font-size:12px;color:var(--ink4);margin-top:14px;line-height:1.6">On first use, FormSubmit sends a one-time activation email to <strong>thestreamic@gmail.com</strong>. After you confirm it once, future submissions go directly to your inbox.</p>
 </div></main>
 {footer()}
 {_cookie_banner()}
+</body></html>"""
+
+def _assetvista_feature_block(title, lead, bullets, img_file, img_alt):
+    """One feature row for features.html (AssetVista product page)."""
+    items = "".join(f"<li>{e(b)}</li>" for b in bullets)
+    return f'''<div class="av-feat-section">
+  <div class="av-feat-text">
+    <h2>{title}</h2>
+    <p>{e(lead)}</p>
+    <div class="av-feat-card"><ul>{items}</ul></div>
+  </div>
+  <div class="av-feat-image">
+    <img src="assets/{img_file}" alt="{e(img_alt)}" loading="lazy" width="960" height="540" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+  </div>
+</div>'''
+
+
+def features_page():
+    """AssetVista product features — linked from homepage hero."""
+    _dl = (
+        "https://github.com/Thestreamic/AssetVista/releases/download/v2026.6/"
+        "AssetVista_Setup_2026.6_Build141.exe"
+    )
+    _og = f"{BASE_URL}/assets/assetvista-hero.png"
+    _desc = (
+        "AssetVista features: media library, search and indexing, review player, "
+        "vertical editing, Pure-Cuts editor, export, and document indexing — local Windows beta."
+    )
+    sections = (
+        _assetvista_feature_block(
+            "🗂 Media Library",
+            "Organize video, audio, images, and documents in a single indexed library.",
+            [
+                "Grid, list, and BENTO layouts",
+                "Unified browsing across media and documents",
+                "Smart grouping by type, time, and folders",
+            ],
+            "screenshot-library.png",
+            "AssetVista Vault media library grid with folder navigation and video thumbnails",
+        )
+        + _assetvista_feature_block(
+            "🔍 Search &amp; Indexing",
+            "Find assets instantly across your entire library.",
+            [
+                "Search by filename, tags, and metadata",
+                "Transcript-based search (Beta)",
+                "Document text indexing (PDF, text)",
+            ],
+            "screenshot-search.png",
+            "AssetVista search for zurich across photos and documents",
+        )
+        + _assetvista_feature_block(
+            "🎬 Review &amp; Player Workspace",
+            "Review footage with precise playback and annotations.",
+            [
+                "Timecode playback + frame controls",
+                "Markers with notes and color",
+                "Scene detection and navigation",
+            ],
+            "screenshot-player.png",
+            "AssetVista player with markers, technical metadata, and asset grid",
+        )
+        + _assetvista_feature_block(
+            "📱 Vertical Editing (USP)",
+            "Reframe horizontal video into vertical formats for modern platforms.",
+            [
+                "9:16 preview inside player",
+                "Adjust framing interactively",
+                "Prepare content for Shorts &amp; Reels",
+            ],
+            "screenshot-vertical.png",
+            "AssetVista vertical edit mode with 9:16 crop overlay on footage",
+        )
+        + _assetvista_feature_block(
+            "✂️ Pure-Cuts Editor",
+            "Assemble rough edits without leaving your library.",
+            [
+                "Source + record monitors",
+                "Mark In / Out editing",
+                "Multi-track timeline",
+            ],
+            "screenshot-editor.png",
+            "AssetVista Pure-Cuts editor with source and record monitors and timeline",
+        )
+        + _assetvista_feature_block(
+            "📤 Export &amp; Delivery",
+            "Export media with flexible settings and NLE integration.",
+            [
+                "Format, resolution, bitrate control",
+                "Preset-based export workflows",
+                "Send to Premiere, FCP, Avid",
+            ],
+            "screenshot-export.png",
+            "AssetVista export dialog with YouTube and social presets",
+        )
+        + _assetvista_feature_block(
+            "📄 Document Indexing",
+            "Manage production documents alongside media.",
+            [
+                "PDF and text indexing",
+                "Searchable content",
+                "Unified library view",
+            ],
+            "screenshot-documents.png",
+            "AssetVista transcript panel with searchable timestamped dialogue",
+        )
+    )
+    _feat_head = head("AssetVista Features — The Streamic", _desc, f"{BASE_URL}/features.html", og_img=_og)
+    _feat_css = """<style>
+main.av-features-main {{
+  background: #0b1220;
+  color: #f1f5f9;
+  min-height: 60vh;
+}}
+.av-features-wrap {{
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 40px 20px 80px;
+}}
+.av-features-wrap h1 {{
+  font-family: var(--serif), Georgia, serif;
+  font-size: clamp(1.75rem, 3.5vw, 2.2rem);
+  margin: 0 0 10px;
+  color: #f8fafc;
+  letter-spacing: -.02em;
+}}
+.av-features-lead {{
+  color: #94a3b8;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  max-width: 700px;
+  margin: 0 0 8px;
+}}
+.av-feat-section {{
+  display: flex;
+  gap: 40px;
+  align-items: center;
+  margin-top: 48px;
+  flex-wrap: wrap;
+}}
+.av-feat-text {{
+  flex: 1;
+  min-width: 280px;
+}}
+.av-feat-image {{
+  flex: 1;
+  min-width: 300px;
+}}
+.av-feat-image img {{
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  display: block;
+}}
+.av-feat-section h2 {{
+  margin: 0 0 12px;
+  font-size: clamp(1.2rem, 2.2vw, 1.5rem);
+  color: #f1f5f9;
+  font-family: var(--sans), system-ui, sans-serif;
+}}
+.av-feat-text > p {{
+  color: #94a3b8;
+  line-height: 1.65;
+  margin: 0 0 16px;
+  max-width: 700px;
+}}
+.av-feat-card {{
+  background: #151f2e;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.12);
+}}
+.av-feat-card ul {{
+  margin: 0;
+  padding-left: 20px;
+  color: #cbd5e1;
+  line-height: 1.7;
+}}
+.av-feat-card li {{
+  margin-bottom: 8px;
+}}
+.av-feat-card li:last-child {{
+  margin-bottom: 0;
+}}
+.av-features-cta {{
+  margin-top: 72px;
+  text-align: center;
+  padding-top: 32px;
+  border-top: 1px solid rgba(148, 163, 184, 0.15);
+}}
+.av-features-cta h2 {{
+  font-family: var(--serif), Georgia, serif;
+  font-size: 1.5rem;
+  margin: 0 0 16px;
+  color: #f8fafc;
+}}
+.av-btn-download {{
+  display: inline-block;
+  background: #22d3ee;
+  color: #000;
+  padding: 14px 26px;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: .02em;
+  transition: background 0.18s ease, transform 0.18s ease;
+}}
+.av-btn-download:hover {{
+  background: #67e8f9;
+  transform: translateY(-1px);
+}}
+.av-features-cta p {{
+  color: #94a3b8;
+  margin-top: 16px;
+  font-size: 14px;
+}}
+.av-back-home {{
+  display: inline-block;
+  margin-bottom: 24px;
+  font-size: 13px;
+  color: #7dd3fc;
+  text-decoration: none;
+  font-weight: 500;
+}}
+.av-back-home:hover {{
+  color: #bae6fd;
+}}
+@media (max-width: 720px) {{
+  .av-feat-section {{
+    gap: 24px;
+    margin-top: 40px;
+  }}
+}}
+</style>"""
+    return _feat_head.replace("</head>", _feat_css + "\n</head>") + f"""
+<body data-category="featured">
+{nav("features.html")}
+<main class="av-features-main">
+  <div class="av-features-wrap">
+    <a href="/" class="av-back-home">← Back to The Streamic</a>
+    <h1>AssetVista Features</h1>
+    <p class="av-features-lead">A standalone media and document intelligence workspace built for creators.</p>
+    {sections}
+    <div class="av-features-cta">
+      <h2>Start using AssetVista</h2>
+      <a class="av-btn-download" href="{_dl}" rel="noopener noreferrer" download>Download for Windows →</a>
+      <p>Free 1‑month beta · No signup required</p>
+    </div>
+  </div>
+</main>
+{footer()}
+{_cookie_banner()}
+<script src="main.js" defer></script>
 </body></html>"""
 
 def privacy_page():
@@ -2015,7 +2359,7 @@ def privacy_page():
 <p style="margin-bottom:16px">We do not collect names, postal addresses, phone numbers, payment details, or other personal data unless you voluntarily provide it by contacting us directly. We do not sell, rent, or trade any data we hold. We do not maintain a marketing mailing list.</p>
 
 <h2 style="font-family:var(--serif);font-size:20px;color:var(--ink);margin:28px 0 10px">Your rights under GDPR</h2>
-<p style="margin-bottom:16px">If you are located in the UK or EU, you have the right to access, rectify, erase, restrict, or object to the processing of any personal data we hold about you. To exercise any of these rights, email <a href="mailto:technodate3@gmail.com" style="color:var(--blue)">technodate3@gmail.com</a>. We will respond within 30 days. You also have the right to lodge a complaint with the Irish Data Protection Commission at <a href="https://www.dataprotection.ie" rel="nofollow" style="color:var(--blue)">dataprotection.ie</a>.</p>
+<p style="margin-bottom:16px">If you are located in the UK or EU, you have the right to access, rectify, erase, restrict, or object to the processing of any personal data we hold about you. To exercise any of these rights, email <a href="mailto:thestreamic@gmail.com" style="color:var(--blue)">thestreamic@gmail.com</a>. We will respond within 30 days. You also have the right to lodge a complaint with the Irish Data Protection Commission at <a href="https://www.dataprotection.ie" rel="nofollow" style="color:var(--blue)">dataprotection.ie</a>.</p>
 
 <h2 style="font-family:var(--serif);font-size:20px;color:var(--ink);margin:28px 0 10px">Data retention</h2>
 <p style="margin-bottom:16px">Analytics data is retained for up to 14 months as configured in Google Analytics 4. Email correspondence is retained for as long as is reasonably necessary to handle the enquiry, typically no more than 24 months.</p>
@@ -2024,7 +2368,7 @@ def privacy_page():
 <p style="margin-bottom:16px">We may update this Privacy Policy to reflect changes to our data processing practices or to comply with new regulatory requirements. Substantive changes will be noted at the top of this page with an updated &quot;last modified&quot; date.</p>
 
 <h2 style="font-family:var(--serif);font-size:20px;color:var(--ink);margin:28px 0 10px">Contact</h2>
-<p>Privacy queries, data access requests, or correction requests: <a href="mailto:technodate3@gmail.com" style="color:var(--blue)">technodate3@gmail.com</a></p>
+<p>Privacy queries, data access requests, or correction requests: <a href="mailto:thestreamic@gmail.com" style="color:var(--blue)">thestreamic@gmail.com</a></p>
 </div>
 </div></main>
 {footer()}
@@ -2065,7 +2409,7 @@ def terms_page():
 <p style="margin-bottom:16px">We may update these Terms of Use from time to time. Continued use of the site after changes are published constitutes acceptance of the revised terms. Substantive changes will be noted at the top of this page with an updated &quot;last modified&quot; date.</p>
 
 <h2 style="font-family:var(--serif);font-size:20px;color:var(--ink);margin:28px 0 10px">Contact</h2>
-<p style="margin-bottom:16px">For questions about these Terms, please email <a href="mailto:technodate3@gmail.com" style="color:var(--blue)">technodate3@gmail.com</a>.</p>
+<p style="margin-bottom:16px">For questions about these Terms, please email <a href="mailto:thestreamic@gmail.com" style="color:var(--blue)">thestreamic@gmail.com</a>.</p>
 </div>
 </div></main>
 {footer()}
@@ -2142,30 +2486,42 @@ def editorial_policy_page():
 
 <h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">Contact</h2>
 <p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">For editorial enquiries, feedback, or corrections:</p>
-<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px"><a href="mailto:technodate3@gmail.com" style="color:var(--blue)">technodate3@gmail.com</a> or use the <a href="contact.html" style="color:var(--blue)">contact form</a> on this site.</p>
+<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px"><a href="mailto:thestreamic@gmail.com" style="color:var(--blue)">thestreamic@gmail.com</a> or use the <a href="contact.html" style="color:var(--blue)">contact form</a> on this site.</p>
 </div></main>
 {footer()}
 {_cookie_banner()}
 </body></html>"""
 
 def insights_page():
-    """Expert Insights landing page — AdSense-compliant substantive content (~800w)
-    with featured expert-interview cards linking to hand-authored Q&A pages.
-
-    The cards below link to HAND_AUTHORED files under docs/articles/ that are
-    protected from the automated build. Add more entries to _interviews to
-    feature additional interviews — no other code changes needed.
-    """
-    # Featured expert interviews (hand-authored, HAND_AUTHORED-marked pages).
-    # These are the prominent link cards at the top of /insights.html.
+    """Expert Insights landing page logic."""
     _interviews = [
+        {
+            "href": "articles/Venki Ji-1.html",
+            "series": "The Veteran's Lens &middot; Part 1",
+            "title": "Venkatakrishna A on the Philosophy of Invisible Restoration",
+            "dek": "Authenticity over perfection: Why the goal of film and video restoration should be preservation rather than modernization.",
+            "expert_name": "Venkatakrishna A",
+            "expert_role": "Domain Expert & Senior Colorist, Qube Cinema",
+            "read_time": "7 min read",
+            "published": "May 9, 2026",
+        },
+        {
+            "href": "", 
+            "series": "The Veteran's Lens &middot; Part 2",
+            "title": "Venkatakrishna A on Grain Management and the Hybrid Future",
+            "dek": "Debunking myths in restoration and why Quality Control remains the ultimate barrier against over-processing.",
+            "expert_name": "Venkatakrishna A",
+            "expert_role": "Domain Expert & Senior Colorist",
+            "read_time": "8 min read",
+            "published": "May 16, 2026",
+        },
         {
             "href": "articles/Expertinsight1.html",
             "series": "The Veteran's Lens",
             "title": "Neil Sadwelkar on AI and the Future of Digital Imaging",
-            "dek": "From negative cutting to AI-assisted colour grading — a candid conversation with one of India's foremost DI pioneers on what the technology revolution really means for broadcast and cinema post-production.",
+            "dek": "From negative cutting to AI-assisted colour grading &mdash; a candid conversation with one of India's foremost DI pioneers.",
             "expert_name": "Neil B. Sadwelkar",
-            "expert_role": "Digital Imaging Technician &amp; Post-Production Pioneer",
+            "expert_role": "Digital Imaging Technician & Post-Production Pioneer",
             "read_time": "12 min read",
             "published": "April 2, 2026",
         },
@@ -2173,7 +2529,8 @@ def insights_page():
 
     interview_cards_html = ""
     for iv in _interviews:
-        interview_cards_html += f"""
+        if iv['href']:
+            interview_cards_html += f"""
 <a class="insights-feat-card" href="{iv['href']}">
   <span class="insights-feat-series">&#10022; {iv['series']}</span>
   <h3 class="insights-feat-title">{iv['title']}</h3>
@@ -2186,51 +2543,70 @@ def insights_page():
     <span class="insights-feat-cta">Read the interview &rarr;</span>
   </div>
 </a>"""
+        else:
+            interview_cards_html += f"""
+<div class="insights-feat-card" style="opacity: 0.7; border-style: dashed; cursor: default; background: #f9f9f9;">
+  <span class="insights-feat-series" style="color: #999;">&#10022; {iv['series']}</span>
+  <h3 class="insights-feat-title" style="color: #666;">{iv['title']}</h3>
+  <p class="insights-feat-dek">{iv['dek']}</p>
+  <div class="insights-feat-meta">
+    <span class="insights-feat-expert"><strong>{iv['expert_name']}</strong> &middot; {iv['expert_role']}</span>
+  </div>
+  <div class="insights-feat-footer">
+    <span class="insights-feat-details" style="font-weight: 700; color: #b8860b;">PUBLISHING {iv['published'].upper()}</span>
+    <span class="insights-feat-cta" style="color: #999;">Coming Soon</span>
+  </div>
+</div>"""
 
-    return f"""{head("Expert Insights — The Streamic","Long-form broadcast technology analysis and expert interviews: AI colour grading, ST 2110 rollouts, cloud production, post-production workflows, and operational engineering for media teams.",f"{BASE_URL}/insights.html")}
+    # We declare the CSS outside the f-string to prevent parsing errors
+    css_styles = """
+<style>
+.insights-feat-wrap{display:flex;flex-direction:column;gap:20px;margin:28px 0 40px}
+.insights-feat-card{display:block;padding:26px 28px;background:linear-gradient(180deg,#fffdf7 0%,#f8f2e6 100%);border:1px solid #e6dcc2;border-radius:14px;box-shadow:0 10px 28px rgba(63,47,22,.08);text-decoration:none;color:inherit;transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}
+.insights-feat-card:hover{transform:translateY(-2px);box-shadow:0 16px 36px rgba(63,47,22,.12);border-color:#d4af37}
+.insights-feat-series{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#8b6b3f;margin-bottom:12px}
+.insights-feat-title{font-family:var(--serif);font-size:clamp(20px,2.6vw,26px);line-height:1.25;letter-spacing:-.01em;color:#17120f;margin:0 0 12px;font-weight:400}
+.insights-feat-dek{font-family:Georgia,"Times New Roman",serif;font-size:15.5px;line-height:1.7;color:#3a322a;margin:0 0 16px}
+.insights-feat-meta{font-size:13px;color:#5a4f40;line-height:1.55;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid rgba(139,107,63,.18)}
+.insights-feat-meta strong{color:#17120f}
+.insights-feat-footer{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.insights-feat-details{font-size:12px;color:#7a6f5e}
+.insights-feat-cta{font-size:13px;font-weight:700;color:#5f3b13;letter-spacing:.02em}
+.insights-feat-card:hover .insights-feat-cta{color:#17120f}
+@media (max-width:640px){.insights-feat-card{padding:22px 20px}}
+</style>
+"""
+
+    return f"""{head("Expert Insights &mdash; The Streamic", "Long-form broadcast technology analysis and expert interviews.", f"{BASE_URL}/insights.html")}
 <body>
 {nav()}
 <main><div class="w" style="padding:52px 24px 80px;max-width:820px">
 <h1 style="font-family:var(--serif);font-size:clamp(28px,4vw,44px);margin-bottom:16px;letter-spacing:-.5px">Expert Insights</h1>
-<p style="font-size:17px;color:var(--ink2);line-height:1.65;margin-bottom:32px">Long-form broadcast and media technology analysis from the Streamic editorial team — plus exclusive interviews with veteran engineers, colourists, DITs, and media-IT architects. These are the pieces we write when a topic needs more than a news briefing: standards deep-dives, architectural playbooks, vendor-neutral integration patterns, and field reports from broadcast engineers working in live production and post facilities.</p>
+<p style="font-size:17px;color:var(--ink2);line-height:1.65;margin-bottom:32px">Long-form broadcast and media technology analysis from the Streamic editorial team &mdash; plus exclusive interviews with veteran engineers, colourists, DITs, and media-IT architects.</p>
 
-<style>
-.insights-feat-wrap{{display:flex;flex-direction:column;gap:20px;margin:28px 0 40px}}
-.insights-feat-card{{display:block;padding:26px 28px;background:linear-gradient(180deg,#fffdf7 0%,#f8f2e6 100%);border:1px solid #e6dcc2;border-radius:14px;box-shadow:0 10px 28px rgba(63,47,22,.08);text-decoration:none;color:inherit;transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}}
-.insights-feat-card:hover{{transform:translateY(-2px);box-shadow:0 16px 36px rgba(63,47,22,.12);border-color:#d4af37}}
-.insights-feat-series{{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#8b6b3f;margin-bottom:12px}}
-.insights-feat-title{{font-family:var(--serif);font-size:clamp(20px,2.6vw,26px);line-height:1.25;letter-spacing:-.01em;color:#17120f;margin:0 0 12px;font-weight:400}}
-.insights-feat-dek{{font-family:Georgia,"Times New Roman",serif;font-size:15.5px;line-height:1.7;color:#3a322a;margin:0 0 16px}}
-.insights-feat-meta{{font-size:13px;color:#5a4f40;line-height:1.55;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid rgba(139,107,63,.18)}}
-.insights-feat-meta strong{{color:#17120f}}
-.insights-feat-footer{{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}}
-.insights-feat-details{{font-size:12px;color:#7a6f5e}}
-.insights-feat-cta{{font-size:13px;font-weight:700;color:#5f3b13;letter-spacing:.02em}}
-.insights-feat-card:hover .insights-feat-cta{{color:#17120f}}
-@media (max-width:640px){{.insights-feat-card{{padding:22px 20px}}}}
-</style>
+{css_styles}
 
 <h2 style="font-family:var(--serif);font-size:22px;margin:8px 0 12px">Featured interviews</h2>
-<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">In-depth conversations with the engineers, colourists, and technology leaders shaping broadcast and post-production. Each interview is a first-person account of the workflow shifts, standards transitions, and AI integrations these veterans are living through right now.</p>
-<div class="insights-feat-wrap">{interview_cards_html}
+<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">In-depth conversations with the engineers, colourists, and technology leaders shaping broadcast and post-production.</p>
+<div class="insights-feat-wrap">
+{interview_cards_html}
 </div>
 
 <h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">What Expert Insights covers</h2>
-<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">Expert Insights articles are written for broadcast engineers, technology directors, and media operations leads who need to evaluate &#8212; not just read about &#8212; new technology. Every piece is grounded in verifiable source material, quotes technical specifications accurately, and calls out what vendors have not disclosed. Topics we return to repeatedly:</p>
+<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">Every piece is grounded in verifiable source material, quotes technical specifications accurately, and calls out what vendors have not disclosed. Topics we return to repeatedly:</p>
 <ul style="font-size:15px;color:var(--ink3);line-height:1.9;padding-left:22px;margin-bottom:20px">
-  <li><strong>IP infrastructure deep-dives</strong> &#8212; SMPTE ST 2110 rollouts, NMOS IS-04 / IS-05 registry patterns, AES67 audio-over-IP, PTP timing validation, redundant media networks, and migration strategies from SDI to IP.</li>
-  <li><strong>Cloud production &amp; playout</strong> &#8212; REMI architectures, cloud-based channel origination, CDN strategies, egress cost management, edge media caching, and multi-region disaster-recovery models.</li>
-  <li><strong>Operational AI</strong> &#8212; how newsroom and post teams are actually using AI in production today, beyond the demo reel: automated QC, metadata extraction, rough-cut generation, compliance logging, and the integration burden each imposes.</li>
-  <li><strong>Post-production workflows</strong> &#8212; Avid Media Composer / DaVinci Resolve / Premiere Pro interoperability, MAM and PAM integration, proxy pipelines, archive architectures, and the practical trade-offs between on-prem, hybrid, and cloud post.</li>
-  <li><strong>Engineering playbooks</strong> &#8212; reference architectures for ingest-to-playout chains, integration patterns for vendor-neutral newsrooms, and honest post-mortems of standards-migration projects.</li>
+  <li><strong>IP infrastructure deep-dives</strong> &mdash; SMPTE ST 2110 rollouts, NMOS IS-04 / IS-05 registry patterns, AES67 audio-over-IP, PTP timing validation, redundant media networks, and migration strategies from SDI to IP.</li>
+  <li><strong>Cloud production &amp; playout</strong> &mdash; REMI architectures, cloud-based channel origination, CDN strategies, egress cost management, edge media caching, and multi-region disaster-recovery models.</li>
+  <li><strong>Operational AI</strong> &mdash; how newsroom and post teams are actually using AI in production today, beyond the demo reel: automated QC, metadata extraction, rough-cut generation, compliance logging, and the integration burden each imposes.</li>
+  <li><strong>Post-production workflows</strong> &mdash; Avid Media Composer / DaVinci Resolve / Premiere Pro interoperability, MAM and PAM integration, proxy pipelines, archive architectures, and the practical trade-offs between on-prem, hybrid, and cloud post.</li>
+  <li><strong>Engineering playbooks</strong> &mdash; reference architectures for ingest-to-playout chains, integration patterns for vendor-neutral newsrooms, and honest post-mortems of standards-migration projects.</li>
 </ul>
 
 <h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">Editorial standard</h2>
-<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">Expert Insights pieces go through a stricter review pass than our daily industry news briefings. We do not publish press-release rewrites under this banner. Where an article analyses a vendor&#39;s technology, we disclose what the vendor has stated, what our editorial team has verified independently, and what remains uncertain. Technical claims that cannot be traced to a primary source are either removed or flagged.</p>
-<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">AI tools assist with drafting on some Insights articles &#8212; primarily for structuring source material and initial analysis &#8212; but every published piece is reviewed by a human editor before going live. Featured interviews are transcribed and edited from first-person conversations; the interviewee reviews and approves the final published text. See our <a href="editorial-policy.html" style="color:var(--blue)">Editorial Policy</a> for the full methodology on AI-assisted drafting, source attribution, and corrections.</p>
+<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">Expert Insights pieces go through a stricter review pass than our daily industry news briefings. We do not publish press-release rewrites under this banner. Technical claims that cannot be traced to a primary source are either removed or flagged. See our <a href="editorial-policy.html" style="color:var(--blue)">Editorial Policy</a> for the full methodology on AI-assisted drafting, source attribution, and corrections.</p>
 
 <h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">Who writes for us</h2>
-<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">Streamic editorial is led by Prerak K Mehta, with 25+ years of IT experience and 20 years in media / post-production / broadcast IT systems. Guest contributions from broadcast engineers, vendor technical staff, and media operations leaders are welcome &#8212; email <a href="mailto:technodate3@gmail.com" style="color:var(--blue)">technodate3@gmail.com</a> with a short pitch outline and any relevant technical credentials.</p>
+<p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">Streamic editorial is led by Prerak K Mehta, with 25+ years of IT experience and 20 years in media / post-production / broadcast IT systems. Guest contributions from broadcast engineers, vendor technical staff, and media operations leaders are welcome &mdash; email <a href="mailto:technodate3@gmail.com" style="color:var(--blue)">technodate3@gmail.com</a> with a short pitch outline and any relevant technical credentials.</p>
 
 <h2 style="font-family:var(--serif);font-size:22px;margin:32px 0 12px">Read our latest analysis</h2>
 <p style="font-size:15px;color:var(--ink3);line-height:1.75;margin-bottom:16px">Browse our complete archive on the <a href="index.html" style="color:var(--blue)">homepage</a>, our AI-focused coverage on the <a href="ai-post-production.html" style="color:var(--blue)">AI in Broadcasting</a> page, practical guides on the <a href="howto.html" style="color:var(--blue)">How-To Guides</a> page, or curated editorial picks on the <a href="editorsdesk.html" style="color:var(--blue)">Editor&#39;s Desk</a>.</p>
@@ -2325,7 +2701,7 @@ def post_production_workflows_page():
   <li><a href="editorsdesk.html" style="color:var(--blue)">Editor&#39;s Desk</a> &#8212; curated editorial picks across the Streamic archive.</li>
 </ul>
 
-<p style="font-size:13px;color:var(--ink4);line-height:1.7;margin-top:36px;padding-top:20px;border-top:1px solid var(--line)">Post team working on an integration we should cover? Tell us: <a href="mailto:technodate3@gmail.com" style="color:var(--blue)">technodate3@gmail.com</a> or <a href="contact.html" style="color:var(--blue)">contact form</a>.</p>
+<p style="font-size:13px;color:var(--ink4);line-height:1.7;margin-top:36px;padding-top:20px;border-top:1px solid var(--line)">Post team working on an integration we should cover? Tell us: <a href="mailto:thestreamic@gmail.com" style="color:var(--blue)">thestreamic@gmail.com</a> or <a href="contact.html" style="color:var(--blue)">contact form</a>.</p>
 </div></main>
 {footer()}
 {_cookie_banner()}
@@ -2380,21 +2756,6 @@ HOWTO_GUIDE_CONTENT = {
             ("Server-side encryption", "For broadcast content, enable server-side encryption with KMS keys (SSE-KMS). Vantage honours this automatically if you&#39;ve set the bucket default encryption — you don&#39;t need per-object configuration. For titles under embargo, use a separate KMS key with restricted access; rotate the key before the embargo lifts to invalidate any cached copies in intermediate systems."),
             ("Cost control", "S3 standard storage is cheap; data transfer out is not. Budget $0.09/GB for egress to the open internet. A single 10Mbps H.264 broadcast master is roughly 4.5GB per hour, so a daily 60-minute delivery to 5 regional distributors costs about $2/day in egress alone. For heavy delivery volumes, look at <strong>AWS CloudFront</strong> origination from S3 — egress pricing is different and often cheaper at scale. Set up billing alerts at $50/month so you catch runaway jobs early."),
                     ("CloudWatch monitoring", "Add CloudWatch alarms on your target S3 bucket: one for unexpectedly large object uploads (potential runaway transcode producing oversized files), one for excessive daily egress (potential unauthorised download activity), and one for failed PutObject calls (IAM permission drift after credential rotation). Route alerts to a Slack or PagerDuty channel your operations team monitors. For broadcast operations where S3 delivery is mission-critical, add a synthetic health check that uploads a 1MB test file every 15 minutes via Lambda and alerts if it fails — this catches credential rotation problems, bucket permission drift, or network-level issues before a real broadcast delivery fails and your downstream partners complain. For heavy delivery volumes, investigate AWS CloudFront origination from S3 as an alternative delivery architecture — egress pricing through CloudFront is often significantly cheaper than direct S3 egress at scale, and the added caching layer improves delivery latency for international audiences. Always set up AWS billing alerts at sensible thresholds so unexpected cost spikes get caught early."),
-        ],
-    },
-    "guide-avid-strawberry": {
-        "tag": "Strawberry PAM · Avid",
-        "time": "10 min",
-        "title": "Strawberry PAM + Avid Media Composer: Collaborative Editing Setup",
-        "dek": "Configure Production Flow Strawberry for collaborative Avid Media Composer editing: shared storage, hot-folder ingest, version control, and automated delivery.",
-        "sections": [
-            ("What Strawberry adds to an Avid shop", "Strawberry from Production Flow is a Production Asset Management (PAM) layer that sits on top of Avid Nexis (or an SMB share) and gives editors a web UI for browsing, tagging, and handing off projects. It&#39;s not a replacement for MediaCentral — it&#39;s a lightweight alternative for facilities that need collaborative workflow but don&#39;t want the MediaCentral licensing overhead. The sweet spot is a 5–15 seat post facility."),
-            ("Shared storage architecture", "Strawberry needs one &quot;workspace root&quot; — a shared volume visible to every editor at the same mount path (e.g. <code>/Volumes/shared</code> on macOS, <code>Z:\\</code> on Windows). Avid Nexis workspaces work fine; so do SMB shares served from a TrueNAS or Synology box. For workstations connecting over 10GbE, a SSD-backed NAS can sustain 4–6 concurrent HD streams without stuttering. For remote editors, add a caching layer or switch to proxy-based editing."),
-            ("Avid project structure", "Strawberry expects each Avid project to live in its own folder under the workspace root: <code>/Volumes/shared/ProjectName/</code>. Inside, standard Avid subfolders: <code>Avid Projects/</code>, <code>Avid MediaFiles/MXF/1/</code>, and a Strawberry-specific <code>_Strawberry/</code> that holds metadata. Editors open projects via Media Composer&#39;s normal open dialog; Strawberry runs alongside as a web UI in a browser tab."),
-            ("Ingest hot folders", "Configure Strawberry&#39;s ingest rules in the web admin. Create a &quot;Rushes&quot; hot folder at <code>/Volumes/shared/_ingest/</code>. Rules: incoming files tagged by date, transcoded to DNxHD 36 (proxy) + DNxHD 120 (online), attached as AMA-linked or fully imported based on size. For XDCAM EX or AVCHD source, enable the auto-transcode rule — playback in Avid is much smoother after transcode than via AMA on these codecs."),
-            ("Version control &amp; project locking", "Strawberry&#39;s killer feature is project-level locking. When Editor A opens a project, Strawberry marks it locked in its database and other editors see a read-only indicator. When A closes the project, the lock releases. For finer granularity, use bins rather than whole projects — multi-editor concurrent editing on separate bins of the same project is supported. Avoid two editors editing the same bin at the same time; Avid&#39;s internal bin locking is per-file and conflicts produce silent data loss."),
-            ("Automated delivery", "Strawberry can trigger downstream workflows when an editor tags a sequence &quot;Delivered&quot;. Typical pattern: tag fires a webhook to Telestream Vantage, which picks up the sequence&#39;s export, transcodes it to delivery spec, and pushes to S3 or the client&#39;s MAM. This closes the loop from edit bay to CDN without a human re-exporting files. Monitor the webhook queue in Strawberry&#39;s admin — failed hand-offs are the most common break point and easy to miss."),
-                    ("Editor adoption and training", "The hardest part of a Strawberry deployment is not the technical setup — it&#39;s getting editors to adopt the web UI instead of reverting to the Finder or Windows Explorer. Budget a dedicated half-day training session per editor that covers: browsing the rushes folder via Strawberry rather than the OS file browser, tagging sequences with delivery-ready metadata, using the metadata search to find shots across old projects, and proper locking etiquette when multiple editors work on adjacent bins. The payoff is measurable: facilities that fully adopt Strawberry workflow typically reclaim 20 to 30 minutes per editor per day that was previously spent manually hunting for files. Track adoption metrics for the first month and coach the stragglers individually rather than hoping they&#39;ll catch up on their own."),
         ],
     },
     "guide-audio-conform-avid-protools": {
@@ -2576,13 +2937,6 @@ def howto_page():
             "href": "articles/guide-vantage-aws-transcode.html",
             "tag": "Vantage · AWS",
             "time": "9 min",
-        },
-        {
-            "title": "Strawberry PAM + Avid Media Composer Workflow",
-            "desc": "Configure Production Flow's Strawberry for collaborative editing with Avid Media Composer. Shared storage, ingest hot folders, version control, and automated delivery.",
-            "href": "articles/guide-avid-strawberry.html",
-            "tag": "PAM · Avid",
-            "time": "10 min",
         },
         {
             "title": "Audio Conform: Avid Media Composer to Pro Tools and Back",
@@ -3056,6 +3410,7 @@ def sitemap(arts):
         ("insights.html","weekly","0.88"),
         ("editorsdesk.html","weekly","0.88"),
         ("about.html","monthly","0.6"),("contact.html","monthly","0.5"),
+        ("features.html","weekly","0.85"),
         ("editorial-policy.html","monthly","0.6"),
         ("privacy.html","yearly","0.3"),("terms.html","yearly","0.3"),
     ]
@@ -3427,6 +3782,7 @@ def main():
     # ── Static pages ──────────────────────────────────────────────────────
     w(os.path.join(DOCS,"about.html"),            about_page())
     w(os.path.join(DOCS,"contact.html"),          contact_page())
+    w(os.path.join(DOCS,"features.html"),         features_page())
     w(os.path.join(DOCS,"privacy.html"),          privacy_page())
     w(os.path.join(DOCS,"terms.html"),            terms_page())
     w(os.path.join(DOCS,"editorial-policy.html"), editorial_policy_page())
