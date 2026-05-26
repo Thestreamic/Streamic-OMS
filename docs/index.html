@@ -49,76 +49,45 @@
   <div class="nav-mob"><a href="/">Home</a><a href="ai-post-production.html">AI in Broadcasting</a><a href="howto.html">How-To Guides</a><a href="post-production-workflows.html">Post Production Workflows</a><a href="insights.html">Expert Insights</a><a href="editorsdesk.html">Editorial Insights</a><a href="about.html">About</a><a href="contact.html">Contact</a></div>
 </nav>
 <main>
-  <section class="hp-hero hp-hero--assetvista" aria-label="AssetVista product spotlight">
-<style>
-.hp-hero--assetvista .hp-hero-img {
-  object-position: center 8%;
-  filter: brightness(1.06) contrast(1.05) saturate(1.04);
-}
-.hp-hero-deck {
-  font-size: clamp(13px, 1.45vw, 15px);
-  line-height: 1.55;
-  color: rgba(255, 255, 255, .78);
-  margin: 0 0 20px;
-  max-width: 560px;
-  letter-spacing: .01em;
-}
-.hp-hero-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: center;
-  margin-bottom: 18px;
-}
-.hp-hero-cta--primary {
-  background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%);
-  border-color: rgba(147, 197, 253, .55);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .22), 0 4px 18px rgba(37, 99, 235, .45);
-}
-.hp-hero-cta--primary:hover {
-  background: linear-gradient(180deg, #60a5fa 0%, #3b82f6 100%);
-  border-color: rgba(191, 219, 254, .7);
-}
-.hp-hero-perks {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px 18px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  font-size: 11px;
-  font-weight: 500;
-  color: rgba(255, 255, 255, .72);
-  letter-spacing: .02em;
-}
-.hp-hero-perk {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-.hp-hero-perk-icon {
-  color: #7dd3fc;
-  font-size: 12px;
-  line-height: 1;
-}
-</style>
-  <img class="hp-hero-img" src="assets/assetvista-hero.png" alt="AssetVista Vault media library — grid of local video assets with search and folder navigation" loading="eager" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
-  <div class="hp-hero-overlay" aria-hidden="true"></div>
-  <div class="hp-hero-body">
-    <span class="hp-hero-tag">Creator Tools · Beta</span>
-    <h1 class="hp-hero-hl">AssetVista [Beta] Media Intelligence Engine for Creators</h1>
-    <p class="hp-hero-deck">Organize videos, searchable transcripts, PDFs, and assets — all in one standalone workspace.</p>
-    <div class="hp-hero-actions">
-      <a href="https://github.com/Thestreamic/AssetVista/releases/download/v2026.6/AssetVista_Setup_2026.6_Build141.exe" class="hp-hero-cta hp-hero-cta--primary" rel="noopener noreferrer" download>Download for Windows</a>
-      <a href="features.html" class="hp-hero-cta">View Features <span class="hp-hero-cta__arrow">→</span></a>
+  <style>
+.av-hero-split.hero{background:#030303;color:#fff;overflow:hidden;margin:32px -24px 0;border-radius:0}
+.av-hero-split .hero-content{max-width:1440px;margin:0 auto;display:grid;grid-template-columns:minmax(280px,.85fr) 1.15fr;max-height:520px;overflow:hidden}
+.av-hero-split .hero-text{padding:36px clamp(20px,5vw,48px);display:flex;flex-direction:column;justify-content:center;background:linear-gradient(90deg,#030303 78%,rgba(3,3,3,.45))}
+.av-hero-split .badge{font-size:11px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#ffdf9a;margin:0 0 12px}
+.av-hero-split .badge span{color:#fff;font-weight:600;opacity:.88;margin-left:6px}
+.av-hero-split h1{font-family:'DM Serif Display',var(--serif),Georgia,serif;font-size:clamp(28px,3.2vw,46px);line-height:1.08;letter-spacing:-.03em;margin:0 0 16px;font-weight:400}
+.av-hero-split .standfirst{font-size:clamp(14px,1.45vw,17px);color:#e7e1d8;line-height:1.55;margin:0 0 20px;max-width:520px}
+.av-hero-split .hero-buttons{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px}
+.av-hero-split .btn-primary{display:inline-flex;align-items:center;padding:12px 22px;background:#b21f24;color:#fff;border-radius:999px;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;border:1px solid rgba(255,255,255,.12);transition:background .18s ease}
+.av-hero-split .btn-primary:hover{background:#c62828}
+.av-hero-split .btn-secondary{display:inline-flex;align-items:center;padding:12px 22px;background:transparent;color:#fff;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:.05em;text-decoration:none;border:1px solid rgba(255,255,255,.32);transition:border-color .18s ease,background .18s ease}
+.av-hero-split .btn-secondary:hover{border-color:rgba(255,255,255,.55);background:rgba(255,255,255,.08)}
+.av-hero-split .hero-meta{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:12px;color:#c8c2b8;line-height:1.5}
+.av-hero-split .hero-image{margin:0;overflow:hidden;max-height:520px;background:#0a0a0f}
+.av-hero-split .hero-image img{width:100%;height:100%;min-height:320px;max-height:520px;object-fit:contain;object-position:center center;display:block}
+@media(max-width:980px){.av-hero-split .hero-content{grid-template-columns:1fr;max-height:none}.av-hero-split .hero-image{min-height:260px;max-height:340px}.av-hero-split .hero-text{padding:32px 24px 28px}}
+@media(max-width:600px){.av-hero-split{margin:20px -16px 0}.av-hero-split h1{font-size:clamp(24px,6vw,32px)}.av-hero-split .hero-buttons{flex-direction:column;align-items:flex-start}}
+</style><header class="hero av-hero-split" aria-label="AssetVista product spotlight">
+  <div class="hero-content">
+    <div class="hero-text">
+      <div class="badge">AssetVista <span>Beta</span></div>
+      <h1>Media Intelligence Engine for Creators</h1>
+      <p class="standfirst">Organize videos, searchable transcripts, PDFs, and assets — all in one standalone workspace.</p>
+      <div class="hero-buttons">
+        <a href="https://github.com/Thestreamic/AssetVista/releases/download/v2026.6/AssetVista_Setup_2026.6_Build141.exe" class="btn-primary" rel="noopener noreferrer" download>Download for Windows →</a>
+        <a href="features.html" class="btn-secondary">View Features</a>
+      </div>
+      <div class="hero-meta">
+        <span>✔ Free 1‑month beta access</span>
+        <span>✔ Searchable transcripts (Beta)</span>
+        <span>✔ Works locally — no cloud required</span>
+      </div>
     </div>
-    <ul class="hp-hero-perks" aria-label="AssetVista highlights">
-      <li class="hp-hero-perk"><span class="hp-hero-perk-icon" aria-hidden="true">✔</span> Free 1‑month beta access</li>
-      <li class="hp-hero-perk"><span class="hp-hero-perk-icon" aria-hidden="true">✔</span> Searchable transcripts (Beta)</li>
-      <li class="hp-hero-perk"><span class="hp-hero-perk-icon" aria-hidden="true">✔</span> Works locally — no cloud required</li>
-    </ul>
+    <figure class="hero-image">
+      <img src="assets/screenshot-grid.png" alt="AssetVista Vault media library — grid of local video assets with search and folder navigation" loading="eager" fetchpriority="high" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+    </figure>
   </div>
-</section>
+</header>
   <div class="w">
     <style>.dd-grid--trio{display:grid;grid-template-columns:1fr;gap:22px}.dd-card--featured{display:grid;grid-template-columns:1fr 1.4fr;min-height:360px}.dd-card--featured .dd-card-body{padding:38px 38px 34px;justify-content:center}.dd-card--featured .dd-title--featured{font-size:clamp(22px,2.6vw,32px);line-height:1.18;margin:10px 0 16px}.dd-card--featured .dd-lead{font-size:15px;line-height:1.72}.dd-grid--trio .dd-col-right{display:grid;grid-template-columns:1fr 1fr;gap:22px}.dd-card--compact{display:grid;grid-template-columns:1.05fr .95fr}@media(max-width:860px){.dd-grid--trio{gap:16px}.dd-card--featured{grid-template-columns:1fr;min-height:auto}.dd-card--featured .dd-figure--featured{order:-1;aspect-ratio:16/9;min-height:200px}.dd-card--featured .dd-card-body{padding:22px 20px 20px}.dd-card--featured .dd-title--featured{font-size:clamp(20px,5vw,26px)}.dd-grid--trio .dd-col-right{grid-template-columns:1fr}.dd-card--compact{grid-template-columns:1fr}.dd-card--compact .dd-figure{order:-1;aspect-ratio:16/9;min-height:160px}}</style>
 <section class="dd-section" aria-labelledby="dd-h2"><div class="dd-hdr"><span class="dd-eyebrow">The 2026 Collection</span><h2 id="dd-h2" class="dd-h2">Technical Deep Dives</h2><p class="dd-intro">Moving beyond the headlines into the architecture of the modern media supply chain.</p></div><div class="dd-grid dd-grid--trio"><a class="dd-card dd-card--featured" href="articles/xr-virtual-production-broadcast-newsroom-guide-2026.html" aria-label="Read deep dive: XR is Becoming the New Broadcast Studio Layer"><div class="dd-card-body"><span class="dd-kicker">XR · Virtual Production</span><h3 class="dd-title dd-title--featured">XR is Becoming the New Broadcast Studio Layer</h3><p class="dd-lead">Extended Reality is moving into newsrooms, sports studios, election coverage and live production. A 2026 landscape guide: LED volumes, Unreal Engine Avalanche, Disguise Chrono, Vizrt AI Keyer and Mo-Sys tracking.</p><span class="dd-cta">Read the guide <span class="dd-arrow" aria-hidden="true">&#8594;</span></span></div><figure class="dd-figure dd-figure--featured"><img class="dd-img" src="assets/xr-broadcast-newsroom-hero.png" alt="XR newsroom studio with LED virtual set, camera crew, green screen area and real-time broadcast graphics overlays" loading="lazy" onerror="this.style.opacity='0'"><figcaption class="dd-figcap">XR · Broadcast Studio</figcaption></figure></a><div class="dd-col-right"><a class="dd-card dd-card--compact" href="articles/deepdive-pebble-harmonic-playout-war-nab-2026.html" aria-label="Read deep dive: The Death of the &quot;Black Box&quot;: Why Pebble and Harmonic are Winning the Playout War"><div class="dd-card-body"><span class="dd-kicker">Automation</span><h3 class="dd-title">The Death of the &quot;Black Box&quot;: Why Pebble and Harmonic are Winning the Playout War</h3><p class="dd-lead">The "Black Box" era is officially over. Pebble’s JT-DMF interoperability push and Harmonic’s SMPTE ST 2110-native Spectrum X are collapsing the decades-old hardware lock-in.</p><span class="dd-cta">Read analysis <span class="dd-arrow" aria-hidden="true">&#8594;</span></span></div><figure class="dd-figure"><img class="dd-img" src="assets/deepdives/media-composer-edit.png" alt="Avid Media Composer editing interface showing multi-clip timeline and source monitor" loading="lazy" onerror="this.style.opacity='0'"><figcaption class="dd-figcap">Software-Defined Playout</figcaption></figure></a><a class="dd-card dd-card--compact" href="articles/deepdive-aws-google-cloud-agentic-ai-nab-2026.html" aria-label="Read deep dive: From Bots to Agents: How AWS and Google Cloud are Actually Solving the Newsroom Headache"><div class="dd-card-body"><span class="dd-kicker">Infrastructure</span><h3 class="dd-title">From Bots to Agents: How AWS and Google Cloud are Actually Solving the Newsroom Headache</h3><p class="dd-lead">2025 was AI that created stuff. 2026 is Agentic AI — AI that does stuff. AWS Elemental Inference and the Google Cloud / Avid partnership signal a real shift from demo to deployment.</p><span class="dd-cta">Read analysis <span class="dd-arrow" aria-hidden="true">&#8594;</span></span></div><figure class="dd-figure"><img class="dd-img" src="assets/deepdives/ms-server-datacenter.png" alt="Hyperscale data center server aisle with illuminated racks extending to vanishing point" loading="lazy" onerror="this.style.opacity='0'"><figcaption class="dd-figcap">Agentic Cloud Infrastructure</figcaption></figure></a></div></div></section>

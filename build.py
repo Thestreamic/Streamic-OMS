@@ -669,7 +669,7 @@ _RESERVED_ASSETS = {
     "assetvista-hero.png",
     "screenshot-library.png", "screenshot-search.png", "screenshot-player.png",
     "screenshot-vertical.png", "screenshot-editor.png", "screenshot-export.png",
-    "screenshot-documents.png",
+    "screenshot-documents.png", "screenshot-grid.png",
     "nab-show-banner-news-headline-hero.png",
     "insight-quic-infographic.jpg",
     "neil-sadwelkar.jpg",
@@ -1219,6 +1219,123 @@ def _hp_sidebar_news(a):
     {src_link}
   </div>
 </div>'''
+ASSETVISTA_DOWNLOAD_URL = (
+    "https://github.com/Thestreamic/AssetVista/releases/download/v2026.6/"
+    "AssetVista_Setup_2026.6_Build141.exe"
+)
+
+
+def _assetvista_home_hero_styles():
+    """Split hero CSS for homepage — scoped so site body styles are unchanged."""
+    return """<style>
+.av-hero-split.hero{background:#030303;color:#fff;overflow:hidden;margin:32px -24px 0;border-radius:0}
+.av-hero-split .hero-content{max-width:1440px;margin:0 auto;display:grid;grid-template-columns:minmax(280px,.85fr) 1.15fr;max-height:520px;overflow:hidden}
+.av-hero-split .hero-text{padding:36px clamp(20px,5vw,48px);display:flex;flex-direction:column;justify-content:center;background:linear-gradient(90deg,#030303 78%,rgba(3,3,3,.45))}
+.av-hero-split .badge{font-size:11px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#ffdf9a;margin:0 0 12px}
+.av-hero-split .badge span{color:#fff;font-weight:600;opacity:.88;margin-left:6px}
+.av-hero-split h1{font-family:'DM Serif Display',var(--serif),Georgia,serif;font-size:clamp(28px,3.2vw,46px);line-height:1.08;letter-spacing:-.03em;margin:0 0 16px;font-weight:400}
+.av-hero-split .standfirst{font-size:clamp(14px,1.45vw,17px);color:#e7e1d8;line-height:1.55;margin:0 0 20px;max-width:520px}
+.av-hero-split .hero-buttons{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px}
+.av-hero-split .btn-primary{display:inline-flex;align-items:center;padding:12px 22px;background:#b21f24;color:#fff;border-radius:999px;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;border:1px solid rgba(255,255,255,.12);transition:background .18s ease}
+.av-hero-split .btn-primary:hover{background:#c62828}
+.av-hero-split .btn-secondary{display:inline-flex;align-items:center;padding:12px 22px;background:transparent;color:#fff;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:.05em;text-decoration:none;border:1px solid rgba(255,255,255,.32);transition:border-color .18s ease,background .18s ease}
+.av-hero-split .btn-secondary:hover{border-color:rgba(255,255,255,.55);background:rgba(255,255,255,.08)}
+.av-hero-split .hero-meta{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:12px;color:#c8c2b8;line-height:1.5}
+.av-hero-split .hero-image{margin:0;overflow:hidden;max-height:520px;background:#0a0a0f}
+.av-hero-split .hero-image img{width:100%;height:100%;min-height:320px;max-height:520px;object-fit:contain;object-position:center center;display:block}
+@media(max-width:980px){.av-hero-split .hero-content{grid-template-columns:1fr;max-height:none}.av-hero-split .hero-image{min-height:260px;max-height:340px}.av-hero-split .hero-text{padding:32px 24px 28px}}
+@media(max-width:600px){.av-hero-split{margin:20px -16px 0}.av-hero-split h1{font-size:clamp(24px,6vw,32px)}.av-hero-split .hero-buttons{flex-direction:column;align-items:flex-start}}
+</style>"""
+
+
+def _assetvista_split_hero_html(features_href="features.html", secondary_label="View Features"):
+    """Text-left / UI-right split hero (matches XR editorial article pattern)."""
+    return f"""<header class="hero av-hero-split" aria-label="AssetVista product spotlight">
+  <div class="hero-content">
+    <div class="hero-text">
+      <div class="badge">AssetVista <span>Beta</span></div>
+      <h1>Media Intelligence Engine for Creators</h1>
+      <p class="standfirst">Organize videos, searchable transcripts, PDFs, and assets — all in one standalone workspace.</p>
+      <div class="hero-buttons">
+        <a href="{ASSETVISTA_DOWNLOAD_URL}" class="btn-primary" rel="noopener noreferrer" download>Download for Windows →</a>
+        <a href="{features_href}" class="btn-secondary">{e(secondary_label)}</a>
+      </div>
+      <div class="hero-meta">
+        <span>✔ Free 1‑month beta access</span>
+        <span>✔ Searchable transcripts (Beta)</span>
+        <span>✔ Works locally — no cloud required</span>
+      </div>
+    </div>
+    <figure class="hero-image">
+      <img src="assets/screenshot-grid.png" alt="AssetVista Vault media library — grid of local video assets with search and folder navigation" loading="eager" fetchpriority="high" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+    </figure>
+  </div>
+</header>"""
+
+
+def _assetvista_xr_page_styles():
+    """Full-page editorial CSS — aligned with xr-virtual-production HAND_AUTHORED article."""
+    return """<style>
+:root{--bg:#f7f4ef;--paper:#fffaf2;--ink:#111111;--muted:#6d6258;--line:rgba(17,17,17,.12);--accent:#b21f24;--accent2:#091018;--gold:#c6a15b;--soft:#ede5d8;--shadow:0 24px 70px rgba(0,0,0,.16);--serif:'DM Serif Display',Georgia,serif;--sans:'DM Sans',system-ui,-apple-system,Segoe UI,sans-serif}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.65}a{color:inherit;text-decoration:none}img{max-width:100%;display:block}
+.nav{position:sticky;top:0;z-index:50;background:rgba(5,5,5,.92);backdrop-filter:blur(16px);color:#fff;border-bottom:1px solid rgba(255,255,255,.08)}
+.nav-inner{max-width:1240px;margin:auto;padding:18px 22px;display:flex;align-items:center;justify-content:space-between;gap:28px}
+.brand{font-weight:800;font-size:26px;letter-spacing:-.04em}.brand small{display:block;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:#ccc;font-weight:600}
+.nav-links{display:flex;gap:24px;font-size:14px;color:#ddd;flex-wrap:wrap}.nav-links a:hover{color:#fff}
+.hero{background:#030303;color:#fff;overflow:hidden}
+.hero-content{max-width:1440px;margin:auto;display:grid;grid-template-columns:minmax(300px,.85fr) 1.15fr;max-height:500px;overflow:hidden}
+.hero-text{padding:36px clamp(20px,5vw,48px);display:flex;flex-direction:column;justify-content:center;background:linear-gradient(90deg,#030303 72%,rgba(3,3,3,.55))}
+.badge{color:#ffdf9a;font-size:11px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;margin:0 0 12px}
+.badge span{color:#fff;font-weight:600;margin-left:6px}
+.hero h1{font-family:var(--serif);font-size:clamp(34px,3.8vw,52px);line-height:1.05;letter-spacing:-.03em;margin:0 0 16px;font-weight:400}
+.standfirst{font-size:clamp(15px,1.5vw,18px);color:#e7e1d8;line-height:1.55;margin:0 0 20px;max-width:560px}
+.hero-buttons{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px}
+.btn-primary{display:inline-flex;align-items:center;padding:12px 24px;background:var(--accent);color:#fff;border-radius:999px;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;border:1px solid rgba(255,255,255,.1)}
+.btn-primary:hover{background:#c62828}
+.btn-secondary{display:inline-flex;align-items:center;padding:12px 24px;color:#fff;border-radius:999px;font-size:12px;font-weight:700;border:1px solid rgba(255,255,255,.32)}
+.btn-secondary:hover{border-color:rgba(255,255,255,.55);background:rgba(255,255,255,.08)}
+.hero-meta{display:flex;flex-wrap:wrap;gap:8px 16px;color:#c8c2b8;font-size:12px}
+.hero-image{margin:0;overflow:hidden;max-height:500px;background:#0a0a0f}
+.hero-image img{width:100%;height:100%;max-height:500px;min-height:300px;object-fit:contain;object-position:center center}
+.feat-shell{max-width:1240px;margin:0 auto;padding:0 22px 80px}
+.feat-intro{font-size:22px;color:#201a16;line-height:1.5;margin:48px 0 12px;font-family:var(--serif);letter-spacing:-.02em}
+.feat-lead{color:var(--muted);font-size:17px;margin:0 0 40px;max-width:720px}
+.feat-row{display:grid;grid-template-columns:minmax(280px,1fr) minmax(300px,1.05fr);gap:44px;align-items:center;margin:56px 0;padding:40px;background:var(--paper);border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow)}
+.feat-row--flip{direction:rtl}.feat-row--flip > *{direction:ltr}
+.feat-copy h2{font-family:var(--serif);font-size:clamp(28px,3vw,38px);line-height:1.08;letter-spacing:-.03em;margin:0 0 14px}
+.feat-copy > p{font-size:18px;color:#2b2723;margin:0 0 18px;line-height:1.65}
+.feat-copy ul{margin:0;padding-left:20px;color:#2b2723;font-size:16px;line-height:1.75}
+.feat-copy li{margin-bottom:8px}
+.feat-media{margin:0;border-radius:18px;overflow:hidden;border:1px solid var(--line);box-shadow:0 16px 48px rgba(0,0,0,.12)}
+.feat-media img{width:100%;height:auto;display:block}
+.feat-cta{background:#111;color:#fff;border-radius:28px;padding:48px 40px;text-align:center;margin:64px 0 0}
+.feat-cta h2{font-family:var(--serif);font-size:clamp(28px,3vw,40px);margin:0 0 16px;line-height:1.1}
+.feat-cta p{color:#ddd;margin:16px 0 0;font-size:15px}
+.footer{background:#050505;color:#bbb;margin-top:70px}.footer-inner{max-width:1240px;margin:auto;padding:46px 22px;display:flex;justify-content:space-between;gap:28px;flex-wrap:wrap}.footer a{color:#fff}
+@media(max-width:980px){.hero-content{grid-template-columns:1fr;max-height:none}.hero-text{padding:40px 24px}.hero-image{min-height:280px;max-height:360px}.feat-row,.feat-row--flip{grid-template-columns:1fr;direction:ltr;padding:28px 22px}.nav-links{display:none}.footer-inner{display:block}.hero h1{font-size:clamp(28px,7vw,40px)}}
+</style>"""
+
+
+def _assetvista_xr_nav():
+    return """<nav class="nav" aria-label="Primary navigation">
+  <div class="nav-inner">
+    <a class="brand" href="/">The Streamic <small>Broadcast | Streaming | Tech</small></a>
+    <div class="nav-links">
+      <a href="/">Home</a><a href="ai-post-production.html">AI in Broadcasting</a><a href="post-production-workflows.html">Post Production</a><a href="insights.html">Insights</a><a href="about.html">About</a>
+    </div>
+  </div>
+</nav>"""
+
+
+def _assetvista_xr_footer():
+    return """<footer class="footer">
+  <div class="footer-inner">
+    <div><strong>The Streamic</strong><br>Independent broadcast, streaming and media technology analysis.</div>
+    <div><a href="about.html">About</a> &nbsp; <a href="editorial-policy.html">Editorial Policy</a> &nbsp; <a href="privacy.html">Privacy Policy</a> &nbsp; <a href="contact.html">Contact</a></div>
+  </div>
+</footer>"""
+
+
 def featured_page(arts):
     """Homepage built from generated_articles.json with premium magazine layout."""
     editorial_all = sorted([a for a in arts if a.get("is_editorial") or a.get("editorial")], key=lambda a: a.get("published", ""), reverse=True)
@@ -1275,7 +1392,8 @@ def featured_page(arts):
 
     _assetvista_hero_file = "assetvista-hero.png"
     assetvista_hero_path = os.path.join(DOCS, "assets", _assetvista_hero_file)
-    _use_assetvista_hero = os.path.exists(assetvista_hero_path)
+    assetvista_grid_path = os.path.join(DOCS, "assets", "screenshot-grid.png")
+    _use_assetvista_hero = os.path.exists(assetvista_grid_path) or os.path.exists(assetvista_hero_path)
     hero_img = (
         f"{BASE_URL}/assets/{_assetvista_hero_file}"
         if _use_assetvista_hero
@@ -1284,84 +1402,12 @@ def featured_page(arts):
     homepage_head = head(title, desc, canon, og_img=hero_img)
 
     cinfo = CAT.get((hero_art or {}).get("category", "featured"), CAT["featured"])
-    _ASSETVISTA_DOWNLOAD = (
-        "https://github.com/Thestreamic/AssetVista/releases/download/v2026.6/"
-        "AssetVista_Setup_2026.6_Build141.exe"
-    )
-    _ASSETVISTA_FEATURES_HREF = "features.html"
-
     hero_html = ""
     if _use_assetvista_hero:
-        hero_html = f'''<section class="hp-hero hp-hero--assetvista" aria-label="AssetVista product spotlight">
-<style>
-.hp-hero--assetvista .hp-hero-img {{
-  object-position: center 8%;
-  filter: brightness(1.06) contrast(1.05) saturate(1.04);
-}}
-.hp-hero-deck {{
-  font-size: clamp(13px, 1.45vw, 15px);
-  line-height: 1.55;
-  color: rgba(255, 255, 255, .78);
-  margin: 0 0 20px;
-  max-width: 560px;
-  letter-spacing: .01em;
-}}
-.hp-hero-actions {{
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: center;
-  margin-bottom: 18px;
-}}
-.hp-hero-cta--primary {{
-  background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%);
-  border-color: rgba(147, 197, 253, .55);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .22), 0 4px 18px rgba(37, 99, 235, .45);
-}}
-.hp-hero-cta--primary:hover {{
-  background: linear-gradient(180deg, #60a5fa 0%, #3b82f6 100%);
-  border-color: rgba(191, 219, 254, .7);
-}}
-.hp-hero-perks {{
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px 18px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  font-size: 11px;
-  font-weight: 500;
-  color: rgba(255, 255, 255, .72);
-  letter-spacing: .02em;
-}}
-.hp-hero-perk {{
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}}
-.hp-hero-perk-icon {{
-  color: #7dd3fc;
-  font-size: 12px;
-  line-height: 1;
-}}
-</style>
-  <img class="hp-hero-img" src="assets/{_assetvista_hero_file}" alt="AssetVista Vault media library — grid of local video assets with search and folder navigation" loading="eager" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
-  <div class="hp-hero-overlay" aria-hidden="true"></div>
-  <div class="hp-hero-body">
-    <span class="hp-hero-tag">Creator Tools · Beta</span>
-    <h1 class="hp-hero-hl">AssetVista [Beta] Media Intelligence Engine for Creators</h1>
-    <p class="hp-hero-deck">Organize videos, searchable transcripts, PDFs, and assets — all in one standalone workspace.</p>
-    <div class="hp-hero-actions">
-      <a href="{_ASSETVISTA_DOWNLOAD}" class="hp-hero-cta hp-hero-cta--primary" rel="noopener noreferrer" download>Download for Windows</a>
-      <a href="{_ASSETVISTA_FEATURES_HREF}" class="hp-hero-cta">View Features <span class="hp-hero-cta__arrow">→</span></a>
-    </div>
-    <ul class="hp-hero-perks" aria-label="AssetVista highlights">
-      <li class="hp-hero-perk"><span class="hp-hero-perk-icon" aria-hidden="true">✔</span> Free 1‑month beta access</li>
-      <li class="hp-hero-perk"><span class="hp-hero-perk-icon" aria-hidden="true">✔</span> Searchable transcripts (Beta)</li>
-      <li class="hp-hero-perk"><span class="hp-hero-perk-icon" aria-hidden="true">✔</span> Works locally — no cloud required</li>
-    </ul>
-  </div>
-</section>'''
+        hero_html = _assetvista_home_hero_styles() + _assetvista_split_hero_html(
+            features_href="features.html",
+            secondary_label="View Features",
+        )
     elif hero_art:
         HERO_TITLE_OVERRIDES = {
             "ai-reducing-broadcast-operational-costs-2026": "Beyond Automation: How AI Can Optimize Broadcast Costs and Scale Human Potential in 2026",
@@ -2073,259 +2119,120 @@ def contact_page():
 {_cookie_banner()}
 </body></html>"""
 
-def _assetvista_feature_block(title, lead, bullets, img_file, img_alt):
-    """One feature row for features.html (AssetVista product page)."""
+def _assetvista_feature_block(title, lead, bullets, img_file, img_alt, flip=False):
+    """One feature row for features.html — XR editorial layout."""
+    flip_cls = " feat-row--flip" if flip else ""
     items = "".join(f"<li>{e(b)}</li>" for b in bullets)
-    return f'''<div class="av-feat-section">
-  <div class="av-feat-text">
+    return f'''<section class="feat-row{flip_cls}">
+  <div class="feat-copy">
     <h2>{title}</h2>
     <p>{e(lead)}</p>
-    <div class="av-feat-card"><ul>{items}</ul></div>
+    <ul>{items}</ul>
   </div>
-  <div class="av-feat-image">
-    <img src="assets/{img_file}" alt="{e(img_alt)}" loading="lazy" width="960" height="540" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
-  </div>
-</div>'''
+  <figure class="feat-media">
+    <img src="assets/{img_file}" alt="{e(img_alt)}" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+  </figure>
+</section>'''
 
 
 def features_page():
-    """AssetVista product features — linked from homepage hero."""
-    _dl = (
-        "https://github.com/Thestreamic/AssetVista/releases/download/v2026.6/"
-        "AssetVista_Setup_2026.6_Build141.exe"
-    )
-    _og = f"{BASE_URL}/assets/assetvista-hero.png"
+    """AssetVista features — XR editorial layout (matches HAND_AUTHORED deep-dive articles)."""
+    _og = f"{BASE_URL}/assets/screenshot-grid.png"
     _desc = (
         "AssetVista features: media library, search and indexing, review player, "
         "vertical editing, Pure-Cuts editor, export, and document indexing — local Windows beta."
     )
-    sections = (
-        _assetvista_feature_block(
-            "🗂 Media Library",
+    _blocks = [
+        (
+            "Media Library",
             "Organize video, audio, images, and documents in a single indexed library.",
-            [
-                "Grid, list, and BENTO layouts",
-                "Unified browsing across media and documents",
-                "Smart grouping by type, time, and folders",
-            ],
+            ["Grid, list, and BENTO layouts", "Unified browsing across media and documents", "Smart grouping by type, time, and folders"],
             "screenshot-library.png",
             "AssetVista Vault media library grid with folder navigation and video thumbnails",
-        )
-        + _assetvista_feature_block(
-            "🔍 Search &amp; Indexing",
+        ),
+        (
+            "Search &amp; Indexing",
             "Find assets instantly across your entire library.",
-            [
-                "Search by filename, tags, and metadata",
-                "Transcript-based search (Beta)",
-                "Document text indexing (PDF, text)",
-            ],
+            ["Search by filename, tags, and metadata", "Transcript-based search (Beta)", "Document text indexing (PDF, text)"],
             "screenshot-search.png",
             "AssetVista search for zurich across photos and documents",
-        )
-        + _assetvista_feature_block(
-            "🎬 Review &amp; Player Workspace",
+        ),
+        (
+            "Review &amp; Player Workspace",
             "Review footage with precise playback and annotations.",
-            [
-                "Timecode playback + frame controls",
-                "Markers with notes and color",
-                "Scene detection and navigation",
-            ],
+            ["Timecode playback + frame controls", "Markers with notes and color", "Scene detection and navigation"],
             "screenshot-player.png",
             "AssetVista player with markers, technical metadata, and asset grid",
-        )
-        + _assetvista_feature_block(
-            "📱 Vertical Editing (USP)",
+        ),
+        (
+            "Vertical Editing",
             "Reframe horizontal video into vertical formats for modern platforms.",
-            [
-                "9:16 preview inside player",
-                "Adjust framing interactively",
-                "Prepare content for Shorts &amp; Reels",
-            ],
+            ["9:16 preview inside player", "Adjust framing interactively", "Prepare content for Shorts &amp; Reels"],
             "screenshot-vertical.png",
             "AssetVista vertical edit mode with 9:16 crop overlay on footage",
-        )
-        + _assetvista_feature_block(
-            "✂️ Pure-Cuts Editor",
+        ),
+        (
+            "Pure-Cuts Editor",
             "Assemble rough edits without leaving your library.",
-            [
-                "Source + record monitors",
-                "Mark In / Out editing",
-                "Multi-track timeline",
-            ],
+            ["Source + record monitors", "Mark In / Out editing", "Multi-track timeline"],
             "screenshot-editor.png",
             "AssetVista Pure-Cuts editor with source and record monitors and timeline",
-        )
-        + _assetvista_feature_block(
-            "📤 Export &amp; Delivery",
+        ),
+        (
+            "Export &amp; Delivery",
             "Export media with flexible settings and NLE integration.",
-            [
-                "Format, resolution, bitrate control",
-                "Preset-based export workflows",
-                "Send to Premiere, FCP, Avid",
-            ],
+            ["Format, resolution, bitrate control", "Preset-based export workflows", "Send to Premiere, FCP, Avid"],
             "screenshot-export.png",
             "AssetVista export dialog with YouTube and social presets",
-        )
-        + _assetvista_feature_block(
-            "📄 Document Indexing",
+        ),
+        (
+            "Document Indexing",
             "Manage production documents alongside media.",
-            [
-                "PDF and text indexing",
-                "Searchable content",
-                "Unified library view",
-            ],
+            ["PDF and text indexing", "Searchable content", "Unified library view"],
             "screenshot-documents.png",
             "AssetVista transcript panel with searchable timestamped dialogue",
-        )
+        ),
+    ]
+    sections = "".join(
+        _assetvista_feature_block(title, lead, bullets, img, alt, flip=(i % 2 == 1))
+        for i, (title, lead, bullets, img, alt) in enumerate(_blocks)
     )
-    _feat_head = head("AssetVista Features — The Streamic", _desc, f"{BASE_URL}/features.html", og_img=_og)
-    _feat_css = """<style>
-main.av-features-main {{
-  background: #0b1220;
-  color: #f1f5f9;
-  min-height: 60vh;
-}}
-.av-features-wrap {{
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 40px 20px 80px;
-}}
-.av-features-wrap h1 {{
-  font-family: var(--serif), Georgia, serif;
-  font-size: clamp(1.75rem, 3.5vw, 2.2rem);
-  margin: 0 0 10px;
-  color: #f8fafc;
-  letter-spacing: -.02em;
-}}
-.av-features-lead {{
-  color: #94a3b8;
-  font-size: 1.05rem;
-  line-height: 1.6;
-  max-width: 700px;
-  margin: 0 0 8px;
-}}
-.av-feat-section {{
-  display: flex;
-  gap: 40px;
-  align-items: center;
-  margin-top: 48px;
-  flex-wrap: wrap;
-}}
-.av-feat-text {{
-  flex: 1;
-  min-width: 280px;
-}}
-.av-feat-image {{
-  flex: 1;
-  min-width: 300px;
-}}
-.av-feat-image img {{
-  width: 100%;
-  height: auto;
-  border-radius: 12px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-  display: block;
-}}
-.av-feat-section h2 {{
-  margin: 0 0 12px;
-  font-size: clamp(1.2rem, 2.2vw, 1.5rem);
-  color: #f1f5f9;
-  font-family: var(--sans), system-ui, sans-serif;
-}}
-.av-feat-text > p {{
-  color: #94a3b8;
-  line-height: 1.65;
-  margin: 0 0 16px;
-  max-width: 700px;
-}}
-.av-feat-card {{
-  background: #151f2e;
-  padding: 20px;
-  border-radius: 12px;
-  border: 1px solid rgba(148, 163, 184, 0.12);
-}}
-.av-feat-card ul {{
-  margin: 0;
-  padding-left: 20px;
-  color: #cbd5e1;
-  line-height: 1.7;
-}}
-.av-feat-card li {{
-  margin-bottom: 8px;
-}}
-.av-feat-card li:last-child {{
-  margin-bottom: 0;
-}}
-.av-features-cta {{
-  margin-top: 72px;
-  text-align: center;
-  padding-top: 32px;
-  border-top: 1px solid rgba(148, 163, 184, 0.15);
-}}
-.av-features-cta h2 {{
-  font-family: var(--serif), Georgia, serif;
-  font-size: 1.5rem;
-  margin: 0 0 16px;
-  color: #f8fafc;
-}}
-.av-btn-download {{
-  display: inline-block;
-  background: #22d3ee;
-  color: #000;
-  padding: 14px 26px;
-  border-radius: 10px;
-  text-decoration: none;
-  font-weight: 700;
-  font-size: 14px;
-  letter-spacing: .02em;
-  transition: background 0.18s ease, transform 0.18s ease;
-}}
-.av-btn-download:hover {{
-  background: #67e8f9;
-  transform: translateY(-1px);
-}}
-.av-features-cta p {{
-  color: #94a3b8;
-  margin-top: 16px;
-  font-size: 14px;
-}}
-.av-back-home {{
-  display: inline-block;
-  margin-bottom: 24px;
-  font-size: 13px;
-  color: #7dd3fc;
-  text-decoration: none;
-  font-weight: 500;
-}}
-.av-back-home:hover {{
-  color: #bae6fd;
-}}
-@media (max-width: 720px) {{
-  .av-feat-section {{
-    gap: 24px;
-    margin-top: 40px;
-  }}
-}}
-</style>"""
-    return _feat_head.replace("</head>", _feat_css + "\n</head>") + f"""
-<body data-category="featured">
-{nav("features.html")}
-<main class="av-features-main">
-  <div class="av-features-wrap">
-    <a href="/" class="av-back-home">← Back to The Streamic</a>
-    <h1>AssetVista Features</h1>
-    <p class="av-features-lead">A standalone media and document intelligence workspace built for creators.</p>
-    {sections}
-    <div class="av-features-cta">
-      <h2>Start using AssetVista</h2>
-      <a class="av-btn-download" href="{_dl}" rel="noopener noreferrer" download>Download for Windows →</a>
-      <p>Free 1‑month beta · No signup required</p>
-    </div>
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  {_consent()}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AssetVista Features — The Streamic</title>
+  <meta name="description" content="{e(_desc)}">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <meta name="author" content="{AUTHOR}">
+  <link rel="canonical" href="{BASE_URL}/features.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="The Streamic">
+  <meta property="og:title" content="AssetVista Features — The Streamic">
+  <meta property="og:description" content="{e(_desc)}">
+  <meta property="og:url" content="{BASE_URL}/features.html">
+  <meta property="og:image" content="{eu(_og)}">
+  <meta name="twitter:card" content="summary_large_image">
+  {_fonts()}
+  {_assetvista_xr_page_styles()}
+</head>
+<body>
+{_assetvista_xr_nav()}
+{_assetvista_split_hero_html(features_href="/", secondary_label="The Streamic Home")}
+<main class="feat-shell">
+  <p class="feat-intro">AssetVista Features</p>
+  <p class="feat-lead">A standalone media and document intelligence workspace built for creators — browse, search, review, reframe, edit, and export without leaving your local library.</p>
+  {sections}
+  <div class="feat-cta">
+    <h2>Start using AssetVista</h2>
+    <a href="{ASSETVISTA_DOWNLOAD_URL}" class="btn-primary" rel="noopener noreferrer" download>Download for Windows →</a>
+    <p>Free 1‑month beta · No signup required · Works locally — no cloud required</p>
   </div>
 </main>
-{footer()}
+{_assetvista_xr_footer()}
 {_cookie_banner()}
-<script src="main.js" defer></script>
 </body></html>"""
 
 def privacy_page():
