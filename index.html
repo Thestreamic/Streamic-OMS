@@ -50,191 +50,216 @@
 </nav>
 <main>
   <style>
-/* ── Layout ── */
-.av-hero-split.hero{
-  background:#111;
-  color:#fff;
-  overflow:hidden;
-  margin:32px -24px 0;
-  border-radius:0;
-  box-shadow:0 6px 20px rgba(0,0,0,.15);
-}
-.av-hero-split .hero-content{
-  max-width:1440px;
-  margin:0 auto;
-  display:grid;
-  grid-template-columns:minmax(300px,.9fr) 1.1fr;
-  gap:60px;
-  align-items:center;
-  padding:100px clamp(24px,5vw,72px);
-  box-sizing:border-box;
+/* ─────────────────────────────────────────────────────────────
+   AssetVista Hero  ·  scoped to .av-hero-split
+   Design system: #111 bg, #c5a46d gold, DM Serif, DM Sans
+───────────────────────────────────────────────────────────── */
+
+.av-hero-split.hero {
+  background: #111;
+  color: #fff;
+  margin: 0 -24px;
+  overflow: hidden;
 }
 
-/* ── Text side ── */
-.av-hero-split .hero-text{
-  display:flex;
-  flex-direction:column;
-  animation:avHeroFadeIn .5s ease both;
-}
-@keyframes avHeroFadeIn{
-  from{opacity:0;transform:translateY(14px)}
-  to{opacity:1;transform:translateY(0)}
+/* Two-column grid — text left, image right */
+.av-hero-split .hero-content {
+  max-width: 1340px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1.05fr;
+  gap: 60px;
+  align-items: center;
+  padding: 96px clamp(24px, 5vw, 72px);
+  box-sizing: border-box;
 }
 
-/* Label */
-.av-hero-split .badge{
-  font-size:12px;
-  font-weight:700;
-  letter-spacing:.08em;
-  text-transform:uppercase;
-  color:#c5a46d;
-  margin:0 0 16px;
+/* Text column — fade-up entrance */
+.av-hero-split .hero-text {
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  transform: translateY(10px);
+  animation: avTextReveal .5s .1s cubic-bezier(.22,1,.36,1) forwards;
 }
-.av-hero-split .badge span{
-  color:rgba(255,255,255,.55);
-  margin-left:5px;
-  font-weight:500;
+@keyframes avTextReveal {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Label — "ASSETVISTA · BETA" */
+.av-hero-split .badge {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: #c5a46d;
+  margin: 0 0 16px;
+}
+.av-hero-split .badge .sep {
+  color: rgba(255,255,255,.35);
+  margin: 0 4px;
+  font-weight: 300;
+}
+.av-hero-split .badge .rel {
+  color: rgba(255,255,255,.5);
+  font-weight: 500;
 }
 
 /* Headline */
-.av-hero-split h1{
-  font-family:'DM Serif Display',Georgia,serif;
-  font-size:clamp(32px,3.6vw,52px);
-  line-height:1.15;
-  letter-spacing:-.03em;
-  font-weight:600;
-  margin:0 0 16px;
-  color:#fff;
+.av-hero-split h1 {
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-size: clamp(32px, 3.5vw, 52px);
+  line-height: 1.15;
+  letter-spacing: -.03em;
+  font-weight: 600;
+  color: #fff;
+  margin: 0 0 18px;
 }
 
 /* Subheadline */
-.av-hero-split .standfirst{
-  font-size:clamp(15px,1.5vw,18px);
-  color:#999;
-  line-height:1.6;
-  margin:0 0 24px;
-  max-width:480px;
+.av-hero-split .standfirst {
+  font-size: clamp(15px, 1.45vw, 18px);
+  color: #888;
+  line-height: 1.65;
+  margin: 0 0 28px;
+  max-width: 440px;
 }
 
-/* Buttons row */
-.av-hero-split .hero-buttons{
-  display:flex;
-  flex-wrap:wrap;
-  gap:12px;
-  margin-bottom:14px;
+/* CTA row — primary button + quiet text link */
+.av-hero-split .hero-cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px 20px;
+  margin-bottom: 20px;
 }
 
 /* Primary — gold */
-.av-hero-split .btn-primary{
-  display:inline-flex;
-  align-items:center;
-  gap:7px;
-  padding:14px 26px;
-  background:#c5a46d;
-  color:#111;
-  border-radius:10px;
-  font-size:14px;
-  font-weight:600;
-  letter-spacing:.01em;
-  text-decoration:none;
-  border:none;
-  transition:background .2s ease,transform .2s ease,box-shadow .2s ease;
-  box-shadow:0 4px 14px rgba(197,164,109,.3);
+.av-hero-split .btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 28px;
+  background: #c5a46d;
+  color: #111;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: .01em;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(197,164,109,.28);
+  transition: background .2s ease, transform .2s ease, box-shadow .2s ease;
 }
-.av-hero-split .btn-primary:hover{
-  background:#d4b47d;
-  transform:translateY(-2px);
-  box-shadow:0 8px 22px rgba(197,164,109,.38);
+.av-hero-split .btn-primary:hover {
+  background: #d3b37c;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(197,164,109,.38);
 }
+.av-hero-split .btn-primary:active { transform: translateY(0); }
 
-/* Secondary — outline */
-.av-hero-split .btn-secondary{
-  display:inline-flex;
-  align-items:center;
-  padding:14px 24px;
-  background:transparent;
-  color:#ddd;
-  border-radius:10px;
-  font-size:14px;
-  font-weight:500;
-  text-decoration:none;
-  border:1px solid #aaa;
-  transition:border-color .2s ease,color .2s ease,background .2s ease;
+/* Secondary — quiet text link */
+.av-hero-split .btn-link {
+  font-size: 14px;
+  color: #888;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255,255,255,.18);
+  padding-bottom: 1px;
+  transition: color .18s ease, border-color .18s ease;
 }
-.av-hero-split .btn-secondary:hover{
-  border-color:#c5a46d;
-  color:#c5a46d;
-  background:rgba(197,164,109,.06);
-}
+.av-hero-split .btn-link:hover { color: #c5a46d; border-color: #c5a46d; }
 
 /* Trust line */
-.av-hero-split .hero-trust{
-  display:flex;
-  flex-wrap:wrap;
-  gap:6px 18px;
-  font-size:12px;
-  color:#777;
-  line-height:1.6;
-  margin-top:14px;
+.av-hero-split .hero-trust {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+  font-size: 12px;
+  color: #666;
+  line-height: 1.7;
 }
-.av-hero-split .hero-trust span{display:inline-flex;align-items:center;gap:5px}
-.av-hero-split .hero-trust a{
-  color:#777;
-  text-decoration:underline;
-  text-underline-offset:2px;
-  transition:color .15s ease;
+.av-hero-split .hero-trust span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
 }
-.av-hero-split .hero-trust a:hover{color:#c5a46d}
+.av-hero-split .hero-trust a {
+  color: #666;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color .15s ease;
+}
+.av-hero-split .hero-trust a:hover { color: #c5a46d; }
 
-/* Image side */
-.av-hero-split .hero-image{
-  margin:0;
-  border-radius:12px;
-  overflow:hidden;
-  box-shadow:0 18px 52px rgba(0,0,0,.48);
-  transition:transform .35s ease;
+/* Image column */
+.av-hero-split .hero-image {
+  margin: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 24px 64px rgba(0,0,0,.55);
+  opacity: 0;
+  transform: scale(.97);
+  animation: avImgReveal .6s .25s cubic-bezier(.22,1,.36,1) forwards;
 }
-.av-hero-split .hero-image:hover{transform:scale(1.02)}
-.av-hero-split .hero-image img{
-  width:100%;
-  height:auto;
-  display:block;
-  transform:scale(1.05);
-  transform-origin:center top;
+@keyframes avImgReveal {
+  to { opacity: 1; transform: scale(1); }
+}
+.av-hero-split .hero-image:hover { transform: scale(1.015); transition: transform .4s ease; }
+.av-hero-split .hero-image img {
+  width: 100%;
+  height: auto;
+  display: block;
 }
 
-/* Responsive */
-@media(max-width:980px){
-  .av-hero-split .hero-content{
-    grid-template-columns:1fr;
-    gap:36px;
-    padding:60px 24px 48px;
+/* ── Tablet (stack) ── */
+@media (max-width: 900px) {
+  .av-hero-split .hero-content {
+    grid-template-columns: 1fr;
+    gap: 40px;
+    padding: 64px 24px 52px;
   }
-  .av-hero-split .hero-image{max-width:100%}
+  .av-hero-split .standfirst { max-width: 100%; }
 }
-@media(max-width:600px){
-  .av-hero-split{margin:20px -16px 0}
-  .av-hero-split h1{font-size:clamp(26px,7vw,36px)}
-  .av-hero-split .hero-buttons{flex-direction:column;align-items:flex-start}
+
+/* ── Mobile ── */
+@media (max-width: 600px) {
+  .av-hero-split { margin: 0 -16px; }
+  .av-hero-split h1 { font-size: clamp(28px, 8vw, 36px); }
+  .av-hero-split .hero-content { padding: 48px 18px 40px; gap: 32px; }
+  .av-hero-split .hero-cta-row { flex-direction: column; align-items: flex-start; gap: 14px; }
+  .av-hero-split .btn-primary { width: 100%; justify-content: center; }
+  .av-hero-split .hero-trust { gap: 4px 14px; }
 }
 </style><header class="hero av-hero-split" aria-label="AssetVista product spotlight">
   <div class="hero-content">
     <div class="hero-text">
-      <div class="badge">AssetVista <span>·</span> Beta</div>
+      <p class="badge">AssetVista <span class="sep">&middot;</span> <span class="rel">Beta</span></p>
       <h1>Media Intelligence Engine for&nbsp;Creators</h1>
       <p class="standfirst">Organize videos, searchable transcripts, PDFs, and assets &mdash; all in one standalone workspace.</p>
-      <div class="hero-buttons">
-        <a href="https://github.com/Thestreamic/AssetVista/releases/download/v2026.6/AssetVista_Setup_2026.6_Build141.exe" class="btn-primary" rel="noopener noreferrer" download>Download for Windows &rarr;</a>
-        <a href="features.html" class="btn-secondary">View Features</a>
+      <div class="hero-cta-row">
+        <a href="https://github.com/Thestreamic/AssetVista/releases/download/v2026.6/AssetVista_Setup_2026.6_Build141.exe"
+           class="btn-primary"
+           rel="noopener noreferrer"
+           download
+           onclick="if(typeof gtag!=='undefined'){gtag('event','download_click',{event_category:'AssetVista',event_label:'hero'})}">
+          Download for Windows &rarr;
+        </a>
+        <a href="features.html" class="btn-link">View Features</a>
       </div>
-      <div class="hero-trust">
-        <span>&#10004; Free 1&#8209;month beta</span>
-        <span>&#10004; <a href="https://www.virustotal.com/gui/file/5966fcf9ced1ccfb7fc094fdd5e7544f598cfaa116b82a29b583ae77fdc261c7" target="_blank" rel="noopener noreferrer">Verified clean (0/65)</a></span>
-        <span>&#10004; Runs locally &mdash; no cloud required</span>
+      <div class="hero-trust" aria-label="Release trust signals">
+        <span>&#10004;&nbsp;Free 1&#8209;month beta</span>
+        <span>&#10004;&nbsp;<a href="https://www.virustotal.com/gui/file/5966fcf9ced1ccfb7fc094fdd5e7544f598cfaa116b82a29b583ae77fdc261c7" target="_blank" rel="noopener noreferrer">Verified clean (0/65)</a></span>
+        <span>&#10004;&nbsp;Runs locally &mdash; no cloud required</span>
       </div>
     </div>
-    <figure class="hero-image">
-      <img src="assets/screenshot-grid.png" alt="AssetVista Vault media library — grid of local video assets with search and folder navigation" loading="eager" fetchpriority="high" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+    <figure class="hero-image" aria-label="AssetVista UI screenshot">
+      <img src="assets/screenshot-grid.png"
+           alt="AssetVista Vault — media library grid showing local video assets with search, folder navigation, and metadata"
+           loading="eager"
+           fetchpriority="high"
+           onerror="this.onerror=null;this.src='assets/fallback.jpg'">
     </figure>
   </div>
 </header>
@@ -335,7 +360,7 @@
     <span class="hp-insight-read">Read analysis &#8594;</span>
   </div>
 </a><a href="articles/2026-04-17-ai-post-production-blackmagic-davinci-resolve-21-nab.html" class="hp-insight-card">
-  <div class="hp-insight-media"><img src="assets/studio-image-5.png" alt="Blackmagic Design Launches DaVinci Resolve 21 at NAB 2026" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
+  <div class="hp-insight-media"><img src="assets/screenshot-vertical.png" alt="Blackmagic Design Launches DaVinci Resolve 21 at NAB 2026" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-insight-body">
     <span class="hp-insight-tag">🎬 AI &amp; Post-Production</span>
     <span class="hp-insight-hl">Blackmagic Design Launches DaVinci Resolve 21 at NAB 2026</span>
@@ -344,7 +369,7 @@
     <span class="hp-insight-read">Read analysis &#8594;</span>
   </div>
 </a><a href="articles/2026-04-17-infrastructure-haivision-falkon-x4-5g-live-sports.html" class="hp-insight-card">
-  <div class="hp-insight-media"><img src="assets/pcr-room.png" alt="Haivision Falkon X4: Four-Modem 5G Contribution for Live Sports and News" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
+  <div class="hp-insight-media"><img src="assets/the-streamic-studio-2.png" alt="Haivision Falkon X4: Four-Modem 5G Contribution for Live Sports and News" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-insight-body">
     <span class="hp-insight-tag">🏗️ Infrastructure</span>
     <span class="hp-insight-hl">Haivision Falkon X4: Four-Modem 5G Contribution for Live Sports and News</span>
@@ -353,7 +378,7 @@
     <span class="hp-insight-read">Read analysis &#8594;</span>
   </div>
 </a><a href="articles/2026-04-17-newsroom-nab-2026-preview-broadcast-technology.html" class="hp-insight-card">
-  <div class="hp-insight-media"><img src="assets/screenshot-documents.png" alt="NAB 2026 Preview: What Broadcast Engineers Should Be Watching This Week" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
+  <div class="hp-insight-media"><img src="assets/screenshot-editor.png" alt="NAB 2026 Preview: What Broadcast Engineers Should Be Watching This Week" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-insight-body">
     <span class="hp-insight-tag">📰 Newsroom</span>
     <span class="hp-insight-hl">NAB 2026 Preview: What Broadcast Engineers Should Be Watching This Week</span>
@@ -362,7 +387,7 @@
     <span class="hp-insight-read">Read analysis &#8594;</span>
   </div>
 </a><a href="articles/2026-04-17-infrastructure-haivision-makito-one-multi-codec-nab-2026.html" class="hp-insight-card">
-  <div class="hp-insight-media"><img src="assets/high-end-server-room.jpeg" alt="Haivision Makito ONE: Multi-Codec Encoding and Decoding on a Single Blade" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
+  <div class="hp-insight-media"><img src="assets/avid-setup-audio.png" alt="Haivision Makito ONE: Multi-Codec Encoding and Decoding on a Single Blade" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-insight-body">
     <span class="hp-insight-tag">🏗️ Infrastructure</span>
     <span class="hp-insight-hl">Haivision Makito ONE: Multi-Codec Encoding and Decoding on a Single Blade</span>
@@ -380,7 +405,7 @@
     <span class="hp-insight-read">Read analysis &#8594;</span>
   </div>
 </a><a href="articles/2026-04-10-newsroom-bitcentral-to-showcase-connected-media-workfl.html" class="hp-insight-card">
-  <div class="hp-insight-media"><img src="assets/screenshot-export.png" alt="Bitcentral to Showcase Connected Media Workflows and Intelligent Automation at NAB Show 2026" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
+  <div class="hp-insight-media"><img src="assets/ms-server-data-center.png" alt="Bitcentral to Showcase Connected Media Workflows and Intelligent Automation at NAB Show 2026" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-insight-body">
     <span class="hp-insight-tag">📰 Newsroom</span>
     <span class="hp-insight-hl">Bitcentral to Showcase Connected Media Workflows and Intelligent Automation at NAB Show 2026</span>
@@ -389,7 +414,7 @@
     <span class="hp-insight-read">Read analysis &#8594;</span>
   </div>
 </a><a href="articles/2026-04-01-ai-post-production-telestream-adobe-frameio-creative-delivery-automation.html" class="hp-insight-card">
-  <div class="hp-insight-media"><img src="assets/assetvista-hero.png" alt="Telestream + Adobe + Frame.io: Why Creative-to-Delivery Automation Is Becoming a Core Broadcast Workflow" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
+  <div class="hp-insight-media"><img src="assets/audio-setup.png" alt="Telestream + Adobe + Frame.io: Why Creative-to-Delivery Automation Is Becoming a Core Broadcast Workflow" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-insight-body">
     <span class="hp-insight-tag">🎬 AI &amp; Post-Production</span>
     <span class="hp-insight-hl">Telestream + Adobe + Frame.io: Why Creative-to-Delivery Automation Is Becoming a Core Broadcast Workflow</span>
@@ -398,7 +423,7 @@
     <span class="hp-insight-read">Read analysis &#8594;</span>
   </div>
 </a><a href="articles/2026-04-01-ai-post-production-frameio-workfront-review-approval-workflow.html" class="hp-insight-card">
-  <div class="hp-insight-media"><img src="assets/screenshot-player.png" alt="Frame.io Workfront Integration: Adobe’s Quiet Workflow Move With Big Consequences for Review, Approval, and Version Control" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
+  <div class="hp-insight-media"><img src="assets/newsroom-anchor.png" alt="Frame.io Workfront Integration: Adobe’s Quiet Workflow Move With Big Consequences for Review, Approval, and Version Control" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-insight-body">
     <span class="hp-insight-tag">🎬 AI &amp; Post-Production</span>
     <span class="hp-insight-hl">Frame.io Workfront Integration: Adobe’s Quiet Workflow Move With Big Consequences for Review, Approval, and Version Control</span>
@@ -407,7 +432,7 @@
     <span class="hp-insight-read">Read analysis &#8594;</span>
   </div>
 </a><a href="articles/2026-04-01-newsroom-vizrt-viz-one-ai-metadata-archive-strategy.html" class="hp-insight-card">
-  <div class="hp-insight-media"><img src="assets/media-composer-edit.png" alt="Vizrt Viz One 8.1 and DeepVA: Why AI Metadata Enrichment Is Becoming an Archive Strategy, Not a Feature" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
+  <div class="hp-insight-media"><img src="assets/screenshot-player.png" alt="Vizrt Viz One 8.1 and DeepVA: Why AI Metadata Enrichment Is Becoming an Archive Strategy, Not a Feature" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-insight-body">
     <span class="hp-insight-tag">📰 Newsroom</span>
     <span class="hp-insight-hl">Vizrt Viz One 8.1 and DeepVA: Why AI Metadata Enrichment Is Becoming an Archive Strategy, Not a Feature</span>
@@ -416,7 +441,7 @@
     <span class="hp-insight-read">Read analysis &#8594;</span>
   </div>
 </a><a href="articles/2026-04-01-ai-post-production-editshare-analytical-ai-mediasilo-nab-2026.html" class="hp-insight-card">
-  <div class="hp-insight-media"><img src="assets/studio-image-4.png" alt="EditShare at NAB 2026: Analytical AI, MediaSilo Intelligence, and NVMe Storage Point to a More Searchable Supply Chain" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
+  <div class="hp-insight-media"><img src="assets/anchor.png" alt="EditShare at NAB 2026: Analytical AI, MediaSilo Intelligence, and NVMe Storage Point to a More Searchable Supply Chain" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-insight-body">
     <span class="hp-insight-tag">🎬 AI &amp; Post-Production</span>
     <span class="hp-insight-hl">EditShare at NAB 2026: Analytical AI, MediaSilo Intelligence, and NVMe Storage Point to a More Searchable Supply Chain</span>
@@ -425,7 +450,7 @@
     <span class="hp-insight-read">Read analysis &#8594;</span>
   </div>
 </a><a href="articles/2026-04-01-newsroom-dalet-flex-2512-semantic-search-dalia-ai.html" class="hp-insight-card">
-  <div class="hp-insight-media"><img src="assets/the-streamic-studio-1.jpeg" alt="Dalet Flex 25.12: Semantic Search, Native AI Services, and Dalia Preparation Make This More Than a Routine LTS Release" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
+  <div class="hp-insight-media"><img src="assets/cables.png" alt="Dalet Flex 25.12: Semantic Search, Native AI Services, and Dalia Preparation Make This More Than a Routine LTS Release" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-insight-body">
     <span class="hp-insight-tag">📰 Newsroom</span>
     <span class="hp-insight-hl">Dalet Flex 25.12: Semantic Search, Native AI Services, and Dalia Preparation Make This More Than a Routine LTS Release</span>
@@ -434,7 +459,7 @@
     <span class="hp-insight-read">Read analysis &#8594;</span>
   </div>
 </a><a href="articles/2026-04-01-cloud-tedial-agentic-ai-media-lifecycle-nab-2026.html" class="hp-insight-card">
-  <div class="hp-insight-media"><img src="assets/abstracts.png" alt="Tedial’s NAB 2026 Preview: Agentic AI, Media Lifecycle Control, and the Rise of Policy-Driven Operations" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
+  <div class="hp-insight-media"><img src="assets/screenshot-export.png" alt="Tedial’s NAB 2026 Preview: Agentic AI, Media Lifecycle Control, and the Rise of Policy-Driven Operations" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-insight-body">
     <span class="hp-insight-tag">☁️ Cloud Production</span>
     <span class="hp-insight-hl">Tedial’s NAB 2026 Preview: Agentic AI, Media Lifecycle Control, and the Rise of Policy-Driven Operations</span>
@@ -443,7 +468,7 @@
     <span class="hp-insight-read">Read analysis &#8594;</span>
   </div>
 </a><a href="articles/2026-04-01-playout-harmonic-spectrum-x-plus-playout-economics.html" class="hp-insight-card">
-  <div class="hp-insight-media"><img src="assets/screenshot-vertical.png" alt="Harmonic Spectrum X Plus: Why Lower Cost Per Channel Matters More Than Another Media Server Launch" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
+  <div class="hp-insight-media"><img src="assets/screenshot-search.png" alt="Harmonic Spectrum X Plus: Why Lower Cost Per Channel Matters More Than Another Media Server Launch" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-insight-body">
     <span class="hp-insight-tag">▶️ Playout</span>
     <span class="hp-insight-hl">Harmonic Spectrum X Plus: Why Lower Cost Per Channel Matters More Than Another Media Server Launch</span>
@@ -452,7 +477,7 @@
     <span class="hp-insight-read">Read analysis &#8594;</span>
   </div>
 </a><a href="articles/2026-04-01-playout-pebble-future-ready-playout-nab-2026.html" class="hp-insight-card">
-  <div class="hp-insight-media"><img src="assets/screenshot-grid.png" alt="Pebble’s NAB 2026 Message: Future-Ready Playout Is About Control, Partnerships, and Operational Flexibility" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
+  <div class="hp-insight-media"><img src="assets/the-streamic-studio-1.jpeg" alt="Pebble’s NAB 2026 Message: Future-Ready Playout Is About Control, Partnerships, and Operational Flexibility" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-insight-body">
     <span class="hp-insight-tag">▶️ Playout</span>
     <span class="hp-insight-hl">Pebble’s NAB 2026 Message: Future-Ready Playout Is About Control, Partnerships, and Operational Flexibility</span>
@@ -461,7 +486,7 @@
     <span class="hp-insight-read">Read analysis &#8594;</span>
   </div>
 </a><a href="articles/2026-04-01-newsroom-aveco-rundown-designer-no-nrcs-studio-automation.html" class="hp-insight-card">
-  <div class="hp-insight-media"><img src="assets/the-streamic-studio-2.png" alt="Aveco Rundown Designer: Why “No NRCS Required” Could Reshape Smaller Studio Automation Workflows" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
+  <div class="hp-insight-media"><img src="assets/screenshot-documents.png" alt="Aveco Rundown Designer: Why “No NRCS Required” Could Reshape Smaller Studio Automation Workflows" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-insight-body">
     <span class="hp-insight-tag">📰 Newsroom</span>
     <span class="hp-insight-hl">Aveco Rundown Designer: Why “No NRCS Required” Could Reshape Smaller Studio Automation Workflows</span>
@@ -470,7 +495,7 @@
     <span class="hp-insight-read">Read analysis &#8594;</span>
   </div>
 </a><a href="articles/2026-04-01-infrastructure-smpte-st2110-ai-media-nab-2026.html" class="hp-insight-card">
-  <div class="hp-insight-media"><img src="assets/satellite-image-1.png" alt="SMPTE at NAB 2026: Why ST 2110 Education and “Artificial Intelligence and Media” Are Converging Into One Strategic Conversation" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
+  <div class="hp-insight-media"><img src="assets/satellite-image-2.png" alt="SMPTE at NAB 2026: Why ST 2110 Education and “Artificial Intelligence and Media” Are Converging Into One Strategic Conversation" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-insight-body">
     <span class="hp-insight-tag">🏗️ Infrastructure</span>
     <span class="hp-insight-hl">SMPTE at NAB 2026: Why ST 2110 Education and “Artificial Intelligence and Media” Are Converging Into One Strategic Conversation</span>
@@ -479,7 +504,7 @@
     <span class="hp-insight-read">Read analysis &#8594;</span>
   </div>
 </a><a href="articles/telestream-adobe-vantage-premiere-workflow-integration-2026.html" class="hp-insight-card">
-  <div class="hp-insight-media"><img src="assets/screenshot-search.png" alt="Telestream + Adobe: How Vantage Integration Removes the Gap Between Edit and Delivery" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
+  <div class="hp-insight-media"><img src="assets/telestream-adobe-frameio-why-creative-to-delivery-automation-is-becoming-a-core-broadcast-workflow.png" alt="Telestream + Adobe: How Vantage Integration Removes the Gap Between Edit and Delivery" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-insight-body">
     <span class="hp-insight-tag">🎬 AI &amp; Post-Production</span>
     <span class="hp-insight-hl">Telestream + Adobe: How Vantage Integration Removes the Gap Between Edit and Delivery</span>
@@ -488,7 +513,7 @@
     <span class="hp-insight-read">Read analysis &#8594;</span>
   </div>
 </a><a href="articles/future-of-ai-in-broadcast-deployment-2026.html" class="hp-insight-card">
-  <div class="hp-insight-media"><img src="assets/ms-server-data-center.png" alt="The Future of AI in Broadcast: From Experimentation to Full-Scale Deployment (2026)" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
+  <div class="hp-insight-media"><img src="assets/xr-application-in-newsroom.png" alt="The Future of AI in Broadcast: From Experimentation to Full-Scale Deployment (2026)" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-insight-body">
     <span class="hp-insight-tag">🎬 AI &amp; Post-Production</span>
     <span class="hp-insight-hl">The Future of AI in Broadcast: From Experimentation to Full-Scale Deployment (2026)</span>
@@ -497,7 +522,7 @@
     <span class="hp-insight-read">Read analysis &#8594;</span>
   </div>
 </a><a href="articles/ai-video-post-production-editing-vfx-automation-2026.html" class="hp-insight-card">
-  <div class="hp-insight-media"><img src="assets/avid-setup-audio.png" alt="AI in Video Post-Production: Editing, VFX, and Automation in 2026" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
+  <div class="hp-insight-media"><img src="assets/studio-image-4.png" alt="AI in Video Post-Production: Editing, VFX, and Automation in 2026" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-insight-body">
     <span class="hp-insight-tag">🎬 AI &amp; Post-Production</span>
     <span class="hp-insight-hl">AI in Video Post-Production: Editing, VFX, and Automation in 2026</span>
@@ -506,7 +531,7 @@
     <span class="hp-insight-read">Read analysis &#8594;</span>
   </div>
 </a><a href="articles/live-production-ai-automation-real-time-broadcasting-2026.html" class="hp-insight-card hp-insight-hidden">
-  <div class="hp-insight-media"><img src="assets/newsroom-anchor.png" alt="Live Production and AI: How Automation Is Redefining Real-Time Broadcasting in 2026" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
+  <div class="hp-insight-media"><img src="assets/screenshot-grid.png" alt="Live Production and AI: How Automation Is Redefining Real-Time Broadcasting in 2026" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-insight-body">
     <span class="hp-insight-tag">🎬 AI &amp; Post-Production</span>
     <span class="hp-insight-hl">Live Production and AI: How Automation Is Redefining Real-Time Broadcasting in 2026</span>
@@ -515,7 +540,7 @@
     <span class="hp-insight-read">Read analysis &#8594;</span>
   </div>
 </a><a href="articles/ip-transition-2026-practical-guide-broadcast-engineers.html" class="hp-insight-card hp-insight-hidden">
-  <div class="hp-insight-media"><img src="assets/xr-application-in-newsroom.png" alt="The IP Transition in 2026: A Practical Engineering Guide for Broadcasters" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
+  <div class="hp-insight-media"><img src="assets/mixer.png" alt="The IP Transition in 2026: A Practical Engineering Guide for Broadcasters" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-insight-body">
     <span class="hp-insight-tag">🏗️ Infrastructure</span>
     <span class="hp-insight-hl">The IP Transition in 2026: A Practical Engineering Guide for Broadcasters</span>
@@ -524,7 +549,7 @@
     <span class="hp-insight-read">Read analysis &#8594;</span>
   </div>
 </a><a href="articles/cloud-playout-economics-2026-build-vs-buy.html" class="hp-insight-card hp-insight-hidden">
-  <div class="hp-insight-media"><img src="assets/abstracs-mix.png" alt="Cloud Playout in 2026: The Build vs. Buy Decision Every Broadcaster Faces" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
+  <div class="hp-insight-media"><img src="assets/lasvegas.png" alt="Cloud Playout in 2026: The Build vs. Buy Decision Every Broadcaster Faces" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-insight-body">
     <span class="hp-insight-tag">☁️ Cloud Production</span>
     <span class="hp-insight-hl">Cloud Playout in 2026: The Build vs. Buy Decision Every Broadcaster Faces</span>
@@ -533,7 +558,7 @@
     <span class="hp-insight-read">Read analysis &#8594;</span>
   </div>
 </a><a href="articles/beyond-the-chatbot-operational-ai-newsroom-2026.html" class="hp-insight-card hp-insight-hidden">
-  <div class="hp-insight-media"><img src="assets/xr-ar-application-in-sports-broadcast.png" alt="Beyond the Chatbot: Why 2026 is the Year of Invisible Operational AI in the Newsroom" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
+  <div class="hp-insight-media"><img src="assets/pcr-room.png" alt="Beyond the Chatbot: Why 2026 is the Year of Invisible Operational AI in the Newsroom" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-insight-body">
     <span class="hp-insight-tag">🎬 AI &amp; Post-Production</span>
     <span class="hp-insight-hl">Beyond the Chatbot: Why 2026 is the Year of Invisible Operational AI in the Newsroom</span>
@@ -542,7 +567,7 @@
     <span class="hp-insight-read">Read analysis &#8594;</span>
   </div>
 </a><a href="articles/st-2110-small-market-hybrid-ip-broadcasters-2026.html" class="hp-insight-card hp-insight-hidden">
-  <div class="hp-insight-media"><img src="assets/mixer.png" alt="The ST 2110 Transition: Why Small-Market Broadcasters Are Choosing Hybrid-IP Over Full Migration" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
+  <div class="hp-insight-media"><img src="assets/media-composer-edit.png" alt="The ST 2110 Transition: Why Small-Market Broadcasters Are Choosing Hybrid-IP Over Full Migration" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-insight-body">
     <span class="hp-insight-tag">🏗️ Infrastructure</span>
     <span class="hp-insight-hl">The ST 2110 Transition: Why Small-Market Broadcasters Are Choosing Hybrid-IP Over Full Migration</span>
@@ -551,7 +576,7 @@
     <span class="hp-insight-read">Read analysis &#8594;</span>
   </div>
 </a><a href="articles/c2pa-deepfake-news-credibility-digital-provenance-2026.html" class="hp-insight-card hp-insight-hidden">
-  <div class="hp-insight-media"><img src="assets/anchor.png" alt="Digital Provenance vs. Generative Deception: How C2PA Standards Are Saving News Credibility" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
+  <div class="hp-insight-media"><img src="assets/nab-show-floor.png" alt="Digital Provenance vs. Generative Deception: How C2PA Standards Are Saving News Credibility" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-insight-body">
     <span class="hp-insight-tag">📰 Newsroom</span>
     <span class="hp-insight-hl">Digital Provenance vs. Generative Deception: How C2PA Standards Are Saving News Credibility</span>
@@ -560,7 +585,7 @@
     <span class="hp-insight-read">Read analysis &#8594;</span>
   </div>
 </a><a href="articles/green-broadcast-cloud-carbon-footprint-sustainability-2026.html" class="hp-insight-card hp-insight-hidden">
-  <div class="hp-insight-media"><img src="assets/xr-broadcast-newsroom-hero.png" alt="The Green Broadcast: Can Hybrid Cloud Workflows Actually Reduce a Station's Carbon Footprint?" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
+  <div class="hp-insight-media"><img src="assets/ai-post-production-hero.png" alt="The Green Broadcast: Can Hybrid Cloud Workflows Actually Reduce a Station's Carbon Footprint?" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-insight-body">
     <span class="hp-insight-tag">☁️ Cloud Production</span>
     <span class="hp-insight-hl">The Green Broadcast: Can Hybrid Cloud Workflows Actually Reduce a Station's Carbon Footprint?</span>
@@ -631,7 +656,7 @@
   </div>
 </a><a href="articles/ip-broadcasting-smpte-st2110-engineering-guide-2026.html" class="hp-guide-card">
   <div class="hp-guide-card-img-wrap">
-    <img src="assets/lasvegas.png" alt="IP-Based Broadcasting and SMPTE ST 2110: Complete Engineering Guide for 2026" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+    <img src="assets/the-streamic-studio-1.png" alt="IP-Based Broadcasting and SMPTE ST 2110: Complete Engineering Guide for 2026" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
     <span class="hp-guide-card-sub">Complete Technical Reference</span>
   </div>
   <div class="hp-guide-card-overlay">
@@ -639,7 +664,7 @@
   </div>
 </a><a href="articles/cloud-broadcast-workflows-remote-production-2026.html" class="hp-guide-card">
   <div class="hp-guide-card-img-wrap">
-    <img src="assets/cables.png" alt="Cloud-Based Broadcast Workflows: Remote Production and Virtualization in 2026" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+    <img src="assets/assetvista-hero.png" alt="Cloud-Based Broadcast Workflows: Remote Production and Virtualization in 2026" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
     <span class="hp-guide-card-sub">Distributed Production Playbook</span>
   </div>
   <div class="hp-guide-card-overlay">
@@ -647,7 +672,7 @@
   </div>
 </a><a href="articles/media-asset-management-ai-era-monetisation-2026.html" class="hp-guide-card">
   <div class="hp-guide-card-img-wrap">
-    <img src="assets/audio-setup.png" alt="Media Asset Management (MAM) in the AI Era: Smarter Content and Faster Monetisation in 2026" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+    <img src="assets/abstracts.png" alt="Media Asset Management (MAM) in the AI Era: Smarter Content and Faster Monetisation in 2026" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
     <span class="hp-guide-card-sub">Metadata, Search &amp; Monetisation</span>
   </div>
   <div class="hp-guide-card-overlay">
@@ -658,7 +683,7 @@
         <section class="hp-news">
           <div class="hp-sec-hdr"><h2>The Streamic Intelligence</h2><p class="hp-sec-sub">Original Streamic headlines and concise editorial previews, with credited source links kept secondary to the analysis.</p></div>
           <div class="hp-news-list"><div class="hp-news-item">
-  <div class="hp-news-thumb"><img src="assets/studio-image-5.png" alt="How Blackmagic Design’s DaVinci Resolve 21 at NAB 2026 Changes the Picture for AI and Post-Production Teams" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
+  <div class="hp-news-thumb"><img src="assets/screenshot-vertical.png" alt="How Blackmagic Design’s DaVinci Resolve 21 at NAB 2026 Changes the Picture for AI and Post-Production Teams" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-news-body">
     <span class="hp-news-src">STREAMIC ANALYSIS</span>
     <a href="articles/2026-04-17-ai-post-production-blackmagic-davinci-resolve-21-nab.html" class="hp-news-title">How Blackmagic Design’s DaVinci Resolve 21 at NAB 2026 Changes the Picture for AI and Post-Production Teams</a>
@@ -670,7 +695,7 @@
     <a href="https://www.sportsvideo.org/2026/04/14/nab-2026-blackmagic-design-announces-multiple-new-products/" target="_blank" rel="noopener noreferrer nofollow" class="hp-news-src-link">Original source: Sports Video Group &#8599;</a>
   </div>
 </div><div class="hp-news-item">
-  <div class="hp-news-thumb"><img src="assets/pcr-room.png" alt="Haivision Falkon X4 and the Road to IP Infrastructure Convergence" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
+  <div class="hp-news-thumb"><img src="assets/the-streamic-studio-2.png" alt="Haivision Falkon X4 and the Road to IP Infrastructure Convergence" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-news-body">
     <span class="hp-news-src">STREAMIC ANALYSIS</span>
     <a href="articles/2026-04-17-infrastructure-haivision-falkon-x4-5g-live-sports.html" class="hp-news-title">Haivision Falkon X4 and the Road to IP Infrastructure Convergence</a>
@@ -682,7 +707,7 @@
     <a href="https://www.globenewswire.com/news-release/2026/04/14/3273454/0/en/Haivision-Launches-Falkon-X4.html" target="_blank" rel="noopener noreferrer nofollow" class="hp-news-src-link">Original source: GlobeNewswire &#8599;</a>
   </div>
 </div><div class="hp-news-item">
-  <div class="hp-news-thumb"><img src="assets/screenshot-export.png" alt="Bitcentral and the Road to Smarter Newsroom Operations" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
+  <div class="hp-news-thumb"><img src="assets/ms-server-data-center.png" alt="Bitcentral and the Road to Smarter Newsroom Operations" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-news-body">
     <span class="hp-news-src">STREAMIC ANALYSIS</span>
     <a href="articles/2026-04-10-newsroom-bitcentral-to-showcase-connected-media-workfl.html" class="hp-news-title">Bitcentral and the Road to Smarter Newsroom Operations</a>
@@ -694,7 +719,7 @@
     <a href="https://www.broadcastbeat.com/bitcentral-to-showcase-connected-media-workflows-and-intelligent-automation-at-nab-show-2026/" target="_blank" rel="noopener noreferrer nofollow" class="hp-news-src-link">Original source: BroadcastBeat &#8599;</a>
   </div>
 </div><div class="hp-news-item">
-  <div class="hp-news-thumb"><img src="assets/screenshot-player.png" alt="Frame.io Workfront Integration and the Road to AI-Driven Post-Production" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
+  <div class="hp-news-thumb"><img src="assets/newsroom-anchor.png" alt="Frame.io Workfront Integration and the Road to AI-Driven Post-Production" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-news-body">
     <span class="hp-news-src">STREAMIC ANALYSIS</span>
     <a href="articles/2026-04-01-ai-post-production-frameio-workfront-review-approval-workflow.html" class="hp-news-title">Frame.io Workfront Integration and the Road to AI-Driven Post-Production</a>
@@ -706,7 +731,7 @@
     <a href="https://blog.frame.io/2026/03/31/new-in-frame-io-workfront-integration-improvements-for-share-builder-pdfs-and-zoom-pan/" target="_blank" rel="noopener noreferrer nofollow" class="hp-news-src-link">Original source: Frame.io &#8599;</a>
   </div>
 </div><div class="hp-news-item">
-  <div class="hp-news-thumb"><img src="assets/media-composer-edit.png" alt="Why Vizrt Viz One 8.1 and DeepVA Matters for Newsroom Teams" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
+  <div class="hp-news-thumb"><img src="assets/screenshot-player.png" alt="Why Vizrt Viz One 8.1 and DeepVA Matters for Newsroom Teams" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-news-body">
     <span class="hp-news-src">STREAMIC ANALYSIS</span>
     <a href="articles/2026-04-01-newsroom-vizrt-viz-one-ai-metadata-archive-strategy.html" class="hp-news-title">Why Vizrt Viz One 8.1 and DeepVA Matters for Newsroom Teams</a>
@@ -718,7 +743,7 @@
     <a href="https://www.vizrt.com/product-updates/viz-one-overview/" target="_blank" rel="noopener noreferrer nofollow" class="hp-news-src-link">Original source: Vizrt &#8599;</a>
   </div>
 </div><div class="hp-news-item">
-  <div class="hp-news-thumb"><img src="assets/the-streamic-studio-1.jpeg" alt="Why Dalet Flex 25.12 Matters for Newsroom Teams" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
+  <div class="hp-news-thumb"><img src="assets/cables.png" alt="Why Dalet Flex 25.12 Matters for Newsroom Teams" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-news-body">
     <span class="hp-news-src">STREAMIC ANALYSIS</span>
     <a href="articles/2026-04-01-newsroom-dalet-flex-2512-semantic-search-dalia-ai.html" class="hp-news-title">Why Dalet Flex 25.12 Matters for Newsroom Teams</a>
@@ -730,7 +755,7 @@
     <a href="https://www.dalet.com/blog/7-ways-dalet-flex-lts-dalia-media-workflows/" target="_blank" rel="noopener noreferrer nofollow" class="hp-news-src-link">Original source: Dalet &#8599;</a>
   </div>
 </div><div class="hp-news-item">
-  <div class="hp-news-thumb"><img src="assets/studio-image-4.png" alt="EditShare at NAB 2026 and the Road to AI-Driven Post-Production" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
+  <div class="hp-news-thumb"><img src="assets/anchor.png" alt="EditShare at NAB 2026 and the Road to AI-Driven Post-Production" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-news-body">
     <span class="hp-news-src">STREAMIC ANALYSIS</span>
     <a href="articles/2026-04-01-ai-post-production-editshare-analytical-ai-mediasilo-nab-2026.html" class="hp-news-title">EditShare at NAB 2026 and the Road to AI-Driven Post-Production</a>
@@ -742,7 +767,7 @@
     <a href="https://editshare.com/?wtime=%7Bseek_to_second_number%7D&amp;wpx-industries=new-media" target="_blank" rel="noopener noreferrer nofollow" class="hp-news-src-link">Original source: EditShare &#8599;</a>
   </div>
 </div><div class="hp-news-item">
-  <div class="hp-news-thumb"><img src="assets/assetvista-hero.png" alt="Telestream + Adobe + Frame.io and the Road to AI-Driven Post-Production" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
+  <div class="hp-news-thumb"><img src="assets/audio-setup.png" alt="Telestream + Adobe + Frame.io and the Road to AI-Driven Post-Production" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-news-body">
     <span class="hp-news-src">STREAMIC ANALYSIS</span>
     <a href="articles/2026-04-01-ai-post-production-telestream-adobe-frameio-creative-delivery-automation.html" class="hp-news-title">Telestream + Adobe + Frame.io and the Road to AI-Driven Post-Production</a>
@@ -763,10 +788,10 @@
   <img src="assets/articles/dmf-traditional-vs-dynamic-facility.png" alt="Dynamic Media Facilities (DMF): The Future of Flexible Broadcast Infrastructure" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
   <div class="hp-sb-img-overlay"><span class="hp-sb-img-title">Dynamic Media Facilities (DMF): The Future of Flexible Broadcast Infrastructure</span></div>
 </a><a href="articles/2026-04-17-ai-post-production-blackmagic-davinci-resolve-21-nab.html" class="hp-sb-img-card">
-  <img src="assets/studio-image-5.png" alt="Blackmagic Design Launches DaVinci Resolve 21 at NAB 2026" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+  <img src="assets/screenshot-vertical.png" alt="Blackmagic Design Launches DaVinci Resolve 21 at NAB 2026" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
   <div class="hp-sb-img-overlay"><span class="hp-sb-img-title">Blackmagic Design Launches DaVinci Resolve 21 at NAB 2026</span></div>
 </a><a href="articles/2026-04-17-infrastructure-haivision-falkon-x4-5g-live-sports.html" class="hp-sb-img-card">
-  <img src="assets/pcr-room.png" alt="Haivision Falkon X4: Four-Modem 5G Contribution for Live Sports and News" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+  <img src="assets/the-streamic-studio-2.png" alt="Haivision Falkon X4: Four-Modem 5G Contribution for Live Sports and News" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'">
   <div class="hp-sb-img-overlay"><span class="hp-sb-img-title">Haivision Falkon X4: Four-Modem 5G Contribution for Live Sports and News</span></div>
 </a>
         </div>
@@ -799,7 +824,7 @@
     <a href="https://www.tvtechnology.com/production/avid-and-google-cloud-partner-on-delivering-agentic-ai-to-media-production" target="_blank" rel="noopener noreferrer nofollow" style="font-size:10px;color:var(--ink4);text-decoration:none;margin-top:2px;display:block">Source: TV Technology &#8599;</a>
   </div>
 </div><div class="hp-sb-news-item">
-  <div class="hp-sb-news-thumb"><img src="assets/screenshot-documents.png" alt="NAB 2026 Preview: What Broadcast Engineers Should Be Watching This Week" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
+  <div class="hp-sb-news-thumb"><img src="assets/screenshot-editor.png" alt="NAB 2026 Preview: What Broadcast Engineers Should Be Watching This Week" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-sb-news-body">
     <span class="hp-sb-news-src"></span>
     <a href="articles/2026-04-17-newsroom-nab-2026-preview-broadcast-technology.html" class="hp-sb-news-title">NAB 2026 Preview: What Broadcast Engineers Should Be Watching This Week</a>
@@ -807,7 +832,7 @@
     
   </div>
 </div><div class="hp-sb-news-item">
-  <div class="hp-sb-news-thumb"><img src="assets/high-end-server-room.jpeg" alt="Haivision Makito ONE: Multi-Codec Encoding and Decoding on a Single Blade" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
+  <div class="hp-sb-news-thumb"><img src="assets/avid-setup-audio.png" alt="Haivision Makito ONE: Multi-Codec Encoding and Decoding on a Single Blade" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-sb-news-body">
     <span class="hp-sb-news-src">GlobeNewswire</span>
     <a href="articles/2026-04-17-infrastructure-haivision-makito-one-multi-codec-nab-2026.html" class="hp-sb-news-title">Haivision Makito ONE: Multi-Codec Encoding and Decoding on a Single Blade</a>
