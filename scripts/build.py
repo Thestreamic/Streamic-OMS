@@ -1226,44 +1226,195 @@ ASSETVISTA_DOWNLOAD_URL = (
 
 
 def _assetvista_home_hero_styles():
-    """Split hero CSS for homepage — scoped so site body styles are unchanged."""
+    """Premium split-hero CSS for homepage — scoped with .av-hero-split prefix."""
     return """<style>
-.av-hero-split.hero{background:#030303;color:#fff;overflow:hidden;margin:32px -24px 0;border-radius:0}
-.av-hero-split .hero-content{max-width:1440px;margin:0 auto;display:grid;grid-template-columns:minmax(280px,.85fr) 1.15fr;max-height:520px;overflow:hidden}
-.av-hero-split .hero-text{padding:36px clamp(20px,5vw,48px);display:flex;flex-direction:column;justify-content:center;background:linear-gradient(90deg,#030303 78%,rgba(3,3,3,.45))}
-.av-hero-split .badge{font-size:11px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#ffdf9a;margin:0 0 12px}
-.av-hero-split .badge span{color:#fff;font-weight:600;opacity:.88;margin-left:6px}
-.av-hero-split h1{font-family:'DM Serif Display',var(--serif),Georgia,serif;font-size:clamp(28px,3.2vw,46px);line-height:1.08;letter-spacing:-.03em;margin:0 0 16px;font-weight:400}
-.av-hero-split .standfirst{font-size:clamp(14px,1.45vw,17px);color:#e7e1d8;line-height:1.55;margin:0 0 20px;max-width:520px}
-.av-hero-split .hero-buttons{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px}
-.av-hero-split .btn-primary{display:inline-flex;align-items:center;padding:12px 22px;background:#b21f24;color:#fff;border-radius:999px;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;border:1px solid rgba(255,255,255,.12);transition:background .18s ease}
-.av-hero-split .btn-primary:hover{background:#c62828}
-.av-hero-split .btn-secondary{display:inline-flex;align-items:center;padding:12px 22px;background:transparent;color:#fff;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:.05em;text-decoration:none;border:1px solid rgba(255,255,255,.32);transition:border-color .18s ease,background .18s ease}
-.av-hero-split .btn-secondary:hover{border-color:rgba(255,255,255,.55);background:rgba(255,255,255,.08)}
-.av-hero-split .hero-meta{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:12px;color:#c8c2b8;line-height:1.5}
-.av-hero-split .hero-image{margin:0;overflow:hidden;max-height:520px;background:#0a0a0f}
-.av-hero-split .hero-image img{width:100%;height:100%;min-height:320px;max-height:520px;object-fit:contain;object-position:center center;display:block}
-@media(max-width:980px){.av-hero-split .hero-content{grid-template-columns:1fr;max-height:none}.av-hero-split .hero-image{min-height:260px;max-height:340px}.av-hero-split .hero-text{padding:32px 24px 28px}}
-@media(max-width:600px){.av-hero-split{margin:20px -16px 0}.av-hero-split h1{font-size:clamp(24px,6vw,32px)}.av-hero-split .hero-buttons{flex-direction:column;align-items:flex-start}}
+/* ── Layout ── */
+.av-hero-split.hero{
+  background:#111;
+  color:#fff;
+  overflow:hidden;
+  margin:32px -24px 0;
+  border-radius:0;
+  box-shadow:0 6px 20px rgba(0,0,0,.15);
+}
+.av-hero-split .hero-content{
+  max-width:1440px;
+  margin:0 auto;
+  display:grid;
+  grid-template-columns:minmax(300px,.9fr) 1.1fr;
+  gap:60px;
+  align-items:center;
+  padding:100px clamp(24px,5vw,72px);
+  box-sizing:border-box;
+}
+
+/* ── Text side ── */
+.av-hero-split .hero-text{
+  display:flex;
+  flex-direction:column;
+  animation:avHeroFadeIn .5s ease both;
+}
+@keyframes avHeroFadeIn{
+  from{opacity:0;transform:translateY(14px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* Label */
+.av-hero-split .badge{
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:#c5a46d;
+  margin:0 0 16px;
+}
+.av-hero-split .badge span{
+  color:rgba(255,255,255,.55);
+  margin-left:5px;
+  font-weight:500;
+}
+
+/* Headline */
+.av-hero-split h1{
+  font-family:'DM Serif Display',Georgia,serif;
+  font-size:clamp(32px,3.6vw,52px);
+  line-height:1.15;
+  letter-spacing:-.03em;
+  font-weight:600;
+  margin:0 0 16px;
+  color:#fff;
+}
+
+/* Subheadline */
+.av-hero-split .standfirst{
+  font-size:clamp(15px,1.5vw,18px);
+  color:#999;
+  line-height:1.6;
+  margin:0 0 24px;
+  max-width:480px;
+}
+
+/* Buttons row */
+.av-hero-split .hero-buttons{
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+  margin-bottom:14px;
+}
+
+/* Primary — gold */
+.av-hero-split .btn-primary{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  padding:14px 26px;
+  background:#c5a46d;
+  color:#111;
+  border-radius:10px;
+  font-size:14px;
+  font-weight:600;
+  letter-spacing:.01em;
+  text-decoration:none;
+  border:none;
+  transition:background .2s ease,transform .2s ease,box-shadow .2s ease;
+  box-shadow:0 4px 14px rgba(197,164,109,.3);
+}
+.av-hero-split .btn-primary:hover{
+  background:#d4b47d;
+  transform:translateY(-2px);
+  box-shadow:0 8px 22px rgba(197,164,109,.38);
+}
+
+/* Secondary — outline */
+.av-hero-split .btn-secondary{
+  display:inline-flex;
+  align-items:center;
+  padding:14px 24px;
+  background:transparent;
+  color:#ddd;
+  border-radius:10px;
+  font-size:14px;
+  font-weight:500;
+  text-decoration:none;
+  border:1px solid #aaa;
+  transition:border-color .2s ease,color .2s ease,background .2s ease;
+}
+.av-hero-split .btn-secondary:hover{
+  border-color:#c5a46d;
+  color:#c5a46d;
+  background:rgba(197,164,109,.06);
+}
+
+/* Trust line */
+.av-hero-split .hero-trust{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px 18px;
+  font-size:12px;
+  color:#777;
+  line-height:1.6;
+  margin-top:14px;
+}
+.av-hero-split .hero-trust span{display:inline-flex;align-items:center;gap:5px}
+.av-hero-split .hero-trust a{
+  color:#777;
+  text-decoration:underline;
+  text-underline-offset:2px;
+  transition:color .15s ease;
+}
+.av-hero-split .hero-trust a:hover{color:#c5a46d}
+
+/* Image side */
+.av-hero-split .hero-image{
+  margin:0;
+  border-radius:12px;
+  overflow:hidden;
+  box-shadow:0 18px 52px rgba(0,0,0,.48);
+  transition:transform .35s ease;
+}
+.av-hero-split .hero-image:hover{transform:scale(1.02)}
+.av-hero-split .hero-image img{
+  width:100%;
+  height:auto;
+  display:block;
+  transform:scale(1.05);
+  transform-origin:center top;
+}
+
+/* Responsive */
+@media(max-width:980px){
+  .av-hero-split .hero-content{
+    grid-template-columns:1fr;
+    gap:36px;
+    padding:60px 24px 48px;
+  }
+  .av-hero-split .hero-image{max-width:100%}
+}
+@media(max-width:600px){
+  .av-hero-split{margin:20px -16px 0}
+  .av-hero-split h1{font-size:clamp(26px,7vw,36px)}
+  .av-hero-split .hero-buttons{flex-direction:column;align-items:flex-start}
+}
 </style>"""
 
 
 def _assetvista_split_hero_html(features_href="features.html", secondary_label="View Features"):
-    """Text-left / UI-right split hero (matches XR editorial article pattern)."""
+    """Premium text-left / UI-right split hero."""
+    _vt = "https://www.virustotal.com/gui/file/5966fcf9ced1ccfb7fc094fdd5e7544f598cfaa116b82a29b583ae77fdc261c7"
     return f"""<header class="hero av-hero-split" aria-label="AssetVista product spotlight">
   <div class="hero-content">
     <div class="hero-text">
-      <div class="badge">AssetVista <span>Beta</span></div>
-      <h1>Media Intelligence Engine for Creators</h1>
-      <p class="standfirst">Organize videos, searchable transcripts, PDFs, and assets — all in one standalone workspace.</p>
+      <div class="badge">AssetVista <span>·</span> Beta</div>
+      <h1>Media Intelligence Engine for&nbsp;Creators</h1>
+      <p class="standfirst">Organize videos, searchable transcripts, PDFs, and assets &mdash; all in one standalone workspace.</p>
       <div class="hero-buttons">
-        <a href="{ASSETVISTA_DOWNLOAD_URL}" class="btn-primary" rel="noopener noreferrer" download>Download for Windows →</a>
+        <a href="{ASSETVISTA_DOWNLOAD_URL}" class="btn-primary" rel="noopener noreferrer" download>Download for Windows &rarr;</a>
         <a href="{features_href}" class="btn-secondary">{e(secondary_label)}</a>
       </div>
-      <div class="hero-meta">
-        <span>✔ Free 1‑month beta access</span>
-        <span>✔ Searchable transcripts (Beta)</span>
-        <span>✔ Works locally — no cloud required</span>
+      <div class="hero-trust">
+        <span>&#10004; Free 1&#8209;month beta</span>
+        <span>&#10004; <a href="{_vt}" target="_blank" rel="noopener noreferrer">Verified clean (0/65)</a></span>
+        <span>&#10004; Runs locally &mdash; no cloud required</span>
       </div>
     </div>
     <figure class="hero-image">
@@ -1282,21 +1433,26 @@ def _assetvista_xr_page_styles():
 .nav-inner{max-width:1240px;margin:auto;padding:18px 22px;display:flex;align-items:center;justify-content:space-between;gap:28px}
 .brand{font-weight:800;font-size:26px;letter-spacing:-.04em}.brand small{display:block;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:#ccc;font-weight:600}
 .nav-links{display:flex;gap:24px;font-size:14px;color:#ddd;flex-wrap:wrap}.nav-links a:hover{color:#fff}
-.hero{background:#030303;color:#fff;overflow:hidden}
-.hero-content{max-width:1440px;margin:auto;display:grid;grid-template-columns:minmax(300px,.85fr) 1.15fr;max-height:500px;overflow:hidden}
-.hero-text{padding:36px clamp(20px,5vw,48px);display:flex;flex-direction:column;justify-content:center;background:linear-gradient(90deg,#030303 72%,rgba(3,3,3,.55))}
-.badge{color:#ffdf9a;font-size:11px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;margin:0 0 12px}
-.badge span{color:#fff;font-weight:600;margin-left:6px}
-.hero h1{font-family:var(--serif);font-size:clamp(34px,3.8vw,52px);line-height:1.05;letter-spacing:-.03em;margin:0 0 16px;font-weight:400}
-.standfirst{font-size:clamp(15px,1.5vw,18px);color:#e7e1d8;line-height:1.55;margin:0 0 20px;max-width:560px}
-.hero-buttons{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px}
-.btn-primary{display:inline-flex;align-items:center;padding:12px 24px;background:var(--accent);color:#fff;border-radius:999px;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;border:1px solid rgba(255,255,255,.1)}
-.btn-primary:hover{background:#c62828}
-.btn-secondary{display:inline-flex;align-items:center;padding:12px 24px;color:#fff;border-radius:999px;font-size:12px;font-weight:700;border:1px solid rgba(255,255,255,.32)}
-.btn-secondary:hover{border-color:rgba(255,255,255,.55);background:rgba(255,255,255,.08)}
-.hero-meta{display:flex;flex-wrap:wrap;gap:8px 16px;color:#c8c2b8;font-size:12px}
-.hero-image{margin:0;overflow:hidden;max-height:500px;background:#0a0a0f}
-.hero-image img{width:100%;height:100%;max-height:500px;min-height:300px;object-fit:contain;object-position:center center}
+.hero{background:#111;color:#fff;overflow:hidden;box-shadow:0 6px 20px rgba(0,0,0,.15)}
+.hero-content{max-width:1440px;margin:auto;display:grid;grid-template-columns:minmax(300px,.9fr) 1.1fr;gap:60px;align-items:center;padding:100px clamp(24px,5vw,72px);box-sizing:border-box}
+.hero-text{display:flex;flex-direction:column;animation:avHeroFadeIn .5s ease both}
+@keyframes avHeroFadeIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.badge{color:#c5a46d;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin:0 0 16px}
+.badge span{color:rgba(255,255,255,.5);margin-left:5px;font-weight:500}
+.hero h1{font-family:var(--serif);font-size:clamp(32px,3.6vw,52px);line-height:1.15;letter-spacing:-.03em;margin:0 0 16px;font-weight:600}
+.standfirst{font-size:clamp(15px,1.5vw,18px);color:#999;line-height:1.6;margin:0 0 24px;max-width:480px}
+.hero-buttons{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:14px}
+.btn-primary{display:inline-flex;align-items:center;gap:7px;padding:14px 26px;background:#c5a46d;color:#111;border-radius:10px;font-size:14px;font-weight:600;letter-spacing:.01em;text-decoration:none;border:none;box-shadow:0 4px 14px rgba(197,164,109,.3);transition:background .2s ease,transform .2s ease,box-shadow .2s ease}
+.btn-primary:hover{background:#d4b47d;transform:translateY(-2px);box-shadow:0 8px 22px rgba(197,164,109,.38)}
+.btn-secondary{display:inline-flex;align-items:center;padding:14px 24px;background:transparent;color:#ddd;border-radius:10px;font-size:14px;font-weight:500;text-decoration:none;border:1px solid #aaa;transition:border-color .2s ease,color .2s ease,background .2s ease}
+.btn-secondary:hover{border-color:#c5a46d;color:#c5a46d;background:rgba(197,164,109,.06)}
+.hero-trust{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:12px;color:#888;line-height:1.6;margin-top:14px}
+.hero-trust span{display:inline-flex;align-items:center;gap:5px}
+.hero-trust a{color:#888;text-decoration:underline;text-underline-offset:2px;transition:color .15s ease}
+.hero-trust a:hover{color:#c5a46d}
+.hero-image{margin:0;overflow:hidden;border-radius:12px;box-shadow:0 18px 52px rgba(0,0,0,.45);background:#0a0a0f;transition:transform .35s ease}
+.hero-image:hover{transform:scale(1.02)}
+.hero-image img{width:100%;height:auto;display:block;transform:scale(1.05);transform-origin:center top}
 .feat-shell{max-width:1240px;margin:0 auto;padding:0 22px 80px}
 .feat-intro{font-size:22px;color:#201a16;line-height:1.5;margin:48px 0 12px;font-family:var(--serif);letter-spacing:-.02em}
 .feat-lead{color:var(--muted);font-size:17px;margin:0 0 40px;max-width:720px}
@@ -1312,7 +1468,8 @@ def _assetvista_xr_page_styles():
 .feat-cta h2{font-family:var(--serif);font-size:clamp(28px,3vw,40px);margin:0 0 16px;line-height:1.1}
 .feat-cta p{color:#ddd;margin:16px 0 0;font-size:15px}
 .footer{background:#050505;color:#bbb;margin-top:70px}.footer-inner{max-width:1240px;margin:auto;padding:46px 22px;display:flex;justify-content:space-between;gap:28px;flex-wrap:wrap}.footer a{color:#fff}
-@media(max-width:980px){.hero-content{grid-template-columns:1fr;max-height:none}.hero-text{padding:40px 24px}.hero-image{min-height:280px;max-height:360px}.feat-row,.feat-row--flip{grid-template-columns:1fr;direction:ltr;padding:28px 22px}.nav-links{display:none}.footer-inner{display:block}.hero h1{font-size:clamp(28px,7vw,40px)}}
+@media(max-width:980px){.hero-content{grid-template-columns:1fr;gap:32px;padding:60px 24px 48px}.hero-image{border-radius:12px}.feat-row,.feat-row--flip{grid-template-columns:1fr;direction:ltr;padding:28px 22px}.nav-links{display:none}.footer-inner{display:block}.hero h1{font-size:clamp(28px,7vw,40px)}}
+@media(max-width:600px){.hero h1{font-size:clamp(26px,7vw,36px)}.hero-buttons{flex-direction:column;align-items:flex-start}}
 </style>"""
 
 
