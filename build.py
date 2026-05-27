@@ -1226,29 +1226,30 @@ ASSETVISTA_DOWNLOAD_URL = (
 
 
 def _assetvista_home_hero_styles():
-    """Production-grade split-hero CSS — scoped with .av-hero-split."""
+    """Production-grade split-hero CSS — white bg, gold CTA, Awwwards Features btn."""
     return """<style>
 /* ─────────────────────────────────────────────────────────────
    AssetVista Hero  ·  scoped to .av-hero-split
-   Design system: #111 bg, #c5a46d gold, DM Serif, DM Sans
+   White background · #111 text · #c5a46d gold · DM Serif
 ───────────────────────────────────────────────────────────── */
 
 .av-hero-split.hero {
-  background: #111;
-  color: #fff;
+  background: #faf9f7;
+  color: #111;
   margin: 0 -24px;
   overflow: hidden;
+  border-bottom: 1px solid rgba(0,0,0,.07);
 }
 
-/* Two-column grid — text left, image right */
+/* Two-column grid: text left, image right (image 20% wider) */
 .av-hero-split .hero-content {
   max-width: 1340px;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: 1fr 1.05fr;
+  grid-template-columns: 1fr 1.26fr;
   gap: 60px;
   align-items: center;
-  padding: 96px clamp(24px, 5vw, 72px);
+  padding: 88px clamp(24px, 5vw, 72px);
   box-sizing: border-box;
 }
 
@@ -1264,7 +1265,7 @@ def _assetvista_home_hero_styles():
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Label — "ASSETVISTA · BETA" */
+/* Label */
 .av-hero-split .badge {
   font-size: 12px;
   font-weight: 700;
@@ -1274,12 +1275,12 @@ def _assetvista_home_hero_styles():
   margin: 0 0 16px;
 }
 .av-hero-split .badge .sep {
-  color: rgba(255,255,255,.35);
+  color: rgba(0,0,0,.22);
   margin: 0 4px;
   font-weight: 300;
 }
 .av-hero-split .badge .rel {
-  color: rgba(255,255,255,.5);
+  color: #888;
   font-weight: 500;
 }
 
@@ -1290,29 +1291,29 @@ def _assetvista_home_hero_styles():
   line-height: 1.15;
   letter-spacing: -.03em;
   font-weight: 600;
-  color: #fff;
+  color: #111;
   margin: 0 0 18px;
 }
 
 /* Subheadline */
 .av-hero-split .standfirst {
   font-size: clamp(15px, 1.45vw, 18px);
-  color: #888;
+  color: #555;
   line-height: 1.65;
   margin: 0 0 28px;
   max-width: 440px;
 }
 
-/* CTA row — primary button + quiet text link */
+/* CTA row */
 .av-hero-split .hero-cta-row {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 16px 20px;
-  margin-bottom: 20px;
+  gap: 14px 16px;
+  margin-bottom: 22px;
 }
 
-/* Primary — gold */
+/* ── Primary: gold download button ── */
 .av-hero-split .btn-primary {
   display: inline-flex;
   align-items: center;
@@ -1328,26 +1329,77 @@ def _assetvista_home_hero_styles():
   text-decoration: none;
   border: none;
   cursor: pointer;
-  box-shadow: 0 4px 16px rgba(197,164,109,.28);
+  box-shadow: 0 4px 16px rgba(197,164,109,.32);
   transition: background .2s ease, transform .2s ease, box-shadow .2s ease;
 }
 .av-hero-split .btn-primary:hover {
-  background: #d3b37c;
+  background: #b8955e;
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(197,164,109,.38);
+  box-shadow: 0 10px 28px rgba(197,164,109,.42);
 }
 .av-hero-split .btn-primary:active { transform: translateY(0); }
 
-/* Secondary — quiet text link */
-.av-hero-split .btn-link {
+/* ── Secondary: Awwwards-style magnetic Features button ── */
+.av-hero-split .btn-features {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 13px 26px;
+  background: #fff;
+  color: #111;
+  border-radius: 10px;
+  font-family: inherit;
   font-size: 14px;
-  color: #888;
+  font-weight: 600;
+  letter-spacing: .01em;
   text-decoration: none;
-  border-bottom: 1px solid rgba(255,255,255,.18);
-  padding-bottom: 1px;
-  transition: color .18s ease, border-color .18s ease;
+  border: 1.5px solid rgba(0,0,0,.14);
+  cursor: pointer;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,.06), inset 0 1px 0 rgba(255,255,255,.9);
+  transition: border-color .22s ease, box-shadow .22s ease, transform .22s ease, color .22s ease;
 }
-.av-hero-split .btn-link:hover { color: #c5a46d; border-color: #c5a46d; }
+/* Animated fill sweep on hover */
+.av-hero-split .btn-features::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: #111;
+  transform: translateY(101%);
+  transition: transform .32s cubic-bezier(.77,0,.175,1);
+  z-index: 0;
+}
+.av-hero-split .btn-features:hover::before { transform: translateY(0); }
+.av-hero-split .btn-features:hover {
+  color: #fff;
+  border-color: #111;
+  box-shadow: 0 8px 24px rgba(0,0,0,.18);
+  transform: translateY(-2px);
+}
+.av-hero-split .btn-features:active { transform: translateY(0); }
+/* Arrow icon inside button */
+.av-hero-split .btn-features-text,
+.av-hero-split .btn-features-arrow {
+  position: relative;
+  z-index: 1;
+}
+.av-hero-split .btn-features-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(0,0,0,.07);
+  font-size: 12px;
+  line-height: 1;
+  transition: background .22s ease, transform .22s ease;
+}
+.av-hero-split .btn-features:hover .btn-features-arrow {
+  background: rgba(255,255,255,.15);
+  transform: rotate(45deg);
+}
 
 /* Trust line */
 .av-hero-split .hero-trust {
@@ -1355,7 +1407,7 @@ def _assetvista_home_hero_styles():
   flex-wrap: wrap;
   gap: 4px 20px;
   font-size: 12px;
-  color: #666;
+  color: #777;
   line-height: 1.7;
 }
 .av-hero-split .hero-trust span {
@@ -1363,35 +1415,45 @@ def _assetvista_home_hero_styles():
   align-items: center;
   gap: 5px;
 }
+/* "Free 1-month beta" — bolder, gold-tinted */
+.av-hero-split .hero-trust .trust-primary {
+  color: #9a7a4a;
+  font-weight: 600;
+}
 .av-hero-split .hero-trust a {
-  color: #666;
+  color: #777;
   text-decoration: underline;
   text-underline-offset: 2px;
   transition: color .15s ease;
 }
 .av-hero-split .hero-trust a:hover { color: #c5a46d; }
 
-/* Image column */
+/* Image column — 20% bigger via wider grid column above */
 .av-hero-split .hero-image {
   margin: 0;
-  border-radius: 12px;
+  border-radius: 14px;
   overflow: hidden;
-  box-shadow: 0 24px 64px rgba(0,0,0,.55);
+  box-shadow: 0 20px 60px rgba(0,0,0,.14), 0 4px 16px rgba(0,0,0,.08);
   opacity: 0;
   transform: scale(.97);
   animation: avImgReveal .6s .25s cubic-bezier(.22,1,.36,1) forwards;
+  border: 1px solid rgba(0,0,0,.06);
 }
 @keyframes avImgReveal {
   to { opacity: 1; transform: scale(1); }
 }
-.av-hero-split .hero-image:hover { transform: scale(1.015); transition: transform .4s ease; }
+.av-hero-split .hero-image:hover {
+  transform: scale(1.012);
+  box-shadow: 0 28px 72px rgba(0,0,0,.18);
+  transition: transform .4s ease, box-shadow .4s ease;
+}
 .av-hero-split .hero-image img {
   width: 100%;
   height: auto;
   display: block;
 }
 
-/* ── Tablet (stack) ── */
+/* ── Tablet ── */
 @media (max-width: 900px) {
   .av-hero-split .hero-content {
     grid-template-columns: 1fr;
@@ -1406,8 +1468,9 @@ def _assetvista_home_hero_styles():
   .av-hero-split { margin: 0 -16px; }
   .av-hero-split h1 { font-size: clamp(28px, 8vw, 36px); }
   .av-hero-split .hero-content { padding: 48px 18px 40px; gap: 32px; }
-  .av-hero-split .hero-cta-row { flex-direction: column; align-items: flex-start; gap: 14px; }
-  .av-hero-split .btn-primary { width: 100%; justify-content: center; }
+  .av-hero-split .hero-cta-row { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .av-hero-split .btn-primary,
+  .av-hero-split .btn-features { width: 100%; justify-content: center; }
   .av-hero-split .hero-trust { gap: 4px 14px; }
 }
 </style>"""
@@ -1430,10 +1493,13 @@ def _assetvista_split_hero_html(features_href="features.html", secondary_label="
            onclick="if(typeof gtag!=='undefined'){{gtag('event','download_click',{{event_category:'AssetVista',event_label:'hero'}})}}">
           Download for Windows &rarr;
         </a>
-        <a href="{features_href}" class="btn-link">{e(secondary_label)}</a>
+        <a href="{features_href}" class="btn-features">
+          <span class="btn-features-text">{e(secondary_label)}</span>
+          <span class="btn-features-arrow" aria-hidden="true">&#8599;</span>
+        </a>
       </div>
       <div class="hero-trust" aria-label="Release trust signals">
-        <span>&#10004;&nbsp;Free 1&#8209;month beta</span>
+        <span class="trust-primary">&#10004;&nbsp;Free 1&#8209;month beta</span>
         <span>&#10004;&nbsp;<a href="{_vt}" target="_blank" rel="noopener noreferrer">Verified clean (0/65)</a></span>
         <span>&#10004;&nbsp;Runs locally &mdash; no cloud required</span>
       </div>
@@ -1472,29 +1538,38 @@ img{max-width:100%;display:block}
 .av-nav-links{display:flex;gap:22px;font-size:13.5px;color:rgba(255,255,255,.65)}
 .av-nav-links a:hover{color:#fff}
 
-/* Hero — inherits .av-hero-split styles from homepage */
-.hero{background:#111;color:#fff;overflow:hidden}
-.hero-content{max-width:1340px;margin:auto;display:grid;grid-template-columns:1fr 1.05fr;gap:60px;align-items:center;padding:96px clamp(24px,5vw,72px);box-sizing:border-box}
+/* Hero — white bg, mirrors homepage .av-hero-split design */
+.hero{background:#faf9f7;color:#111;overflow:hidden;border-bottom:1px solid rgba(0,0,0,.07)}
+.hero-content{max-width:1340px;margin:auto;display:grid;grid-template-columns:1fr 1.26fr;gap:60px;align-items:center;padding:88px clamp(24px,5vw,72px);box-sizing:border-box}
 .hero-text{display:flex;flex-direction:column;opacity:0;transform:translateY(10px);animation:avTextReveal .5s .1s cubic-bezier(.22,1,.36,1) forwards}
 @keyframes avTextReveal{to{opacity:1;transform:translateY(0)}}
 .badge{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#c5a46d;margin:0 0 16px}
-.badge .sep{color:rgba(255,255,255,.3);margin:0 4px;font-weight:300}
-.badge .rel{color:rgba(255,255,255,.5);font-weight:500}
-.hero h1{font-family:'DM Serif Display',Georgia,serif;font-size:clamp(32px,3.5vw,52px);line-height:1.15;letter-spacing:-.03em;font-weight:600;color:#fff;margin:0 0 18px}
-.standfirst{font-size:clamp(15px,1.45vw,18px);color:#888;line-height:1.65;margin:0 0 28px;max-width:440px}
-.hero-cta-row{display:flex;flex-wrap:wrap;align-items:center;gap:16px 20px;margin-bottom:20px}
-.btn-primary{display:inline-flex;align-items:center;gap:8px;padding:14px 28px;background:#c5a46d;color:#111;border-radius:10px;font-size:14px;font-weight:600;text-decoration:none;border:none;cursor:pointer;box-shadow:0 4px 16px rgba(197,164,109,.28);transition:background .2s,transform .2s,box-shadow .2s}
-.btn-primary:hover{background:#d3b37c;transform:translateY(-2px);box-shadow:0 8px 24px rgba(197,164,109,.38)}
-.btn-link{font-size:14px;color:#888;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.18);padding-bottom:1px;transition:color .18s,border-color .18s}
-.btn-link:hover{color:#c5a46d;border-color:#c5a46d}
-.hero-trust{display:flex;flex-wrap:wrap;gap:4px 20px;font-size:12px;color:#666;line-height:1.7}
+.badge .sep{color:rgba(0,0,0,.22);margin:0 4px;font-weight:300}
+.badge .rel{color:#888;font-weight:500}
+.hero h1{font-family:'DM Serif Display',Georgia,serif;font-size:clamp(32px,3.5vw,52px);line-height:1.15;letter-spacing:-.03em;font-weight:600;color:#111;margin:0 0 18px}
+.standfirst{font-size:clamp(15px,1.45vw,18px);color:#555;line-height:1.65;margin:0 0 28px;max-width:440px}
+.hero-cta-row{display:flex;flex-wrap:wrap;align-items:center;gap:14px 16px;margin-bottom:22px}
+.btn-primary{display:inline-flex;align-items:center;gap:8px;padding:14px 28px;background:#c5a46d;color:#111;border-radius:10px;font-size:14px;font-weight:600;text-decoration:none;border:none;cursor:pointer;box-shadow:0 4px 16px rgba(197,164,109,.32);transition:background .2s,transform .2s,box-shadow .2s}
+.btn-primary:hover{background:#b8955e;transform:translateY(-2px);box-shadow:0 10px 28px rgba(197,164,109,.42)}
+/* Awwwards-style sweep button */
+.btn-features{position:relative;display:inline-flex;align-items:center;gap:9px;padding:13px 26px;background:#fff;color:#111;border-radius:10px;font-size:14px;font-weight:600;text-decoration:none;border:1.5px solid rgba(0,0,0,.14);cursor:pointer;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.06),inset 0 1px 0 rgba(255,255,255,.9);transition:border-color .22s ease,box-shadow .22s ease,transform .22s ease,color .22s ease}
+.btn-features::before{content:'';position:absolute;inset:0;background:#111;transform:translateY(101%);transition:transform .32s cubic-bezier(.77,0,.175,1);z-index:0}
+.btn-features:hover::before{transform:translateY(0)}
+.btn-features:hover{color:#fff;border-color:#111;box-shadow:0 8px 24px rgba(0,0,0,.18);transform:translateY(-2px)}
+.btn-features-text,.btn-features-arrow{position:relative;z-index:1}
+.btn-features-arrow{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,.07);font-size:12px;line-height:1;transition:background .22s ease,transform .22s ease}
+.btn-features:hover .btn-features-arrow{background:rgba(255,255,255,.15);transform:rotate(45deg)}
+/* Trust line */
+.hero-trust{display:flex;flex-wrap:wrap;gap:4px 20px;font-size:12px;color:#777;line-height:1.7}
 .hero-trust span{display:inline-flex;align-items:center;gap:5px}
-.hero-trust a{color:#666;text-decoration:underline;text-underline-offset:2px;transition:color .15s}
+.hero-trust .trust-primary{color:#9a7a4a;font-weight:600}
+.hero-trust a{color:#777;text-decoration:underline;text-underline-offset:2px;transition:color .15s}
 .hero-trust a:hover{color:#c5a46d}
-.hero-image{margin:0;border-radius:12px;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.55);opacity:0;transform:scale(.97);animation:avImgReveal .6s .25s cubic-bezier(.22,1,.36,1) forwards}
+/* Image */
+.hero-image{margin:0;border-radius:14px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.12),0 4px 16px rgba(0,0,0,.07);border:1px solid rgba(0,0,0,.06);opacity:0;transform:scale(.97);animation:avImgReveal .6s .25s cubic-bezier(.22,1,.36,1) forwards}
 @keyframes avImgReveal{to{opacity:1;transform:scale(1)}}
 .hero-image img{width:100%;height:auto;display:block}
-.hero-image:hover{transform:scale(1.015);transition:transform .4s ease}
+.hero-image:hover{transform:scale(1.012);box-shadow:0 28px 72px rgba(0,0,0,.16);transition:transform .4s ease,box-shadow .4s ease}
 
 /* Feature sections shell */
 .feat-shell{max-width:1100px;margin:0 auto;padding:72px 22px 96px}
