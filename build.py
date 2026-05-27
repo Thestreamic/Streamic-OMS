@@ -1635,7 +1635,7 @@ def featured_page(arts):
     editorial_all = sorted([a for a in arts if a.get("is_editorial") or a.get("editorial")], key=lambda a: a.get("published", ""), reverse=True)
     regular_all = sorted([a for a in arts if not a.get("is_editorial") and not a.get("editorial")], key=lambda a: a.get("published", ""), reverse=True)
 
-    preferred_hero = "ai-reducing-broadcast-operational-costs-2026"
+    preferred_hero = "streamic-studio-automation"
     hero_art = next((a for a in editorial_all if a.get("slug") == preferred_hero), editorial_all[0] if editorial_all else (regular_all[0] if regular_all else None))
 
     guide_slug_order = [
@@ -1704,13 +1704,13 @@ def featured_page(arts):
         )
     elif hero_art:
         HERO_TITLE_OVERRIDES = {
-            "ai-reducing-broadcast-operational-costs-2026": "Beyond Automation: How AI Can Optimize Broadcast Costs and Scale Human Potential in 2026",
+            "streamic-studio-automation": "Streamic Studio Automation: Streamlining Live Broadcast Workflows",
         }
-        custom_hero_path = os.path.join(DOCS, "assets", "hero-broadcast-male.png")
+        custom_hero_path = os.path.join(DOCS, "assets", "the-streamic-studio-1.png")
         _hero_title = HERO_TITLE_OVERRIDES.get(hero_art.get("slug", ""), hero_art.get("title", ""))
-        _hero_img_src = "assets/hero-broadcast-male.png" if os.path.exists(custom_hero_path) else _hp_img(hero_art)
+        _hero_img_src = "assets/the-streamic-studio-1.png" if os.path.exists(custom_hero_path) else _hp_img(hero_art)
         _hero_img_alt = (
-            "Broadcast production switcher in a modern control room with illuminated buttons and blurred monitoring screens"
+            "Streamic Studio Automation interface for modern live broadcast control rooms"
             if os.path.exists(custom_hero_path)
             else e(_hero_title)
         )
