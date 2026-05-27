@@ -44,7 +44,7 @@ img{max-width:100%;display:block}
 .av-nav-links{display:flex;gap:22px;font-size:13.5px;color:rgba(255,255,255,.65)}
 .av-nav-links a:hover{color:#fff}
 
-/* Hero — white bg, matches homepage design */
+/* Hero — white bg, mirrors homepage .av-hero-split design */
 .hero{background:#faf9f7;color:#111;overflow:hidden;border-bottom:1px solid rgba(0,0,0,.07)}
 .hero-content{max-width:1340px;margin:auto;display:grid;grid-template-columns:1fr 1.26fr;gap:60px;align-items:center;padding:88px clamp(24px,5vw,72px);box-sizing:border-box}
 .hero-text{display:flex;flex-direction:column;opacity:0;transform:translateY(10px);animation:avTextReveal .5s .1s cubic-bezier(.22,1,.36,1) forwards}
@@ -57,6 +57,7 @@ img{max-width:100%;display:block}
 .hero-cta-row{display:flex;flex-wrap:wrap;align-items:center;gap:14px 16px;margin-bottom:22px}
 .btn-primary{display:inline-flex;align-items:center;gap:8px;padding:14px 28px;background:#c5a46d;color:#111;border-radius:10px;font-size:14px;font-weight:600;text-decoration:none;border:none;cursor:pointer;box-shadow:0 4px 16px rgba(197,164,109,.32);transition:background .2s,transform .2s,box-shadow .2s}
 .btn-primary:hover{background:#b8955e;transform:translateY(-2px);box-shadow:0 10px 28px rgba(197,164,109,.42)}
+/* Awwwards-style sweep button */
 .btn-features{position:relative;display:inline-flex;align-items:center;gap:9px;padding:13px 26px;background:#fff;color:#111;border-radius:10px;font-size:14px;font-weight:600;text-decoration:none;border:1.5px solid rgba(0,0,0,.14);cursor:pointer;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.06),inset 0 1px 0 rgba(255,255,255,.9);transition:border-color .22s ease,box-shadow .22s ease,transform .22s ease,color .22s ease}
 .btn-features::before{content:'';position:absolute;inset:0;background:#111;transform:translateY(101%);transition:transform .32s cubic-bezier(.77,0,.175,1);z-index:0}
 .btn-features:hover::before{transform:translateY(0)}
@@ -64,11 +65,13 @@ img{max-width:100%;display:block}
 .btn-features-text,.btn-features-arrow{position:relative;z-index:1}
 .btn-features-arrow{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,.07);font-size:12px;line-height:1;transition:background .22s ease,transform .22s ease}
 .btn-features:hover .btn-features-arrow{background:rgba(255,255,255,.15);transform:rotate(45deg)}
+/* Trust line */
 .hero-trust{display:flex;flex-wrap:wrap;gap:4px 20px;font-size:12px;color:#777;line-height:1.7}
 .hero-trust span{display:inline-flex;align-items:center;gap:5px}
 .hero-trust .trust-primary{color:#9a7a4a;font-weight:600}
 .hero-trust a{color:#777;text-decoration:underline;text-underline-offset:2px;transition:color .15s}
 .hero-trust a:hover{color:#c5a46d}
+/* Image */
 .hero-image{margin:0;border-radius:14px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.12),0 4px 16px rgba(0,0,0,.07);border:1px solid rgba(0,0,0,.06);opacity:0;transform:scale(.97);animation:avImgReveal .6s .25s cubic-bezier(.22,1,.36,1) forwards}
 @keyframes avImgReveal{to{opacity:1;transform:scale(1)}}
 .hero-image img{width:100%;height:auto;display:block}
