@@ -2855,8 +2855,8 @@ def insights_page():
         {
             "href": "articles/hidden-logistics-high-profile-video-delivery.html",
             "series": "Operations &amp; Logistics Focus",
-            "title": "The Hidden Logistics of High-Profile Video Delivery",
-            "dek": "Looking past the screen at the operational engineering teams managing complex rights validation and technical delivery timelines under real-time pressure.",
+            "title": "The Hidden Logistics Behind Celebrity Ad Campaigns",
+            "dek": "Looking beyond the creative to the operational teams managing rights, approvals, asset versioning, and technical delivery under real-time pressure.",
             "expert_name": "Graham McKenna",
             "expert_role": "Chief Marketing Officer",
             "read_time": "5 min read",
