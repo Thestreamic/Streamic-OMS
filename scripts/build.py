@@ -2853,6 +2853,16 @@ def insights_page():
     """Expert Insights landing page logic."""
     _interviews = [
         {
+            "href": "articles/hidden-logistics-high-profile-video-delivery.html",
+            "series": "Operations &amp; Logistics Focus",
+            "title": "The Hidden Logistics of High-Profile Video Delivery",
+            "dek": "Looking past the screen at the operational engineering teams managing complex rights validation and technical delivery timelines under real-time pressure.",
+            "expert_name": "Graham McKenna",
+            "expert_role": "Chief Marketing Officer",
+            "read_time": "5 min read",
+            "published": "June 23, 2026",
+        },
+        {
             "href": "articles/Venki Ji-1.html",
             "series": "The Veteran's Lens &middot; Part 1",
             "title": "Venkatakrishna A on the Philosophy of Invisible Restoration",
