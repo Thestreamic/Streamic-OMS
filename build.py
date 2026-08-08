@@ -2210,6 +2210,12 @@ def article_page(a):
     title = a.get("title","")
     dek   = a.get("dek") or a.get("meta_description","")
     img   = a.get("image_url","")
+    # Article pages live under /articles/, so root-relative assets/ paths 404
+    # as /articles/assets/... — rewrite local asset paths one level up.
+    if isinstance(img, str) and img.startswith("assets/"):
+        img = "../" + img
+    elif isinstance(img, str) and img.startswith("/assets/"):
+        img = ".." + img
     dt    = d(a.get("published",""))
     src_url  = a.get("source_url","")
     src_dom  = a.get("source_domain","")
