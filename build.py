@@ -2991,11 +2991,270 @@ def insights_page():
 </body></html>"""
 
 
+# Vistora product spotlight — clone of homepage .av-hero-split layout (page-local).
+# Homepage AssetVista hero is intentionally untouched.
+VISTORA_PPW_HERO = r"""
+<style>
+/* Vistora Hero · scoped to .av-hero-split on this page only */
+.av-hero-split.hero {
+  background: #faf9f7;
+  color: #111;
+  margin: 0;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(0,0,0,.07);
+}
+.av-hero-split .hero-content {
+  max-width: 1340px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1.26fr;
+  gap: 60px;
+  align-items: center;
+  padding: 88px clamp(24px, 5vw, 72px);
+  box-sizing: border-box;
+}
+.av-hero-split .hero-text {
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  transform: translateY(10px);
+  animation: avTextReveal .5s .1s cubic-bezier(.22,1,.36,1) forwards;
+}
+@keyframes avTextReveal {
+  to { opacity: 1; transform: translateY(0); }
+}
+.av-hero-split .badge {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: #c5a46d;
+  margin: 0 0 16px;
+}
+.av-hero-split .badge .sep {
+  color: rgba(0,0,0,.22);
+  margin: 0 4px;
+  font-weight: 300;
+}
+.av-hero-split .badge .rel {
+  color: #888;
+  font-weight: 500;
+}
+.av-hero-split .hero-display {
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-size: clamp(32px, 3.5vw, 52px);
+  line-height: 1.15;
+  letter-spacing: -.03em;
+  font-weight: 600;
+  color: #111;
+  margin: 0 0 18px;
+}
+.av-hero-split .standfirst {
+  font-size: clamp(15px, 1.45vw, 18px);
+  color: #555;
+  line-height: 1.65;
+  margin: 0 0 28px;
+  max-width: 440px;
+}
+.av-hero-split .hero-cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px 16px;
+  margin-bottom: 22px;
+}
+.av-hero-split .btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 28px;
+  background: #c5a46d;
+  color: #111;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: .01em;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(197,164,109,.32);
+  transition: background .2s ease, transform .2s ease, box-shadow .2s ease;
+}
+.av-hero-split .btn-primary:hover {
+  background: #b8955e;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(197,164,109,.42);
+}
+.av-hero-split .btn-primary:active { transform: translateY(0); }
+.av-hero-split .btn-features {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 13px 26px;
+  background: #fff;
+  color: #111;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: .01em;
+  text-decoration: none;
+  border: 1.5px solid rgba(0,0,0,.14);
+  cursor: pointer;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,.06), inset 0 1px 0 rgba(255,255,255,.9);
+  transition: border-color .22s ease, box-shadow .22s ease, transform .22s ease, color .22s ease;
+}
+.av-hero-split .btn-features::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: #111;
+  transform: translateY(101%);
+  transition: transform .32s cubic-bezier(.77,0,.175,1);
+  z-index: 0;
+}
+.av-hero-split .btn-features:hover::before { transform: translateY(0); }
+.av-hero-split .btn-features:hover {
+  color: #fff;
+  border-color: #111;
+  box-shadow: 0 8px 24px rgba(0,0,0,.18);
+  transform: translateY(-2px);
+}
+.av-hero-split .btn-features:active { transform: translateY(0); }
+.av-hero-split .btn-features-text,
+.av-hero-split .btn-features-arrow {
+  position: relative;
+  z-index: 1;
+}
+.av-hero-split .btn-features-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(0,0,0,.07);
+  font-size: 12px;
+  line-height: 1;
+  transition: background .22s ease, transform .22s ease;
+}
+.av-hero-split .btn-features:hover .btn-features-arrow {
+  background: rgba(255,255,255,.15);
+  transform: rotate(45deg);
+}
+.av-hero-split .hero-trust {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+  font-size: 12px;
+  color: #777;
+  line-height: 1.7;
+}
+.av-hero-split .hero-trust span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.av-hero-split .hero-trust .trust-primary {
+  color: #9a7a4a;
+  font-weight: 600;
+}
+.av-hero-split .hero-trust a {
+  color: #777;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color .15s ease;
+}
+.av-hero-split .hero-trust a:hover { color: #c5a46d; }
+.av-hero-split .hero-image {
+  margin: 0;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,.14), 0 4px 16px rgba(0,0,0,.08);
+  opacity: 0;
+  transform: scale(.97);
+  animation: avImgReveal .6s .25s cubic-bezier(.22,1,.36,1) forwards;
+  border: 1px solid rgba(0,0,0,.06);
+  background: #111;
+  aspect-ratio: 16 / 9;
+}
+@keyframes avImgReveal {
+  to { opacity: 1; transform: scale(1); }
+}
+.av-hero-split .hero-image:hover {
+  transform: scale(1.012);
+  box-shadow: 0 28px 72px rgba(0,0,0,.18);
+  transition: transform .4s ease, box-shadow .4s ease;
+}
+.av-hero-split .hero-image video {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  vertical-align: top;
+}
+@media (max-width: 900px) {
+  .av-hero-split .hero-content {
+    grid-template-columns: 1fr;
+    gap: 40px;
+    padding: 64px 24px 52px;
+  }
+  .av-hero-split .standfirst { max-width: 100%; }
+}
+@media (max-width: 600px) {
+  .av-hero-split .hero-display { font-size: clamp(28px, 8vw, 36px); }
+  .av-hero-split .hero-content { padding: 48px 18px 40px; gap: 32px; }
+  .av-hero-split .hero-cta-row { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .av-hero-split .btn-primary,
+  .av-hero-split .btn-features { width: 100%; justify-content: center; }
+  .av-hero-split .hero-trust { gap: 4px 14px; }
+}
+</style>
+<header class="hero av-hero-split" aria-label="Vistora product spotlight">
+  <div class="hero-content">
+    <div class="hero-text">
+      <p class="badge">Vistora <span class="sep">&middot;</span> <span class="rel">Beta</span></p>
+      <p class="hero-display">Edit Faster. Create&nbsp;Better.</p>
+      <p class="standfirst">Local Windows NLE &mdash; automatic 16:9&rarr;9:16 reframe, caption-based editing, and noise cancellation. No upload. No account.</p>
+      <div class="hero-cta-row">
+        <a href="https://github.com/thestreamic/vistora/releases/download/v0.3.0/Vistora-Setup-0.3.0.exe"
+           class="btn-primary"
+           rel="noopener noreferrer"
+           download
+           onclick="if(typeof gtag!=='undefined'){gtag('event','download_click',{event_category:'Vistora',event_label:'ppw_hero'})}">
+          Download for Windows &rarr;
+        </a>
+        <a href="https://vistora.thestreamic.in/#features" class="btn-features" target="_blank" rel="noopener noreferrer">
+          <span class="btn-features-text">View Features</span>
+          <span class="btn-features-arrow" aria-hidden="true">&#8599;</span>
+        </a>
+      </div>
+      <div class="hero-trust" aria-label="Release trust signals">
+        <span class="trust-primary">&#10004;&nbsp;Completely free (beta)</span>
+        <span>&#10004;&nbsp;<a href="https://www.virustotal.com/gui/url/796aac27d56da26cee7b79ed908d040b07124ee846cd55fd0e28a9c9f4e2d7ee/detection" target="_blank" rel="noopener noreferrer">VirusTotal report</a></span>
+        <span>&#10004;&nbsp;Runs locally &mdash; no cloud required</span>
+      </div>
+    </div>
+    <figure class="hero-image" aria-label="Vistora 16:9 to 9:16 reframe demo">
+      <video autoplay muted loop playsinline preload="metadata"
+             aria-label="Vistora automatic 16:9 to 9:16 reframe demonstration">
+        <source src="assets/vistora-16x9-to-9x16.webm" type="video/webm">
+      </video>
+    </figure>
+  </div>
+</header>
+"""
+
+
 def post_production_workflows_page():
     """Post Production Workflows landing page — AdSense-compliant (~700w)."""
     return f"""{head("Post Production Workflows — The Streamic","Practical post-production workflow analysis: NLE interoperability, MAM / PAM integration, proxy pipelines, codec compatibility, and cloud collaboration for broadcast post teams.",f"{BASE_URL}/post-production-workflows.html")}
 <body>
 {nav()}
+{VISTORA_PPW_HERO}
 <main><div class="w" style="padding:52px 24px 80px;max-width:820px">
 <h1 style="font-family:var(--serif);font-size:clamp(28px,4vw,44px);margin-bottom:16px;letter-spacing:-.5px">Post Production Workflows</h1>
 <p style="font-size:17px;color:var(--ink2);line-height:1.65;margin-bottom:24px">Practical analysis of post-production workflows for broadcast, streaming, and film teams. We cover what actually works in production &#8212; NLE handoffs that survive round-trip, proxy pipelines that don&#39;t break at the storage boundary, MAM integrations that don&#39;t trap metadata, and cloud collaboration patterns that respect the realities of bandwidth, security, and editorial sovereignty.</p>
