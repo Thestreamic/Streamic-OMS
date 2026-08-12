@@ -40,6 +40,19 @@
 .strmc-ed-card:hover .title{color:#D4AF37 !important}
 .strmc-ed-card .dek{display:block;font-size:14px;color:#555 !important;line-height:1.6;margin:0 0 14px}
 .strmc-ed-card .read{display:inline-block;font-size:13px;color:#D4AF37 !important;font-weight:600}
+.strmc-ed-spotlight{max-width:1100px;margin:0 auto 40px;padding:0 24px}
+.strmc-ed-spotlight-in{display:grid;grid-template-columns:1.1fr .9fr;gap:0;background:#faf9f7;border:1px solid #eee2c9;border-radius:16px;overflow:hidden;box-shadow:0 10px 32px rgba(0,0,0,.06)}
+.strmc-ed-spotlight-txt{padding:36px 40px}
+.strmc-ed-spotlight-eyebrow{display:block;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#c5a46d !important;margin:0 0 14px}
+.strmc-ed-spotlight-txt h2{font-family:'DM Serif Display',Georgia,serif;font-size:clamp(24px,2.6vw,32px);line-height:1.2;margin:0 0 12px;color:#111 !important;font-weight:600}
+.strmc-ed-spotlight-txt p{font-size:14.5px;color:#555 !important;line-height:1.65;margin:0 0 20px;max-width:440px}
+.strmc-ed-spotlight-tags{display:flex;flex-wrap:wrap;gap:6px 10px;margin:0 0 22px}
+.strmc-ed-spotlight-tags span{font-size:12px;color:#9a7a4a !important;background:#f6f3ec;border:1px solid #e5e0d1;border-radius:999px;padding:5px 12px}
+.strmc-ed-spotlight-cta{display:inline-flex;align-items:center;gap:8px;padding:13px 26px;background:#c5a46d;color:#111 !important;border-radius:10px;font-weight:700;font-size:14px;text-decoration:none !important;box-shadow:0 4px 16px rgba(197,164,109,.32);transition:background .2s,transform .2s}
+.strmc-ed-spotlight-cta:hover{background:#b8955e;transform:translateY(-2px)}
+.strmc-ed-spotlight-media{position:relative;min-height:220px;background:#111}
+.strmc-ed-spotlight-media video{width:100%;height:100%;display:block;object-fit:cover}
+@media (max-width:820px){.strmc-ed-spotlight-in{grid-template-columns:1fr}.strmc-ed-spotlight-media{min-height:200px}.strmc-ed-spotlight-txt{padding:30px 26px}}
 </style>
 </head>
 <body>
@@ -68,6 +81,27 @@
 <section class="strmc-ed-hero">
   <h1>Editor's Desk</h1>
   <p class="lede">Commentary, perspective, and engineering analysis from the editorial team at The Streamic. Technical reads that go beyond the news cycle &mdash; honest trade-off analysis for broadcast engineers, CTOs, and media IT architects who actually have to deploy this stuff.</p>
+</section>
+<section class="strmc-ed-spotlight">
+  <div class="strmc-ed-spotlight-in">
+    <div class="strmc-ed-spotlight-txt">
+      <span class="strmc-ed-spotlight-eyebrow">Product Spotlight &middot; Built by The Streamic</span>
+      <h2>Best Free Video Editing Software for Creators in 2026</h2>
+      <p>A local Windows NLE with 1-click 16:9&rarr;9:16 Shorts reframe, local AI audio denoise, and free 4K export &mdash; no watermark, no upload, no account.</p>
+      <div class="strmc-ed-spotlight-tags">
+        <span>No watermark</span>
+        <span>4K export</span>
+        <span>Local &amp; offline</span>
+        <span>FCP / Premiere XML</span>
+      </div>
+      <a class="strmc-ed-spotlight-cta" href="articles/best-free-video-editing-software-creators-2026.html">Read the Full Guide &rarr;</a>
+    </div>
+    <div class="strmc-ed-spotlight-media">
+      <video autoplay muted loop playsinline preload="metadata" aria-label="Vistora automatic 16:9 to 9:16 reframe demonstration">
+        <source src="assets/vistora-16x9-to-9x16.webm" type="video/webm">
+      </video>
+    </div>
+  </div>
 </section>
 <section class="strmc-ed-watching">
   <strong>What we're watching in 2026</strong>
