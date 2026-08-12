@@ -3220,7 +3220,7 @@ VISTORA_PPW_HERO = r"""
       <p class="hero-display">Edit Faster. Create&nbsp;Better.</p>
       <p class="standfirst">Local Windows NLE &mdash; automatic 16:9&rarr;9:16 reframe, caption-based editing, and noise cancellation. No upload. No account.</p>
       <div class="hero-cta-row">
-        <a href="https://github.com/thestreamic/vistora/releases/download/v0.3.0/Vistora-Setup-0.3.0.exe"
+        <a href="https://github.com/Thestreamic/vistora/releases/download/v1.3.1/Vistora-Setup-1.3.1.exe"
            class="btn-primary"
            rel="noopener noreferrer"
            download
