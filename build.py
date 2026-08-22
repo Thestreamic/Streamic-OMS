@@ -1453,6 +1453,154 @@ def _assetvista_home_hero_styles():
   display: block;
 }
 
+/* ─────────────────────────────────────────────────────────────
+   50 / 50 SPLIT HERO
+   Left  : AssetVista, compacted (text + reduced screenshot)
+   Right : Featured editorial card (Apple Newsroom style)
+───────────────────────────────────────────────────────────── */
+
+.av-hero-split .hero-content {
+  grid-template-columns: 1fr 1fr;
+  gap: 44px;
+  align-items: stretch;
+  padding: 64px clamp(24px, 4vw, 64px);
+}
+
+/* ── Left column compaction ── */
+.av-hero-split .hero-text { justify-content: flex-start; }
+.av-hero-split .badge { font-size: 11.5px; margin: 0 0 12px; }
+.av-hero-split h1 {
+  font-size: clamp(28px, 2.7vw, 40px);
+  line-height: 1.12;
+  margin: 0 0 14px;
+}
+.av-hero-split .standfirst {
+  font-size: clamp(14px, 1.1vw, 15.5px);
+  line-height: 1.6;
+  margin: 0 0 20px;
+  max-width: 100%;
+}
+.av-hero-split .hero-cta-row { gap: 10px 12px; margin-bottom: 16px; }
+.av-hero-split .btn-primary,
+.av-hero-split .btn-features { padding: 12px 22px; font-size: 13.5px; }
+.av-hero-split .hero-trust { font-size: 11.5px; gap: 4px 16px; }
+
+/* Screenshot now sits under the text, at reduced scale */
+.av-hero-split .hero-text .hero-image {
+  margin-top: 26px;
+  border-radius: 12px;
+  box-shadow: 0 14px 40px rgba(0,0,0,.13), 0 3px 12px rgba(0,0,0,.07);
+}
+
+/* ── Right column: featured story card ── */
+.av-hero-split .av-news-card {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid rgba(0,0,0,.08);
+  border-radius: 16px;
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  box-shadow: 0 18px 50px rgba(0,0,0,.10), 0 3px 10px rgba(0,0,0,.05);
+  opacity: 0;
+  transform: translateY(14px);
+  animation: avCardReveal .6s .2s cubic-bezier(.22,1,.36,1) forwards;
+  transition: transform .35s cubic-bezier(.22,1,.36,1), box-shadow .35s ease, border-color .35s ease;
+}
+@keyframes avCardReveal { to { opacity: 1; transform: translateY(0); } }
+.av-hero-split .av-news-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 30px 70px rgba(0,0,0,.16), 0 6px 18px rgba(0,0,0,.07);
+  border-color: rgba(197,164,109,.55);
+}
+.av-hero-split .av-news-card:focus-visible { outline: 2px solid #c5a46d; outline-offset: 3px; }
+
+.av-hero-split .av-news-media { margin: 0; overflow: hidden; background: #1b1035; }
+.av-hero-split .av-news-media img {
+  width: 100%;
+  height: auto;
+  display: block;
+  aspect-ratio: 1200 / 785;
+  object-fit: cover;
+  transition: transform .55s cubic-bezier(.22,1,.36,1);
+}
+.av-hero-split .av-news-card:hover .av-news-media img { transform: scale(1.035); }
+
+.av-hero-split .av-news-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 26px clamp(20px, 2vw, 30px) 24px;
+}
+.av-hero-split .av-news-eyebrow {
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: #c5a46d;
+  margin: 0 0 12px;
+}
+.av-hero-split .av-news-eyebrow .sep { color: rgba(0,0,0,.22); margin: 0 5px; font-weight: 300; }
+.av-hero-split .av-news-eyebrow .av-news-kicker { color: #888; font-weight: 500; letter-spacing: .05em; }
+
+.av-hero-split .av-news-title {
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-size: clamp(21px, 1.85vw, 28px);
+  line-height: 1.2;
+  letter-spacing: -.02em;
+  font-weight: 600;
+  color: #111;
+  margin: 0 0 12px;
+}
+.av-hero-split .av-news-dek {
+  font-size: 14.5px;
+  line-height: 1.62;
+  color: #555;
+  margin: 0 0 18px;
+}
+.av-hero-split .av-news-meta {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 11.5px;
+  color: #8a8a8a;
+  margin: 0 0 16px;
+}
+.av-hero-split .av-news-meta .dot {
+  width: 3px; height: 3px; border-radius: 50%;
+  background: rgba(0,0,0,.25); display: inline-block;
+}
+.av-hero-split .av-news-cta {
+  margin-top: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #111;
+}
+.av-hero-split .av-news-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: #c5a46d;
+  color: #111;
+  font-size: 12px;
+  line-height: 1;
+  transition: transform .28s cubic-bezier(.22,1,.36,1), background .22s ease;
+}
+.av-hero-split .av-news-card:hover .av-news-arrow { transform: translateX(4px); background: #b8955e; }
+
+@media (prefers-reduced-motion: reduce) {
+  .av-hero-split .av-news-card,
+  .av-hero-split .av-news-media img,
+  .av-hero-split .av-news-arrow { animation: none; transition: none; }
+  .av-hero-split .av-news-card { opacity: 1; transform: none; }
+}
+
 /* ── Tablet ── */
 @media (max-width: 900px) {
   .av-hero-split .hero-content {
@@ -1472,14 +1620,63 @@ def _assetvista_home_hero_styles():
   .av-hero-split .btn-primary,
   .av-hero-split .btn-features { width: 100%; justify-content: center; }
   .av-hero-split .hero-trust { gap: 4px 14px; }
+  .av-hero-split .av-news-body { padding: 22px 18px 20px; }
+  .av-hero-split .av-news-title { font-size: clamp(20px, 6vw, 25px); }
 }
 </style>"""
 
+# ── Homepage hero: featured story card ────────────────────────────────────
+# Occupies the right 50% of the split hero. Scheduled run: 22 Aug – 22 Oct 2026.
+# To retire it, set HERO_FEATURE = None — the hero falls back to the
+# original full-width AssetVista layout with no other edits required.
+HERO_FEATURE = {
+    "href":    "ibc-2026-broadcast-technology-trends.html",
+    "img":     "assets/ibc-2026-key-trends.jpg",
+    "img_alt": ("IBC 2026 preview - The Streamic guide to the top six broadcast "
+                "technology trends, 11-14 September 2026 at RAI Amsterdam"),
+    "eyebrow": "IBC 2026",
+    "kicker":  "Pre-Show Analysis",
+    "title":   "IBC 2026: Top 6 Broadcast Technology Trends to Track",
+    "dek":     ("Agentic AI, platform-native news, live-sport personalisation, content "
+                "provenance and sovereign cloud — the six developments most likely to "
+                "reshape broadcast workflows in Amsterdam."),
+    "date":    "2026-08-22",
+    "date_lbl": "22 August 2026",
+    "read":    "3 min read",
+}
+
+
+def _hero_feature_card_html(feat):
+    """Apple Newsroom-style featured story card for the split hero."""
+    if not feat:
+        return ""
+    return f"""    <a class="av-news-card" href="{eu(feat['href'])}"
+       aria-label="Read the analysis: {e(feat['title'])}">
+      <figure class="av-news-media">
+        <img src="{eu(feat['img'])}"
+             alt="{e(feat['img_alt'])}"
+             width="1200" height="785"
+             loading="eager" fetchpriority="high"
+             onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+      </figure>
+      <div class="av-news-body">
+        <p class="av-news-eyebrow">{e(feat['eyebrow'])} <span class="sep">&middot;</span> <span class="av-news-kicker">{e(feat['kicker'])}</span></p>
+        <h2 class="av-news-title">{e(feat['title'])}</h2>
+        <p class="av-news-dek">{e(feat['dek'])}</p>
+        <div class="av-news-meta">
+          <time datetime="{e(feat['date'])}">{e(feat['date_lbl'])}</time>
+          <span class="dot" aria-hidden="true"></span>
+          <span>{e(feat['read'])}</span>
+        </div>
+        <span class="av-news-cta">Read the analysis <span class="av-news-arrow" aria-hidden="true">&rarr;</span></span>
+      </div>
+    </a>"""
+
 
 def _assetvista_split_hero_html(features_href="features.html", secondary_label="View Features"):
-    """Production-grade split hero — single gold CTA + quiet text link + trust line."""
+    """50/50 split hero — AssetVista (compacted) left, featured story card right."""
     _vt = "https://www.virustotal.com/gui/file/5966fcf9ced1ccfb7fc094fdd5e7544f598cfaa116b82a29b583ae77fdc261c7"
-    return f"""<header class="hero av-hero-split" aria-label="AssetVista product spotlight">
+    return f"""<header class="hero av-hero-split" aria-label="AssetVista product spotlight and featured story">
   <div class="hero-content">
     <div class="hero-text">
       <p class="badge">AssetVista <span class="sep">&middot;</span> <span class="rel">Beta</span></p>
@@ -1503,14 +1700,15 @@ def _assetvista_split_hero_html(features_href="features.html", secondary_label="
         <span>&#10004;&nbsp;<a href="{_vt}" target="_blank" rel="noopener noreferrer">Verified clean (0/65)</a></span>
         <span>&#10004;&nbsp;Runs locally &mdash; no cloud required</span>
       </div>
+      <figure class="hero-image" aria-label="AssetVista UI screenshot">
+        <img src="assets/screenshot-grid.png"
+             alt="AssetVista Vault — media library grid showing local video assets with search, folder navigation, and metadata"
+             loading="eager"
+             fetchpriority="high"
+             onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+      </figure>
     </div>
-    <figure class="hero-image" aria-label="AssetVista UI screenshot">
-      <img src="assets/screenshot-grid.png"
-           alt="AssetVista Vault — media library grid showing local video assets with search, folder navigation, and metadata"
-           loading="eager"
-           fetchpriority="high"
-           onerror="this.onerror=null;this.src='assets/fallback.jpg'">
-    </figure>
+{_hero_feature_card_html(HERO_FEATURE)}
   </div>
 </header>"""
 
@@ -2690,6 +2888,263 @@ def features_page():
 }})();
 </script>
 </body></html>"""
+
+IBC2026_CSS = """<style>
+/* IBC 2026 trends article - scoped to .ibc-art */
+.ibc-art { max-width: 780px; margin: 0 auto; padding: 0 24px 88px; }
+.ibc-crumb { font-size: 12px; color: var(--ink3); margin: 26px 0 20px; letter-spacing: .01em; }
+.ibc-crumb a { color: var(--ink3); text-decoration: none; }
+.ibc-crumb a:hover { color: var(--gold); text-decoration: underline; }
+.ibc-eyebrow {
+  font-size: 11.5px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--gold); margin: 0 0 14px;
+}
+.ibc-art h1 {
+  font-family: var(--serif); font-size: clamp(30px, 4.4vw, 50px); line-height: 1.1;
+  letter-spacing: -.02em; font-weight: 600; margin: 0 0 18px; color: var(--ink);
+}
+.ibc-dek { font-size: clamp(16px, 1.6vw, 19px); line-height: 1.6; color: var(--ink2); margin: 0 0 22px; }
+.ibc-byline {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
+  font-size: 12.5px; color: var(--ink3); padding-bottom: 24px;
+  border-bottom: 1px solid var(--line); margin-bottom: 30px;
+}
+.ibc-byline .dot { width: 3px; height: 3px; border-radius: 50%; background: rgba(0,0,0,.25); }
+.ibc-hero { margin: 0 0 32px; border-radius: 14px; overflow: hidden; border: 1px solid var(--line); }
+.ibc-hero img { width: 100%; height: auto; display: block; }
+.ibc-hero figcaption { font-size: 12px; color: var(--ink3); padding: 11px 14px; background: var(--bg); }
+.ibc-status {
+  background: #fff8ef; border-left: 4px solid var(--gold); border-radius: 0 8px 8px 0;
+  padding: 16px 20px; font-size: 14px; line-height: 1.6; color: var(--ink2); margin: 0 0 30px;
+}
+.ibc-stand { font-size: 18.5px; line-height: 1.62; font-weight: 500; color: var(--ink); margin: 0 0 36px; }
+.ibc-toc { background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 22px 26px; margin: 0 0 44px; }
+.ibc-toc h2 { font-family: var(--serif); font-size: 19px; font-weight: 600; margin: 0 0 14px; letter-spacing: -.01em; }
+.ibc-toc ol { margin: 0; padding-left: 20px; }
+.ibc-toc li { font-size: 14.5px; line-height: 1.85; color: var(--ink2); }
+.ibc-toc a { color: var(--ink2); text-decoration: none; }
+.ibc-toc a:hover { color: var(--gold); text-decoration: underline; }
+.ibc-item { padding: 0 0 34px; margin-bottom: 34px; border-bottom: 1px solid var(--line); }
+.ibc-item:last-of-type { border-bottom: none; }
+.ibc-art h2.ibc-h {
+  font-family: var(--serif); font-size: clamp(22px, 2.6vw, 30px); line-height: 1.22;
+  letter-spacing: -.015em; font-weight: 600; margin: 0 0 16px; color: var(--ink); scroll-margin-top: 90px;
+}
+.ibc-art p { font-size: 16.5px; line-height: 1.72; color: var(--ink2); margin: 0 0 18px; }
+.ibc-key {
+  background: #eef6fa; border-left: 4px solid #1685a9; border-radius: 0 8px 8px 0;
+  padding: 16px 20px; font-size: 15px; line-height: 1.65; color: var(--ink2); margin: 0 0 18px;
+}
+.ibc-key b { color: var(--ink); }
+.ibc-src { font-size: 13px; line-height: 1.7; color: var(--ink3); margin: 0; }
+.ibc-src a { color: #075f91; text-decoration: none; border-bottom: 1px solid rgba(7,95,145,.25); }
+.ibc-src a:hover { border-bottom-color: #075f91; }
+.ibc-faq { margin-top: 48px; padding-top: 34px; border-top: 2px solid var(--line); }
+.ibc-faq h2 { font-family: var(--serif); font-size: 26px; font-weight: 600; margin: 0 0 22px; letter-spacing: -.015em; }
+.ibc-faq h3 { font-size: 17px; font-weight: 650; color: var(--ink); margin: 0 0 8px; }
+.ibc-faq .qa { margin-bottom: 22px; }
+.ibc-more { margin-top: 44px; padding: 24px 26px; background: var(--bg); border-radius: 12px; }
+.ibc-more h2 { font-family: var(--serif); font-size: 20px; font-weight: 600; margin: 0 0 14px; }
+.ibc-more ul { margin: 0; padding-left: 20px; }
+.ibc-more li { font-size: 14.5px; line-height: 1.9; }
+.ibc-more a { color: #075f91; text-decoration: none; }
+.ibc-more a:hover { text-decoration: underline; }
+.ibc-note { margin-top: 40px; padding-top: 22px; border-top: 1px solid var(--line); font-size: 13px; line-height: 1.7; color: var(--ink3); }
+@media (max-width: 600px) {
+  .ibc-art { padding: 0 18px 64px; }
+  .ibc-art p { font-size: 16px; }
+  .ibc-toc { padding: 18px 20px; }
+}
+</style>"""
+
+# -- IBC 2026 trends: the six items (single source of truth) ---------------
+_IBC2026_ITEMS = [
+    ("t1-agentic-ai",
+     "1. Agentic AI becomes a workflow layer, not another point tool",
+     "Agentic AI as a workflow layer",
+     "IBC2026 discussions are shifting from isolated AI features toward agents that can coordinate search, metadata, versioning, scheduling and publishing. The important change is orchestration across existing systems, with human judgement retained for editorial and compliance decisions.",
+     "Look for role-based permissions, traceable actions, rollback, confidence scores and clear escalation to an operator. An agent that cannot explain what it changed creates a support and governance problem.",
+     [("https://show.ibc.org/ibc2026/ai-native-media-operations-rethinking-the-content-supply-chain-for-growth", "AI-native media operations"),
+      ("https://show.ibc.org/ibc2026/accelerators-frames-federated-retrieval-agentic-media-environment-and-software-defined-workflows", "Smart Stories agentic production ecosystem")]),
+    ("t2-platform-native-news",
+     "2. Newsrooms move from broadcast-first to platform-native publishing",
+     "Platform-native newsroom publishing",
+     "The IBC agenda frames digital news as a real-time supply-chain challenge. A single bulletin or VOD asset may need rapid segmentation, vertical reframing, captions, summaries, metadata and delivery to web, OTT, FAST and social platforms.",
+     "The useful solution will preserve corrections, embargoes, brand rules and approval stages across every output. Speed alone is not enough if platforms receive inconsistent facts or versions.",
+     [("https://show.ibc.org/ibc2026/platform-native-news-in-the-agentic-ai-era", "Platform-Native News in the Agentic AI Era"),
+      ("https://show.ibc.org/press-releases-1/ibc2026-conference-tackles-ai-action-live-sport-creator-disruption-trust-content", "IBC2026 Conference overview")]),
+    ("t3-live-sport",
+     "3. Live sport becomes personalised, vertical and data-driven",
+     "Personalised, vertical live sport",
+     "Sports sessions and nominated projects point to AI-assisted multicamera production, automated replay, mobile-first vertical feeds, companion experiences and personalised versions of the same event. These tools could expand coverage without matching growth in production headcount.",
+     "Test end-to-end latency, graphics and scoreboard safety, rights restrictions, data accuracy and the operator&#8217;s ability to intervene instantly. Personalisation must not weaken the reliability of the main broadcast.",
+     [("https://show.ibc.org/ibc2026/ai-powered-live-sports-for-the-mobile-generation", "AI-Powered Live Sports for the Mobile Generation"),
+      ("https://www.ibc.org/ibc-show/news/ibc-reveals-2026-innovation-awards-nominees/22794", "IBC2026 Innovation Awards nominees")]),
+    ("t4-ai-native-production",
+     "4. AI-native production reaches editing, VFX and media asset management",
+     "AI-native editing, VFX and MAM",
+     "IBC technical papers will examine AI-assisted VFX under real production constraints and models that understand the structural intent of an edit. On the show floor, AI rough cuts, visual search, transcription and semantic retrieval are moving closer to everyday post-production.",
+     "Judge the complete hand-off: source security, timecode accuracy, timeline export, relinking, version history, rights metadata and the time editors spend repairing AI output.",
+     [("https://show.ibc.org/ibc2026/ai-production-and-software-tools", "AI Production and Software Tools"),
+      ("https://directory.ibc.org/8_0/exhibitor/exhibitor-details.cfm?exhid=12261", "Eddie AI exhibitor listing"),
+      ("https://directory.ibc.org/8_0/exhibitor/exhibitor-details.cfm?exhid=6682", "Projective exhibitor listing")]),
+    ("t5-provenance-and-trust",
+     "5. Provenance, rights and trust become core infrastructure",
+     "Provenance, rights and trust",
+     "IBC&#8217;s conference themes include authenticity and protection against deepfakes and misinformation. AI-native content discussions also highlight C2PA provenance, rights management and governance. These controls must travel with media rather than exist in a separate spreadsheet or policy document.",
+     "Ask how origin, consent, transformations, model use and publishing rights are recorded. Generated or altered content should remain identifiable after transcoding, clipping and distribution.",
+     [("https://show.ibc.org/press-releases-1/ibc2026-conference-tackles-ai-action-live-sport-creator-disruption-trust-content", "IBC2026 Conference overview"),
+      ("https://show.ibc.org/ibc-future-tech", "IBC Future Tech")]),
+    ("t6-sovereign-cloud",
+     "6. Sovereign cloud and interoperability challenge platform lock-in",
+     "Sovereign cloud and interoperability",
+     "Cloud adoption is now being evaluated alongside jurisdiction, portability and resilience. IBC sessions include sovereign media supply chains, hybrid environments and federated retrieval intended to connect archives and production tools without forcing every asset into one platform.",
+     "Compare identity integration, observability, egress, recovery objectives, data location and exit options. A lower initial cloud price can hide expensive operational dependence.",
+     [("https://show.ibc.org/ibc2026/accelerators-frames-federated-retrieval-agentic-media-environment-and-software-defined-workflows", "FRAMES Accelerator"),
+      ("https://show.ibc.org/2026-content-agenda", "IBC2026 showfloor agenda")]),
+]
+
+_IBC2026_FAQ = [
+    ("What is the biggest technology trend at IBC 2026?",
+     "Agentic AI is the strongest cross-industry theme because it connects multiple production and distribution tasks rather than automating only one feature."),
+    ("What should broadcasters ask AI vendors?",
+     "Ask for measurable workflow results, permissions, audit trails, provenance, failure handling, integration requirements and a clear human approval model."),
+    ("When and where is IBC 2026?",
+     "IBC2026 runs from 11 to 14 September 2026 at RAI Amsterdam in the Netherlands."),
+]
+
+
+def ibc_2026_trends_page():
+    """IBC 2026 Top 6 broadcast technology trends - pre-show editorial analysis."""
+    title = "IBC 2026: Top 6 Broadcast Technology Trends to Track"
+    desc  = ("Discover the six most important IBC 2026 broadcast technology trends, including "
+             "agentic AI, platform-native news, live sports AI and sovereign cloud.")
+    slug  = "ibc-2026-broadcast-technology-trends"
+    canon = f"{BASE_URL}/{slug}.html"
+    img   = f"{BASE_URL}/assets/ibc-2026-key-trends.jpg"
+    pub   = "2026-08-22"
+
+    schema = json.dumps([
+        {
+            "@context": "https://schema.org", "@type": "NewsArticle",
+            "headline": title, "description": desc,
+            "image": [img], "url": canon,
+            "mainEntityOfPage": {"@type": "WebPage", "@id": canon},
+            "datePublished": pub, "dateModified": pub,
+            "articleSection": "Broadcast Technology",
+            "author":    {"@type": "Organization", "name": AUTHOR, "url": BASE_URL},
+            "publisher": {"@type": "Organization", "name": "The Streamic", "url": BASE_URL},
+            "keywords": ("IBC 2026, IBC2026, broadcast technology trends, AI in broadcasting, "
+                         "agentic AI media workflows, IBC Amsterdam preview, live sports AI, "
+                         "platform-native news, broadcast cloud, post-production AI, "
+                         "content provenance, C2PA, sovereign cloud, RAI Amsterdam"),
+            "about": [{"@type": "Event", "name": "IBC2026",
+                       "startDate": "2026-09-11", "endDate": "2026-09-14",
+                       "location": {"@type": "Place", "name": "RAI Amsterdam",
+                                    "address": {"@type": "PostalAddress",
+                                                "addressLocality": "Amsterdam",
+                                                "addressCountry": "NL"}}}],
+        },
+        {
+            "@context": "https://schema.org", "@type": "FAQPage",
+            "mainEntity": [{"@type": "Question", "name": q,
+                            "acceptedAnswer": {"@type": "Answer", "text": a}}
+                           for q, a in _IBC2026_FAQ],
+        },
+        {
+            "@context": "https://schema.org", "@type": "BreadcrumbList",
+            "itemListElement": [
+                {"@type": "ListItem", "position": 1, "name": "Home", "item": f"{BASE_URL}/"},
+                {"@type": "ListItem", "position": 2, "name": "Broadcast Technology",
+                 "item": f"{BASE_URL}/featured.html"},
+                {"@type": "ListItem", "position": 3, "name": title, "item": canon},
+            ],
+        },
+    ])
+
+    toc = "".join(
+        f'<li><a href="#{aid}">{short}</a></li>'
+        for aid, _h, short, _b, _k, _l in _IBC2026_ITEMS
+    )
+
+    sep = ' <span aria-hidden="true">&middot;</span> '
+    items = ""
+    for aid, heading, _short, body, key, links in _IBC2026_ITEMS:
+        srcs = sep.join(
+            f'<a href="{eu(u)}" target="_blank" rel="noopener nofollow">{e(lbl)}</a>'
+            for u, lbl in links
+        )
+        items += f"""<section class="ibc-item">
+<h2 class="ibc-h" id="{aid}">{heading}</h2>
+<p>{body}</p>
+<p class="ibc-key"><b>Why it matters:</b> {key}</p>
+<p class="ibc-src"><b>Sources:</b> {srcs}</p>
+</section>
+"""
+
+    faq = "".join(
+        f'<div class="qa"><h3>{e(q)}</h3><p>{e(a)}</p></div>' for q, a in _IBC2026_FAQ
+    )
+
+    return f"""{head(title, desc, canon, og_img=img)}
+<body>
+<script type="application/ld+json">{schema}</script>
+{IBC2026_CSS}
+{nav()}
+<main>
+<article class="ibc-art">
+  <nav class="ibc-crumb" aria-label="Breadcrumb">
+    <a href="/">Home</a> &rsaquo; <a href="featured.html">Broadcast Technology</a> &rsaquo; <span>IBC 2026 Trends</span>
+  </nav>
+
+  <p class="ibc-eyebrow">IBC Amsterdam 2026 Preview</p>
+  <h1>{title}</h1>
+  <p class="ibc-dek">A concise pre-show guide to the developments most likely to affect broadcasters, digital channels, Media IT and post-production.</p>
+  <div class="ibc-byline">
+    <span>By {AUTHOR}</span><span class="dot" aria-hidden="true"></span>
+    <time datetime="{pub}">22 August 2026</time><span class="dot" aria-hidden="true"></span>
+    <span>3 min read</span>
+  </div>
+
+  <figure class="ibc-hero">
+    <img src="assets/ibc-2026-key-trends.jpg"
+         alt="IBC 2026 preview - The Streamic guide to the top six broadcast technology trends, 11-14 September 2026 at RAI Amsterdam"
+         width="1200" height="785" loading="eager" fetchpriority="high"
+         onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+    <figcaption>IBC2026 takes place 11&#8211;14 September 2026 at RAI Amsterdam, the Netherlands.</figcaption>
+  </figure>
+
+  <p class="ibc-status"><b>Editorial status:</b> Pre-show analysis based on official IBC information available on 22 August 2026. IBC2026 runs from 11 to 14 September 2026. Announced demonstrations and claims still require validation at the show.</p>
+
+  <p class="ibc-stand">IBC2026&#8217;s most important question is no longer whether AI will affect broadcasting. It is where AI can deliver measurable value without weakening trust, control or resilience. These six trends provide a practical framework for visitors and non-visitors tracking the Amsterdam show.</p>
+
+  <div class="ibc-toc">
+    <h2>Top 6 IBC 2026 broadcast technology trends</h2>
+    <ol>{toc}</ol>
+  </div>
+
+{items}
+  <section class="ibc-faq">
+    <h2>Frequently asked questions</h2>
+    {faq}
+  </section>
+
+  <aside class="ibc-more">
+    <h2>Related Streamic coverage</h2>
+    <ul>
+      <li><a href="ai-post-production.html">AI &amp; post-production analysis</a></li>
+      <li><a href="post-production-workflows.html">Post-production workflow deep dives</a></li>
+      <li><a href="insights.html">Expert insights for broadcast engineers</a></li>
+      <li><a href="howto.html">Practical how-to guides</a></li>
+    </ul>
+  </aside>
+
+  <p class="ibc-note">Independent pre-show editorial guide. Vendor and project claims should be tested against real workflows before procurement.</p>
+</article>
+</main>
+{footer()}
+</body></html>"""
+
 
 def privacy_page():
     yr = datetime.now().year
@@ -4077,6 +4532,7 @@ def sitemap(arts):
         ("editorsdesk.html","weekly","0.88"),
         ("about.html","monthly","0.6"),("contact.html","monthly","0.5"),
         ("features.html","weekly","0.85"),
+        ("ibc-2026-broadcast-technology-trends.html","weekly","0.92"),
         ("editorial-policy.html","monthly","0.6"),
         ("privacy.html","yearly","0.3"),("terms.html","yearly","0.3"),
     ]
@@ -4455,6 +4911,7 @@ def main():
     w(os.path.join(DOCS,"howto.html"),            howto_page())
     w(os.path.join(DOCS,"insights.html"),         insights_page())
     w(os.path.join(DOCS,"post-production-workflows.html"), post_production_workflows_page())
+    w(os.path.join(DOCS,"ibc-2026-broadcast-technology-trends.html"), ibc_2026_trends_page())
     # Write Editor's Desk to editorsdesk.html and vlog.html for the QUIC landing.
     ed_html = editorsdesk_page()
     w(os.path.join(DOCS, "editorsdesk.html"), ed_html)
