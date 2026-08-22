@@ -51,6 +51,163 @@
 <main>
   <style>
 /* ─────────────────────────────────────────────────────────────
+   LEAD EDITORIAL HERO  ·  scoped to .lead-hero
+───────────────────────────────────────────────────────────── */
+.lead-hero {
+  position: relative;
+  display: block;
+  margin: 0;
+  overflow: hidden;
+  background: #0a121a;
+  text-decoration: none;
+  color: inherit;
+  isolation: isolate;
+}
+.lead-hero__media { position: absolute; inset: 0; z-index: 0; }
+.lead-hero__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center right;
+  display: block;
+  transform: scale(1.02);
+  transition: transform 1.1s cubic-bezier(.22,1,.36,1);
+}
+.lead-hero:hover .lead-hero__media img { transform: scale(1.055); }
+.lead-hero__scrim {
+  position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background:
+    linear-gradient(to right,
+      rgba(8,16,24,.96) 0%,
+      rgba(8,16,24,.90) 34%,
+      rgba(8,16,24,.58) 58%,
+      rgba(8,16,24,.30) 100%),
+    linear-gradient(to top,
+      rgba(8,16,24,.55) 0%,
+      rgba(8,16,24,0) 55%);
+}
+.lead-hero__inner {
+  position: relative; z-index: 2;
+  max-width: 1160px;
+  margin: 0 auto;
+  width: 100%;
+  padding: clamp(58px, 6.4vw, 96px) clamp(24px, 5vw, 48px);
+  box-sizing: border-box;
+}
+.lead-hero__content {
+  max-width: 620px;
+  opacity: 0;
+  transform: translateY(14px);
+  animation: leadHeroReveal .7s .12s cubic-bezier(.22,1,.36,1) forwards;
+}
+@keyframes leadHeroReveal { to { opacity: 1; transform: translateY(0); } }
+
+.lead-hero__eyebrow {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 10px;
+  font-size: 11.5px; font-weight: 700; letter-spacing: .16em;
+  text-transform: uppercase; color: #c5a46d; margin: 0 0 18px;
+}
+.lead-hero__eyebrow .kick {
+  color: rgba(255,255,255,.62); font-weight: 600; letter-spacing: .12em;
+}
+.lead-hero__eyebrow .bar {
+  width: 26px; height: 1.5px; background: #c5a46d; border-radius: 1px;
+}
+.lead-hero__title {
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-size: clamp(30px, 3.9vw, 56px);
+  line-height: 1.07;
+  letter-spacing: -.025em;
+  font-weight: 600;
+  color: #fff;
+  margin: 0 0 18px;
+  text-shadow: 0 2px 22px rgba(0,0,0,.35);
+}
+.lead-hero__dek {
+  font-size: clamp(15px, 1.35vw, 17.5px);
+  line-height: 1.62;
+  color: rgba(255,255,255,.80);
+  margin: 0 0 22px;
+  max-width: 540px;
+}
+.lead-hero__meta {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 9px;
+  font-size: 12px; color: rgba(255,255,255,.55); margin: 0 0 26px;
+}
+.lead-hero__meta .dot {
+  width: 3px; height: 3px; border-radius: 50%;
+  background: rgba(255,255,255,.38);
+}
+.lead-hero__cta {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 13px 26px;
+  background: #c5a46d;
+  color: #111;
+  border-radius: 999px;
+  font-size: 13.5px; font-weight: 700; letter-spacing: .02em;
+  box-shadow: 0 6px 22px rgba(197,164,109,.30);
+  transition: background .22s ease, transform .22s ease, box-shadow .22s ease;
+}
+.lead-hero:hover .lead-hero__cta {
+  background: #d4b57e;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(197,164,109,.42);
+}
+.lead-hero__cta .arrow { font-size: 15px; line-height: 1; transition: transform .22s ease; }
+.lead-hero:hover .lead-hero__cta .arrow { transform: translateX(4px); }
+.lead-hero:focus-visible { outline: 3px solid #c5a46d; outline-offset: -3px; }
+
+@media (max-width: 900px) {
+  .lead-hero__media img { object-position: center; }
+  .lead-hero__scrim {
+    background:
+      linear-gradient(to top,
+        rgba(8,16,24,.97) 0%,
+        rgba(8,16,24,.86) 45%,
+        rgba(8,16,24,.62) 100%);
+  }
+  .lead-hero__content { max-width: 100%; }
+  .lead-hero__dek { max-width: 100%; }
+}
+@media (max-width: 600px) {
+  .lead-hero__inner { padding: 48px 20px 44px; }
+  .lead-hero__title { font-size: clamp(25px, 7.4vw, 34px); }
+  .lead-hero__dek { font-size: 14.5px; }
+  .lead-hero__cta { width: 100%; justify-content: center; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lead-hero__content { animation: none; opacity: 1; transform: none; }
+  .lead-hero__media img,
+  .lead-hero__cta,
+  .lead-hero__cta .arrow { transition: none; }
+}
+</style><a class="lead-hero" href="ibc-2026-broadcast-technology-trends.html"
+   aria-label="Read the analysis: Top 6 Broadcast Technology Trends to Track">
+  <div class="lead-hero__media">
+    <img src="assets/ibc-2026-hero-wide.jpg" alt="Abstract hexagonal network graphic representing connected broadcast media workflows, illustrating The Streamic's IBC 2026 technology preview"
+         width="2400" height="1000" loading="eager" fetchpriority="high"
+         onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+  </div>
+  <div class="lead-hero__scrim" aria-hidden="true"></div>
+  <div class="lead-hero__inner">
+    <div class="lead-hero__content">
+      <p class="lead-hero__eyebrow">
+        <span>IBC 2026</span>
+        <span class="bar" aria-hidden="true"></span>
+        <span class="kick">Pre-Show Analysis</span>
+      </p>
+      <h1 class="lead-hero__title">Top 6 Broadcast Technology Trends to Track</h1>
+      <p class="lead-hero__dek">Agentic AI, platform-native news, live-sport personalisation, content provenance and sovereign cloud — the six developments most likely to reshape broadcast workflows in Amsterdam.</p>
+      <div class="lead-hero__meta">
+        <time datetime="2026-08-22">22 August 2026</time>
+        <span class="dot" aria-hidden="true"></span>
+        <span>3 min read</span>
+      </div>
+      <span class="lead-hero__cta">Read the analysis <span class="arrow" aria-hidden="true">&rarr;</span></span>
+    </div>
+  </div>
+</a><style>
+/* ─────────────────────────────────────────────────────────────
    AssetVista Hero  ·  scoped to .av-hero-split
    White background · #111 text · #c5a46d gold · DM Serif
 ───────────────────────────────────────────────────────────── */
@@ -58,7 +215,7 @@
 .av-hero-split.hero {
   background: #faf9f7;
   color: #111;
-  margin: 0 -24px;
+  margin: 0;
   overflow: hidden;
   border-bottom: 1px solid rgba(0,0,0,.07);
 }
@@ -107,7 +264,8 @@
 }
 
 /* Headline */
-.av-hero-split h1 {
+.av-hero-split h1,
+.av-hero-split .av-hd {
   font-family: 'DM Serif Display', Georgia, serif;
   font-size: clamp(32px, 3.5vw, 52px);
   line-height: 1.15;
@@ -276,151 +434,34 @@
 }
 
 /* ─────────────────────────────────────────────────────────────
-   50 / 50 SPLIT HERO
-   Left  : AssetVista, compacted (text + reduced screenshot)
-   Right : Featured editorial card (Apple Newsroom style)
+   COMPACT BAND  ·  AssetVista beneath the lead editorial hero
 ───────────────────────────────────────────────────────────── */
-
-.av-hero-split .hero-content {
-  grid-template-columns: 1fr 1fr;
-  gap: 44px;
-  align-items: stretch;
-  padding: 64px clamp(24px, 4vw, 64px);
+.av-hero-split.av-band.hero { background: #faf9f7; border-top: 1px solid rgba(0,0,0,.06); }
+.av-hero-split.av-band .hero-content {
+  grid-template-columns: 1fr 1.08fr;
+  gap: 48px;
+  align-items: center;
+  padding: 54px clamp(24px, 4vw, 64px);
 }
-
-/* ── Left column compaction ── */
-.av-hero-split .hero-text { justify-content: flex-start; }
-.av-hero-split .badge { font-size: 11.5px; margin: 0 0 12px; }
-.av-hero-split h1 {
-  font-size: clamp(28px, 2.7vw, 40px);
-  line-height: 1.12;
-  margin: 0 0 14px;
-}
-.av-hero-split .standfirst {
-  font-size: clamp(14px, 1.1vw, 15.5px);
-  line-height: 1.6;
-  margin: 0 0 20px;
-  max-width: 100%;
-}
-.av-hero-split .hero-cta-row { gap: 10px 12px; margin-bottom: 16px; }
-.av-hero-split .btn-primary,
-.av-hero-split .btn-features { padding: 12px 22px; font-size: 13.5px; }
-.av-hero-split .hero-trust { font-size: 11.5px; gap: 4px 16px; }
-
-/* Screenshot now sits under the text, at reduced scale */
-.av-hero-split .hero-text .hero-image {
-  margin-top: 26px;
-  border-radius: 12px;
-  box-shadow: 0 14px 40px rgba(0,0,0,.13), 0 3px 12px rgba(0,0,0,.07);
-}
-
-/* ── Right column: featured story card ── */
-.av-hero-split .av-news-card {
-  display: flex;
-  flex-direction: column;
-  background: #fff;
-  border: 1px solid rgba(0,0,0,.08);
-  border-radius: 16px;
-  overflow: hidden;
-  text-decoration: none;
-  color: inherit;
-  box-shadow: 0 18px 50px rgba(0,0,0,.10), 0 3px 10px rgba(0,0,0,.05);
-  opacity: 0;
-  transform: translateY(14px);
-  animation: avCardReveal .6s .2s cubic-bezier(.22,1,.36,1) forwards;
-  transition: transform .35s cubic-bezier(.22,1,.36,1), box-shadow .35s ease, border-color .35s ease;
-}
-@keyframes avCardReveal { to { opacity: 1; transform: translateY(0); } }
-.av-hero-split .av-news-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 30px 70px rgba(0,0,0,.16), 0 6px 18px rgba(0,0,0,.07);
-  border-color: rgba(197,164,109,.55);
-}
-.av-hero-split .av-news-card:focus-visible { outline: 2px solid #c5a46d; outline-offset: 3px; }
-
-.av-hero-split .av-news-media { margin: 0; overflow: hidden; background: #1b1035; }
-.av-hero-split .av-news-media img {
-  width: 100%;
-  height: auto;
-  display: block;
-  aspect-ratio: 1200 / 785;
-  object-fit: cover;
-  transition: transform .55s cubic-bezier(.22,1,.36,1);
-}
-.av-hero-split .av-news-card:hover .av-news-media img { transform: scale(1.035); }
-
-.av-hero-split .av-news-body {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  padding: 26px clamp(20px, 2vw, 30px) 24px;
-}
-.av-hero-split .av-news-eyebrow {
-  font-size: 11.5px;
-  font-weight: 700;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-  color: #c5a46d;
+.av-hero-split.av-band .badge { font-size: 11px; margin: 0 0 10px; }
+.av-hero-split.av-band .av-hd {
+  font-size: clamp(23px, 2.15vw, 32px);
+  line-height: 1.14;
   margin: 0 0 12px;
 }
-.av-hero-split .av-news-eyebrow .sep { color: rgba(0,0,0,.22); margin: 0 5px; font-weight: 300; }
-.av-hero-split .av-news-eyebrow .av-news-kicker { color: #888; font-weight: 500; letter-spacing: .05em; }
-
-.av-hero-split .av-news-title {
-  font-family: 'DM Serif Display', Georgia, serif;
-  font-size: clamp(21px, 1.85vw, 28px);
-  line-height: 1.2;
-  letter-spacing: -.02em;
-  font-weight: 600;
-  color: #111;
-  margin: 0 0 12px;
-}
-.av-hero-split .av-news-dek {
+.av-hero-split.av-band .standfirst {
   font-size: 14.5px;
-  line-height: 1.62;
-  color: #555;
+  line-height: 1.6;
   margin: 0 0 18px;
+  max-width: 420px;
 }
-.av-hero-split .av-news-meta {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  font-size: 11.5px;
-  color: #8a8a8a;
-  margin: 0 0 16px;
-}
-.av-hero-split .av-news-meta .dot {
-  width: 3px; height: 3px; border-radius: 50%;
-  background: rgba(0,0,0,.25); display: inline-block;
-}
-.av-hero-split .av-news-cta {
-  margin-top: auto;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13.5px;
-  font-weight: 600;
-  color: #111;
-}
-.av-hero-split .av-news-arrow {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px; height: 22px;
-  border-radius: 50%;
-  background: #c5a46d;
-  color: #111;
-  font-size: 12px;
-  line-height: 1;
-  transition: transform .28s cubic-bezier(.22,1,.36,1), background .22s ease;
-}
-.av-hero-split .av-news-card:hover .av-news-arrow { transform: translateX(4px); background: #b8955e; }
-
-@media (prefers-reduced-motion: reduce) {
-  .av-hero-split .av-news-card,
-  .av-hero-split .av-news-media img,
-  .av-hero-split .av-news-arrow { animation: none; transition: none; }
-  .av-hero-split .av-news-card { opacity: 1; transform: none; }
+.av-hero-split.av-band .hero-cta-row { gap: 10px 12px; margin-bottom: 14px; }
+.av-hero-split.av-band .btn-primary,
+.av-hero-split.av-band .btn-features { padding: 11px 20px; font-size: 13px; }
+.av-hero-split.av-band .hero-trust { font-size: 11.5px; gap: 4px 16px; }
+.av-hero-split.av-band .hero-image {
+  border-radius: 12px;
+  box-shadow: 0 14px 40px rgba(0,0,0,.12), 0 3px 12px rgba(0,0,0,.06);
 }
 
 /* ── Tablet ── */
@@ -431,25 +472,31 @@
     padding: 64px 24px 52px;
   }
   .av-hero-split .standfirst { max-width: 100%; }
+  .av-hero-split.av-band .hero-content {
+    grid-template-columns: 1fr;
+    gap: 32px;
+    padding: 44px 24px 40px;
+  }
+  .av-hero-split.av-band .standfirst { max-width: 100%; }
 }
 
 /* ── Mobile ── */
 @media (max-width: 600px) {
-  .av-hero-split { margin: 0 -16px; }
-  .av-hero-split h1 { font-size: clamp(28px, 8vw, 36px); }
+  .av-hero-split h1,
+  .av-hero-split .av-hd { font-size: clamp(28px, 8vw, 36px); }
   .av-hero-split .hero-content { padding: 48px 18px 40px; gap: 32px; }
+  .av-hero-split.av-band .hero-content { padding: 40px 18px 36px; gap: 26px; }
+  .av-hero-split.av-band .av-hd { font-size: clamp(22px, 6.4vw, 28px); }
   .av-hero-split .hero-cta-row { flex-direction: column; align-items: flex-start; gap: 12px; }
   .av-hero-split .btn-primary,
   .av-hero-split .btn-features { width: 100%; justify-content: center; }
   .av-hero-split .hero-trust { gap: 4px 14px; }
-  .av-hero-split .av-news-body { padding: 22px 18px 20px; }
-  .av-hero-split .av-news-title { font-size: clamp(20px, 6vw, 25px); }
 }
-</style><header class="hero av-hero-split" aria-label="AssetVista product spotlight and featured story">
+</style><header class="hero av-hero-split av-band" aria-label="AssetVista product spotlight">
   <div class="hero-content">
     <div class="hero-text">
       <p class="badge">AssetVista <span class="sep">&middot;</span> <span class="rel">Beta</span></p>
-      <h1>Media Intelligence Engine for&nbsp;Creators</h1>
+      <h2 class="av-hd">Media Intelligence Engine for&nbsp;Creators</h2>
       <p class="standfirst">Organize videos, searchable transcripts, PDFs, and assets &mdash; all in one standalone workspace.</p>
       <div class="hero-cta-row">
         <a href="https://github.com/Thestreamic/AssetVista/releases/download/v2026.6/AssetVista_Setup_2026.6_Build141.exe"
@@ -469,35 +516,14 @@
         <span>&#10004;&nbsp;<a href="https://www.virustotal.com/gui/file/5966fcf9ced1ccfb7fc094fdd5e7544f598cfaa116b82a29b583ae77fdc261c7" target="_blank" rel="noopener noreferrer">Verified clean (0/65)</a></span>
         <span>&#10004;&nbsp;Runs locally &mdash; no cloud required</span>
       </div>
-      <figure class="hero-image" aria-label="AssetVista UI screenshot">
-        <img src="assets/screenshot-grid.png"
-             alt="AssetVista Vault — media library grid showing local video assets with search, folder navigation, and metadata"
-             loading="eager"
-             fetchpriority="high"
-             onerror="this.onerror=null;this.src='assets/fallback.jpg'">
-      </figure>
     </div>
-    <a class="av-news-card" href="ibc-2026-broadcast-technology-trends.html"
-       aria-label="Read the analysis: IBC 2026: Top 6 Broadcast Technology Trends to Track">
-      <figure class="av-news-media">
-        <img src="assets/ibc-2026-key-trends.jpg"
-             alt="IBC 2026 preview - The Streamic guide to the top six broadcast technology trends, 11-14 September 2026 at RAI Amsterdam"
-             width="1200" height="785"
-             loading="eager" fetchpriority="high"
-             onerror="this.onerror=null;this.src='assets/fallback.jpg'">
-      </figure>
-      <div class="av-news-body">
-        <p class="av-news-eyebrow">IBC 2026 <span class="sep">&middot;</span> <span class="av-news-kicker">Pre-Show Analysis</span></p>
-        <h2 class="av-news-title">IBC 2026: Top 6 Broadcast Technology Trends to Track</h2>
-        <p class="av-news-dek">Agentic AI, platform-native news, live-sport personalisation, content provenance and sovereign cloud — the six developments most likely to reshape broadcast workflows in Amsterdam.</p>
-        <div class="av-news-meta">
-          <time datetime="2026-08-22">22 August 2026</time>
-          <span class="dot" aria-hidden="true"></span>
-          <span>3 min read</span>
-        </div>
-        <span class="av-news-cta">Read the analysis <span class="av-news-arrow" aria-hidden="true">&rarr;</span></span>
-      </div>
-    </a>
+    <figure class="hero-image" aria-label="AssetVista UI screenshot">
+      <img src="assets/screenshot-grid.png"
+           alt="AssetVista Vault — media library grid showing local video assets with search, folder navigation, and metadata"
+           loading="eager"
+           fetchpriority="high"
+           onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+    </figure>
   </div>
 </header>
   <div class="w">
