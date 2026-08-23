@@ -1747,6 +1747,148 @@ def _lead_hero_html(feat):
 </a>"""
 
 
+# ── Secondary feature ─────────────────────────────────────────────────────
+# Runs directly beneath the lead hero. Set SECOND_FEATURE = None to retire it.
+SECOND_FEATURE = {
+    "href":     "ibc-2026-top-ai-broadcast-solutions.html",
+    "img":      "assets/ibc-2026-top-solutions.jpg",
+    "img_alt":  ("IBC 2026 AI and broadcast solutions review - agentic newsroom publishing, "
+                 "vertical video conversion, media asset management, post-production AI and "
+                 "sovereign cloud workflows at RAI Amsterdam"),
+    "eyebrow":  "IBC 2026",
+    "kicker":   "Solutions Review",
+    "title":    "Top 10 AI and Broadcast Solutions to Review",
+    "dek":      ("Five standout solutions for broadcasters and digital channels, plus five "
+                 "for Media IT and post-production \u2014 what each one solves, who it suits "
+                 "and how to test it on the show floor."),
+    "date":     "2026-08-22",
+    "date_lbl": "22 August 2026",
+    "read":     "5 min read",
+    "cta":      "Read the shortlist",
+}
+
+
+def _secondary_feature_styles():
+    """Horizontal editorial card — graphic left, copy right."""
+    return """<style>
+/* ─────────────────────────────────────────────────────────────
+   SECONDARY FEATURE  ·  scoped to .sec-feat
+───────────────────────────────────────────────────────────── */
+.sec-feat-wrap {
+  background: #fff;
+  border-bottom: 1px solid rgba(0,0,0,.06);
+  padding: clamp(38px, 4.4vw, 60px) 0;
+}
+.sec-feat {
+  display: grid;
+  grid-template-columns: 1.02fr 1fr;
+  gap: clamp(26px, 3.4vw, 48px);
+  align-items: center;
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 0 clamp(24px, 5vw, 48px);
+  box-sizing: border-box;
+  text-decoration: none;
+  color: inherit;
+  border-radius: 0;
+}
+.sec-feat__media {
+  margin: 0;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(0,0,0,.07);
+  box-shadow: 0 16px 44px rgba(0,0,0,.11), 0 3px 10px rgba(0,0,0,.05);
+  transition: transform .38s cubic-bezier(.22,1,.36,1), box-shadow .38s ease;
+}
+.sec-feat__media img {
+  width: 100%; height: auto; display: block;
+  aspect-ratio: 1200 / 785; object-fit: cover;
+  transition: transform .55s cubic-bezier(.22,1,.36,1);
+}
+.sec-feat:hover .sec-feat__media { transform: translateY(-4px); box-shadow: 0 26px 62px rgba(0,0,0,.16); }
+.sec-feat:hover .sec-feat__media img { transform: scale(1.035); }
+
+.sec-feat__eyebrow {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 9px;
+  font-size: 11.5px; font-weight: 700; letter-spacing: .14em;
+  text-transform: uppercase; color: #c5a46d; margin: 0 0 14px;
+}
+.sec-feat__eyebrow .bar { width: 24px; height: 1.5px; background: #c5a46d; border-radius: 1px; }
+.sec-feat__eyebrow .kick { color: #8b8b8b; font-weight: 600; letter-spacing: .1em; }
+.sec-feat__title {
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-size: clamp(22px, 2.3vw, 33px);
+  line-height: 1.16; letter-spacing: -.022em; font-weight: 600;
+  color: #111; margin: 0 0 14px;
+}
+.sec-feat__dek {
+  font-size: clamp(14.5px, 1.2vw, 16px); line-height: 1.62;
+  color: #555; margin: 0 0 18px;
+}
+.sec-feat__meta {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 9px;
+  font-size: 11.5px; color: #8a8a8a; margin: 0 0 20px;
+}
+.sec-feat__meta .dot { width: 3px; height: 3px; border-radius: 50%; background: rgba(0,0,0,.25); }
+.sec-feat__cta {
+  display: inline-flex; align-items: center; gap: 9px;
+  font-size: 13.5px; font-weight: 700; color: #111;
+}
+.sec-feat__cta .arrow {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 24px; height: 24px; border-radius: 50%;
+  background: #c5a46d; color: #111; font-size: 12.5px; line-height: 1;
+  transition: transform .26s cubic-bezier(.22,1,.36,1), background .2s ease;
+}
+.sec-feat:hover .sec-feat__cta .arrow { transform: translateX(4px); background: #b8955e; }
+.sec-feat:focus-visible { outline: 3px solid #c5a46d; outline-offset: 4px; border-radius: 8px; }
+
+@media (max-width: 900px) {
+  .sec-feat { grid-template-columns: 1fr; gap: 24px; }
+}
+@media (max-width: 600px) {
+  .sec-feat-wrap { padding: 32px 0; }
+  .sec-feat { padding: 0 18px; gap: 20px; }
+  .sec-feat__title { font-size: clamp(21px, 6vw, 27px); }
+  .sec-feat__cta { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sec-feat__media, .sec-feat__media img, .sec-feat__cta .arrow { transition: none; }
+}
+</style>"""
+
+
+def _secondary_feature_html(feat):
+    """Secondary feature band. Returns '' when nothing is scheduled."""
+    if not feat:
+        return ""
+    return f"""<section class="sec-feat-wrap" aria-label="Featured analysis">
+  <a class="sec-feat" href="{eu(feat['href'])}"
+     aria-label="{e(feat['cta'])}: {e(feat['title'])}">
+    <figure class="sec-feat__media">
+      <img src="{eu(feat['img'])}" alt="{e(feat['img_alt'])}"
+           width="1200" height="785" loading="lazy" decoding="async"
+           onerror="this.onerror=null;this.src='assets/fallback.jpg'">
+    </figure>
+    <div class="sec-feat__body">
+      <p class="sec-feat__eyebrow">
+        <span>{e(feat['eyebrow'])}</span>
+        <span class="bar" aria-hidden="true"></span>
+        <span class="kick">{e(feat['kicker'])}</span>
+      </p>
+      <h2 class="sec-feat__title">{e(feat['title'])}</h2>
+      <p class="sec-feat__dek">{e(feat['dek'])}</p>
+      <div class="sec-feat__meta">
+        <time datetime="{e(feat['date'])}">{e(feat['date_lbl'])}</time>
+        <span class="dot" aria-hidden="true"></span>
+        <span>{e(feat['read'])}</span>
+      </div>
+      <span class="sec-feat__cta">{e(feat['cta'])} <span class="arrow" aria-hidden="true">&rarr;</span></span>
+    </div>
+  </a>
+</section>"""
+
+
 def _assetvista_xr_page_styles():
     """Production-grade feature page CSS — light editorial design system."""
     return """<style>
@@ -2012,6 +2154,8 @@ def featured_page(arts):
         hero_html = (
             _lead_hero_styles()
             + _lead_hero_html(HERO_FEATURE)
+            + _secondary_feature_styles()
+            + _secondary_feature_html(SECOND_FEATURE)
             + _assetvista_home_hero_styles()
             + _assetvista_split_hero_html(
                 features_href="features.html",

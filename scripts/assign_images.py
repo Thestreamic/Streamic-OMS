@@ -1,15 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-assign_images.py v3 — Streamic visual image assigner (Cyclic Random)
+assign_images.py v4 — Streamic visual image assigner (Deterministic)
 ==================================================================
 
-FIXED:
-- Modified the 'No editorial images' check to prevent hard-exiting.
-- Site will now build gracefully even if the assets folder is empty.
+Assignment is derived from a hash of each article slug, so a given article
+always receives the same image on every build. Previously the pool was
+shuffled with an unseeded RNG, which reassigned thumbnails site-wide on every
+CI run and produced large, meaningless diffs.
+
+- Graceful when the assets folder is empty (site still builds).
 """
 
-import json, os, re, shutil, sys, random
+import hashlib, json, os, re, shutil, sys
 from typing import Dict, List, Optional, Tuple
 
 ROOT            = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -101,6 +104,11 @@ def _write_json(path: str, data) -> bool:
         print(f"[ERROR] Cannot write {path}: {e}")
         return False
 
+def _stable_index(slug: str, n: int) -> int:
+    """Stable pool offset for a slug — identical on every machine and run."""
+    digest = hashlib.sha256(slug.encode("utf-8")).hexdigest()
+    return int(digest[:8], 16) % n
+
 def _is_protected(slug: str) -> bool:
     return any(fn(slug) for fn in PROTECTED_SLUG_PATTERNS)
 
@@ -114,7 +122,7 @@ def _is_existing_local_image(image_url: str) -> bool:
     return os.path.isfile(disk)
 
 def main() -> int:
-    print("=== assign_images.py v3 — Cyclic Random Assigner ===")
+    print("=== assign_images.py v4 — Deterministic Assigner ===")
     
     print("Step 1: Scanning /docs/assets/ for images …")
     safe_files = _auto_rename_uploads()
@@ -133,25 +141,33 @@ def main() -> int:
         return 1
     print(f"  ✓ {len(articles)} articles loaded\n")
 
-    print("Step 3: Assigning images (Shuffled Deck approach) …")
+    print("Step 3: Assigning images (deterministic, keyed on slug) …")
     assigned = skipped_protected = skipped_existing = 0
 
-    # The Shuffled Deck logic
-    image_pool = safe_files.copy()
-    random.shuffle(image_pool)
+    pool = sorted(safe_files)          # stable pool order
+    used: set = set()
 
-    def get_next_random_image():
-        nonlocal image_pool
-        if not image_pool:
-            # If the deck runs out, reshuffle a new deck
-            image_pool = safe_files.copy()
-            random.shuffle(image_pool)
-        return image_pool.pop()
+    def pick_for(slug: str) -> str:
+        """Hash the slug to a pool offset, then probe forward for a free image.
 
-    for art in articles:
-        if not isinstance(art, dict):
-            continue
-            
+        Deterministic: the same slug always lands on the same image for a given
+        pool. Probing keeps assignments unique until the pool is exhausted, at
+        which point reuse restarts — still deterministically.
+        """
+        nonlocal used
+        if len(used) >= len(pool):
+            used = set()
+        start = _stable_index(slug, len(pool))
+        for k in range(len(pool)):
+            cand = pool[(start + k) % len(pool)]
+            if cand not in used:
+                used.add(cand)
+                return cand
+        return pool[start]
+
+    # Work in slug order so the result never depends on JSON ordering.
+    targets = [a for a in articles if isinstance(a, dict)]
+    for art in sorted(targets, key=lambda a: (a.get("slug", "") or "")):
         slug = art.get("slug", "") or ""
         if _is_protected(slug):
             skipped_protected += 1
@@ -160,8 +176,7 @@ def main() -> int:
             skipped_existing += 1
             continue
 
-        # Grab a unique random image from the deck
-        chosen = get_next_random_image()
+        chosen = pick_for(slug)
 
         if chosen:
             url = f"{IMAGE_URL_BASE}/{chosen}"
@@ -176,7 +191,7 @@ def main() -> int:
             art["image_alt"]         = f"Streamic technical brief: {pretty}"
             assigned += 1
 
-    print(f"  ✓ Assigned Random Images: {assigned}")
+    print(f"  ✓ Assigned images (deterministic): {assigned}")
     print(f"  ○ Skipped (protected):    {skipped_protected}")
     print(f"  ○ Skipped (existing):     {skipped_existing}\n")
 
