@@ -26,6 +26,14 @@ PROTECTED_SLUG_PATTERNS = [
     lambda s: s == "nab-2026-hybrid-technology-year",
     lambda s: s == "Expertinsight1",
     lambda s: "avid-google-cloud-agentic-ai-media-production" in s,
+    lambda s: s in {
+        "ai-vertical-reframing",
+        "camera-to-cloud",
+        "agentic-ai-mcp-media",
+        "c2pa-authenticity-qc",
+        "channel-in-a-box-fast",
+        "persistent-story-id",
+    },
 ]
 
 RESERVED_FILENAMES = {

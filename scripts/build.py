@@ -2596,6 +2596,7 @@ def article_page(a):
     title = a.get("title","")
     dek   = a.get("dek") or a.get("meta_description","")
     img   = a.get("image_url","")
+    img_alt = e(a.get("image_alt") or title)
     # Article pages live under /articles/, so root-relative assets/ paths 404
     # as /articles/assets/... — rewrite local asset paths one level up.
     if isinstance(img, str) and img.startswith("assets/"):
@@ -2719,7 +2720,7 @@ def article_page(a):
         title_html = f'<h1>{e(title)}</h1>'
     analysis_badge = '<span style="background:var(--blue);color:#fff;padding:3px 9px;border-radius:5px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.8px">Analysis</span>' if is_ed else ""
 
-    return f"""{head(e(title)+" | The Streamic", dek, url, css="../style.css", og_img=img)}
+    return f"""{head(title+" | The Streamic", dek, url, css="../style.css", og_img=img)}
 <body>
 {nav(CAT_PAGE.get(cat,cat+".html"), base="../")}
 <main>
@@ -2739,7 +2740,7 @@ def article_page(a):
       {analysis_badge}
     </div>
     <figure>
-      <img src="{eu(img)}" alt="{e(title)}" loading="eager">
+      <img src="{eu(img)}" alt="{img_alt}" loading="eager">
       <figcaption>{e(a.get("image_credit","Photo via Unsplash &#8212; free to use under the Unsplash License"))} &#8212; <a href="{lic_url}" rel="nofollow noopener" target="_blank" style="color:var(--ink4)">{lic_label}</a></figcaption>
     </figure>
     <div class="art-body">{source_banner}{body}{editors_note}</div>
