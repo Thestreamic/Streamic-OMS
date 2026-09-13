@@ -62,6 +62,8 @@
   text-decoration: none;
   color: inherit;
   isolation: isolate;
+  /* 30% shorter than the original content-driven ~615px hero */
+  max-height: 430px;
 }
 .lead-hero__media { position: absolute; inset: 0; z-index: 0; }
 .lead-hero__media img {
@@ -91,7 +93,7 @@
   max-width: 1160px;
   margin: 0 auto;
   width: 100%;
-  padding: clamp(58px, 6.4vw, 96px) clamp(24px, 5vw, 48px);
+  padding: clamp(36px, 4.2vw, 64px) clamp(24px, 5vw, 48px);
   box-sizing: border-box;
 }
 .lead-hero__content {
@@ -105,7 +107,7 @@
 .lead-hero__eyebrow {
   display: flex; align-items: center; flex-wrap: wrap; gap: 10px;
   font-size: 11.5px; font-weight: 700; letter-spacing: .16em;
-  text-transform: uppercase; color: #c5a46d; margin: 0 0 18px;
+  text-transform: uppercase; color: #c5a46d; margin: 0 0 12px;
 }
 .lead-hero__eyebrow .kick {
   color: rgba(255,255,255,.62); font-weight: 600; letter-spacing: .12em;
@@ -115,24 +117,24 @@
 }
 .lead-hero__title {
   font-family: 'DM Serif Display', Georgia, serif;
-  font-size: clamp(30px, 3.9vw, 56px);
+  font-size: clamp(26px, 3.2vw, 42px);
   line-height: 1.07;
   letter-spacing: -.025em;
   font-weight: 600;
   color: #fff;
-  margin: 0 0 18px;
+  margin: 0 0 12px;
   text-shadow: 0 2px 22px rgba(0,0,0,.35);
 }
 .lead-hero__dek {
-  font-size: clamp(15px, 1.35vw, 17.5px);
-  line-height: 1.62;
+  font-size: clamp(14px, 1.2vw, 16px);
+  line-height: 1.5;
   color: rgba(255,255,255,.80);
-  margin: 0 0 22px;
+  margin: 0 0 14px;
   max-width: 540px;
 }
 .lead-hero__meta {
   display: flex; align-items: center; flex-wrap: wrap; gap: 9px;
-  font-size: 12px; color: rgba(255,255,255,.55); margin: 0 0 26px;
+  font-size: 12px; color: rgba(255,255,255,.55); margin: 0 0 16px;
 }
 .lead-hero__meta .dot {
   width: 3px; height: 3px; border-radius: 50%;
@@ -170,9 +172,10 @@
   .lead-hero__dek { max-width: 100%; }
 }
 @media (max-width: 600px) {
-  .lead-hero__inner { padding: 48px 20px 44px; }
-  .lead-hero__title { font-size: clamp(25px, 7.4vw, 34px); }
-  .lead-hero__dek { font-size: 14.5px; }
+  .lead-hero { max-height: 360px; }
+  .lead-hero__inner { padding: 28px 20px 24px; }
+  .lead-hero__title { font-size: clamp(22px, 6.4vw, 30px); }
+  .lead-hero__dek { font-size: 13.5px; }
   .lead-hero__cta { width: 100%; justify-content: center; }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -207,6 +210,70 @@
     </div>
   </div>
 </a><style>
+.hp-post-hero{padding:28px 0 8px;background:#fff}
+.hp-post-hero .hp-insights{margin-bottom:0}
+</style>
+<section class="hp-post-hero" aria-label="IBC 2026 editorial series">
+  <div class="w">
+    <div class="hp-insights hp-insights-premium">
+      <div class="hp-insights-grid"><a href="articles/ai-vertical-reframing.html" class="hp-insight-card">
+  <div class="hp-insight-media"><img src="assets/articles/ai-vertical-reframing.jpg" alt="The &quot;Make it Vertical&quot; Magic: Automating Digital &amp; Social Formatting with AI" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
+  <div class="hp-insight-body">
+    <span class="hp-insight-tag">🎬 AI &amp; Post-Production</span>
+    <span class="hp-insight-hl">The &quot;Make it Vertical&quot; Magic: Automating Digital &amp; Social Formatting with AI</span>
+    <span class="hp-insight-dek">How computer vision auto-frames 16:9 broadcast into 9:16 clips for TikTok, Shorts, and Reels — in seconds, not hours.</span>
+    <span class="hp-insight-meta">September 13, 2026</span>
+    <span class="hp-insight-read">Read analysis &#8594;</span>
+  </div>
+</a><a href="articles/camera-to-cloud.html" class="hp-insight-card">
+  <div class="hp-insight-media"><img src="assets/fallback.jpg" alt="Camera-to-Cloud (C2C): Eliminating the Post-Production Waiting Game" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
+  <div class="hp-insight-body">
+    <span class="hp-insight-tag">☁️ Cloud Production</span>
+    <span class="hp-insight-hl">Camera-to-Cloud (C2C): Eliminating the Post-Production Waiting Game</span>
+    <span class="hp-insight-dek">How C2C proxy workflows let editors start cutting footage while production is still underway.</span>
+    <span class="hp-insight-meta">September 12, 2026</span>
+    <span class="hp-insight-read">Read analysis &#8594;</span>
+  </div>
+</a><a href="articles/agentic-ai-mcp-media.html" class="hp-insight-card">
+  <div class="hp-insight-media"><img src="assets/fallback.jpg" alt="The AI Orchestrator: How Agentic AI and MCP Are Rewiring Media Workflows" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
+  <div class="hp-insight-body">
+    <span class="hp-insight-tag">🎬 AI &amp; Post-Production</span>
+    <span class="hp-insight-hl">The AI Orchestrator: How Agentic AI and MCP Are Rewiring Media Workflows</span>
+    <span class="hp-insight-dek">How Agentic AI paired with MCP automates MAM, transcoding, and publishing across previously siloed tools.</span>
+    <span class="hp-insight-meta">September 11, 2026</span>
+    <span class="hp-insight-read">Read analysis &#8594;</span>
+  </div>
+</a><a href="articles/c2pa-authenticity-qc.html" class="hp-insight-card">
+  <div class="hp-insight-media"><img src="assets/fallback.jpg" alt="Trusting the Feed: C2PA Authenticity and Automated QC in Broadcast Media" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
+  <div class="hp-insight-body">
+    <span class="hp-insight-tag">📰 Newsroom</span>
+    <span class="hp-insight-hl">Trusting the Feed: C2PA Authenticity and Automated QC in Broadcast Media</span>
+    <span class="hp-insight-dek">How C2PA signatures and automated AV-sync QC protect the feed from tampering and lip-sync errors.</span>
+    <span class="hp-insight-meta">September 10, 2026</span>
+    <span class="hp-insight-read">Read analysis &#8594;</span>
+  </div>
+</a><a href="articles/channel-in-a-box-fast.html" class="hp-insight-card">
+  <div class="hp-insight-media"><img src="assets/fallback.jpg" alt="Channel-in-a-Box: Launching Cloud TV Channels with FAST Technology" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
+  <div class="hp-insight-body">
+    <span class="hp-insight-tag">▶️ Playout</span>
+    <span class="hp-insight-hl">Channel-in-a-Box: Launching Cloud TV Channels with FAST Technology</span>
+    <span class="hp-insight-dek">How software playout replaces a hardware control room and lets teams launch a 24/7 FAST channel.</span>
+    <span class="hp-insight-meta">September 09, 2026</span>
+    <span class="hp-insight-read">Read analysis &#8594;</span>
+  </div>
+</a><a href="articles/persistent-story-id.html" class="hp-insight-card">
+  <div class="hp-insight-media"><img src="assets/fallback.jpg" alt="The Persistent Story ID: Eliminating Metadata Chaos in Modern Newsrooms" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
+  <div class="hp-insight-body">
+    <span class="hp-insight-tag">📰 Newsroom</span>
+    <span class="hp-insight-hl">The Persistent Story ID: Eliminating Metadata Chaos in Modern Newsrooms</span>
+    <span class="hp-insight-dek">How a unified Story ID keeps metadata consistent from newsroom pitch through archive.</span>
+    <span class="hp-insight-meta">September 08, 2026</span>
+    <span class="hp-insight-read">Read analysis &#8594;</span>
+  </div>
+</a></div>
+    </div>
+  </div>
+</section><style>
 /* ─────────────────────────────────────────────────────────────
    SECONDARY FEATURE  ·  scoped to .sec-feat
 ───────────────────────────────────────────────────────────── */
@@ -722,61 +789,7 @@
     <div class="hp-outer">
       <div class="hp-main">
         <section class="hp-insights hp-insights-premium">
-          <div class="hp-insights-grid"><a href="articles/ai-vertical-reframing.html" class="hp-insight-card">
-  <div class="hp-insight-media"><img src="assets/articles/ai-vertical-reframing.jpg" alt="The &quot;Make it Vertical&quot; Magic: Automating Digital &amp; Social Formatting with AI" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
-  <div class="hp-insight-body">
-    <span class="hp-insight-tag">🎬 AI &amp; Post-Production</span>
-    <span class="hp-insight-hl">The &quot;Make it Vertical&quot; Magic: Automating Digital &amp; Social Formatting with AI</span>
-    <span class="hp-insight-dek">How computer vision auto-frames 16:9 broadcast into 9:16 clips for TikTok, Shorts, and Reels — in seconds, not hours.</span>
-    <span class="hp-insight-meta">September 13, 2026</span>
-    <span class="hp-insight-read">Read analysis &#8594;</span>
-  </div>
-</a><a href="articles/camera-to-cloud.html" class="hp-insight-card">
-  <div class="hp-insight-media"><img src="assets/fallback.jpg" alt="Camera-to-Cloud (C2C): Eliminating the Post-Production Waiting Game" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
-  <div class="hp-insight-body">
-    <span class="hp-insight-tag">☁️ Cloud Production</span>
-    <span class="hp-insight-hl">Camera-to-Cloud (C2C): Eliminating the Post-Production Waiting Game</span>
-    <span class="hp-insight-dek">How C2C proxy workflows let editors start cutting footage while production is still underway.</span>
-    <span class="hp-insight-meta">September 12, 2026</span>
-    <span class="hp-insight-read">Read analysis &#8594;</span>
-  </div>
-</a><a href="articles/agentic-ai-mcp-media.html" class="hp-insight-card">
-  <div class="hp-insight-media"><img src="assets/fallback.jpg" alt="The AI Orchestrator: How Agentic AI and MCP Are Rewiring Media Workflows" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
-  <div class="hp-insight-body">
-    <span class="hp-insight-tag">🎬 AI &amp; Post-Production</span>
-    <span class="hp-insight-hl">The AI Orchestrator: How Agentic AI and MCP Are Rewiring Media Workflows</span>
-    <span class="hp-insight-dek">How Agentic AI paired with MCP automates MAM, transcoding, and publishing across previously siloed tools.</span>
-    <span class="hp-insight-meta">September 11, 2026</span>
-    <span class="hp-insight-read">Read analysis &#8594;</span>
-  </div>
-</a><a href="articles/c2pa-authenticity-qc.html" class="hp-insight-card">
-  <div class="hp-insight-media"><img src="assets/fallback.jpg" alt="Trusting the Feed: C2PA Authenticity and Automated QC in Broadcast Media" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
-  <div class="hp-insight-body">
-    <span class="hp-insight-tag">📰 Newsroom</span>
-    <span class="hp-insight-hl">Trusting the Feed: C2PA Authenticity and Automated QC in Broadcast Media</span>
-    <span class="hp-insight-dek">How C2PA signatures and automated AV-sync QC protect the feed from tampering and lip-sync errors.</span>
-    <span class="hp-insight-meta">September 10, 2026</span>
-    <span class="hp-insight-read">Read analysis &#8594;</span>
-  </div>
-</a><a href="articles/channel-in-a-box-fast.html" class="hp-insight-card">
-  <div class="hp-insight-media"><img src="assets/fallback.jpg" alt="Channel-in-a-Box: Launching Cloud TV Channels with FAST Technology" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
-  <div class="hp-insight-body">
-    <span class="hp-insight-tag">▶️ Playout</span>
-    <span class="hp-insight-hl">Channel-in-a-Box: Launching Cloud TV Channels with FAST Technology</span>
-    <span class="hp-insight-dek">How software playout replaces a hardware control room and lets teams launch a 24/7 FAST channel.</span>
-    <span class="hp-insight-meta">September 09, 2026</span>
-    <span class="hp-insight-read">Read analysis &#8594;</span>
-  </div>
-</a><a href="articles/persistent-story-id.html" class="hp-insight-card">
-  <div class="hp-insight-media"><img src="assets/fallback.jpg" alt="The Persistent Story ID: Eliminating Metadata Chaos in Modern Newsrooms" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
-  <div class="hp-insight-body">
-    <span class="hp-insight-tag">📰 Newsroom</span>
-    <span class="hp-insight-hl">The Persistent Story ID: Eliminating Metadata Chaos in Modern Newsrooms</span>
-    <span class="hp-insight-dek">How a unified Story ID keeps metadata consistent from newsroom pitch through archive.</span>
-    <span class="hp-insight-meta">September 08, 2026</span>
-    <span class="hp-insight-read">Read analysis &#8594;</span>
-  </div>
-</a><a href="articles/dynamic-media-facilities-dmf-broadcast-infrastructure-2026.html" class="hp-insight-card">
+          <div class="hp-insights-grid"><a href="articles/dynamic-media-facilities-dmf-broadcast-infrastructure-2026.html" class="hp-insight-card">
   <div class="hp-insight-media"><img src="assets/articles/dmf-traditional-vs-dynamic-facility.png" alt="Dynamic Media Facilities (DMF): The Future of Flexible Broadcast Infrastructure" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-insight-body">
     <span class="hp-insight-tag">🏗️ Infrastructure</span>
@@ -902,7 +915,7 @@
     <span class="hp-insight-meta">April 01, 2026</span>
     <span class="hp-insight-read">Read analysis &#8594;</span>
   </div>
-</a><a href="articles/2026-04-01-playout-pebble-future-ready-playout-nab-2026.html" class="hp-insight-card hp-insight-hidden">
+</a><a href="articles/2026-04-01-playout-pebble-future-ready-playout-nab-2026.html" class="hp-insight-card">
   <div class="hp-insight-media"><img src="assets/media-composer-edit.png" alt="Pebble’s NAB 2026 Message: Future-Ready Playout Is About Control, Partnerships, and Operational Flexibility" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-insight-body">
     <span class="hp-insight-tag">▶️ Playout</span>
@@ -911,7 +924,7 @@
     <span class="hp-insight-meta">April 01, 2026</span>
     <span class="hp-insight-read">Read analysis &#8594;</span>
   </div>
-</a><a href="articles/2026-04-01-newsroom-aveco-rundown-designer-no-nrcs-studio-automation.html" class="hp-insight-card hp-insight-hidden">
+</a><a href="articles/2026-04-01-newsroom-aveco-rundown-designer-no-nrcs-studio-automation.html" class="hp-insight-card">
   <div class="hp-insight-media"><img src="assets/ms-server-data-center.png" alt="Aveco Rundown Designer: Why “No NRCS Required” Could Reshape Smaller Studio Automation Workflows" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-insight-body">
     <span class="hp-insight-tag">📰 Newsroom</span>
@@ -920,7 +933,7 @@
     <span class="hp-insight-meta">April 01, 2026</span>
     <span class="hp-insight-read">Read analysis &#8594;</span>
   </div>
-</a><a href="articles/2026-04-01-infrastructure-smpte-st2110-ai-media-nab-2026.html" class="hp-insight-card hp-insight-hidden">
+</a><a href="articles/2026-04-01-infrastructure-smpte-st2110-ai-media-nab-2026.html" class="hp-insight-card">
   <div class="hp-insight-media"><img src="assets/satellite-image-2.png" alt="SMPTE at NAB 2026: Why ST 2110 Education and “Artificial Intelligence and Media” Are Converging Into One Strategic Conversation" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-insight-body">
     <span class="hp-insight-tag">🏗️ Infrastructure</span>
@@ -929,7 +942,7 @@
     <span class="hp-insight-meta">April 01, 2026</span>
     <span class="hp-insight-read">Read analysis &#8594;</span>
   </div>
-</a><a href="articles/telestream-adobe-vantage-premiere-workflow-integration-2026.html" class="hp-insight-card hp-insight-hidden">
+</a><a href="articles/telestream-adobe-vantage-premiere-workflow-integration-2026.html" class="hp-insight-card">
   <div class="hp-insight-media"><img src="assets/newsroom-anchor.png" alt="Telestream + Adobe: How Vantage Integration Removes the Gap Between Edit and Delivery" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-insight-body">
     <span class="hp-insight-tag">🎬 AI &amp; Post-Production</span>
@@ -938,7 +951,7 @@
     <span class="hp-insight-meta">March 30, 2026</span>
     <span class="hp-insight-read">Read analysis &#8594;</span>
   </div>
-</a><a href="articles/future-of-ai-in-broadcast-deployment-2026.html" class="hp-insight-card hp-insight-hidden">
+</a><a href="articles/future-of-ai-in-broadcast-deployment-2026.html" class="hp-insight-card">
   <div class="hp-insight-media"><img src="assets/cables.png" alt="The Future of AI in Broadcast: From Experimentation to Full-Scale Deployment (2026)" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-insight-body">
     <span class="hp-insight-tag">🎬 AI &amp; Post-Production</span>
@@ -947,7 +960,7 @@
     <span class="hp-insight-meta">March 25, 2026</span>
     <span class="hp-insight-read">Read analysis &#8594;</span>
   </div>
-</a><a href="articles/ai-video-post-production-editing-vfx-automation-2026.html" class="hp-insight-card hp-insight-hidden">
+</a><a href="articles/ai-video-post-production-editing-vfx-automation-2026.html" class="hp-insight-card">
   <div class="hp-insight-media"><img src="assets/ai-post-production-hero.png" alt="AI in Video Post-Production: Editing, VFX, and Automation in 2026" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-insight-body">
     <span class="hp-insight-tag">🎬 AI &amp; Post-Production</span>
@@ -1060,7 +1073,7 @@
     </div>
     <div class="hp-lm-text">
       <span class="hp-lm-label">Load More</span>
-      <span class="hp-lm-sub" id="lmCount">14 more articles</span>
+      <span class="hp-lm-sub" id="lmCount">8 more articles</span>
     </div>
     <div class="hp-lm-bar"><span></span></div>
   </button>

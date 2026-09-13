@@ -1593,6 +1593,8 @@ def _lead_hero_styles():
   text-decoration: none;
   color: inherit;
   isolation: isolate;
+  /* 30% shorter than the original content-driven ~615px hero */
+  max-height: 430px;
 }
 .lead-hero__media { position: absolute; inset: 0; z-index: 0; }
 .lead-hero__media img {
@@ -1622,7 +1624,7 @@ def _lead_hero_styles():
   max-width: 1160px;
   margin: 0 auto;
   width: 100%;
-  padding: clamp(58px, 6.4vw, 96px) clamp(24px, 5vw, 48px);
+  padding: clamp(36px, 4.2vw, 64px) clamp(24px, 5vw, 48px);
   box-sizing: border-box;
 }
 .lead-hero__content {
@@ -1636,7 +1638,7 @@ def _lead_hero_styles():
 .lead-hero__eyebrow {
   display: flex; align-items: center; flex-wrap: wrap; gap: 10px;
   font-size: 11.5px; font-weight: 700; letter-spacing: .16em;
-  text-transform: uppercase; color: #c5a46d; margin: 0 0 18px;
+  text-transform: uppercase; color: #c5a46d; margin: 0 0 12px;
 }
 .lead-hero__eyebrow .kick {
   color: rgba(255,255,255,.62); font-weight: 600; letter-spacing: .12em;
@@ -1646,24 +1648,24 @@ def _lead_hero_styles():
 }
 .lead-hero__title {
   font-family: 'DM Serif Display', Georgia, serif;
-  font-size: clamp(30px, 3.9vw, 56px);
+  font-size: clamp(26px, 3.2vw, 42px);
   line-height: 1.07;
   letter-spacing: -.025em;
   font-weight: 600;
   color: #fff;
-  margin: 0 0 18px;
+  margin: 0 0 12px;
   text-shadow: 0 2px 22px rgba(0,0,0,.35);
 }
 .lead-hero__dek {
-  font-size: clamp(15px, 1.35vw, 17.5px);
-  line-height: 1.62;
+  font-size: clamp(14px, 1.2vw, 16px);
+  line-height: 1.5;
   color: rgba(255,255,255,.80);
-  margin: 0 0 22px;
+  margin: 0 0 14px;
   max-width: 540px;
 }
 .lead-hero__meta {
   display: flex; align-items: center; flex-wrap: wrap; gap: 9px;
-  font-size: 12px; color: rgba(255,255,255,.55); margin: 0 0 26px;
+  font-size: 12px; color: rgba(255,255,255,.55); margin: 0 0 16px;
 }
 .lead-hero__meta .dot {
   width: 3px; height: 3px; border-radius: 50%;
@@ -1701,9 +1703,10 @@ def _lead_hero_styles():
   .lead-hero__dek { max-width: 100%; }
 }
 @media (max-width: 600px) {
-  .lead-hero__inner { padding: 48px 20px 44px; }
-  .lead-hero__title { font-size: clamp(25px, 7.4vw, 34px); }
-  .lead-hero__dek { font-size: 14.5px; }
+  .lead-hero { max-height: 360px; }
+  .lead-hero__inner { padding: 28px 20px 24px; }
+  .lead-hero__title { font-size: clamp(22px, 6.4vw, 30px); }
+  .lead-hero__dek { font-size: 13.5px; }
   .lead-hero__cta { width: 100%; justify-content: center; }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -1747,8 +1750,41 @@ def _lead_hero_html(feat):
 </a>"""
 
 
+IBC_SIX_SLUGS = [
+    "ai-vertical-reframing",
+    "camera-to-cloud",
+    "agentic-ai-mcp-media",
+    "c2pa-authenticity-qc",
+    "channel-in-a-box-fast",
+    "persistent-story-id",
+]
+
+
+def _ibc_six_band(arts):
+    """Six IBC editorials in existing .hp-insight-card grid, pinned under the lead hero."""
+    by_slug = {a.get("slug"): a for a in arts}
+    cards = []
+    for slug in IBC_SIX_SLUGS:
+        a = by_slug.get(slug)
+        if a:
+            cards.append(_hp_insight_card(a))
+    if not cards:
+        return ""
+    return f'''<style>
+.hp-post-hero{{padding:28px 0 8px;background:#fff}}
+.hp-post-hero .hp-insights{{margin-bottom:0}}
+</style>
+<section class="hp-post-hero" aria-label="IBC 2026 editorial series">
+  <div class="w">
+    <div class="hp-insights hp-insights-premium">
+      <div class="hp-insights-grid">{''.join(cards)}</div>
+    </div>
+  </div>
+</section>'''
+
+
 # ── Secondary feature ─────────────────────────────────────────────────────
-# Runs directly beneath the lead hero. Set SECOND_FEATURE = None to retire it.
+# Runs beneath the IBC six-card band. Set SECOND_FEATURE = None to retire it.
 SECOND_FEATURE = {
     "href":     "ibc-2026-top-ai-broadcast-solutions.html",
     "img":      "assets/ibc-2026-top-solutions.jpg",
@@ -2101,7 +2137,7 @@ def featured_page(arts):
     #    SEO gate so latest daily articles always appear on the homepage).
     #    Manual editorials bypass word count entirely.
     #    First 20 visible on load; rest behind "Load More" button.
-    used_slugs = {a.get("slug") for a in guide_arts} | ({hero_art.get("slug")} if hero_art else set())
+    used_slugs = {a.get("slug") for a in guide_arts} | ({hero_art.get("slug")} if hero_art else set()) | set(IBC_SIX_SLUGS)
     # Merge editorial + regular into ONE list sorted by date (not editorial-first)
     insight_pool = sorted(
         [a for a in arts if a.get("slug") not in used_slugs],
@@ -2154,6 +2190,7 @@ def featured_page(arts):
         hero_html = (
             _lead_hero_styles()
             + _lead_hero_html(HERO_FEATURE)
+            + _ibc_six_band(arts)
             + _secondary_feature_styles()
             + _secondary_feature_html(SECOND_FEATURE)
             + _assetvista_home_hero_styles()
