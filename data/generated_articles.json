@@ -28,8 +28,8 @@
     "published": "2026-09-12",
     "meta_description": "How Camera-to-Cloud workflows use proxy files and 5G to connect production sets directly to remote editors.",
     "dek": "How C2C proxy workflows let editors start cutting footage while production is still underway.",
-    "image_url": "/assets/fallback.jpg",
-    "image_alt": "Film camera on set transmitting a proxy video file over 5G to a cloud workspace for a remote editor",
+    "image_url": "/assets/articles/camera-to-cloud.jpg",
+    "image_alt": "Diagram of a camera-to-cloud workflow: 4K camera capture, proxy encode, 5G upload, cloud ingest, and remote edit",
     "body_html": "<h2>The Technology Explained</h2>\n<p>Traditional workflows rely on physical media cards: once shooting wraps, data wranglers back up cards to hard drives, which runners transport to the edit suite. Editors cannot start until the drives physically arrive.</p>\n<p>Camera-to-Cloud (C2C) removes that bottleneck. As the camera records high-resolution master files locally, a connected cloud transmitter encodes a lightweight proxy copy of the clip. The moment a scene is cut, the proxy uploads over 5G or Wi-Fi to a cloud workspace, so editors anywhere can start cutting while production is still underway.</p>\n\n<h2>Technical Deep-Dive &amp; Mechanics</h2>\n<p>C2C relies on timecode synchronization and identical metadata pairing across the master and proxy files:</p>\n<ol>\n<li><strong>Dual encoding:</strong> the camera or external recorder writes uncompressed 4K masters locally while concurrently streaming compressed H.264/H.265 proxies.</li>\n<li><strong>Metadata matching:</strong> the proxy mirrors the master's file name, frame rate, audio structure, and timecode.</li>\n<li><strong>Cloud ingestion:</strong> proxies stream to platforms like Frame.io over secure transport (HTTPS/SRT).</li>\n<li><strong>Conforming &amp; relinking:</strong> the remote editor cuts using proxies, then the NLE relinks the finished project to the high-resolution masters for final export.</li>\n</ol>\n<p>That ingest model is part of the wider shift toward <a href=\"cloud-broadcast-workflows-remote-production-2026.html\">cloud and remote production workflows</a>.</p>\n\n<h2>Benefits for Production Teams &amp; Businesses</h2>\n<ul>\n<li>Editors work in real time from anywhere, cutting travel latency to zero.</li>\n<li>Directors and clients review takes on mobile devices seconds after recording.</li>\n<li>Removes the risk of lost or damaged hard drives in transit.</li>\n</ul>\n\n<h2>Top Real-World Solutions</h2>\n<ul>\n<li><strong>Frame.io (Adobe):</strong> the dominant cloud ecosystem for proxy ingestion, client review, and native NLE integration.</li>\n<li><strong>Atomos Ninja TX:</strong> a camera-top monitor/recorder that encodes and transmits proxies to Frame.io over Wi-Fi 6 or 5G.</li>\n<li><strong>Accsoon CineView Master 4K:</strong> a budget-friendly wireless transmission system pairing 4K monitoring with cloud connectivity.</li>\n</ul>",
     "generated_by": "gpt_manual_editorial",
     "is_editorial": true,
@@ -40,7 +40,7 @@
     "image_license": "Site Asset",
     "image_license_url": "",
     "word_count": 283,
-    "image": "/assets/fallback.jpg",
+    "image": "/assets/articles/camera-to-cloud.jpg",
     "image_category": "cloud"
   },
   {
@@ -50,8 +50,8 @@
     "published": "2026-09-11",
     "meta_description": "How Agentic AI and the Model Context Protocol automate MAM, transcoding, and publishing pipelines.",
     "dek": "How Agentic AI paired with MCP automates MAM, transcoding, and publishing across previously siloed tools.",
-    "image_url": "/assets/fallback.jpg",
-    "image_alt": "Illustration of an AI agent connected via Model Context Protocol to a media asset management system, transcoder, and publishing platform",
+    "image_url": "/assets/articles/agentic-ai-mcp-media.jpg",
+    "image_alt": "Diagram of an Agentic AI orchestrator using MCP to connect MAM, transcoding, QC, and publishing systems",
     "body_html": "<h2>The Technology Explained</h2>\n<p>Earlier generative AI tools focused mainly on text or images. Broadcasting, however, runs on disconnected tools — Media Asset Management (MAM) databases, transcoders, QC engines, and social publishing platforms — that usually need a human to move files between them.</p>\n<p>Agentic AI paired with the Model Context Protocol (MCP) acts as an autonomous assistant for media pipelines. MCP is a standardized communication layer that lets an AI agent securely inspect files, trigger transcodes, modify metadata, and publish content across different vendors' software using natural-language prompts.</p>\n\n<h2>Technical Deep-Dive &amp; Mechanics</h2>\n<ul>\n<li><strong>Standardized protocol (MCP):</strong> an open API interface between AI models and software systems, reducing the need for costly custom integrations.</li>\n<li><strong>Autonomous task execution:</strong> the agent breaks a complex prompt into micro-tasks — querying the MAM, verifying codec parameters, triggering a transcode, updating delivery registers.</li>\n<li><strong>Context awareness:</strong> the agent reads technical metadata (frame rate, color space, audio layout) to make operational decisions without manual data entry.</li>\n</ul>\n<p>A typical downstream publish step is <a href=\"ai-vertical-reframing.html\">AI auto-framing of 16:9 masters into 9:16 social cuts</a> once the agent has located and transcoded the source.</p>\n\n<h2>Benefits for Media Companies</h2>\n<ul>\n<li>End-to-end automation replaces repetitive file transfers and manual tagging.</li>\n<li>System interoperability prevents vendor lock-in between legacy storage and modern cloud microservices.</li>\n<li>Fewer manual metadata and routing errors.</li>\n</ul>\n\n<h2>Top Real-World Solutions</h2>\n<ul>\n<li><strong>Amazon Bedrock &amp; S3:</strong> broadcasters build AI agents on AWS to analyze S3 video uploads, extract metadata, and drive automated transcoding pipelines.</li>\n<li><strong>MCP-enabled MAM platforms:</strong> modern MAM architectures expose open MCP endpoints so AI models can read, tag, and organize media archives automatically.</li>\n</ul>",
     "generated_by": "gpt_manual_editorial",
     "is_editorial": true,
@@ -62,7 +62,7 @@
     "image_license": "Site Asset",
     "image_license_url": "",
     "word_count": 258,
-    "image": "/assets/fallback.jpg",
+    "image": "/assets/articles/agentic-ai-mcp-media.jpg",
     "image_category": "ai-post-production"
   },
   {
@@ -72,8 +72,8 @@
     "published": "2026-09-10",
     "meta_description": "How C2PA digital signatures and automated AV-sync QC protect broadcasters from deepfakes and lip-sync errors.",
     "dek": "How C2PA signatures and automated AV-sync QC protect the feed from tampering and lip-sync errors.",
-    "image_url": "/assets/fallback.jpg",
-    "image_alt": "Newsroom camera embedding a C2PA digital signature into video at the moment of capture to verify authenticity",
+    "image_url": "/assets/articles/c2pa-authenticity-qc.jpg",
+    "image_alt": "Diagram of a C2PA authenticity chain from camera capture through NLE edit log to viewer validation, plus automated AV-sync QC",
     "body_html": "<h2>The Technology Explained</h2>\n<p>Modern broadcasters face two core risks: verifying that incoming footage is authentic and hasn't been altered by generative AI, and keeping audio and video perfectly synchronized as feeds travel across cloud networks.</p>\n<p>C2PA (the Coalition for Content Provenance and Authenticity) embeds an encrypted digital signature into video at the moment of capture. Any downstream edit or manipulation breaks that cryptographic chain, exposing tampering. For signal health, automated Quality Control (QC) tools analyze IP video streams (SMPTE 2110/SRT) to measure and align audio/video delays in milliseconds before a feed goes live.</p>\n<p>The C2PA chain runs from camera capture, through an NLE edit log, to viewer validation — all under one C2PA manifest. For the newsroom credibility case, see also <a href=\"c2pa-deepfake-news-credibility-digital-provenance-2026.html\">how C2PA standards are being used against generative deception</a>.</p>\n\n<h2>Technical Deep-Dive &amp; Mechanics</h2>\n<ul>\n<li><strong>In-camera provenance:</strong> hardware security modules sign video frames at capture, embedding sensor metadata, timestamps, and location data.</li>\n<li><strong>C2PA manifest:</strong> compliant NLEs append change logs to the metadata file without removing the original camera signature.</li>\n<li><strong>AV phase analysis:</strong> QC analyzers generate test patterns and compare incoming audio waveforms against video frame timing to pinpoint millisecond-level delays across IP routes.</li>\n</ul>\n\n<h2>Benefits for Newsrooms &amp; Broadcasters</h2>\n<ul>\n<li>Provable content authenticity for field reporting and news gathering.</li>\n<li>Elimination of lip-sync errors across multi-path IP feeds.</li>\n<li>Alignment with emerging regulations on AI content disclosure.</li>\n</ul>\n\n<h2>Top Real-World Solutions</h2>\n<ul>\n<li><strong>Sony PXW-Z300:</strong> a 4K ENG camcorder and the industry's first camcorder to support C2PA-compliant content authenticity, embedding a digital signature into recorded video; the feature currently ships via a separate upgrade license limited to specific regions and formats.</li>\n<li><strong>Hitomi MatchBox:</strong> an industry-standard lip-sync measurement tool, with a mobile app (MatchBox Glass) that lets field reporters check AV sync via their phone's camera.</li>\n</ul>",
     "generated_by": "gpt_manual_editorial",
     "is_editorial": true,
@@ -84,7 +84,7 @@
     "image_license": "Site Asset",
     "image_license_url": "",
     "word_count": 288,
-    "image": "/assets/fallback.jpg",
+    "image": "/assets/articles/c2pa-authenticity-qc.jpg",
     "image_category": "newsroom"
   },
   {
@@ -94,8 +94,8 @@
     "published": "2026-09-09",
     "meta_description": "How Channel-in-a-Box and cloud playout systems let media companies launch 24/7 linear TV and FAST channels.",
     "dek": "How software playout replaces a hardware control room and lets teams launch a 24/7 FAST channel.",
-    "image_url": "/assets/fallback.jpg",
-    "image_alt": "Cloud-based Channel-in-a-Box playout dashboard scheduling a 24/7 FAST channel to Roku, Pluto TV, and Tubi",
+    "image_url": "/assets/articles/channel-in-a-box-fast.jpg",
+    "image_alt": "Diagram of Channel-in-a-Box cloud playout: asset ingest, browser scheduling, SCTE-35 ads, graphics overlay, and FAST distribution",
     "body_html": "<h2>The Technology Explained</h2>\n<p>Traditional linear TV stations required expensive control rooms packed with video switchers, graphics processors, and hardware playout servers.</p>\n<p>Channel-in-a-Box (CiaB) consolidates those components into software. Operators upload assets to cloud storage, schedule playlists from a browser, add channel branding, and broadcast 24/7 linear streams directly to smart TV platforms such as Pluto TV, Roku, and Tubi, or to a website.</p>\n\n<h2>Technical Deep-Dive &amp; Mechanics</h2>\n<ul>\n<li><strong>Cloud encoding engines:</strong> cloud instances process assets into continuous linear transport streams (SRT, RTMP, HLS).</li>\n<li><strong>Dynamic ad insertion (SCTE-35):</strong> the playout engine inserts digital markers that signal ad servers to serve targeted ads to individual viewers.</li>\n<li><strong>Graphics overlays:</strong> render engines composite lower-thirds, ticker feeds, and logo bugs on top of the stream in real time.</li>\n</ul>\n<p>The economic question — when software playout beats a hardware chain — is covered in our <a href=\"cloud-playout-economics-2026-build-vs-buy.html\">cloud playout build-versus-buy analysis</a>.</p>\n\n<h2>Benefits for Content Owners &amp; Networks</h2>\n<ul>\n<li>Low upfront capital cost — no broadcast hardware to install.</li>\n<li>New linear channels or pop-up event streams can launch in hours.</li>\n<li>Dynamic ad insertion drives monetization on FAST platforms.</li>\n</ul>\n\n<h2>Top Real-World Solutions</h2>\n<ul>\n<li><strong>PlayBox Neo:</strong> playout automation with interactive 4K graphics (TitleBox Neo) and live IP streaming control.</li>\n<li><strong>Amagi:</strong> a cloud broadcast platform for creating, distributing, and monetizing FAST channels across major smart TV platforms.</li>\n<li><strong>OBS Studio (bootstrapped playout):</strong> a lightweight option for creators running looped 24/7 streams to platforms like YouTube Live via a cloud VPS.</li>\n</ul>",
     "generated_by": "gpt_manual_editorial",
     "is_editorial": true,
@@ -106,7 +106,7 @@
     "image_license": "Site Asset",
     "image_license_url": "",
     "word_count": 235,
-    "image": "/assets/fallback.jpg",
+    "image": "/assets/articles/channel-in-a-box-fast.jpg",
     "image_category": "playout"
   },
   {
@@ -116,8 +116,8 @@
     "published": "2026-09-08",
     "meta_description": "How a Persistent Story ID tracks media assets from newsroom pitch through archive across NRCS and MAM systems.",
     "dek": "How a unified Story ID keeps metadata consistent from newsroom pitch through archive.",
-    "image_url": "/assets/fallback.jpg",
-    "image_alt": "Unified Persistent Story ID linking a newsroom computer system, media asset management database, editing suite, and playout server",
+    "image_url": "/assets/articles/persistent-story-id.jpg",
+    "image_alt": "Diagram of a Persistent Story ID traveling from NRCS pitch through MAM, edit suite, playout, and archive",
     "body_html": "<h2>The Technology Explained</h2>\n<p>In multi-platform newsrooms, scripts, video edits, and social posts are often managed across separate systems. Without a unified identifier, journalists and editors re-enter titles, tags, and descriptions at every stage.</p>\n<p>A Persistent Story ID assigns a unique identifier to a story when it's first pitched. That identifier follows the asset across the Newsroom Computer System (NRCS), the Media Asset Management (MAM) database, editing suites, and playout servers, keeping metadata consistent through the asset's lifecycle.</p>\n\n<h2>Technical Deep-Dive &amp; Mechanics</h2>\n<ul>\n<li><strong>Unified data payload:</strong> the initial NRCS entry creates a metadata payload (headline, tags, rights, author) linked to the Story ID.</li>\n<li><strong>Cross-platform inheritance:</strong> when an editor imports footage into an NLE, a panel extension reads the Story ID and auto-tags the project file.</li>\n<li><strong>AI-assisted publishing:</strong> indexing systems use the Story ID to pull script context and auto-generate YouTube descriptions, SEO tags, and web summaries on export — the same class of orchestration described in <a href=\"agentic-ai-mcp-media.html\">agentic AI and MCP media workflows</a>.</li>\n</ul>\n<p>Provenance of the underlying media file is a separate layer; <a href=\"c2pa-authenticity-qc.html\">C2PA authenticity and automated QC</a> addresses that chain of trust.</p>\n\n<h2>Benefits for News Operations</h2>\n<ul>\n<li>Single data entry instead of repetitive manual tagging across systems.</li>\n<li>Faster turnaround for cross-platform publishing during breaking news.</li>\n<li>Footage stays searchable in deep archives years later.</li>\n</ul>\n\n<h2>Top Real-World Solutions</h2>\n<ul>\n<li><strong>API-first NRCS platforms (AP ENPS &amp; Dina):</strong> open newsroom systems that assign unified story slugs and expose REST APIs to pass metadata into NLEs like Adobe Premiere and Avid Media Composer.</li>\n<li><strong>Open MAM systems:</strong> asset managers using open metadata schemas to keep IDs consistent from ingest to archive.</li>\n</ul>",
     "generated_by": "gpt_manual_editorial",
     "is_editorial": true,
@@ -128,7 +128,7 @@
     "image_license": "Site Asset",
     "image_license_url": "",
     "word_count": 262,
-    "image": "/assets/fallback.jpg",
+    "image": "/assets/articles/persistent-story-id.jpg",
     "image_category": "newsroom"
   },
   {
