@@ -1750,6 +1750,85 @@ def _lead_hero_html(feat):
 </a>"""
 
 
+# ── Headline strip (directly under the lead hero) ─────────────────────────
+# Three text-led headlines. The headline links to the article; "Read more"
+# goes to the section page, except where no section page is in the nav, in
+# which case it opens the article itself. Set HOME_HEADLINES = [] to retire.
+HOME_HEADLINES = [
+    {
+        "slug":     "mxl-media-exchange-layer-ibc-2026-award-media-it",
+        "eyebrow":  "IBC 2026 \u00b7 Infrastructure",
+        "headline": "MXL Wins IBC 2026: What the Media eXchange Layer Does, and Doesn\u2019t",
+        "more_href": "infrastructure.html",
+        "more_lbl":  "Read more in Infrastructure",
+    },
+    {
+        "slug":     "ai-agent-assistants-live-production-ibc-accelerator-2026",
+        "eyebrow":  "IBC 2026 \u00b7 Live Production",
+        "headline": "AI Agents in the Live Gallery: What the IBC Winner Actually Built",
+        "more_href": None,   # no newsroom page in the nav: open the article itself
+        "more_lbl":  "Read the analysis",
+    },
+    {
+        "slug":     "ai-sign-language-live-streaming-signapse-ibc-2026",
+        "eyebrow":  "IBC 2026 \u00b7 AI & Post-Production",
+        "headline": "AI Sign Language Goes Live: IBC 2026\u2019s Social Impact Winner",
+        "more_href": "ai-post-production.html",
+        "more_lbl":  "Read more in AI & Post-Production",
+    },
+]
+HOME_HEADLINE_SLUGS = [h["slug"] for h in HOME_HEADLINES]
+
+
+def _home_headlines_html(arts):
+    """Typographic three-up headline strip. Skips any story not in the data."""
+    have = {a.get("slug") for a in arts}
+    items = []
+    for h in HOME_HEADLINES:
+        if h["slug"] not in have:
+            continue
+        art_href = f"articles/{h['slug']}.html"
+        more_href = h["more_href"] or art_href
+        items.append(f"""<article class="hl-item">
+      <p class="hl-eyebrow">{e(h['eyebrow'])}</p>
+      <h2 class="hl-title"><a href="{eu(art_href)}">{e(h['headline'])}</a></h2>
+      <a class="hl-more" href="{eu(more_href)}">{e(h['more_lbl'])} <span aria-hidden="true">&rarr;</span></a>
+    </article>""")
+    if not items:
+        return ""
+    return f"""<style>
+/* HEADLINE STRIP - scoped to .hl-strip */
+.hl-strip {{ background:#fff; border-bottom:1px solid rgba(0,0,0,.07); padding:clamp(30px,3.6vw,48px) 0; }}
+.hl-grid {{ display:grid; grid-template-columns:repeat({len(items)},1fr); max-width:1160px; margin:0 auto;
+  padding:0 clamp(24px,5vw,48px); box-sizing:border-box; }}
+.hl-item {{ padding:0 clamp(18px,2.4vw,34px); border-left:1px solid rgba(0,0,0,.09); display:flex; flex-direction:column; }}
+.hl-item:first-child {{ padding-left:0; border-left:0; }}
+.hl-item:last-child {{ padding-right:0; }}
+.hl-eyebrow {{ font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:#c5a46d; margin:0 0 12px; }}
+.hl-title {{ font-family:'DM Serif Display',Georgia,serif; font-size:clamp(19px,1.9vw,26px); line-height:1.2;
+  letter-spacing:-.018em; font-weight:600; margin:0 0 16px; }}
+.hl-title a {{ color:#111; text-decoration:none; }}
+.hl-title a:hover {{ text-decoration:underline; text-decoration-color:#c5a46d; text-underline-offset:4px; text-decoration-thickness:2px; }}
+.hl-more {{ margin-top:auto; font-size:13px; font-weight:700; color:#111; text-decoration:none; }}
+.hl-more span {{ display:inline-block; color:#c5a46d; transition:transform .25s ease; }}
+.hl-more:hover span {{ transform:translateX(4px); }}
+.hl-more:hover {{ color:#8a6d2f; }}
+.hl-title a:focus-visible, .hl-more:focus-visible {{ outline:3px solid #c5a46d; outline-offset:3px; border-radius:3px; }}
+@media (max-width:900px) {{
+  .hl-grid {{ grid-template-columns:1fr; }}
+  .hl-item, .hl-item:first-child, .hl-item:last-child {{ padding:20px 0; border-left:0; border-top:1px solid rgba(0,0,0,.09); }}
+  .hl-item:first-child {{ border-top:0; padding-top:0; }}
+  .hl-item:last-child {{ padding-bottom:0; }}
+}}
+@media (prefers-reduced-motion:reduce) {{ .hl-more span {{ transition:none; }} }}
+</style>
+<section class="hl-strip" aria-label="Latest IBC 2026 analysis">
+  <div class="hl-grid">
+    {''.join(items)}
+  </div>
+</section>"""
+
+
 IBC_SIX_SLUGS = [
     "ai-vertical-reframing",
     "camera-to-cloud",
@@ -2137,7 +2216,7 @@ def featured_page(arts):
     #    SEO gate so latest daily articles always appear on the homepage).
     #    Manual editorials bypass word count entirely.
     #    First 20 visible on load; rest behind "Load More" button.
-    used_slugs = {a.get("slug") for a in guide_arts} | ({hero_art.get("slug")} if hero_art else set()) | set(IBC_SIX_SLUGS)
+    used_slugs = {a.get("slug") for a in guide_arts} | ({hero_art.get("slug")} if hero_art else set()) | set(IBC_SIX_SLUGS) | set(HOME_HEADLINE_SLUGS)
     # Merge editorial + regular into ONE list sorted by date (not editorial-first)
     insight_pool = sorted(
         [a for a in arts if a.get("slug") not in used_slugs],
@@ -2190,6 +2269,7 @@ def featured_page(arts):
         hero_html = (
             _lead_hero_styles()
             + _lead_hero_html(HERO_FEATURE)
+            + _home_headlines_html(arts)
             + _ibc_six_band(arts)
             + _secondary_feature_styles()
             + _secondary_feature_html(SECOND_FEATURE)

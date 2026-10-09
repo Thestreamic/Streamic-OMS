@@ -210,6 +210,48 @@
     </div>
   </div>
 </a><style>
+/* HEADLINE STRIP - scoped to .hl-strip */
+.hl-strip { background:#fff; border-bottom:1px solid rgba(0,0,0,.07); padding:clamp(30px,3.6vw,48px) 0; }
+.hl-grid { display:grid; grid-template-columns:repeat(3,1fr); max-width:1160px; margin:0 auto;
+  padding:0 clamp(24px,5vw,48px); box-sizing:border-box; }
+.hl-item { padding:0 clamp(18px,2.4vw,34px); border-left:1px solid rgba(0,0,0,.09); display:flex; flex-direction:column; }
+.hl-item:first-child { padding-left:0; border-left:0; }
+.hl-item:last-child { padding-right:0; }
+.hl-eyebrow { font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:#c5a46d; margin:0 0 12px; }
+.hl-title { font-family:'DM Serif Display',Georgia,serif; font-size:clamp(19px,1.9vw,26px); line-height:1.2;
+  letter-spacing:-.018em; font-weight:600; margin:0 0 16px; }
+.hl-title a { color:#111; text-decoration:none; }
+.hl-title a:hover { text-decoration:underline; text-decoration-color:#c5a46d; text-underline-offset:4px; text-decoration-thickness:2px; }
+.hl-more { margin-top:auto; font-size:13px; font-weight:700; color:#111; text-decoration:none; }
+.hl-more span { display:inline-block; color:#c5a46d; transition:transform .25s ease; }
+.hl-more:hover span { transform:translateX(4px); }
+.hl-more:hover { color:#8a6d2f; }
+.hl-title a:focus-visible, .hl-more:focus-visible { outline:3px solid #c5a46d; outline-offset:3px; border-radius:3px; }
+@media (max-width:900px) {
+  .hl-grid { grid-template-columns:1fr; }
+  .hl-item, .hl-item:first-child, .hl-item:last-child { padding:20px 0; border-left:0; border-top:1px solid rgba(0,0,0,.09); }
+  .hl-item:first-child { border-top:0; padding-top:0; }
+  .hl-item:last-child { padding-bottom:0; }
+}
+@media (prefers-reduced-motion:reduce) { .hl-more span { transition:none; } }
+</style>
+<section class="hl-strip" aria-label="Latest IBC 2026 analysis">
+  <div class="hl-grid">
+    <article class="hl-item">
+      <p class="hl-eyebrow">IBC 2026 · Infrastructure</p>
+      <h2 class="hl-title"><a href="articles/mxl-media-exchange-layer-ibc-2026-award-media-it.html">MXL Wins IBC 2026: What the Media eXchange Layer Does, and Doesn’t</a></h2>
+      <a class="hl-more" href="infrastructure.html">Read more in Infrastructure <span aria-hidden="true">&rarr;</span></a>
+    </article><article class="hl-item">
+      <p class="hl-eyebrow">IBC 2026 · Live Production</p>
+      <h2 class="hl-title"><a href="articles/ai-agent-assistants-live-production-ibc-accelerator-2026.html">AI Agents in the Live Gallery: What the IBC Winner Actually Built</a></h2>
+      <a class="hl-more" href="articles/ai-agent-assistants-live-production-ibc-accelerator-2026.html">Read the analysis <span aria-hidden="true">&rarr;</span></a>
+    </article><article class="hl-item">
+      <p class="hl-eyebrow">IBC 2026 · AI &amp; Post-Production</p>
+      <h2 class="hl-title"><a href="articles/ai-sign-language-live-streaming-signapse-ibc-2026.html">AI Sign Language Goes Live: IBC 2026’s Social Impact Winner</a></h2>
+      <a class="hl-more" href="ai-post-production.html">Read more in AI &amp; Post-Production <span aria-hidden="true">&rarr;</span></a>
+    </article>
+  </div>
+</section><style>
 .hp-post-hero{padding:28px 0 8px;background:#fff}
 .hp-post-hero .hp-insights{margin-bottom:0}
 </style>
@@ -789,34 +831,7 @@
     <div class="hp-outer">
       <div class="hp-main">
         <section class="hp-insights hp-insights-premium">
-          <div class="hp-insights-grid"><a href="articles/mxl-media-exchange-layer-ibc-2026-award-media-it.html" class="hp-insight-card">
-  <div class="hp-insight-media"><img src="assets/articles/mxl-media-exchange-layer-ibc-2026-award-media-it.jpg" alt="MXL Wins the IBC 2026 Content Creation Award: What the Media eXchange Layer Does, and Doesn't" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
-  <div class="hp-insight-body">
-    <span class="hp-insight-tag">🏗️ Infrastructure</span>
-    <span class="hp-insight-hl">MXL Wins the IBC 2026 Content Creation Award: What the Media eXchange Layer Does, and Doesn't</span>
-    <span class="hp-insight-dek">MXL, the EBU's open-source Media eXchange Layer, won the IBC2026 Content Creation award. What it does, how mature it is, and what Media IT teams shoul</span>
-    <span class="hp-insight-meta">October 09, 2026</span>
-    <span class="hp-insight-read">Read analysis &#8594;</span>
-  </div>
-</a><a href="articles/ai-agent-assistants-live-production-ibc-accelerator-2026.html" class="hp-insight-card">
-  <div class="hp-insight-media"><img src="assets/articles/ai-agent-assistants-live-production-ibc-accelerator-2026.jpg" alt="AI Agents in the Live Gallery: What the IBC Accelerator Project of the Year Actually Built" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
-  <div class="hp-insight-body">
-    <span class="hp-insight-tag">📰 Newsroom</span>
-    <span class="hp-insight-hl">AI Agents in the Live Gallery: What the IBC Accelerator Project of the Year Actually Built</span>
-    <span class="hp-insight-dek">The IBC2026 Accelerator winner built a voice-controlled AI Assistant Director for live news. What it does, the protocols behind it, and governance que</span>
-    <span class="hp-insight-meta">October 09, 2026</span>
-    <span class="hp-insight-read">Read analysis &#8594;</span>
-  </div>
-</a><a href="articles/ai-sign-language-live-streaming-signapse-ibc-2026.html" class="hp-insight-card">
-  <div class="hp-insight-media"><img src="assets/articles/ai-sign-language-live-streaming-signapse-ibc-2026.jpg" alt="AI Sign Language for Live Streaming: IBC 2026 Social Impact Winner and What to Ask Before You Deploy" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
-  <div class="hp-insight-body">
-    <span class="hp-insight-tag">🎬 AI &amp; Post-Production</span>
-    <span class="hp-insight-hl">AI Sign Language for Live Streaming: IBC 2026 Social Impact Winner and What to Ask Before You Deploy</span>
-    <span class="hp-insight-dek">G&amp;L, Signapse, Norsk and Akamai won IBC2026's Social Impact award for AI sign language in streaming. How the stack works and what to ask before deploy</span>
-    <span class="hp-insight-meta">October 09, 2026</span>
-    <span class="hp-insight-read">Read analysis &#8594;</span>
-  </div>
-</a><a href="articles/dynamic-media-facilities-dmf-broadcast-infrastructure-2026.html" class="hp-insight-card">
+          <div class="hp-insights-grid"><a href="articles/dynamic-media-facilities-dmf-broadcast-infrastructure-2026.html" class="hp-insight-card">
   <div class="hp-insight-media"><img src="assets/articles/dmf-traditional-vs-dynamic-facility.png" alt="Dynamic Media Facilities (DMF): The Future of Flexible Broadcast Infrastructure" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-insight-body">
     <span class="hp-insight-tag">🏗️ Infrastructure</span>
@@ -969,7 +984,7 @@
     <span class="hp-insight-meta">April 01, 2026</span>
     <span class="hp-insight-read">Read analysis &#8594;</span>
   </div>
-</a><a href="articles/telestream-adobe-vantage-premiere-workflow-integration-2026.html" class="hp-insight-card hp-insight-hidden">
+</a><a href="articles/telestream-adobe-vantage-premiere-workflow-integration-2026.html" class="hp-insight-card">
   <div class="hp-insight-media"><img src="assets/newsroom-anchor.png" alt="Telestream + Adobe: How Vantage Integration Removes the Gap Between Edit and Delivery" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-insight-body">
     <span class="hp-insight-tag">🎬 AI &amp; Post-Production</span>
@@ -978,7 +993,7 @@
     <span class="hp-insight-meta">March 30, 2026</span>
     <span class="hp-insight-read">Read analysis &#8594;</span>
   </div>
-</a><a href="articles/future-of-ai-in-broadcast-deployment-2026.html" class="hp-insight-card hp-insight-hidden">
+</a><a href="articles/future-of-ai-in-broadcast-deployment-2026.html" class="hp-insight-card">
   <div class="hp-insight-media"><img src="assets/cables.png" alt="The Future of AI in Broadcast: From Experimentation to Full-Scale Deployment (2026)" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-insight-body">
     <span class="hp-insight-tag">🎬 AI &amp; Post-Production</span>
@@ -987,7 +1002,7 @@
     <span class="hp-insight-meta">March 25, 2026</span>
     <span class="hp-insight-read">Read analysis &#8594;</span>
   </div>
-</a><a href="articles/ai-video-post-production-editing-vfx-automation-2026.html" class="hp-insight-card hp-insight-hidden">
+</a><a href="articles/ai-video-post-production-editing-vfx-automation-2026.html" class="hp-insight-card">
   <div class="hp-insight-media"><img src="assets/ai-post-production-hero.png" alt="AI in Video Post-Production: Editing, VFX, and Automation in 2026" loading="lazy" onerror="this.onerror=null;this.src='assets/fallback.jpg'"></div>
   <div class="hp-insight-body">
     <span class="hp-insight-tag">🎬 AI &amp; Post-Production</span>
@@ -1100,7 +1115,7 @@
     </div>
     <div class="hp-lm-text">
       <span class="hp-lm-label">Load More</span>
-      <span class="hp-lm-sub" id="lmCount">11 more articles</span>
+      <span class="hp-lm-sub" id="lmCount">8 more articles</span>
     </div>
     <div class="hp-lm-bar"><span></span></div>
   </button>
